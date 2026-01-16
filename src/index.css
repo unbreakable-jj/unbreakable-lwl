@@ -1,8 +1,15 @@
+@import '@fontsource/bebas-neue';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* Live Without Limits - Dark & Bold Design System */
+
+.font-display {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.02em;
+}
 
 @layer base {
   :root {
