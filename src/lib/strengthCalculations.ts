@@ -1,7 +1,15 @@
 // Strength calculation utilities
 
 export type Gender = 'male' | 'female';
-export type Exercise = 'bench' | 'squat' | 'deadlift' | 'ohp';
+export type Exercise = 
+  | 'bench' | 'incline_bench' 
+  | 'squat' | 'sumo_squat' 
+  | 'deadlift' | 'sumo_deadlift' 
+  | 'ohp' 
+  | 'db_chest_press' | 'incline_db_chest_press'
+  | 'leg_press' | 'bent_over_row'
+  | 'db_shoulder_press' | 'barbell_curl' | 'db_curl'
+  | 'tricep_dips' | 'pull_up' | 'chin_up' | 'press_up';
 export type AgeGroup = '18-23' | '24-34' | '35-44' | '45-54' | '55-64' | '65+';
 
 export interface StrengthResult {
@@ -58,23 +66,79 @@ export const ageGroupLabels: Record<AgeGroup, string> = {
 
 // Strength standards (bodyweight multipliers) for each level
 // Based on commonly accepted strength standards
+// [Beginner, Novice, Intermediate, Advanced, Elite]
 const strengthStandards: Record<Exercise, Record<Gender, number[]>> = {
-  // [Beginner, Novice, Intermediate, Advanced, Elite]
   bench: {
     male: [0.5, 0.75, 1.0, 1.25, 1.5],
     female: [0.25, 0.4, 0.6, 0.8, 1.0],
+  },
+  incline_bench: {
+    male: [0.4, 0.65, 0.85, 1.1, 1.35],
+    female: [0.2, 0.35, 0.5, 0.7, 0.9],
   },
   squat: {
     male: [0.75, 1.0, 1.5, 2.0, 2.5],
     female: [0.5, 0.75, 1.0, 1.35, 1.75],
   },
+  sumo_squat: {
+    male: [0.7, 0.95, 1.4, 1.9, 2.4],
+    female: [0.45, 0.7, 0.95, 1.3, 1.7],
+  },
   deadlift: {
+    male: [1.0, 1.25, 1.75, 2.25, 3.0],
+    female: [0.75, 1.0, 1.25, 1.75, 2.25],
+  },
+  sumo_deadlift: {
     male: [1.0, 1.25, 1.75, 2.25, 3.0],
     female: [0.75, 1.0, 1.25, 1.75, 2.25],
   },
   ohp: {
     male: [0.35, 0.5, 0.65, 0.85, 1.0],
     female: [0.2, 0.3, 0.4, 0.55, 0.7],
+  },
+  db_chest_press: {
+    male: [0.2, 0.35, 0.5, 0.65, 0.8],
+    female: [0.1, 0.2, 0.3, 0.4, 0.5],
+  },
+  incline_db_chest_press: {
+    male: [0.15, 0.3, 0.45, 0.6, 0.75],
+    female: [0.08, 0.18, 0.28, 0.38, 0.48],
+  },
+  leg_press: {
+    male: [1.5, 2.0, 2.75, 3.5, 4.5],
+    female: [1.0, 1.5, 2.0, 2.75, 3.5],
+  },
+  bent_over_row: {
+    male: [0.5, 0.7, 0.9, 1.1, 1.35],
+    female: [0.3, 0.45, 0.6, 0.75, 0.95],
+  },
+  db_shoulder_press: {
+    male: [0.15, 0.25, 0.35, 0.45, 0.55],
+    female: [0.08, 0.15, 0.22, 0.3, 0.38],
+  },
+  barbell_curl: {
+    male: [0.25, 0.4, 0.55, 0.7, 0.85],
+    female: [0.15, 0.25, 0.35, 0.45, 0.55],
+  },
+  db_curl: {
+    male: [0.1, 0.18, 0.25, 0.33, 0.4],
+    female: [0.05, 0.1, 0.15, 0.22, 0.28],
+  },
+  tricep_dips: {
+    male: [0.5, 0.75, 1.0, 1.25, 1.5],
+    female: [0.3, 0.5, 0.7, 0.9, 1.1],
+  },
+  pull_up: {
+    male: [0.5, 0.75, 1.0, 1.25, 1.5],
+    female: [0.25, 0.45, 0.65, 0.85, 1.05],
+  },
+  chin_up: {
+    male: [0.55, 0.8, 1.05, 1.3, 1.55],
+    female: [0.3, 0.5, 0.7, 0.9, 1.1],
+  },
+  press_up: {
+    male: [0.5, 0.65, 0.8, 0.95, 1.1],
+    female: [0.3, 0.45, 0.6, 0.75, 0.9],
   },
 };
 
@@ -149,7 +213,21 @@ export function calculateStrengthLevel(
 
 export const exerciseNames: Record<Exercise, string> = {
   bench: 'Bench Press',
-  squat: 'Back Squat',
-  deadlift: 'Deadlift',
-  ohp: 'Overhead Press',
+  incline_bench: 'Incline Bench Press',
+  squat: 'Squat',
+  sumo_squat: 'Sumo Squat',
+  deadlift: 'Dead Lift',
+  sumo_deadlift: 'Sumo Dead Lift',
+  ohp: 'Over Head Press',
+  db_chest_press: 'Dumbbell Chest Press',
+  incline_db_chest_press: 'Incline Dumbbell Chest Press',
+  leg_press: 'Leg Press',
+  bent_over_row: 'Bent Over Row',
+  db_shoulder_press: 'Dumbbell Shoulder Press',
+  barbell_curl: 'Barbell Curl',
+  db_curl: 'Dumbbell Curl',
+  tricep_dips: 'Tricep Dips',
+  pull_up: 'Pull Up',
+  chin_up: 'Chin Up',
+  press_up: 'Press Up',
 };
