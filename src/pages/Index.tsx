@@ -56,17 +56,14 @@ const Index = () => {
           <h1 className="font-display text-5xl md:text-7xl text-foreground mb-4 tracking-wide">
             Strength <span className="text-primary">Calculator</span>
           </h1>
+          <p className="text-primary font-display text-xl md:text-2xl mb-4 tracking-wide">
+            Live Without Limits
+          </p>
           <p className="text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Building strength that supports your life — not just your lifts.
+            Building strength that supports your life — not just your lifts. This calculator puts your performance into real context, accounting for age so you can train with intent, not ego.
           </p>
           <p className="text-muted-foreground max-w-3xl mx-auto mt-4 leading-relaxed">
-            This calculator puts your lifting performance into context, accounting for age so you can train with <span className="text-primary font-semibold">REAL</span> purpose.
-          </p>
-          <p className="text-muted-foreground max-w-3xl mx-auto mt-4 leading-relaxed">
-            The goal isn't to "look good" for a moment — it's to build a <span className="text-primary font-semibold">STRONG, MOBILE</span> body that carries you confidently through every stage of life.
-          </p>
-          <p className="text-primary font-display text-xl md:text-2xl mt-6 tracking-wide">
-            #KeepShowingUp
+            The goal isn't to peak for a moment, but to build a resilient, capable body that carries you confidently through every stage of life.
           </p>
         </div>
       </section>
