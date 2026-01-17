@@ -2,12 +2,15 @@
 
 export type Gender = 'male' | 'female';
 export type Exercise = 'bench' | 'squat' | 'deadlift' | 'ohp';
+export type AgeGroup = '18-23' | '24-34' | '35-44' | '45-54' | '55-64' | '65+';
 
 export interface StrengthResult {
   oneRepMax: number;
   level: StrengthLevel;
   percentile: number;
   ratio: number;
+  ageGroup: AgeGroup;
+  ageAdjustedPercentile: number;
 }
 
 export interface StrengthLevel {
@@ -22,6 +25,36 @@ export function calculateOneRepMax(weight: number, reps: number): number {
   if (reps <= 0 || weight <= 0) return 0;
   return Math.round(weight * (1 + reps / 30));
 }
+
+// Get age group from age
+export function getAgeGroup(age: number): AgeGroup {
+  if (age < 24) return '18-23';
+  if (age < 35) return '24-34';
+  if (age < 45) return '35-44';
+  if (age < 55) return '45-54';
+  if (age < 65) return '55-64';
+  return '65+';
+}
+
+// Age adjustment multipliers - older lifters get credit for maintaining strength
+// These multiply the effective ratio to account for natural decline
+const ageAdjustments: Record<AgeGroup, number> = {
+  '18-23': 1.0,    // Peak years - baseline
+  '24-34': 1.0,    // Still peak performance
+  '35-44': 1.08,   // ~8% adjustment
+  '45-54': 1.18,   // ~18% adjustment
+  '55-64': 1.30,   // ~30% adjustment
+  '65+': 1.45,     // ~45% adjustment
+};
+
+export const ageGroupLabels: Record<AgeGroup, string> = {
+  '18-23': '18-23 years',
+  '24-34': '24-34 years',
+  '35-44': '35-44 years',
+  '45-54': '45-54 years',
+  '55-64': '55-64 years',
+  '65+': '65+ years',
+};
 
 // Strength standards (bodyweight multipliers) for each level
 // Based on commonly accepted strength standards
@@ -53,15 +86,7 @@ const levels: StrengthLevel[] = [
   { name: 'Elite', stars: 5, color: 'hsl(var(--primary))' },
 ];
 
-export function calculateStrengthLevel(
-  oneRepMax: number,
-  bodyweight: number,
-  exercise: Exercise,
-  gender: Gender
-): StrengthResult {
-  const standards = strengthStandards[exercise][gender];
-  const ratio = oneRepMax / bodyweight;
-  
+function calculatePercentileFromRatio(ratio: number, standards: number[]): { levelIndex: number; percentile: number } {
   let levelIndex = 0;
   let percentile = 5;
   
@@ -90,11 +115,35 @@ export function calculateStrengthLevel(
     percentile = Math.round(Math.max(1, progress * 20));
   }
   
+  return { levelIndex, percentile };
+}
+
+export function calculateStrengthLevel(
+  oneRepMax: number,
+  bodyweight: number,
+  exercise: Exercise,
+  gender: Gender,
+  age: number
+): StrengthResult {
+  const standards = strengthStandards[exercise][gender];
+  const ratio = oneRepMax / bodyweight;
+  const ageGroup = getAgeGroup(age);
+  const ageAdjustment = ageAdjustments[ageGroup];
+  
+  // Calculate base percentile (absolute strength)
+  const { levelIndex, percentile } = calculatePercentileFromRatio(ratio, standards);
+  
+  // Calculate age-adjusted percentile (compares to same age group)
+  const adjustedRatio = ratio * ageAdjustment;
+  const { percentile: ageAdjustedPercentile } = calculatePercentileFromRatio(adjustedRatio, standards);
+  
   return {
     oneRepMax,
     level: levels[levelIndex],
     percentile,
     ratio: Math.round(ratio * 100) / 100,
+    ageGroup,
+    ageAdjustedPercentile: Math.min(99, ageAdjustedPercentile),
   };
 }
 

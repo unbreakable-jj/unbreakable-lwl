@@ -2,7 +2,7 @@ import { Star } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import type { StrengthResult, Exercise } from '@/lib/strengthCalculations';
-import { exerciseNames } from '@/lib/strengthCalculations';
+import { exerciseNames, ageGroupLabels } from '@/lib/strengthCalculations';
 
 interface StrengthResultsProps {
   result: StrengthResult;
@@ -11,7 +11,7 @@ interface StrengthResultsProps {
 }
 
 export function StrengthResults({ result, exercise, unit }: StrengthResultsProps) {
-  const { oneRepMax, level, percentile, ratio } = result;
+  const { oneRepMax, level, percentile, ratio, ageGroup, ageAdjustedPercentile } = result;
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -85,10 +85,38 @@ export function StrengthResults({ result, exercise, unit }: StrengthResultsProps
             <div className="font-display text-4xl text-primary mb-1">
               TOP {100 - percentile}%
             </div>
-            <p className="text-sm text-muted-foreground">Percentile</p>
+            <p className="text-sm text-muted-foreground">Overall Percentile</p>
           </CardContent>
         </Card>
       </div>
+
+      {/* Age-Adjusted Stats */}
+      <Card className="bg-card border-border overflow-hidden">
+        <div className="bg-primary/10 border-b border-border px-6 py-4">
+          <h3 className="font-display text-lg text-muted-foreground uppercase tracking-wider">
+            AGE-ADJUSTED RANKING
+          </h3>
+        </div>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-muted-foreground text-sm mb-1">Your age group</p>
+              <p className="font-display text-2xl text-foreground tracking-wide">
+                {ageGroupLabels[ageGroup]}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-muted-foreground text-sm mb-1">Within your age group</p>
+              <div className="font-display text-4xl text-primary">
+                TOP {100 - ageAdjustedPercentile}%
+              </div>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mt-4 italic">
+            This accounts for natural strength changes with age — lift smart for life.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
