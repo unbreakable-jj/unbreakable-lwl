@@ -16,6 +16,7 @@ import { exerciseNames } from '@/lib/strengthCalculations';
 interface StrengthFormProps {
   onCalculate: (data: {
     gender: Gender;
+    age: number;
     bodyweight: number;
     exercise: Exercise;
     weight: number;
@@ -26,6 +27,7 @@ interface StrengthFormProps {
 
 export function StrengthForm({ onCalculate }: StrengthFormProps) {
   const [gender, setGender] = useState<Gender>('male');
+  const [age, setAge] = useState('');
   const [bodyweight, setBodyweight] = useState('');
   const [exercise, setExercise] = useState<Exercise>('bench');
   const [weight, setWeight] = useState('');
@@ -34,13 +36,15 @@ export function StrengthForm({ onCalculate }: StrengthFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const a = parseInt(age, 10);
     const bw = parseFloat(bodyweight);
     const w = parseFloat(weight);
     const r = parseInt(reps, 10);
     
-    if (bw > 0 && w > 0 && r > 0) {
+    if (a > 0 && bw > 0 && w > 0 && r > 0) {
       onCalculate({
         gender,
+        age: a,
         bodyweight: bw,
         exercise,
         weight: w,
@@ -69,6 +73,24 @@ export function StrengthForm({ onCalculate }: StrengthFormProps) {
             <Label htmlFor="female" className="cursor-pointer text-muted-foreground">Female</Label>
           </div>
         </RadioGroup>
+      </div>
+
+      {/* Age */}
+      <div className="space-y-3">
+        <Label htmlFor="age" className="text-foreground font-semibold">
+          Age
+        </Label>
+        <Input
+          id="age"
+          type="number"
+          placeholder="Enter your age"
+          value={age}
+          onChange={(e) => setAge(e.target.value)}
+          className="bg-input border-border text-foreground placeholder:text-muted-foreground"
+          min="18"
+          max="100"
+          required
+        />
       </div>
 
       {/* Bodyweight */}

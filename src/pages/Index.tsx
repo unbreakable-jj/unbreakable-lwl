@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StrengthForm } from '@/components/StrengthForm';
 import { StrengthResults } from '@/components/StrengthResults';
 import { calculateOneRepMax, calculateStrengthLevel } from '@/lib/strengthCalculations';
-import type { Gender, Exercise, StrengthResult } from '@/lib/strengthCalculations';
+import type { Gender, Exercise, StrengthResult, AgeGroup } from '@/lib/strengthCalculations';
 import logo from '@/assets/logo.webp';
 
 const Index = () => {
@@ -14,6 +14,7 @@ const Index = () => {
 
   const handleCalculate = (data: {
     gender: Gender;
+    age: number;
     bodyweight: number;
     exercise: Exercise;
     weight: number;
@@ -25,7 +26,8 @@ const Index = () => {
       oneRepMax,
       data.bodyweight,
       data.exercise,
-      data.gender
+      data.gender,
+      data.age
     );
     
     setResult({
@@ -54,9 +56,14 @@ const Index = () => {
           <h1 className="font-display text-5xl md:text-7xl text-foreground mb-4 tracking-wide">
             Strength <span className="text-primary">Calculator</span>
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Calculate your one-rep max and discover your strength level. 
-            Compare yourself to lifters worldwide.
+          <p className="text-primary font-display text-xl md:text-2xl mb-4 tracking-wide">
+            Live Without Limits
+          </p>
+          <p className="text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Building strength that supports your life — not just your lifts. This calculator puts your performance into real context, accounting for age so you can train with intent, not ego.
+          </p>
+          <p className="text-muted-foreground max-w-3xl mx-auto mt-4 leading-relaxed">
+            The goal isn't to peak for a moment, but to build a resilient, capable body that carries you confidently through every stage of life.
           </p>
         </div>
       </section>
