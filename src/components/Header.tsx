@@ -8,6 +8,7 @@ export function Header() {
   const navItems = [
     { path: '/', label: 'STRENGTH' },
     { path: '/fuel', label: 'FUEL' },
+    { path: '/speed', label: 'SPEED' },
   ];
 
   return (

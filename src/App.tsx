@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Strength from "./pages/Strength";
 import Fuel from "./pages/Fuel";
+import Speed from "./pages/Speed";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/strength" element={<Strength />} />
           <Route path="/fuel" element={<Fuel />} />
+          <Route path="/speed" element={<Speed />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
