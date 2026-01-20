@@ -14,7 +14,252 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          run_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          run_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          run_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      kudos: {
+        Row: {
+          created_at: string
+          id: string
+          run_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          run_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          run_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kudos_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      personal_records: {
+        Row: {
+          achieved_at: string
+          created_at: string
+          distance_km: number | null
+          distance_type: string
+          id: string
+          pace_per_km_seconds: number | null
+          run_id: string | null
+          time_seconds: number | null
+          user_id: string
+        }
+        Insert: {
+          achieved_at: string
+          created_at?: string
+          distance_km?: number | null
+          distance_type: string
+          id?: string
+          pace_per_km_seconds?: number | null
+          run_id?: string | null
+          time_seconds?: number | null
+          user_id: string
+        }
+        Update: {
+          achieved_at?: string
+          created_at?: string
+          distance_km?: number | null
+          distance_type?: string
+          id?: string
+          pace_per_km_seconds?: number | null
+          run_id?: string | null
+          time_seconds?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personal_records_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          location: string | null
+          total_distance_km: number | null
+          total_runs: number | null
+          total_time_seconds: number | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          location?: string | null
+          total_distance_km?: number | null
+          total_runs?: number | null
+          total_time_seconds?: number | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          location?: string | null
+          total_distance_km?: number | null
+          total_runs?: number | null
+          total_time_seconds?: number | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      runs: {
+        Row: {
+          average_speed_kph: number | null
+          calories_burned: number | null
+          created_at: string
+          description: string | null
+          distance_km: number
+          duration_seconds: number
+          elevation_gain_m: number | null
+          ended_at: string | null
+          id: string
+          is_gps_tracked: boolean | null
+          is_public: boolean | null
+          map_snapshot_url: string | null
+          notes: string | null
+          pace_per_km_seconds: number | null
+          route_polyline: string | null
+          started_at: string
+          temperature_celsius: number | null
+          title: string | null
+          updated_at: string
+          user_id: string
+          weather_conditions: string | null
+        }
+        Insert: {
+          average_speed_kph?: number | null
+          calories_burned?: number | null
+          created_at?: string
+          description?: string | null
+          distance_km: number
+          duration_seconds: number
+          elevation_gain_m?: number | null
+          ended_at?: string | null
+          id?: string
+          is_gps_tracked?: boolean | null
+          is_public?: boolean | null
+          map_snapshot_url?: string | null
+          notes?: string | null
+          pace_per_km_seconds?: number | null
+          route_polyline?: string | null
+          started_at: string
+          temperature_celsius?: number | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+          weather_conditions?: string | null
+        }
+        Update: {
+          average_speed_kph?: number | null
+          calories_burned?: number | null
+          created_at?: string
+          description?: string | null
+          distance_km?: number
+          duration_seconds?: number
+          elevation_gain_m?: number | null
+          ended_at?: string | null
+          id?: string
+          is_gps_tracked?: boolean | null
+          is_public?: boolean | null
+          map_snapshot_url?: string | null
+          notes?: string | null
+          pace_per_km_seconds?: number | null
+          route_polyline?: string | null
+          started_at?: string
+          temperature_celsius?: number | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+          weather_conditions?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
