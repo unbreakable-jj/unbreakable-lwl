@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import logo from '@/assets/logo.webp';
 import { Button } from '@/components/ui/button';
-import { Dumbbell, Flame, Timer, Target, Heart, Zap } from 'lucide-react';
+import { Dumbbell, Flame, Timer, Target, Heart, Zap, Activity } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -16,11 +16,19 @@ const Index = () => {
                 LIVE WITHOUT LIMITS
               </span>
             </Link>
-            <Link to="/calculators">
-              <Button variant="outline" className="font-display tracking-wide">
-                Calculators
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link to="/tracker">
+                <Button variant="outline" className="font-display tracking-wide">
+                  <Activity className="w-4 h-4 mr-2" />
+                  Run Tracker
+                </Button>
+              </Link>
+              <Link to="/calculators">
+                <Button variant="outline" className="font-display tracking-wide">
+                  Calculators
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
