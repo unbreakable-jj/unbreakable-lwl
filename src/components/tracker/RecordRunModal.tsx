@@ -7,8 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRuns } from '@/hooks/useRuns';
+import { usePersonalRecords } from '@/hooks/usePersonalRecords';
+import { useMedals } from '@/hooks/useMedals';
+import { useProfile } from '@/hooks/useProfile';
+import { MedalCheckStats } from '@/lib/medalDefinitions';
 import { toast } from 'sonner';
-import { Play, Square, MapPin, Timer, Pencil } from 'lucide-react';
+import { Play, Square, MapPin, Timer, Pencil, Trophy, Medal } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RunMap, positionsToGeoJSON } from './RunMap';
 
@@ -25,6 +29,9 @@ interface Position {
 
 export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
   const { createRun } = useRuns();
+  const { checkAndUpdatePRs, records } = usePersonalRecords();
+  const { checkAndAwardMedals } = useMedals();
+  const { profile } = useProfile();
   const [mode, setMode] = useState<'gps' | 'manual'>('gps');
   const [loading, setLoading] = useState(false);
 
@@ -149,6 +156,66 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
     return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const checkAchievements = async (runData: {
+    id: string;
+    distance_km: number;
+    duration_seconds: number;
+    started_at: string;
+    is_gps_tracked: boolean;
+    pace_per_km_seconds: number;
+  }) => {
+    // Check for PRs
+    const prResults = await checkAndUpdatePRs({
+      id: runData.id,
+      distance_km: runData.distance_km,
+      duration_seconds: runData.duration_seconds,
+      started_at: runData.started_at,
+    });
+
+    // Build stats for medal check
+    const totalRuns = (profile?.total_runs || 0) + 1;
+    const totalDistanceKm = (Number(profile?.total_distance_km) || 0) + runData.distance_km;
+
+    const stats: MedalCheckStats = {
+      totalRuns,
+      totalDistanceKm,
+      currentRun: {
+        distanceKm: runData.distance_km,
+        durationSeconds: runData.duration_seconds,
+        pacePerKmSeconds: runData.pace_per_km_seconds,
+        isGpsTracked: runData.is_gps_tracked,
+      },
+      weeklyRuns: 1, // Simplified - would need actual calculation
+      monthlyRuns: 1, // Simplified
+      personalRecords: prResults,
+    };
+
+    // Check and award medals
+    const newMedals = await checkAndAwardMedals(stats, runData.id);
+
+    // Show toast notifications for achievements
+    const newPRs = prResults.filter(pr => pr.isNewPR);
+    if (newPRs.length > 0) {
+      setTimeout(() => {
+        toast.success(`🏆 New Personal Record!`, {
+          description: `You set a PR for ${newPRs.map(pr => pr.distanceType.replace('_', ' ')).join(', ')}`,
+        });
+      }, 500);
+    }
+
+    if (newMedals.length > 0) {
+      setTimeout(() => {
+        newMedals.forEach((medal, index) => {
+          setTimeout(() => {
+            toast.success(`${medal.icon} ${medal.name}`, {
+              description: medal.description,
+            });
+          }, index * 800);
+        });
+      }, newPRs.length > 0 ? 1500 : 500);
+    }
+  };
+
   const handleSaveGpsRun = async () => {
     if (distance < 0.01) {
       toast.error('Run distance is too short');
@@ -164,7 +231,7 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
     // Convert positions to GeoJSON for storage
     const geoJSON = positionsToGeoJSON(positions);
 
-    const { error } = await createRun({
+    const { error, data } = await createRun({
       title: title || 'GPS Run',
       description: description || null,
       distance_km: Math.round(distance * 1000) / 1000,
@@ -174,8 +241,8 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
       pace_per_km_seconds: paceSeconds,
       average_speed_kph: Math.round(speedKph * 100) / 100,
       elevation_gain_m: null,
-      calories_burned: Math.round(distance * 60), // Rough estimate
-      route_polyline: geoJSON, // Store as GeoJSON
+      calories_burned: Math.round(distance * 60),
+      route_polyline: geoJSON,
       map_snapshot_url: null,
       is_gps_tracked: true,
       weather_conditions: null,
@@ -184,11 +251,22 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
       is_public: isPublic,
     });
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       toast.error('Failed to save run');
     } else {
+      // Check for achievements
+      if (data) {
+        await checkAchievements({
+          id: data.id,
+          distance_km: Math.round(distance * 1000) / 1000,
+          duration_seconds: elapsedSeconds,
+          started_at: startTime?.toISOString() || new Date().toISOString(),
+          is_gps_tracked: true,
+          pace_per_km_seconds: paceSeconds,
+        });
+      }
+      setLoading(false);
       toast.success('Run saved!');
       resetForm();
       onClose();
@@ -214,7 +292,7 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
     const paceSeconds = Math.round(totalSeconds / dist);
     const speedKph = (dist / totalSeconds) * 3600;
 
-    const { error } = await createRun({
+    const { error, data } = await createRun({
       title: title || 'Run',
       description: description || null,
       distance_km: dist,
@@ -234,11 +312,22 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
       is_public: isPublic,
     });
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       toast.error('Failed to save run');
     } else {
+      // Check for achievements
+      if (data) {
+        await checkAchievements({
+          id: data.id,
+          distance_km: dist,
+          duration_seconds: totalSeconds,
+          started_at: new Date().toISOString(),
+          is_gps_tracked: false,
+          pace_per_km_seconds: paceSeconds,
+        });
+      }
+      setLoading(false);
       toast.success('Run saved!');
       resetForm();
       onClose();
