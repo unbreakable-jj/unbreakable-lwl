@@ -38,10 +38,11 @@ const equipmentColors: Record<string, string> = {
 export function ProgramDisplay({ program, onReset }: ProgramDisplayProps) {
   const [selectedWeek, setSelectedWeek] = useState(1);
   
-  // Support both template-based and full weeks structure
-  const templateDays = program.templateWeek?.days || program.weeks?.[0]?.days || [];
-  const currentPhase = program.phases.find(p => {
-    const weeksMatch = p.weeks.match(/(\d+)-(\d+)/);
+  // Support both template-based and full weeks structure with defensive checks
+  const templateDays = program?.templateWeek?.days || program?.weeks?.[0]?.days || [];
+  const phases = program?.phases || [];
+  const currentPhase = phases.find(p => {
+    const weeksMatch = p.weeks?.match(/(\d+)-(\d+)/);
     if (weeksMatch) {
       const [, start, end] = weeksMatch;
       return selectedWeek >= parseInt(start) && selectedWeek <= parseInt(end);
@@ -73,30 +74,32 @@ export function ProgramDisplay({ program, onReset }: ProgramDisplayProps) {
       </div>
 
       {/* Phase Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {program.phases.map((phase, idx) => (
-          <Card 
-            key={idx} 
-            className={`p-4 border ${
-              phase === currentPhase 
-                ? 'border-primary bg-primary/5' 
-                : 'border-border bg-card'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-display text-sm text-primary">Weeks {phase.weeks}</span>
-              {phase === currentPhase && (
-                <Badge variant="default" className="bg-primary">Current</Badge>
+      {phases.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {phases.map((phase, idx) => (
+            <Card 
+              key={idx} 
+              className={`p-4 border ${
+                phase === currentPhase 
+                  ? 'border-primary bg-primary/5' 
+                  : 'border-border bg-card'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-display text-sm text-primary">Weeks {phase.weeks}</span>
+                {phase === currentPhase && (
+                  <Badge variant="default" className="bg-primary">Current</Badge>
+                )}
+              </div>
+              <h3 className="font-display text-lg text-foreground mb-1">{phase.name}</h3>
+              <p className="text-sm text-muted-foreground">{phase.focus}</p>
+              {phase.notes && (
+                <p className="text-xs text-muted-foreground/70 mt-2 italic">{phase.notes}</p>
               )}
-            </div>
-            <h3 className="font-display text-lg text-foreground mb-1">{phase.name}</h3>
-            <p className="text-sm text-muted-foreground">{phase.focus}</p>
-            {phase.notes && (
-              <p className="text-xs text-muted-foreground/70 mt-2 italic">{phase.notes}</p>
-            )}
-          </Card>
-        ))}
-      </div>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Phase Progressions */}
       {program.phaseProgressions && program.phaseProgressions.length > 0 && (
