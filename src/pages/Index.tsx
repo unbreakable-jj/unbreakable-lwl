@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import logo from '@/assets/logo.png';
 import { Button } from '@/components/ui/button';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
-import { Dumbbell, Flame, Timer, Target, Heart, Zap } from 'lucide-react';
+import { Dumbbell, Flame, Timer, Target, Heart, Zap, Brain } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -42,15 +42,12 @@ const Index = () => {
           
           {/* Subtitle copy */}
           <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-4 uppercase tracking-wide">
-            Building strength that supports your life — not just your lifts.
-            <br />
-            Fueling results that last — not short-term diets.
+            Live Without Limits. Build a body to last — not just look good.
           </p>
           
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10">
-            Put your training and nutrition into context. Train with purpose. Build a{' '}
-            <span className="text-primary font-semibold">STRONG, MOBILE, RESILIENT</span>{' '}
-            body that carries you confidently through every stage of life.
+            Strength. Fuel. Speed. Mindset. Train with purpose, regardless of age.{' '}
+            <span className="text-primary font-semibold">BUILD A BODY AND MIND THAT DON'T BREAK.</span>
           </p>
           
           {/* Action Buttons */}
@@ -99,18 +96,18 @@ const Index = () => {
                 The Unbreakable method is built on one truth:
               </p>
               <h3 className="font-display text-3xl md:text-4xl text-foreground mb-6 tracking-wide">
-                YOUR BODY IS YOUR ARMOUR
+                LIVE WITHOUT LIMITS
               </h3>
               <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-                Not a project to fix. Not a problem to solve. It's the vessel that carries your dreams, 
+                Not a project to fix. Not a problem to solve. Your body is the vessel that carries your dreams, 
                 your ambitions, and everyone who depends on you. When you build it with intention — 
-                when you fuel it with purpose — you become unstoppable.
+                when you fuel it with purpose — you become unstoppable. Regardless of age.
               </p>
             </div>
           </div>
           
-          {/* Three pillars */}
-          <div className="grid md:grid-cols-3 gap-10 max-w-5xl mx-auto">
+          {/* Four pillars */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
             <div className="text-center">
               <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
                 <Dumbbell className="w-10 h-10 text-primary" />
@@ -138,6 +135,16 @@ const Index = () => {
               <h3 className="font-display text-2xl text-foreground mb-4 tracking-wide">SPEED</h3>
               <p className="text-muted-foreground leading-relaxed">
                 Every finish line is a new starting point. Build speed that lasts — unbreakable endurance for every race, every decade.
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                <Brain className="w-10 h-10 text-primary" />
+              </div>
+              <h3 className="font-display text-2xl text-foreground mb-4 tracking-wide">MINDSET</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                The body follows the mind. Cultivate unbreakable discipline, resilience, and the mental fortitude to keep showing up — every single day.
               </p>
             </div>
           </div>
@@ -188,10 +195,10 @@ const Index = () => {
       <section className="py-24 md:py-32">
         <div className="container mx-auto px-6 text-center">
           <h2 className="font-display text-5xl md:text-6xl text-foreground mb-4 tracking-wide">
-            READY TO BECOME <span className="text-primary">UNBREAKABLE?</span>
+            READY TO <span className="text-primary">LIVE WITHOUT LIMITS?</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto mb-10 text-lg">
-            The goal isn't to "look good" for a moment. It's to build a body that supports every dream you have. Keep showing up.
+            The goal isn't to "look good" for a moment. It's to build a body and mind that support every dream you have — regardless of age. Keep showing up.
           </p>
           <Link to="/calculators">
             <Button size="lg" className="font-display text-xl tracking-wide px-12 py-7">
