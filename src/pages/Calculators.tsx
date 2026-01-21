@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import logo from '@/assets/logo.webp';
+import logo from '@/assets/logo.png';
 import { Button } from '@/components/ui/button';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { Dumbbell, Flame, Timer } from 'lucide-react';
@@ -26,43 +26,44 @@ const heroContent = {
   strength: {
     title: 'STRENGTH',
     titleAccent: 'CALCULATOR',
-    intro: 'Building strength that supports your life — not just your lifts.',
-    description: 'This calculator puts your lifting performance into context, accounting for age so you can train with',
-    emphasis: 'REAL',
-    emphasisContinue: 'purpose.',
-    goal: "The goal isn't to \"look good\" for a moment",
-    goalResult: "It's to build a",
-    goalEmphasis: 'STRONG, MOBILE',
-    goalEnd: 'body that carries you confidently through every stage of life.',
+    tagline: 'YOUR BODY IS YOUR ARMOUR. BUILD IT TO LAST.',
+    intro: "Strength isn't about lifting heavy once — it's about building a foundation that",
+    emphasis: 'CARRIES YOU THROUGH LIFE',
+    description: 'This calculator puts your lifts into context. Age-adjusted standards mean you\'re measured against what\'s',
+    descEmphasis: 'REALISTIC AND ACHIEVABLE',
+    descEnd: 'for you.',
+    goal: 'Build a body that\'s',
+    goalEmphasis: 'STRONG, MOBILE, AND RESILIENT',
+    goalEnd: 'enough to protect everything you love.',
     hashtag: '#UNBREAKABLE',
   },
   fuel: {
-    title: 'FUEL YOUR',
-    titleAccent: 'RESULTS',
-    intro: 'Fueling results that support your life — not short-term diets.',
-    description: 'This calorie calculator puts your nutrition into context, accounting for your body, your goals, and your lifestyle so you can fuel with',
-    emphasis: 'REAL',
-    emphasisContinue: 'intent.',
-    goal: "The goal isn't to eat less for a moment",
-    goalResult: "It's to build a",
-    goalEmphasis: 'STRONG, ENERGIZED, RESILIENT',
-    goalEnd: 'body that performs, recovers, and thrives through every stage of life.',
-    extra: 'Fuel to train. Fuel to recover. Fuel to live.',
-    hashtag: '#FUELYOURRESULTS',
+    title: 'FUEL',
+    titleAccent: 'CALCULATOR',
+    tagline: 'FOOD IS NOT THE ENEMY. IT\'S THE WEAPON.',
+    intro: 'Forget restrictive diets and quick fixes. Your body needs',
+    emphasis: 'STRATEGIC FUEL',
+    description: 'This calculator gives you precise targets based on your body, your activity, and your goals — so you can stop guessing and start',
+    descEmphasis: 'EATING WITH PURPOSE',
+    descEnd: '.',
+    goal: 'Fuel a body that\'s',
+    goalEmphasis: 'ENERGISED, POWERFUL, AND RESILIENT',
+    goalEnd: 'for decades — not days.',
+    hashtag: '#UNBREAKABLE',
   },
   speed: {
     title: 'SPEED',
     titleAccent: 'CALCULATOR',
-    intro: 'Running performance that builds for life — not just race day.',
-    description: 'This calculator puts your race times into context, accounting for age so you can train with',
-    emphasis: 'REAL',
-    emphasisContinue: 'purpose.',
-    goal: "The goal isn't to chase PRs for a moment",
-    goalResult: "It's to build a",
-    goalEmphasis: 'FAST, RESILIENT, ENDURING',
-    goalEnd: 'body that carries you confidently through every stage of life.',
-    extra: 'Run to build. Run to recover. Run to live.',
-    hashtag: '#RUNFORLIFE',
+    tagline: 'EVERY FINISH LINE IS A NEW STARTING POINT.',
+    intro: "This isn't about chasing personal bests for ego — it's about understanding where you stand and",
+    emphasis: 'BUILDING SPEED THAT LASTS',
+    description: 'Enter your race times and discover your true level. Age-adjusted ratings mean you\'re competing against the',
+    descEmphasis: 'BEST VERSION OF YOU',
+    descEnd: ' — not someone else\'s genetics.',
+    goal: 'Every step forward is a step toward',
+    goalEmphasis: 'UNBREAKABLE ENDURANCE',
+    goalEnd: '.',
+    hashtag: '#UNBREAKABLE',
   },
 };
 
@@ -168,9 +169,9 @@ const Calculators = () => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
-              <img src={logo} alt="Live Without Limits" className="h-10 object-contain" />
+              <img src={logo} alt="Unbreakable - Live Without Limits" className="h-10 object-contain" />
               <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
-                LIVE WITHOUT LIMITS
+                UNBREAKABLE
               </span>
             </Link>
             <NavigationDrawer />
@@ -183,7 +184,7 @@ const Calculators = () => {
         <div className="max-w-4xl mx-auto">
           <img
             src={logo}
-            alt="Live Without Limits"
+            alt="Unbreakable - Live Without Limits"
             className="h-32 md:h-40 object-contain mx-auto mb-6"
           />
           <h1 className="font-display text-5xl md:text-7xl text-foreground tracking-wide leading-none">
@@ -192,8 +193,8 @@ const Calculators = () => {
           <h1 className="font-display text-5xl md:text-7xl text-primary tracking-wide leading-none mb-6">
             {hero.titleAccent}
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed uppercase tracking-wide">
-            {hero.intro}
+          <p className="text-foreground text-xl md:text-2xl max-w-2xl mx-auto leading-relaxed uppercase tracking-wide font-medium">
+            {hero.tagline}
           </p>
         </div>
       </section>
@@ -226,26 +227,21 @@ const Calculators = () => {
           {/* Description Card */}
           <div className="bg-card border border-border rounded-lg p-8 md:p-10 mb-10 text-center max-w-4xl mx-auto">
             <p className="text-muted-foreground leading-relaxed mb-4">
-              {hero.description}{' '}
-              <span className="text-primary font-semibold">{hero.emphasis}</span>{' '}
-              {hero.emphasisContinue}
+              {hero.intro}{' '}
+              <span className="text-primary font-semibold">{hero.emphasis}</span>.
             </p>
             
-            <p className="text-muted-foreground leading-relaxed mb-1">
-              {hero.goal}
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              {hero.description}{' '}
+              <span className="text-primary font-semibold">{hero.descEmphasis}</span>
+              {hero.descEnd}
             </p>
             
             <p className="text-muted-foreground leading-relaxed">
-              {hero.goalResult}{' '}
+              {hero.goal}{' '}
               <span className="text-primary font-semibold">{hero.goalEmphasis}</span>{' '}
               {hero.goalEnd}
             </p>
-            
-            {'extra' in hero && hero.extra && (
-              <p className="text-muted-foreground leading-relaxed mt-4">
-                {hero.extra}
-              </p>
-            )}
             
             <p className="text-primary font-display text-2xl tracking-wide mt-6">
               {hero.hashtag}
@@ -304,7 +300,7 @@ const Calculators = () => {
       {/* Footer */}
       <footer className="border-t border-border py-10 mt-16 text-center">
         <p className="text-muted-foreground text-sm">
-          © 2024 Live Without Limits. All rights reserved.
+          © 2024 Unbreakable - Live Without Limits. All rights reserved.
         </p>
       </footer>
     </div>
