@@ -6,13 +6,14 @@ import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { ActivityFeed } from '@/components/tracker/ActivityFeed';
 import { StatsView } from '@/components/tracker/StatsView';
 import { ProfileView } from '@/components/tracker/ProfileView';
+import { RecordsView } from '@/components/tracker/RecordsView';
 import { RecordRunModal } from '@/components/tracker/RecordRunModal';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { Button } from '@/components/ui/button';
-import { Play, BarChart3, Users, Trophy, Home, BarChart2, User, Plus } from 'lucide-react';
+import { Play, BarChart3, Users, Trophy, Home, BarChart2, User, Plus, Medal } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-type Tab = 'feed' | 'stats' | 'profile';
+type Tab = 'feed' | 'stats' | 'records' | 'profile';
 
 const Tracker = () => {
   const { user, loading } = useAuth();
@@ -278,6 +279,17 @@ const Tracker = () => {
               STATS
             </button>
             <button
+              onClick={() => setActiveTab('records')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-md font-display tracking-wide transition-all ${
+                activeTab === 'records'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Medal className="w-4 h-4" />
+              RECORDS
+            </button>
+            <button
               onClick={() => setActiveTab('profile')}
               className={`flex items-center gap-2 px-6 py-3 rounded-md font-display tracking-wide transition-all ${
                 activeTab === 'profile'
@@ -298,6 +310,7 @@ const Tracker = () => {
             <ActivityFeed onSignIn={() => setShowAuthModal(true)} />
           )}
           {activeTab === 'stats' && <StatsView />}
+          {activeTab === 'records' && <RecordsView />}
           {activeTab === 'profile' && <ProfileView />}
         </div>
       </main>
@@ -330,6 +343,15 @@ const Tracker = () => {
           >
             <BarChart2 className="w-6 h-6" />
             <span className="text-xs font-display tracking-wide">STATS</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('records')}
+            className={`flex flex-col items-center gap-1 px-4 py-2 ${
+              activeTab === 'records' ? 'text-primary' : 'text-muted-foreground'
+            }`}
+          >
+            <Medal className="w-6 h-6" />
+            <span className="text-xs font-display tracking-wide">RECORDS</span>
           </button>
           <button
             onClick={() => setActiveTab('profile')}
