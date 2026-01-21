@@ -3,15 +3,30 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
-import { Play, Pause, RotateCcw, Share2, Brain, ChevronLeft, Zap, Target, Heart } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Play, Pause, RotateCcw, Share2, Brain, ChevronLeft, Zap, Target, Heart, Volume2, VolumeX, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
 import { NavigationDrawer } from "@/components/NavigationDrawer";
 import { CountdownOverlay } from "@/components/CountdownOverlay";
-import { BREATHING_EXERCISES, BreathingExercise, getPhaseText } from "@/lib/breathingExercises";
+import { BREATHING_EXERCISES, BreathingExercise } from "@/lib/breathingExercises";
+import { useBreathingAudio, VoiceType } from "@/hooks/useBreathingAudio";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 type BreathPhase = "idle" | "inhale" | "hold" | "exhale" | "rest" | "complete";
 type ViewState = "selection" | "countdown" | "exercise" | "complete";
+
+const VOICE_OPTIONS = [
+  { value: "male" as VoiceType, label: "Male Voice", description: "Calm, warm guidance" },
+  { value: "female" as VoiceType, label: "Female Voice", description: "Soothing, gentle guidance" },
+];
 
 const Mindset = () => {
   const [view, setView] = useState<ViewState>("selection");
@@ -22,9 +37,22 @@ const Mindset = () => {
   const [progress, setProgress] = useState(0);
   const [showHalfwayMessage, setShowHalfwayMessage] = useState(false);
   
+  // Voice settings
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [voiceType, setVoiceType] = useState<VoiceType>("male");
+  const [showSettings, setShowSettings] = useState(false);
+  
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const halfwayShownRef = useRef(false);
+  const lastPhaseRef = useRef<BreathPhase>("idle");
+  const introPlayedRef = useRef(false);
+
+  // Audio hook
+  const { playAudio, stopAudio, preloadAudio, cleanup } = useBreathingAudio({
+    voiceType,
+    enabled: voiceEnabled,
+  });
 
   const getCycleDuration = useCallback((exercise: BreathingExercise) => {
     const { inhale, hold, exhale, rest = 0 } = exercise.phases;
@@ -58,6 +86,57 @@ const Mindset = () => {
     }
   }, [getCycleDuration]);
 
+  // Play audio when phase changes
+  useEffect(() => {
+    if (!selectedExercise || !voiceEnabled) return;
+    
+    if (phase !== lastPhaseRef.current) {
+      lastPhaseRef.current = phase;
+      
+      // Get the appropriate script for this phase
+      const scripts = selectedExercise.scripts;
+      let textToSpeak = "";
+      
+      switch (phase) {
+        case "inhale":
+          // Only speak on first few cycles to avoid repetition
+          if (currentCycle <= 3 || currentCycle % 5 === 0) {
+            textToSpeak = "Breathe in";
+          }
+          break;
+        case "hold":
+          if (currentCycle <= 3 || currentCycle % 5 === 0) {
+            textToSpeak = "Hold";
+          }
+          break;
+        case "exhale":
+          if (currentCycle <= 3 || currentCycle % 5 === 0) {
+            textToSpeak = "Breathe out";
+          }
+          break;
+        case "rest":
+          if (currentCycle <= 2) {
+            textToSpeak = "Rest";
+          }
+          break;
+        case "complete":
+          textToSpeak = scripts.closing;
+          break;
+      }
+      
+      if (textToSpeak) {
+        playAudio(textToSpeak);
+      }
+    }
+  }, [phase, currentCycle, selectedExercise, voiceEnabled, playAudio]);
+
+  // Play halfway message
+  useEffect(() => {
+    if (showHalfwayMessage && selectedExercise && voiceEnabled) {
+      playAudio(selectedExercise.scripts.halfway);
+    }
+  }, [showHalfwayMessage, selectedExercise, voiceEnabled, playAudio]);
+
   const startExercise = useCallback(() => {
     if (!selectedExercise) return;
     
@@ -67,7 +146,14 @@ const Mindset = () => {
     setPhase("inhale");
     setProgress(0);
     halfwayShownRef.current = false;
+    introPlayedRef.current = false;
+    lastPhaseRef.current = "idle";
     startTimeRef.current = Date.now();
+
+    // Play intro
+    if (voiceEnabled) {
+      playAudio(selectedExercise.scripts.intro);
+    }
 
     const cycleDuration = getCycleDuration(selectedExercise);
     const totalDuration = selectedExercise.cycles * cycleDuration;
@@ -98,7 +184,7 @@ const Mindset = () => {
         setPhase("complete");
       }
     }, 100);
-  }, [selectedExercise, getCycleDuration, getPhaseFromTime]);
+  }, [selectedExercise, getCycleDuration, getPhaseFromTime, voiceEnabled, playAudio]);
 
   const handleCountdownComplete = useCallback(() => {
     startExercise();
@@ -106,8 +192,22 @@ const Mindset = () => {
 
   const selectExercise = useCallback((exercise: BreathingExercise) => {
     setSelectedExercise(exercise);
+    
+    // Preload common audio phrases
+    if (voiceEnabled) {
+      preloadAudio([
+        "Breathe in",
+        "Hold",
+        "Breathe out",
+        "Rest",
+        exercise.scripts.intro,
+        exercise.scripts.halfway,
+        exercise.scripts.closing,
+      ]);
+    }
+    
     setView("countdown");
-  }, []);
+  }, [voiceEnabled, preloadAudio]);
 
   const toggleBreathing = useCallback(() => {
     if (isActive) {
@@ -115,22 +215,25 @@ const Mindset = () => {
         clearInterval(intervalRef.current);
       }
       setIsActive(false);
+      stopAudio();
     } else {
       startExercise();
     }
-  }, [isActive, startExercise]);
+  }, [isActive, startExercise, stopAudio]);
 
   const resetExercise = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
+    stopAudio();
     setIsActive(false);
     setPhase("idle");
     setCurrentCycle(0);
     setProgress(0);
     setView("selection");
     setSelectedExercise(null);
-  }, []);
+    lastPhaseRef.current = "idle";
+  }, [stopAudio]);
 
   const handleShare = useCallback(() => {
     const shareText = `Just completed ${selectedExercise?.name || "an Unbreakable Mindset"} breathing session! 🧘‍♂️ #UnbreakableMindset #KeepShowingUp`;
@@ -150,8 +253,9 @@ const Mindset = () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
+      cleanup();
     };
-  }, []);
+  }, [cleanup]);
 
   const getScaleForPhase = () => {
     if (!selectedExercise) return 1;
@@ -190,19 +294,109 @@ const Mindset = () => {
     }
   };
 
+  // Settings sheet content
+  const SettingsSheet = () => (
+    <Sheet open={showSettings} onOpenChange={setShowSettings}>
+      <SheetTrigger asChild>
+        <Button variant="outline" size="icon" className="absolute top-4 right-4">
+          <Settings className="w-5 h-5" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent className="bg-card border-border">
+        <SheetHeader>
+          <SheetTitle className="font-display text-xl tracking-wide text-foreground">
+            VOICE SETTINGS
+          </SheetTitle>
+        </SheetHeader>
+        
+        <div className="space-y-6 mt-6">
+          {/* Voice enabled toggle */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {voiceEnabled ? (
+                <Volume2 className="w-5 h-5 text-primary" />
+              ) : (
+                <VolumeX className="w-5 h-5 text-muted-foreground" />
+              )}
+              <Label htmlFor="voice-enabled" className="font-display tracking-wide">
+                VOICE GUIDANCE
+              </Label>
+            </div>
+            <Switch
+              id="voice-enabled"
+              checked={voiceEnabled}
+              onCheckedChange={setVoiceEnabled}
+            />
+          </div>
+
+          {/* Voice type selection */}
+          {voiceEnabled && (
+            <div className="space-y-3">
+              <Label className="font-display tracking-wide text-muted-foreground">
+                VOICE TYPE
+              </Label>
+              <div className="space-y-2">
+                {VOICE_OPTIONS.map((option) => (
+                  <Card
+                    key={option.value}
+                    className={`p-4 cursor-pointer transition-all border ${
+                      voiceType === option.value
+                        ? "border-primary bg-primary/10"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                    onClick={() => setVoiceType(option.value)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-display text-foreground tracking-wide">
+                          {option.label}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {option.description}
+                        </p>
+                      </div>
+                      {voiceType === option.value && (
+                        <div className="w-3 h-3 rounded-full bg-primary" />
+                      )}
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+
   // Exercise selection view
   if (view === "selection") {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="min-h-screen bg-background flex flex-col relative">
         {/* Header */}
         <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2">
               <img src={logo} alt="Unbreakable" className="h-10 w-auto" />
             </Link>
-            <NavigationDrawer />
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowSettings(true)}
+              >
+                {voiceEnabled ? (
+                  <Volume2 className="w-5 h-5" />
+                ) : (
+                  <VolumeX className="w-5 h-5" />
+                )}
+              </Button>
+              <NavigationDrawer />
+            </div>
           </div>
         </header>
+
+        <SettingsSheet />
 
         {/* Hero */}
         <main className="flex-1 flex flex-col px-4 pt-24 pb-12">
@@ -226,6 +420,23 @@ const Mindset = () => {
             <p className="text-sm text-muted-foreground">
               #UnbreakableMindset
             </p>
+
+            {/* Voice indicator */}
+            <div className="flex items-center justify-center gap-2 mt-4 text-sm">
+              {voiceEnabled ? (
+                <>
+                  <Volume2 className="w-4 h-4 text-primary" />
+                  <span className="text-muted-foreground">
+                    {voiceType === "male" ? "Male" : "Female"} voice guidance enabled
+                  </span>
+                </>
+              ) : (
+                <>
+                  <VolumeX className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Voice guidance disabled</span>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Exercise Cards */}
@@ -302,6 +513,13 @@ const Mindset = () => {
           <p className="text-muted-foreground text-sm font-display tracking-wider">
             CYCLE {Math.min(currentCycle, selectedExercise?.cycles || 0)} / {selectedExercise?.cycles}
           </p>
+          {/* Voice indicator */}
+          {voiceEnabled && (
+            <div className="flex items-center justify-center gap-1 mt-2">
+              <Volume2 className="w-3 h-3 text-primary" />
+              <span className="text-xs text-muted-foreground">Voice on</span>
+            </div>
+          )}
         </div>
 
         {/* Halfway message */}
@@ -311,7 +529,7 @@ const Mindset = () => {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="absolute top-24 left-1/2 -translate-x-1/2 bg-card/90 backdrop-blur border border-primary px-6 py-3 rounded-lg max-w-sm text-center"
+              className="absolute top-28 left-1/2 -translate-x-1/2 bg-card/90 backdrop-blur border border-primary px-6 py-3 rounded-lg max-w-sm text-center"
             >
               <p className="text-foreground text-sm">{selectedExercise.scripts.halfway}</p>
             </motion.div>
