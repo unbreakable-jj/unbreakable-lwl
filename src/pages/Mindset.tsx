@@ -28,6 +28,21 @@ const VOICE_OPTIONS = [
   { value: "female" as VoiceType, label: "Female Voice", description: "Soothing, gentle guidance" },
 ];
 
+const heroContent = {
+  title: "MINDSET",
+  titleAccent: "TRAINING",
+  tagline: "YOUR MIND IS YOUR ULTIMATE WEAPON. TRAIN IT TO BE UNBREAKABLE.",
+  intro: "This isn't meditation for relaxation — it's",
+  emphasis: "MENTAL CONDITIONING",
+  description: "Controlled breathing rewires your nervous system. Every session builds",
+  descEmphasis: "RESILIENCE UNDER PRESSURE",
+  descEnd: ".",
+  goal: "Develop a mind that stays calm in chaos —",
+  goalEmphasis: "FOCUSED, PRESENT, AND UNSHAKEABLE",
+  goalEnd: ". Keep showing up.",
+  hashtag: "#UNBREAKABLEMINDSET",
+};
+
 const Mindset = () => {
   const [view, setView] = useState<ViewState>("selection");
   const [selectedExercise, setSelectedExercise] = useState<BreathingExercise | null>(null);
@@ -46,7 +61,6 @@ const Mindset = () => {
   const startTimeRef = useRef<number>(0);
   const halfwayShownRef = useRef(false);
   const lastPhaseRef = useRef<BreathPhase>("idle");
-  const introPlayedRef = useRef(false);
 
   // Audio hook
   const { playAudio, stopAudio, preloadAudio, cleanup } = useBreathingAudio({
@@ -88,18 +102,15 @@ const Mindset = () => {
 
   // Play audio when phase changes
   useEffect(() => {
-    if (!selectedExercise || !voiceEnabled) return;
+    if (!selectedExercise || !voiceEnabled || view !== "exercise") return;
     
     if (phase !== lastPhaseRef.current) {
       lastPhaseRef.current = phase;
       
-      // Get the appropriate script for this phase
-      const scripts = selectedExercise.scripts;
       let textToSpeak = "";
       
       switch (phase) {
         case "inhale":
-          // Only speak on first few cycles to avoid repetition
           if (currentCycle <= 3 || currentCycle % 5 === 0) {
             textToSpeak = "Breathe in";
           }
@@ -120,7 +131,7 @@ const Mindset = () => {
           }
           break;
         case "complete":
-          textToSpeak = scripts.closing;
+          textToSpeak = selectedExercise.scripts.closing;
           break;
       }
       
@@ -128,7 +139,7 @@ const Mindset = () => {
         playAudio(textToSpeak);
       }
     }
-  }, [phase, currentCycle, selectedExercise, voiceEnabled, playAudio]);
+  }, [phase, currentCycle, selectedExercise, voiceEnabled, view, playAudio]);
 
   // Play halfway message
   useEffect(() => {
@@ -146,14 +157,8 @@ const Mindset = () => {
     setPhase("inhale");
     setProgress(0);
     halfwayShownRef.current = false;
-    introPlayedRef.current = false;
     lastPhaseRef.current = "idle";
     startTimeRef.current = Date.now();
-
-    // Play intro
-    if (voiceEnabled) {
-      playAudio(selectedExercise.scripts.intro);
-    }
 
     const cycleDuration = getCycleDuration(selectedExercise);
     const totalDuration = selectedExercise.cycles * cycleDuration;
@@ -184,11 +189,18 @@ const Mindset = () => {
         setPhase("complete");
       }
     }, 100);
-  }, [selectedExercise, getCycleDuration, getPhaseFromTime, voiceEnabled, playAudio]);
+  }, [selectedExercise, getCycleDuration, getPhaseFromTime]);
 
   const handleCountdownComplete = useCallback(() => {
     startExercise();
   }, [startExercise]);
+
+  // Callback for countdown to play audio
+  const handleCountdownAudio = useCallback((text: string) => {
+    if (voiceEnabled) {
+      playAudio(text);
+    }
+  }, [voiceEnabled, playAudio]);
 
   const selectExercise = useCallback((exercise: BreathingExercise) => {
     setSelectedExercise(exercise);
@@ -369,60 +381,60 @@ const Mindset = () => {
     </Sheet>
   );
 
-  // Exercise selection view
+  // Exercise selection view - matches Calculator page structure
   if (view === "selection") {
     return (
-      <div className="min-h-screen bg-background flex flex-col relative">
-        {/* Header */}
-        <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
-              <img src={logo} alt="Unbreakable" className="h-10 w-auto" />
-            </Link>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowSettings(true)}
-              >
-                {voiceEnabled ? (
-                  <Volume2 className="w-5 h-5" />
-                ) : (
-                  <VolumeX className="w-5 h-5" />
-                )}
-              </Button>
-              <NavigationDrawer />
+      <div className="min-h-screen bg-background">
+        {/* Minimal Header - matches Calculators */}
+        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm">
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <Link to="/" className="flex items-center gap-3">
+                <img src={logo} alt="Unbreakable - Live Without Limits" className="h-10 object-contain" />
+                <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
+                  UNBREAKABLE
+                </span>
+              </Link>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowSettings(true)}
+                >
+                  {voiceEnabled ? (
+                    <Volume2 className="w-5 h-5" />
+                  ) : (
+                    <VolumeX className="w-5 h-5" />
+                  )}
+                </Button>
+                <NavigationDrawer />
+              </div>
             </div>
           </div>
         </header>
 
         <SettingsSheet />
 
-        {/* Hero */}
-        <main className="flex-1 flex flex-col px-4 pt-24 pb-12">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <div className="mb-6">
-              <Brain className="w-16 h-16 text-primary mx-auto" />
-            </div>
-            
-            <h1 className="font-display text-4xl md:text-6xl text-foreground mb-3 tracking-wide">
-              UNBREAKABLE MINDSET
+        {/* Hero Section - matches Calculator style */}
+        <section className="pt-32 pb-12 text-center px-6">
+          <div className="max-w-4xl mx-auto">
+            <img
+              src={logo}
+              alt="Unbreakable - Live Without Limits"
+              className="h-32 md:h-40 object-contain mx-auto mb-6"
+            />
+            <h1 className="font-display text-5xl md:text-7xl text-foreground tracking-wide leading-none">
+              {heroContent.title}
             </h1>
-            
-            <p className="text-lg text-muted-foreground mb-1">
-              Live Without Limits
-            </p>
-            
-            <p className="text-primary font-display tracking-wider mb-2">
-              KEEP SHOWING UP
-            </p>
-            
-            <p className="text-sm text-muted-foreground">
-              #UnbreakableMindset
+            <h1 className="font-display text-5xl md:text-7xl text-primary tracking-wide leading-none mb-6">
+              {heroContent.titleAccent}
+            </h1>
+            <p className="text-foreground text-xl md:text-2xl max-w-2xl mx-auto leading-relaxed uppercase tracking-wide font-medium">
+              {heroContent.tagline}
             </p>
 
             {/* Voice indicator */}
-            <div className="flex items-center justify-center gap-2 mt-4 text-sm">
+            <div className="flex items-center justify-center gap-2 mt-6 text-sm">
               {voiceEnabled ? (
                 <>
                   <Volume2 className="w-4 h-4 text-primary" />
@@ -438,54 +450,102 @@ const Mindset = () => {
               )}
             </div>
           </div>
+        </section>
 
-          {/* Exercise Cards */}
-          <div className="max-w-4xl mx-auto w-full grid gap-4 md:grid-cols-3">
-            {BREATHING_EXERCISES.map((exercise) => (
-              <Card
-                key={exercise.id}
-                className="bg-card border border-border border-l-4 border-l-primary p-6 cursor-pointer hover:bg-muted/50 transition-all group"
-                onClick={() => selectExercise(exercise)}
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
-                    {getIntensityIcon(exercise.intensity)}
-                  </div>
-                  <div>
-                    <h3 className="font-display text-lg text-foreground tracking-wide">
-                      {exercise.name}
-                    </h3>
-                    <p className="text-xs text-primary">{exercise.duration}</p>
-                  </div>
-                </div>
-                
-                <p className="text-primary font-display text-sm tracking-wide mb-2">
-                  {exercise.tagline}
-                </p>
-                
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {exercise.description}
-                </p>
+        {/* Main Content */}
+        <main className="container mx-auto px-6 py-8">
+          <div className="max-w-6xl mx-auto">
+            {/* Description Card - matches Calculator style */}
+            <div className="bg-card border border-border rounded-lg p-8 md:p-10 mb-10 text-center max-w-4xl mx-auto">
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                {heroContent.intro}{' '}
+                <span className="text-primary font-semibold">{heroContent.emphasis}</span>.
+              </p>
+              
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                {heroContent.description}{' '}
+                <span className="text-primary font-semibold">{heroContent.descEmphasis}</span>
+                {heroContent.descEnd}
+              </p>
+              
+              <p className="text-muted-foreground leading-relaxed">
+                {heroContent.goal}{' '}
+                <span className="text-primary font-semibold">{heroContent.goalEmphasis}</span>{' '}
+                {heroContent.goalEnd}
+              </p>
+              
+              <p className="text-primary font-display text-2xl tracking-wide mt-6">
+                {heroContent.hashtag}
+              </p>
+            </div>
 
-                <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{exercise.cycles} cycles</span>
-                  <span className="capitalize">{exercise.intensity} intensity</span>
-                </div>
-              </Card>
-            ))}
+            {/* Exercise Selection Header */}
+            <h2 className="font-display text-2xl text-foreground mb-8 tracking-wide text-center">
+              SELECT YOUR SESSION
+            </h2>
+
+            {/* Exercise Cards Grid - matches Calculator grid */}
+            <div className="grid md:grid-cols-3 gap-6">
+              {BREATHING_EXERCISES.map((exercise) => (
+                <Card
+                  key={exercise.id}
+                  className="bg-card border border-border border-l-4 border-l-primary p-6 cursor-pointer hover:bg-muted/50 transition-all group"
+                  onClick={() => selectExercise(exercise)}
+                >
+                  {/* Icon & Title */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                      {getIntensityIcon(exercise.intensity)}
+                    </div>
+                    <div>
+                      <h3 className="font-display text-xl text-foreground tracking-wide">
+                        {exercise.name}
+                      </h3>
+                      <p className="text-xs text-primary font-display">{exercise.duration}</p>
+                    </div>
+                  </div>
+
+                  {/* Tagline */}
+                  <p className="text-primary font-display text-sm tracking-wide mb-3">
+                    {exercise.tagline}
+                  </p>
+                  
+                  {/* Description */}
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                    {exercise.description}
+                  </p>
+
+                  {/* Meta info */}
+                  <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border">
+                    <span>{exercise.cycles} cycles</span>
+                    <span className="capitalize">{exercise.intensity} intensity</span>
+                  </div>
+                </Card>
+              ))}
+            </div>
           </div>
         </main>
+
+        {/* Footer - matches Calculator */}
+        <footer className="border-t border-border py-10 mt-16 text-center">
+          <p className="text-muted-foreground text-sm">
+            © 2024 Unbreakable - Live Without Limits. All rights reserved.
+          </p>
+        </footer>
       </div>
     );
   }
 
-  // Countdown view
+  // Countdown view with welcome message
   if (view === "countdown") {
     return (
       <CountdownOverlay
         isActive={true}
         onComplete={handleCountdownComplete}
         startFrom={3}
+        exerciseName={selectedExercise?.name}
+        welcomeMessage={selectedExercise?.scripts.intro}
+        onPlayAudio={handleCountdownAudio}
       />
     );
   }
