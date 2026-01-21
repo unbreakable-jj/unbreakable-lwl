@@ -99,6 +99,44 @@ export type Database = {
           },
         ]
       }
+      local_legend_stats: {
+        Row: {
+          effort_count: number | null
+          id: string
+          is_local_legend: boolean | null
+          last_effort_at: string | null
+          segment_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          effort_count?: number | null
+          id?: string
+          is_local_legend?: boolean | null
+          last_effort_at?: string | null
+          segment_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          effort_count?: number | null
+          id?: string
+          is_local_legend?: boolean | null
+          last_effort_at?: string | null
+          segment_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "local_legend_stats_segment_id_fkey"
+            columns: ["segment_id"]
+            isOneToOne: false
+            referencedRelation: "segments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       medals: {
         Row: {
           code: string
@@ -301,6 +339,114 @@ export type Database = {
           updated_at?: string
           user_id?: string
           weather_conditions?: string | null
+        }
+        Relationships: []
+      }
+      segment_efforts: {
+        Row: {
+          created_at: string
+          elapsed_time_seconds: number
+          end_index: number | null
+          id: string
+          is_kom: boolean | null
+          is_pr: boolean | null
+          rank: number | null
+          run_id: string | null
+          segment_id: string
+          start_index: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          elapsed_time_seconds: number
+          end_index?: number | null
+          id?: string
+          is_kom?: boolean | null
+          is_pr?: boolean | null
+          rank?: number | null
+          run_id?: string | null
+          segment_id: string
+          start_index?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          elapsed_time_seconds?: number
+          end_index?: number | null
+          id?: string
+          is_kom?: boolean | null
+          is_pr?: boolean | null
+          rank?: number | null
+          run_id?: string | null
+          segment_id?: string
+          start_index?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "segment_efforts_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "segment_efforts_segment_id_fkey"
+            columns: ["segment_id"]
+            isOneToOne: false
+            referencedRelation: "segments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      segments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          distance_m: number
+          elevation_gain_m: number | null
+          end_lat: number
+          end_lng: number
+          id: string
+          name: string
+          polyline: string
+          start_lat: number
+          start_lng: number
+          total_efforts: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          distance_m: number
+          elevation_gain_m?: number | null
+          end_lat: number
+          end_lng: number
+          id?: string
+          name: string
+          polyline: string
+          start_lat: number
+          start_lng: number
+          total_efforts?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          distance_m?: number
+          elevation_gain_m?: number | null
+          end_lat?: number
+          end_lng?: number
+          id?: string
+          name?: string
+          polyline?: string
+          start_lat?: number
+          start_lng?: number
+          total_efforts?: number | null
+          updated_at?: string
         }
         Relationships: []
       }

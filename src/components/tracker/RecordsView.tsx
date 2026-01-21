@@ -5,7 +5,8 @@ import { useMedals } from '@/hooks/useMedals';
 import { MEDAL_DEFINITIONS } from '@/lib/medalDefinitions';
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
-import { Trophy, Medal, Clock, TrendingUp, Zap } from 'lucide-react';
+import { Trophy, Medal, Clock, TrendingUp, Zap, Crown, Route } from 'lucide-react';
+import { SegmentAchievementsView } from './SegmentAchievementsView';
 
 export function RecordsView() {
   const { getAllPRsWithLabels, loading: prsLoading } = usePersonalRecords();
@@ -59,17 +60,25 @@ export function RecordsView() {
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="records" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-          <TabsTrigger value="records" className="font-display tracking-wide">
-            <Trophy className="w-4 h-4 mr-2" />
+      <Tabs defaultValue="segments" className="w-full">
+        <TabsList className="grid w-full grid-cols-3 bg-muted/50">
+          <TabsTrigger value="segments" className="font-display tracking-wide text-xs">
+            <Crown className="w-4 h-4 mr-1" />
+            SEGMENTS
+          </TabsTrigger>
+          <TabsTrigger value="records" className="font-display tracking-wide text-xs">
+            <Trophy className="w-4 h-4 mr-1" />
             RECORDS
           </TabsTrigger>
-          <TabsTrigger value="medals" className="font-display tracking-wide">
-            <Medal className="w-4 h-4 mr-2" />
+          <TabsTrigger value="medals" className="font-display tracking-wide text-xs">
+            <Medal className="w-4 h-4 mr-1" />
             MEDALS
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="segments" className="space-y-4 mt-4">
+          <SegmentAchievementsView />
+        </TabsContent>
 
         <TabsContent value="records" className="space-y-4 mt-4">
           <motion.div

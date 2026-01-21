@@ -10,9 +10,12 @@ import { useRuns } from '@/hooks/useRuns';
 import { usePersonalRecords } from '@/hooks/usePersonalRecords';
 import { useMedals } from '@/hooks/useMedals';
 import { useProfile } from '@/hooks/useProfile';
+import { useSegments } from '@/hooks/useSegments';
+import { useAuth } from '@/hooks/useAuth';
 import { MedalCheckStats } from '@/lib/medalDefinitions';
+import { encodePolyline, formatSegmentTime } from '@/lib/segmentUtils';
 import { toast } from 'sonner';
-import { Play, Square, MapPin, Timer, Pencil, Trophy, Medal } from 'lucide-react';
+import { Play, Square, MapPin, Timer, Pencil, Trophy, Medal, Crown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RunMap, positionsToGeoJSON } from './RunMap';
 
@@ -32,6 +35,8 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
   const { checkAndUpdatePRs, records } = usePersonalRecords();
   const { checkAndAwardMedals } = useMedals();
   const { profile } = useProfile();
+  const { user } = useAuth();
+  const { matchRunToSegments, saveSegmentEfforts, autoDetectSegments } = useSegments();
   const [mode, setMode] = useState<'gps' | 'manual'>('gps');
   const [loading, setLoading] = useState(false);
 
@@ -156,6 +161,107 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
     return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const triggerConfetti = () => {
+    // Create confetti effect for KOM
+    const colors = ['#FF6600', '#FFB366', '#FF8533', '#FFCC99'];
+    const confettiCount = 50;
+    
+    for (let i = 0; i < confettiCount; i++) {
+      setTimeout(() => {
+        const confetti = document.createElement('div');
+        confetti.style.cssText = `
+          position: fixed;
+          top: -10px;
+          left: ${Math.random() * 100}vw;
+          width: 10px;
+          height: 10px;
+          background: ${colors[Math.floor(Math.random() * colors.length)]};
+          border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+          animation: confetti-fall 3s ease-out forwards;
+          z-index: 9999;
+          pointer-events: none;
+        `;
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 3000);
+      }, i * 30);
+    }
+  };
+
+  const checkSegmentAchievements = async (runData: {
+    id: string;
+    route_polyline: string;
+    duration_seconds: number;
+  }) => {
+    if (!user || !runData.route_polyline) return;
+
+    try {
+      // Match run against existing segments
+      const matchResults = await matchRunToSegments(
+        runData.route_polyline,
+        runData.duration_seconds,
+        runData.id
+      );
+
+      // Save segment efforts
+      if (matchResults.length > 0) {
+        await saveSegmentEfforts(runData.id, matchResults);
+
+        // Check for new KOMs and trigger celebrations
+        const newKOMs = matchResults.filter(r => r.isNewKOM);
+        const newPRs = matchResults.filter(r => r.isNewPR && !r.isNewKOM);
+        const topTen = matchResults.filter(r => r.newRank > 1 && r.newRank <= 10 && !r.isNewPR);
+
+        // Show KOM celebration with confetti
+        if (newKOMs.length > 0) {
+          triggerConfetti();
+          setTimeout(() => {
+            newKOMs.forEach((kom, index) => {
+              setTimeout(() => {
+                toast.success(`👑 NEW KOM!`, {
+                  description: `You're #1 on ${kom.segment.name} with ${formatSegmentTime(kom.elapsedTimeSeconds)}!`,
+                  duration: 5000,
+                });
+              }, index * 1000);
+            });
+          }, 300);
+        }
+
+        // Show trophy notifications for top 10
+        if (topTen.length > 0) {
+          setTimeout(() => {
+            topTen.forEach((trophy, index) => {
+              setTimeout(() => {
+                toast.success(`🏆 Top 10!`, {
+                  description: `#${trophy.newRank} on ${trophy.segment.name}`,
+                });
+              }, index * 600);
+            });
+          }, newKOMs.length > 0 ? 2000 : 500);
+        }
+
+        // Show segment PR notifications
+        if (newPRs.length > 0) {
+          const delay = (newKOMs.length > 0 ? 2000 : 0) + (topTen.length > 0 ? topTen.length * 600 : 500);
+          setTimeout(() => {
+            newPRs.forEach((pr, index) => {
+              const medalIcon = pr.prRank === 1 ? '🥇' : pr.prRank === 2 ? '🥈' : '🥉';
+              setTimeout(() => {
+                toast.success(`${medalIcon} Segment PR!`, {
+                  description: `${pr.segment.name}: ${formatSegmentTime(pr.elapsedTimeSeconds)}`,
+                });
+              }, index * 500);
+            });
+          }, delay);
+        }
+      }
+
+      // Auto-detect new segments from this run
+      await autoDetectSegments(runData.route_polyline, user.id);
+    } catch (error) {
+      console.error('Error processing segments:', error);
+    }
+  };
+
   const checkAchievements = async (runData: {
     id: string;
     distance_km: number;
@@ -163,6 +269,7 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
     started_at: string;
     is_gps_tracked: boolean;
     pace_per_km_seconds: number;
+    route_polyline?: string;
   }) => {
     // Check for PRs
     const prResults = await checkAndUpdatePRs({
@@ -214,6 +321,15 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
         });
       }, newPRs.length > 0 ? 1500 : 500);
     }
+
+    // Check segment achievements for GPS runs
+    if (runData.is_gps_tracked && runData.route_polyline) {
+      await checkSegmentAchievements({
+        id: runData.id,
+        route_polyline: runData.route_polyline,
+        duration_seconds: runData.duration_seconds,
+      });
+    }
   };
 
   const handleSaveGpsRun = async () => {
@@ -264,6 +380,7 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
           started_at: startTime?.toISOString() || new Date().toISOString(),
           is_gps_tracked: true,
           pace_per_km_seconds: paceSeconds,
+          route_polyline: geoJSON,
         });
       }
       setLoading(false);
