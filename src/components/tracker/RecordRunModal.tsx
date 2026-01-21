@@ -391,6 +391,7 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
       temperature_celsius: null,
       notes: null,
       is_public: isPublic,
+      comments_enabled: true,
     });
 
     if (error) {
@@ -453,6 +454,7 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
       temperature_celsius: null,
       notes: null,
       is_public: isPublic,
+      comments_enabled: true,
     });
 
     if (error) {

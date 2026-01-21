@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Activity, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 interface ActivityFeedProps {
   onSignIn?: () => void;
@@ -12,7 +13,23 @@ interface ActivityFeedProps {
 
 export function ActivityFeed({ onSignIn }: ActivityFeedProps) {
   const { user } = useAuth();
-  const { runs, loading, refetch, toggleKudos } = useRuns();
+  const { runs, loading, refetch, toggleKudos, deleteRun, toggleCommentsEnabled } = useRuns();
+
+  const handleDelete = async (runId: string) => {
+    const { error } = await deleteRun(runId);
+    if (error) {
+      toast.error('Failed to delete run');
+    } else {
+      toast.success('Run deleted');
+    }
+  };
+
+  const handleToggleComments = async (runId: string) => {
+    const { error } = await toggleCommentsEnabled(runId);
+    if (error) {
+      toast.error('Failed to update comments setting');
+    }
+  };
 
   if (loading) {
     return (
@@ -75,6 +92,8 @@ export function ActivityFeed({ onSignIn }: ActivityFeedProps) {
             <ActivityCard
               run={run}
               onKudos={toggleKudos}
+              onDelete={handleDelete}
+              onToggleComments={handleToggleComments}
             />
           </motion.div>
         ))}
