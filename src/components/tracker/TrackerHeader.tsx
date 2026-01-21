@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import logo from '@/assets/logo.webp';
+import logo from '@/assets/logo.png';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -44,10 +44,10 @@ export function TrackerHeader({ onRecordRun, activeTab, onTabChange }: TrackerHe
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
-              <img src={logo} alt="Live Without Limits" className="h-10 object-contain" />
+              <img src={logo} alt="Unbreakable - Live Without Limits" className="h-10 object-contain" />
               <div className="hidden sm:block">
                 <span className="font-display text-lg tracking-wide text-foreground">
-                  LIVE WITHOUT LIMITS
+                  UNBREAKABLE
                 </span>
                 <span className="font-display text-sm tracking-wide text-primary ml-2">
                   RUN TRACKER

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import logo from '@/assets/logo.webp';
+import logo from '@/assets/logo.png';
 import { Button } from '@/components/ui/button';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { Dumbbell, Flame, Timer, Target, Heart, Zap } from 'lucide-react';
@@ -12,9 +12,9 @@ const Index = () => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
-              <img src={logo} alt="Live Without Limits" className="h-10 object-contain" />
+              <img src={logo} alt="Unbreakable - Live Without Limits" className="h-10 object-contain" />
               <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
-                LIVE WITHOUT LIMITS
+                UNBREAKABLE
               </span>
             </Link>
             <NavigationDrawer />
@@ -28,16 +28,16 @@ const Index = () => {
           {/* Large centered logo */}
           <img
             src={logo}
-            alt="Live Without Limits"
+            alt="Unbreakable - Live Without Limits"
             className="h-48 md:h-64 lg:h-72 object-contain mx-auto mb-8"
           />
           
           {/* Dramatic title */}
           <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-foreground tracking-wide leading-none">
-            LIVE WITHOUT
+            BECOME
           </h1>
           <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-primary tracking-wide leading-none mb-10">
-            LIMITS
+            UNBREAKABLE
           </h1>
           
           {/* Subtitle copy */}
@@ -75,9 +75,9 @@ const Index = () => {
             </Link>
           </div>
           
-          {/* Hashtag */}
+          {/* Tagline */}
           <p className="text-primary font-display text-2xl md:text-3xl tracking-wide">
-            #LIVEWITHOUTLIMITS
+            KEEP SHOWING UP
           </p>
         </div>
       </section>
@@ -86,20 +86,20 @@ const Index = () => {
       <section className="py-24 md:py-32">
         <div className="container mx-auto px-6">
           <h2 className="font-display text-4xl md:text-5xl text-primary text-center mb-4 tracking-wide">
-            WHY LIVE WITHOUT LIMITS?
+            WHY BECOME UNBREAKABLE?
           </h2>
           <p className="text-muted-foreground text-center mb-16 text-lg uppercase tracking-wide">
-            We don't train for moments. We train for decades.
+            We don't train for moments. We train for decades. Keep showing up.
           </p>
           
           {/* Central philosophy card */}
           <div className="max-w-4xl mx-auto mb-20">
             <div className="bg-card border border-border rounded-lg p-10 text-center">
               <p className="text-muted-foreground uppercase tracking-wide text-sm mb-4">
-                The Live Without Limits method is built on one truth:
+                The Unbreakable method is built on one truth:
               </p>
               <h3 className="font-display text-3xl md:text-4xl text-foreground mb-6 tracking-wide">
-                YOUR BODY IS YOUR VEHICLE FOR LIFE
+                YOUR BODY IS YOUR ARMOUR
               </h3>
               <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto">
                 Not a project to fix. Not a problem to solve. It's the vessel that carries your dreams, 
@@ -117,7 +117,7 @@ const Index = () => {
               </div>
               <h3 className="font-display text-2xl text-foreground mb-4 tracking-wide">STRENGTH</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Not just muscle. The physical resilience to show up every day, carry your family, and never feel fragile.
+                Your body is your armour. Build it to last. Strength isn't about lifting heavy once — it's about a foundation that carries you through life.
               </p>
             </div>
             
@@ -127,7 +127,7 @@ const Index = () => {
               </div>
               <h3 className="font-display text-2xl text-foreground mb-4 tracking-wide">FUEL</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Not restriction. Strategic nutrition that powers performance, recovery, and mental clarity for the long haul.
+                Food is not the enemy. It's the weapon. Strategic fuel to perform, recover, and dominate for decades — not days.
               </p>
             </div>
             
@@ -137,7 +137,7 @@ const Index = () => {
               </div>
               <h3 className="font-display text-2xl text-foreground mb-4 tracking-wide">SPEED</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Not just fast. Endurance that carries you through every race, every challenge, every decade of life.
+                Every finish line is a new starting point. Build speed that lasts — unbreakable endurance for every race, every decade.
               </p>
             </div>
           </div>
@@ -146,7 +146,7 @@ const Index = () => {
           <div className="mt-20 max-w-3xl mx-auto">
             <blockquote className="text-center">
               <p className="text-xl md:text-2xl text-muted-foreground italic leading-relaxed">
-                "We don't chase quick fixes. We build bodies and minds that don't break — at 30, at 50, at 70. That's the Live Without Limits way."
+                "We don't chase quick fixes. We build bodies and minds that don't break — at 30, at 50, at 70. That's the Unbreakable way."
               </p>
             </blockquote>
           </div>
@@ -188,10 +188,10 @@ const Index = () => {
       <section className="py-24 md:py-32">
         <div className="container mx-auto px-6 text-center">
           <h2 className="font-display text-5xl md:text-6xl text-foreground mb-4 tracking-wide">
-            READY TO <span className="text-primary">TRANSFORM?</span>
+            READY TO BECOME <span className="text-primary">UNBREAKABLE?</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto mb-10 text-lg">
-            The goal isn't to "look good" for a moment. It's to build a body that supports every dream you have.
+            The goal isn't to "look good" for a moment. It's to build a body that supports every dream you have. Keep showing up.
           </p>
           <Link to="/calculators">
             <Button size="lg" className="font-display text-xl tracking-wide px-12 py-7">
@@ -204,7 +204,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border py-10 text-center">
         <p className="text-muted-foreground text-sm">
-          © 2024 Live Without Limits. All rights reserved.
+          © 2024 Unbreakable - Live Without Limits. All rights reserved.
         </p>
       </footer>
     </div>
