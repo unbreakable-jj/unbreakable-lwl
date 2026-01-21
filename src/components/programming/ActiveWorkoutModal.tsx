@@ -1,16 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { WorkoutLogger } from './WorkoutLogger';
 import { RestTimer } from './RestTimer';
 import { WorkoutSession } from '@/hooks/useWorkoutSessions';
 import { 
-  Play, 
-  Pause, 
   Square, 
   Clock,
   Zap,
@@ -42,8 +39,6 @@ export function ActiveWorkoutModal({
   open,
   onOpenChange,
 }: ActiveWorkoutModalProps) {
-  const [elapsedTime, setElapsedTime] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
   const [mode, setMode] = useState<'quick' | 'guided'>('quick');
   const [showTimer, setShowTimer] = useState(false);
   const [timerExerciseType, setTimerExerciseType] = useState<string>('strength');
@@ -54,29 +49,6 @@ export function ActiveWorkoutModal({
   const exerciseLogs = session.exercise_logs || [];
   const completedSets = exerciseLogs.filter((l) => l.completed).length;
   const totalSets = exerciseLogs.length;
-
-  // Timer for session duration
-  useEffect(() => {
-    if (!isPaused && open) {
-      const startTime = new Date(session.started_at).getTime();
-      const updateTimer = () => {
-        setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
-      };
-      updateTimer();
-      const interval = setInterval(updateTimer, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [isPaused, session.started_at, open]);
-
-  const formatDuration = (seconds: number) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    if (hrs > 0) {
-      return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
 
   const handleStartRest = (exerciseType: string) => {
     setTimerExerciseType(exerciseType);
@@ -100,23 +72,13 @@ export function ActiveWorkoutModal({
                 Week {session.week_number} • {session.day_name}
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="gap-1">
-                <Clock className="w-3 h-3" />
-                {formatDuration(elapsedTime)}
-              </Badge>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsPaused(!isPaused)}
-              >
-                {isPaused ? (
-                  <Play className="w-4 h-4" />
-                ) : (
-                  <Pause className="w-4 h-4" />
-                )}
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+            >
+              <X className="w-4 h-4" />
+            </Button>
           </div>
         </DialogHeader>
 
