@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Calculators from "./pages/Calculators";
 import Tracker from "./pages/Tracker";
 import Mindset from "./pages/Mindset";
+import Programming from "./pages/Programming";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/calculators" element={<Calculators />} />
             <Route path="/tracker" element={<Tracker />} />
             <Route path="/mindset" element={<Mindset />} />
+            <Route path="/programming" element={<Programming />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

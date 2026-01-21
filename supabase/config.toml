@@ -1,1 +1,7 @@
 project_id = "beqcnuqfxgghscbpxuxb"
+
+[functions.breathing-tts]
+verify_jwt = false
+
+[functions.generate-program]
+verify_jwt = false
