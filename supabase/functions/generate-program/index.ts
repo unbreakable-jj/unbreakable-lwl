@@ -214,16 +214,28 @@ Requirements:
 
     // Clean and parse the JSON response
     let cleanedContent = content.trim();
+    
     // Remove markdown code blocks if present
-    if (cleanedContent.startsWith("```json")) {
-      cleanedContent = cleanedContent.slice(7);
-    } else if (cleanedContent.startsWith("```")) {
-      cleanedContent = cleanedContent.slice(3);
+    if (cleanedContent.includes("```json")) {
+      cleanedContent = cleanedContent.substring(cleanedContent.indexOf("```json") + 7);
+    } else if (cleanedContent.includes("```")) {
+      cleanedContent = cleanedContent.substring(cleanedContent.indexOf("```") + 3);
     }
-    if (cleanedContent.endsWith("```")) {
-      cleanedContent = cleanedContent.slice(0, -3);
+    if (cleanedContent.includes("```")) {
+      cleanedContent = cleanedContent.substring(0, cleanedContent.lastIndexOf("```"));
     }
     cleanedContent = cleanedContent.trim();
+    
+    // Extract JSON object - find first { and last }
+    const jsonStart = cleanedContent.indexOf("{");
+    const jsonEnd = cleanedContent.lastIndexOf("}");
+    
+    if (jsonStart === -1 || jsonEnd === -1 || jsonEnd <= jsonStart) {
+      console.error("No valid JSON found in response:", cleanedContent.substring(0, 500));
+      throw new Error("Failed to parse program data - no JSON found");
+    }
+    
+    cleanedContent = cleanedContent.substring(jsonStart, jsonEnd + 1);
 
     let program;
     try {
