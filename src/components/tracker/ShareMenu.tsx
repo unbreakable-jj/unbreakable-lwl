@@ -31,12 +31,19 @@ const TwitterIcon = () => (
   </svg>
 );
 
+interface WorkoutShare {
+  day_name: string;
+  session_type: string;
+  duration_seconds: number | null;
+}
+
 interface ShareMenuProps {
   run?: RunWithProfile;
   post?: PostWithProfile;
+  workout?: WorkoutShare;
 }
 
-export function ShareMenu({ run, post }: ShareMenuProps) {
+export function ShareMenu({ run, post, workout }: ShareMenuProps) {
   const [copied, setCopied] = useState(false);
 
   const formatRunStats = () => {
@@ -52,6 +59,18 @@ export function ShareMenu({ run, post }: ShareMenuProps) {
     return `🏃 ${distance}km in ${time}`;
   };
 
+  const formatWorkoutDuration = () => {
+    if (!workout?.duration_seconds) return '';
+    const secs = workout.duration_seconds;
+    const hours = Math.floor(secs / 3600);
+    const mins = Math.floor((secs % 3600) / 60);
+    const seconds = secs % 60;
+    const time = hours > 0
+      ? `${hours}:${mins.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+      : `${mins}:${seconds.toString().padStart(2, '0')}`;
+    return `⏱️ ${time}`;
+  };
+
   const getShareText = () => {
     if (run) {
       const stats = formatRunStats();
@@ -62,6 +81,11 @@ export function ShareMenu({ run, post }: ShareMenuProps) {
     if (post) {
       const content = post.content ? post.content.slice(0, 200) : '';
       return `${content}\n\n#UNBREAKABLE #LiveWithoutLimits`;
+    }
+
+    if (workout) {
+      const duration = formatWorkoutDuration();
+      return `💪 ${workout.day_name} – ${workout.session_type}${duration ? `\n${duration}` : ''}\n\n#UNBREAKABLE #LiveWithoutLimits #Fitness`;
     }
     
     return '#UNBREAKABLE #LiveWithoutLimits';
