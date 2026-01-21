@@ -53,9 +53,19 @@ export function useProfile() {
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user) return { error: new Error('Not authenticated') };
 
+    // Convert empty strings to null to satisfy database constraints
+    const sanitizedUpdates: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(updates)) {
+      if (value === '') {
+        sanitizedUpdates[key] = null;
+      } else {
+        sanitizedUpdates[key] = value;
+      }
+    }
+
     const { error } = await supabase
       .from('profiles')
-      .update(updates)
+      .update(sanitizedUpdates)
       .eq('user_id', user.id);
 
     if (!error) {
