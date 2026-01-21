@@ -10,6 +10,7 @@ import { useRuns } from '@/hooks/useRuns';
 import { toast } from 'sonner';
 import { Play, Square, MapPin, Timer, Pencil } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { RunMap, positionsToGeoJSON } from './RunMap';
 
 interface RecordRunModalProps {
   isOpen: boolean;
@@ -160,8 +161,8 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
     const paceSeconds = Math.round(elapsedSeconds / distance);
     const speedKph = (distance / elapsedSeconds) * 3600;
 
-    // Create polyline from positions
-    const polyline = positions.map((p) => `${p.lat},${p.lng}`).join('|');
+    // Convert positions to GeoJSON for storage
+    const geoJSON = positionsToGeoJSON(positions);
 
     const { error } = await createRun({
       title: title || 'GPS Run',
@@ -174,7 +175,7 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
       average_speed_kph: Math.round(speedKph * 100) / 100,
       elevation_gain_m: null,
       calories_burned: Math.round(distance * 60), // Rough estimate
-      route_polyline: polyline,
+      route_polyline: geoJSON, // Store as GeoJSON
       map_snapshot_url: null,
       is_gps_tracked: true,
       weather_conditions: null,
@@ -319,33 +320,39 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="text-center py-4"
+                  className="py-4"
                 >
-                  <div className="mb-6">
-                    <p className="font-display text-6xl text-primary tracking-wide">
+                  <div className="text-center mb-4">
+                    <p className="font-display text-5xl text-primary tracking-wide">
                       {formatTime(elapsedSeconds)}
                     </p>
-                    <p className="text-muted-foreground mt-2">Duration</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-6 mb-8">
-                    <div className="bg-muted/50 rounded-lg p-4">
-                      <p className="font-display text-3xl text-foreground tracking-wide">
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="bg-muted/50 rounded-lg p-3 text-center">
+                      <p className="font-display text-2xl text-foreground tracking-wide">
                         {distance.toFixed(2)}
                       </p>
-                      <p className="text-sm text-muted-foreground">km</p>
+                      <p className="text-xs text-muted-foreground">km</p>
                     </div>
-                    <div className="bg-muted/50 rounded-lg p-4">
-                      <p className="font-display text-3xl text-foreground tracking-wide">
+                    <div className="bg-muted/50 rounded-lg p-3 text-center">
+                      <p className="font-display text-2xl text-foreground tracking-wide">
                         {distance > 0
                           ? formatTime(Math.round(elapsedSeconds / distance)).slice(3)
                           : '--:--'}
                       </p>
-                      <p className="text-sm text-muted-foreground">/km pace</p>
+                      <p className="text-xs text-muted-foreground">/km pace</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+                  {/* Live GPS Map */}
+                  <RunMap 
+                    positions={positions} 
+                    isTracking={true}
+                    className="mb-4"
+                  />
+
+                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
                     <motion.div
                       animate={{ scale: [1, 1.2, 1] }}
                       transition={{ repeat: Infinity, duration: 2 }}
@@ -354,15 +361,17 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
                     GPS Active • {positions.length} points
                   </div>
 
-                  <Button
-                    size="lg"
-                    variant="destructive"
-                    className="font-display text-lg tracking-wide px-12 py-6"
-                    onClick={stopTracking}
-                  >
-                    <Square className="w-5 h-5 mr-2" />
-                    STOP RUN
-                  </Button>
+                  <div className="text-center">
+                    <Button
+                      size="lg"
+                      variant="destructive"
+                      className="font-display text-lg tracking-wide px-12 py-6"
+                      onClick={stopTracking}
+                    >
+                      <Square className="w-5 h-5 mr-2" />
+                      STOP RUN
+                    </Button>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -373,7 +382,7 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-4 border-t border-border pt-6"
               >
-                <div className="grid grid-cols-3 gap-4 text-center mb-6">
+                <div className="grid grid-cols-3 gap-4 text-center mb-4">
                   <div>
                     <p className="font-display text-2xl text-primary">{distance.toFixed(2)}</p>
                     <p className="text-xs text-muted-foreground">km</p>
@@ -393,6 +402,14 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
                     <p className="text-xs text-muted-foreground">/km</p>
                   </div>
                 </div>
+
+                {/* Post-run map with replay and export */}
+                <RunMap 
+                  positions={positions}
+                  showReplay={true}
+                  showElevation={true}
+                  showExport={true}
+                />
 
                 <div className="space-y-2">
                   <Label>Title (optional)</Label>

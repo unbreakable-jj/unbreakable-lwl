@@ -7,6 +7,7 @@ import { Heart, MessageCircle, Share2, MapPin, Clock, Zap, TrendingUp } from 'lu
 import { RunWithProfile } from '@/hooks/useRuns';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
+import { RunMap, geoJSONToPositions } from './RunMap';
 
 interface ActivityCardProps {
   run: RunWithProfile;
@@ -117,6 +118,17 @@ export function ActivityCard({ run, onKudos, onComment }: ActivityCardProps) {
             <p className="text-xs text-muted-foreground uppercase tracking-wide">/km</p>
           </div>
         </div>
+
+        {/* Map for GPS tracked runs */}
+        {run.is_gps_tracked && run.route_polyline && (
+          <div className="px-4 py-3">
+            <RunMap 
+              positions={geoJSONToPositions(run.route_polyline)}
+              showReplay={true}
+              showExport={true}
+            />
+          </div>
+        )}
 
         {/* Additional Stats */}
         {(run.elevation_gain_m || run.calories_burned || run.average_speed_kph) && (
