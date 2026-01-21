@@ -110,153 +110,161 @@ export function RestTimer({ suggestedTime, exerciseType = 'strength', onComplete
   const isComplete = timeLeft === 0;
 
   return (
-    <Card className={`p-4 border transition-colors ${
+    <Card className={`p-3 border transition-colors ${
       isComplete ? 'border-green-500 bg-green-500/10' :
       isWarning ? 'border-yellow-500 bg-yellow-500/10' :
       'border-border bg-card'
     }`}>
-      <div className="flex items-center justify-between mb-3">
+      {/* Header Row */}
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <Timer className="w-5 h-5 text-primary" />
-          <span className="font-display text-sm text-foreground">REST TIMER</span>
+          <Timer className="w-4 h-4 text-primary" />
+          <span className="font-display text-xs text-foreground">REST TIMER</span>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs">
+        <div className="flex items-center gap-1">
+          <Badge variant="outline" className="text-xs px-2 py-0">
             {exerciseType}
           </Badge>
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className="h-7 w-7"
             onClick={() => setSoundEnabled(!soundEnabled)}
           >
             {soundEnabled ? (
-              <Volume2 className="w-4 h-4" />
+              <Volume2 className="w-3 h-3" />
             ) : (
-              <VolumeX className="w-4 h-4 text-muted-foreground" />
+              <VolumeX className="w-3 h-3 text-muted-foreground" />
             )}
           </Button>
         </div>
       </div>
 
-      {/* Timer Display */}
-      <div className="relative flex items-center justify-center py-6">
-        {/* Progress Ring */}
-        <svg className="absolute w-32 h-32" viewBox="0 0 100 100">
-          <circle
-            cx="50"
-            cy="50"
-            r="45"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="4"
-            className="text-surface"
-          />
-          <circle
-            cx="50"
-            cy="50"
-            r="45"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="4"
-            strokeDasharray={`${(progress / 100) * 283} 283`}
-            strokeLinecap="round"
-            transform="rotate(-90 50 50)"
-            className={`transition-all duration-1000 ${
-              isComplete ? 'text-green-500' :
-              isWarning ? 'text-yellow-500' :
-              'text-primary'
-            }`}
-          />
-        </svg>
+      {/* Main Timer Row - Compact Layout */}
+      <div className="flex items-center gap-3">
+        {/* Progress Ring + Time */}
+        <div className="relative flex items-center justify-center flex-shrink-0">
+          <svg className="w-20 h-20" viewBox="0 0 100 100">
+            <circle
+              cx="50"
+              cy="50"
+              r="45"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="5"
+              className="text-muted/30"
+            />
+            <circle
+              cx="50"
+              cy="50"
+              r="45"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="5"
+              strokeDasharray={`${(progress / 100) * 283} 283`}
+              strokeLinecap="round"
+              transform="rotate(-90 50 50)"
+              className={`transition-all duration-1000 ${
+                isComplete ? 'text-green-500' :
+                isWarning ? 'text-yellow-500' :
+                'text-primary'
+              }`}
+            />
+          </svg>
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={timeLeft}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 1.2, opacity: 0 }}
+              className={`absolute font-display text-2xl ${
+                isComplete ? 'text-green-500' :
+                isWarning ? 'text-yellow-500' :
+                'text-foreground'
+              }`}
+            >
+              {isComplete ? 'GO!' : formatTime(timeLeft)}
+            </motion.span>
+          </AnimatePresence>
+        </div>
 
-        <AnimatePresence mode="wait">
-          <motion.span
-            key={timeLeft}
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 1.2, opacity: 0 }}
-            className={`font-display text-4xl ${
-              isComplete ? 'text-green-500' :
-              isWarning ? 'text-yellow-500' :
-              'text-foreground'
-            }`}
-          >
-            {isComplete ? 'GO!' : formatTime(timeLeft)}
-          </motion.span>
-        </AnimatePresence>
-      </div>
+        {/* Controls Column */}
+        <div className="flex-1 flex flex-col gap-2">
+          {/* Adjust + Set Time */}
+          <div className="flex items-center justify-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => adjustTime(-15)}
+              disabled={isRunning}
+            >
+              <Minus className="w-3 h-3 mr-1" />
+              15s
+            </Button>
+            <span className="text-xs text-muted-foreground min-w-[50px] text-center">
+              Set: {formatTime(initialTime)}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => adjustTime(15)}
+              disabled={isRunning}
+            >
+              <Plus className="w-3 h-3 mr-1" />
+              15s
+            </Button>
+          </div>
 
-      {/* Time Adjustment */}
-      <div className="flex items-center justify-center gap-4 mb-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => adjustTime(-15)}
-          disabled={isRunning}
-        >
-          <Minus className="w-4 h-4 mr-1" />
-          15s
-        </Button>
-        <span className="text-sm text-muted-foreground">
-          Set: {formatTime(initialTime)}
-        </span>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => adjustTime(15)}
-          disabled={isRunning}
-        >
-          <Plus className="w-4 h-4 mr-1" />
-          15s
-        </Button>
-      </div>
+          {/* Main Controls */}
+          <div className="flex items-center justify-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={handleReset}
+            >
+              <RotateCcw className="w-3 h-3" />
+            </Button>
+            
+            <Button
+              size="sm"
+              onClick={isRunning ? handlePause : handleStart}
+              className="min-w-[90px] gap-1 h-8"
+            >
+              {isRunning ? (
+                <>
+                  <Pause className="w-4 h-4" />
+                  Pause
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4" />
+                  {timeLeft === initialTime ? 'Start' : 'Resume'}
+                </>
+              )}
+            </Button>
+          </div>
 
-      {/* Controls */}
-      <div className="flex items-center justify-center gap-3">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handleReset}
-        >
-          <RotateCcw className="w-4 h-4" />
-        </Button>
-        
-        <Button
-          size="lg"
-          onClick={isRunning ? handlePause : handleStart}
-          className="min-w-[120px] gap-2"
-        >
-          {isRunning ? (
-            <>
-              <Pause className="w-5 h-5" />
-              Pause
-            </>
-          ) : (
-            <>
-              <Play className="w-5 h-5" />
-              {timeLeft === initialTime ? 'Start' : 'Resume'}
-            </>
-          )}
-        </Button>
-      </div>
-
-      {/* Quick Presets */}
-      <div className="flex items-center justify-center gap-2 mt-4">
-        {[60, 90, 120, 180].map((preset) => (
-          <Button
-            key={preset}
-            variant={initialTime === preset ? 'default' : 'ghost'}
-            size="sm"
-            className="text-xs"
-            onClick={() => {
-              setInitialTime(preset);
-              if (!isRunning) setTimeLeft(preset);
-            }}
-          >
-            {preset >= 60 ? `${preset / 60}m` : `${preset}s`}
-          </Button>
-        ))}
+          {/* Quick Presets */}
+          <div className="flex items-center justify-center gap-1">
+            {[60, 90, 120, 180].map((preset) => (
+              <Button
+                key={preset}
+                variant={initialTime === preset ? 'default' : 'ghost'}
+                size="sm"
+                className="text-xs h-6 px-2"
+                onClick={() => {
+                  setInitialTime(preset);
+                  if (!isRunning) setTimeLeft(preset);
+                }}
+              >
+                {preset >= 60 ? `${preset / 60}m` : `${preset}s`}
+              </Button>
+            ))}
+          </div>
+        </div>
       </div>
     </Card>
   );
