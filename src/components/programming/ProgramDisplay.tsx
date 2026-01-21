@@ -38,11 +38,18 @@ const equipmentColors: Record<string, string> = {
 export function ProgramDisplay({ program, onReset }: ProgramDisplayProps) {
   const [selectedWeek, setSelectedWeek] = useState(1);
   
-  const currentWeek = program.weeks.find(w => w.weekNumber === selectedWeek);
+  // Support both template-based and full weeks structure
+  const templateDays = program.templateWeek?.days || program.weeks?.[0]?.days || [];
   const currentPhase = program.phases.find(p => {
-    const [start, end] = p.weeks.replace('Weeks ', '').split('-').map(Number);
-    return selectedWeek >= start && selectedWeek <= end;
+    const weeksMatch = p.weeks.match(/(\d+)-(\d+)/);
+    if (weeksMatch) {
+      const [, start, end] = weeksMatch;
+      return selectedWeek >= parseInt(start) && selectedWeek <= parseInt(end);
+    }
+    return false;
   });
+
+  const isDeloadWeek = selectedWeek === 4 || selectedWeek === 8 || selectedWeek === 12;
 
   const handlePrevWeek = () => setSelectedWeek(Math.max(1, selectedWeek - 1));
   const handleNextWeek = () => setSelectedWeek(Math.min(12, selectedWeek + 1));
@@ -77,16 +84,36 @@ export function ProgramDisplay({ program, onReset }: ProgramDisplayProps) {
             }`}
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="font-display text-sm text-primary">{phase.weeks}</span>
+              <span className="font-display text-sm text-primary">Weeks {phase.weeks}</span>
               {phase === currentPhase && (
                 <Badge variant="default" className="bg-primary">Current</Badge>
               )}
             </div>
             <h3 className="font-display text-lg text-foreground mb-1">{phase.name}</h3>
             <p className="text-sm text-muted-foreground">{phase.focus}</p>
+            {phase.notes && (
+              <p className="text-xs text-muted-foreground/70 mt-2 italic">{phase.notes}</p>
+            )}
           </Card>
         ))}
       </div>
+
+      {/* Phase Progressions */}
+      {program.phaseProgressions && program.phaseProgressions.length > 0 && (
+        <Card className="p-4 border border-border bg-card">
+          <h3 className="font-display text-lg text-foreground mb-3">PHASE ADJUSTMENTS</h3>
+          <div className="space-y-2">
+            {program.phaseProgressions.map((prog, idx) => (
+              <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2">
+                <Badge variant="outline" className="shrink-0 border-primary text-primary">
+                  {prog.phase}
+                </Badge>
+                <p className="text-sm text-muted-foreground">{prog.adjustments}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* Week Navigator */}
       <div className="flex items-center justify-between bg-card border border-border rounded-lg p-4">
@@ -104,7 +131,7 @@ export function ProgramDisplay({ program, onReset }: ProgramDisplayProps) {
           <span className="font-display text-xl text-foreground">
             WEEK {selectedWeek}
           </span>
-          {currentWeek?.isDeload && (
+          {isDeloadWeek && (
             <Badge variant="secondary" className="bg-accent/20 text-accent-foreground">
               Deload
             </Badge>
@@ -139,10 +166,10 @@ export function ProgramDisplay({ program, onReset }: ProgramDisplayProps) {
       </div>
 
       {/* Daily Workouts */}
-      {currentWeek && (
-        <Tabs defaultValue={currentWeek.days[0]?.day} className="space-y-4">
+      {templateDays.length > 0 && (
+        <Tabs defaultValue={templateDays[0]?.day} className="space-y-4">
           <TabsList className="w-full flex flex-wrap h-auto gap-1 bg-card p-1">
-            {currentWeek.days.map((day) => (
+            {templateDays.map((day) => (
               <TabsTrigger 
                 key={day.day} 
                 value={day.day}
@@ -154,7 +181,7 @@ export function ProgramDisplay({ program, onReset }: ProgramDisplayProps) {
             ))}
           </TabsList>
 
-          {currentWeek.days.map((day) => (
+          {templateDays.map((day) => (
             <TabsContent key={day.day} value={day.day} className="space-y-4">
               <Card className="p-4 border border-border bg-card">
                 <div className="flex flex-wrap items-center gap-3 mb-4">
@@ -162,6 +189,11 @@ export function ProgramDisplay({ program, onReset }: ProgramDisplayProps) {
                   <Badge variant="outline" className="border-primary text-primary">
                     {day.duration}
                   </Badge>
+                  {isDeloadWeek && (
+                    <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-400">
+                      Reduce volume 40%
+                    </Badge>
+                  )}
                 </div>
                 
                 {/* Warmup */}

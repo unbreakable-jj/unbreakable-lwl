@@ -50,6 +50,15 @@ export interface ProgramWeek {
   days: WorkoutDay[];
 }
 
+export interface PhaseProgression {
+  phase: string;
+  adjustments: string;
+}
+
+export interface TemplateWeek {
+  days: WorkoutDay[];
+}
+
 export interface ProgramPhase {
   name: string;
   weeks: string;
@@ -68,7 +77,9 @@ export interface GeneratedProgram {
   overview: string;
   weeklySchedule: WeeklyScheduleDay[];
   phases: ProgramPhase[];
-  weeks: ProgramWeek[];
+  templateWeek?: TemplateWeek;
+  weeks?: ProgramWeek[];
+  phaseProgressions?: PhaseProgression[];
   progressionRules: string[];
   nutritionTips: string[];
 }
