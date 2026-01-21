@@ -32,50 +32,42 @@ export function SegmentAchievementsView() {
           icon="👑"
           label="KOMs"
           count={achievements.komCount}
-          color="from-orange-500/20 to-orange-600/10"
-          borderColor="border-orange-500/30"
         />
         <AchievementCard
           icon="🏆"
           label="Trophies"
           count={achievements.trophyCount}
-          color="from-amber-500/20 to-amber-600/10"
-          borderColor="border-amber-500/30"
         />
         <AchievementCard
           icon="🌿"
           label="Local Legends"
           count={achievements.localLegendCount}
-          color="from-green-500/20 to-green-600/10"
-          borderColor="border-green-500/30"
         />
         <AchievementCard
           icon="🏅"
           label="Total Efforts"
           count={achievements.totalEfforts}
-          color="from-primary/20 to-primary/10"
-          borderColor="border-primary/30"
         />
       </div>
 
       {/* PR Medals Summary */}
-      <Card className="p-4 bg-gradient-to-r from-muted/50 to-transparent border-border">
+      <Card className="p-4 bg-card border border-border border-l-4 border-l-primary">
         <h3 className="font-display text-sm text-muted-foreground mb-3 tracking-wide">
           PERSONAL RECORD MEDALS
         </h3>
         <div className="flex justify-around">
           <div className="text-center">
-            <div className="text-3xl mb-1">🥇</div>
+            <div className="text-3xl mb-1 medal-unlocked">🥇</div>
             <p className="font-display text-xl text-foreground">{achievements.prMedals.gold}</p>
             <p className="text-xs text-muted-foreground">Gold</p>
           </div>
           <div className="text-center">
-            <div className="text-3xl mb-1">🥈</div>
+            <div className="text-3xl mb-1 medal-unlocked">🥈</div>
             <p className="font-display text-xl text-foreground">{achievements.prMedals.silver}</p>
             <p className="text-xs text-muted-foreground">Silver</p>
           </div>
           <div className="text-center">
-            <div className="text-3xl mb-1">🥉</div>
+            <div className="text-3xl mb-1 medal-unlocked">🥉</div>
             <p className="font-display text-xl text-foreground">{achievements.prMedals.bronze}</p>
             <p className="text-xs text-muted-foreground">Bronze</p>
           </div>
@@ -84,12 +76,12 @@ export function SegmentAchievementsView() {
 
       {/* Segments List */}
       <Tabs defaultValue="all" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-          <TabsTrigger value="all" className="font-display tracking-wide text-xs">
+        <TabsList className="grid w-full grid-cols-2 bg-background border border-border">
+          <TabsTrigger value="all" className="font-display tracking-wide text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Route className="w-4 h-4 mr-1" />
             ALL SEGMENTS
           </TabsTrigger>
-          <TabsTrigger value="starred" className="font-display tracking-wide text-xs">
+          <TabsTrigger value="starred" className="font-display tracking-wide text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Crown className="w-4 h-4 mr-1" />
             MY CROWNS
           </TabsTrigger>
@@ -124,14 +116,10 @@ function AchievementCard({
   icon,
   label,
   count,
-  color,
-  borderColor,
 }: {
   icon: string;
   label: string;
   count: number;
-  color: string;
-  borderColor: string;
 }) {
   return (
     <motion.div
@@ -139,9 +127,9 @@ function AchievementCard({
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ scale: 1.02 }}
     >
-      <Card className={`p-4 bg-gradient-to-br ${color} ${borderColor} border`}>
+      <Card className="p-4 bg-card border border-border border-l-4 border-l-primary">
         <div className="flex items-center gap-3">
-          <div className="text-2xl">{icon}</div>
+          <div className="text-2xl medal-unlocked">{icon}</div>
           <div>
             <p className="font-display text-2xl text-foreground">{count}</p>
             <p className="text-xs text-muted-foreground">{label}</p>
@@ -187,7 +175,7 @@ function SegmentsList({
           transition={{ delay: index * 0.03 }}
         >
           <Card
-            className="p-3 bg-card border-border hover:border-primary/50 cursor-pointer transition-colors"
+            className="p-3 bg-card border border-border border-l-4 border-l-primary hover:border-primary cursor-pointer transition-colors"
             onClick={() => onSelectSegment(segment.id)}
           >
             <div className="flex items-center justify-between">
@@ -243,19 +231,19 @@ function SegmentDetailModal({
           <div className="space-y-4">
             {/* Segment Stats */}
             <div className="grid grid-cols-3 gap-2">
-              <div className="text-center p-2 bg-muted/30 rounded-lg">
+              <div className="text-center p-2 bg-card border border-border rounded-lg">
                 <p className="text-xs text-muted-foreground">Distance</p>
                 <p className="font-display text-lg text-foreground">
                   {(segment.distance_m / 1000).toFixed(2)}km
                 </p>
               </div>
-              <div className="text-center p-2 bg-muted/30 rounded-lg">
+              <div className="text-center p-2 bg-card border border-border rounded-lg">
                 <p className="text-xs text-muted-foreground">Efforts</p>
                 <p className="font-display text-lg text-foreground">{segment.total_efforts}</p>
               </div>
-              <div className="text-center p-2 bg-muted/30 rounded-lg">
+              <div className="text-center p-2 bg-card border border-border rounded-lg">
                 <p className="text-xs text-muted-foreground">Your Rank</p>
-                <p className="font-display text-lg text-foreground">
+                <p className="font-display text-lg text-primary">
                   {segment.userRank ? `#${segment.userRank}` : '-'}
                 </p>
               </div>
@@ -263,10 +251,10 @@ function SegmentDetailModal({
 
             {/* Your Best */}
             {segment.userBestEffort && (
-              <Card className="p-3 bg-primary/10 border-primary/30">
+              <Card className="p-3 bg-card border border-border border-l-4 border-l-primary">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-xl">🏃</span>
+                    <span className="text-xl medal-unlocked">🏃</span>
                     <div>
                       <p className="text-xs text-muted-foreground">Your Best</p>
                       <p className="font-display text-lg text-primary">
@@ -274,8 +262,8 @@ function SegmentDetailModal({
                       </p>
                     </div>
                   </div>
-                  {segment.userRank === 1 && <span className="text-2xl">👑</span>}
-                  {segment.isLocalLegend && <span className="text-2xl">🌿</span>}
+                  {segment.userRank === 1 && <span className="text-2xl medal-unlocked">👑</span>}
+                  {segment.isLocalLegend && <span className="text-2xl medal-unlocked">🌿</span>}
                 </div>
               </Card>
             )}
@@ -291,26 +279,26 @@ function SegmentDetailModal({
                     <div
                       key={`${entry.userId}-${entry.rank}`}
                       className={`flex items-center justify-between p-2 rounded-lg ${
-                        entry.isCurrentUser ? 'bg-primary/10' : 'bg-muted/20'
+                        entry.isCurrentUser ? 'bg-primary/10 border border-primary/30' : 'bg-card border border-border'
                       }`}
                     >
                       <div className="flex items-center gap-2">
                         <span
                           className={`w-6 text-center font-display ${
                             entry.rank === 1
-                              ? 'text-orange-500'
+                              ? 'text-primary'
                               : entry.rank <= 3
-                              ? 'text-amber-500'
+                              ? 'text-primary/70'
                               : 'text-muted-foreground'
                           }`}
                         >
                           {entry.rank === 1 ? '👑' : `#${entry.rank}`}
                         </span>
-                        <span className={entry.isCurrentUser ? 'text-primary font-medium' : ''}>
+                        <span className={entry.isCurrentUser ? 'text-primary font-medium' : 'text-foreground'}>
                           {entry.displayName}
                         </span>
                       </div>
-                      <span className="font-mono text-sm">
+                      <span className="font-mono text-sm text-foreground">
                         {formatSegmentTime(entry.time)}
                       </span>
                     </div>
@@ -321,9 +309,9 @@ function SegmentDetailModal({
 
             {/* Beat the KOM hint */}
             {segment.komHolder && segment.userRank !== 1 && (
-              <div className="text-center text-xs text-muted-foreground bg-muted/30 p-2 rounded-lg">
-                <span className="text-orange-500">👑</span> Beat{' '}
-                <span className="font-mono">{formatSegmentTime(segment.komHolder.time)}</span> to
+              <div className="text-center text-xs text-muted-foreground bg-card border border-border p-2 rounded-lg">
+                <span className="text-primary">👑</span> Beat{' '}
+                <span className="font-mono text-primary">{formatSegmentTime(segment.komHolder.time)}</span> to
                 claim the crown!
               </div>
             )}
