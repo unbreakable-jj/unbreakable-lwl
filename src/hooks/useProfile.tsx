@@ -14,6 +14,7 @@ export interface Profile {
   total_distance_km: number;
   total_runs: number;
   total_time_seconds: number;
+  is_public: boolean;
   created_at: string;
   updated_at: string;
 }

@@ -233,6 +233,7 @@ export type Database = {
           date_of_birth: string | null
           display_name: string | null
           id: string
+          is_public: boolean
           location: string | null
           total_distance_km: number | null
           total_runs: number | null
@@ -248,6 +249,7 @@ export type Database = {
           date_of_birth?: string | null
           display_name?: string | null
           id?: string
+          is_public?: boolean
           location?: string | null
           total_distance_km?: number | null
           total_runs?: number | null
@@ -263,6 +265,7 @@ export type Database = {
           date_of_birth?: string | null
           display_name?: string | null
           id?: string
+          is_public?: boolean
           location?: string | null
           total_distance_km?: number | null
           total_runs?: number | null
