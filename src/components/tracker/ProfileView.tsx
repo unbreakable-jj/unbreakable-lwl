@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useProfile } from '@/hooks/useProfile';
+import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import { useUserRuns } from '@/hooks/useRuns';
 import { useAuth } from '@/hooks/useAuth';
 import { useTrophies } from '@/hooks/useTrophies';
@@ -21,13 +23,18 @@ import {
   Clock,
   Activity,
   Cake,
+  Camera,
+  Trash2,
+  Globe,
+  Lock,
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
 
 export function ProfileView() {
   const { user } = useAuth();
-  const { profile, updateProfile } = useProfile();
+  const { profile, updateProfile, refetch } = useProfile();
+  const { uploadAvatar, removeAvatar, uploading } = useAvatarUpload();
   const { runs } = useUserRuns(user?.id);
   const { getTrophyCounts } = useTrophies();
   const [isEditing, setIsEditing] = useState(false);
@@ -37,9 +44,11 @@ export function ProfileView() {
     bio: '',
     location: '',
     date_of_birth: '',
+    is_public: true,
   });
   const [saving, setSaving] = useState(false);
   const trophyCounts = getTrophyCounts();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const normalizeUsernameInput = (raw: string) => {
     let v = raw.trim();
@@ -64,8 +73,36 @@ export function ProfileView() {
       bio: profile?.bio || '',
       location: profile?.location || '',
       date_of_birth: profile?.date_of_birth || '',
+      is_public: profile?.is_public ?? true,
     });
     setIsEditing(true);
+  };
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const { url, error } = await uploadAvatar(file);
+    if (error) {
+      toast.error(error.message);
+    } else if (url) {
+      toast.success('Avatar updated!');
+      refetch();
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    const { error } = await removeAvatar();
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success('Avatar removed');
+      refetch();
+    }
   };
 
   const cancelEditing = () => {
@@ -141,12 +178,49 @@ export function ProfileView() {
           
           <div className="px-6 pb-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-12">
-              <Avatar className="h-24 w-24 border-4 border-card">
-                <AvatarImage src={profile.avatar_url || undefined} />
-                <AvatarFallback className="bg-primary text-primary-foreground font-display text-2xl">
-                  {getInitials()}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative group">
+                <Avatar className="h-24 w-24 border-4 border-card">
+                  <AvatarImage src={profile.avatar_url || undefined} />
+                  <AvatarFallback className="bg-primary text-primary-foreground font-display text-2xl">
+                    {getInitials()}
+                  </AvatarFallback>
+                </Avatar>
+                {/* Avatar overlay with upload/remove buttons */}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarChange}
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-white hover:bg-white/20"
+                    onClick={handleAvatarClick}
+                    disabled={uploading}
+                  >
+                    <Camera className="h-4 w-4" />
+                  </Button>
+                  {profile.avatar_url && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-white hover:bg-white/20"
+                      onClick={handleRemoveAvatar}
+                      disabled={uploading}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                {uploading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
               
               <div className="flex-1">
                 {isEditing ? (
@@ -254,6 +328,30 @@ export function ProfileView() {
                     Required for age-group leaderboards and trophies
                   </p>
                 </div>
+                {/* Public/Private Profile Toggle */}
+                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    {editData.is_public ? (
+                      <Globe className="w-4 h-4 text-primary" />
+                    ) : (
+                      <Lock className="w-4 h-4 text-muted-foreground" />
+                    )}
+                    <div>
+                      <p className="text-sm font-medium text-foreground">
+                        {editData.is_public ? 'Public Profile' : 'Private Profile'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {editData.is_public 
+                          ? 'Anyone can see your profile and runs' 
+                          : 'Only you can see your profile'}
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={editData.is_public}
+                    onCheckedChange={(checked) => setEditData({ ...editData, is_public: checked })}
+                  />
+                </div>
               </div>
             ) : (
               <>
@@ -283,6 +381,19 @@ export function ProfileView() {
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
                 <span>Joined {format(parseISO(profile.created_at), 'MMM yyyy')}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                {profile.is_public ? (
+                  <>
+                    <Globe className="w-4 h-4" />
+                    <span>Public</span>
+                  </>
+                ) : (
+                  <>
+                    <Lock className="w-4 h-4" />
+                    <span>Private</span>
+                  </>
+                )}
               </div>
             </div>
           </div>
