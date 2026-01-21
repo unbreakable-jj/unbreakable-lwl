@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import logo from '@/assets/logo.png';
 import { Button } from '@/components/ui/button';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
-import { Dumbbell, Flame, Timer, Target, Heart, Zap, Brain } from 'lucide-react';
+import { Dumbbell, Flame, Timer, Target, Heart, Zap, Brain, Sparkles } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -51,23 +51,29 @@ const Index = () => {
           </p>
           
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
-            <Link to="/calculators?tab=strength">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap mb-10">
+            <Link to="/programming">
               <Button size="lg" className="font-display text-lg tracking-wide px-8 py-6 w-full sm:w-auto">
+                <Sparkles className="w-5 h-5 mr-2" />
+                BUILD YOUR PROGRAM
+              </Button>
+            </Link>
+            <Link to="/calculators?tab=strength">
+              <Button size="lg" variant="outline" className="font-display text-lg tracking-wide px-8 py-6 w-full sm:w-auto">
                 <Dumbbell className="w-5 h-5 mr-2" />
-                CALCULATE YOUR STRENGTH
+                CALCULATE STRENGTH
               </Button>
             </Link>
             <Link to="/calculators?tab=fuel">
               <Button size="lg" variant="outline" className="font-display text-lg tracking-wide px-8 py-6 w-full sm:w-auto">
                 <Flame className="w-5 h-5 mr-2" />
-                CALCULATE YOUR FUEL
+                CALCULATE FUEL
               </Button>
             </Link>
             <Link to="/calculators?tab=speed">
               <Button size="lg" variant="outline" className="font-display text-lg tracking-wide px-8 py-6 w-full sm:w-auto">
                 <Timer className="w-5 h-5 mr-2" />
-                CALCULATE YOUR SPEED
+                CALCULATE SPEED
               </Button>
             </Link>
           </div>
