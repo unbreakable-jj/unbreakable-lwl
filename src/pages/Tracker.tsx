@@ -11,17 +11,25 @@ import { LeaderboardsView } from '@/components/tracker/LeaderboardsView';
 import { RecordRunModal } from '@/components/tracker/RecordRunModal';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { FriendsWidget } from '@/components/tracker/FriendsWidget';
+import { UserSearchModal } from '@/components/tracker/UserSearchModal';
+import { FriendRequestsModal } from '@/components/tracker/FriendRequestsModal';
+import { FriendsListModal } from '@/components/tracker/FriendsListModal';
+import { useFriends } from '@/hooks/useFriends';
 import { Button } from '@/components/ui/button';
-import { Play, BarChart3, Users, Trophy, Home, BarChart2, User, Plus, Medal } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Play, BarChart3, Users, Trophy, Home, BarChart2, User, Plus, Medal, UserPlus, Bell } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-type Tab = 'feed' | 'stats' | 'records' | 'leaderboards' | 'profile';
+type Tab = 'feed' | 'stats' | 'records' | 'leaderboards' | 'profile' | 'friends';
 
 const Tracker = () => {
   const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('feed');
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showUserSearch, setShowUserSearch] = useState(false);
+  const [showFriendRequests, setShowFriendRequests] = useState(false);
+  const [showFriendsList, setShowFriendsList] = useState(false);
 
   if (loading) {
     return (
@@ -240,6 +248,23 @@ const Tracker = () => {
             </Link>
 
             <div className="flex items-center gap-3">
+              {/* Friends Quick Actions */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative"
+                onClick={() => setShowUserSearch(true)}
+              >
+                <UserPlus className="w-5 h-5" />
+              </Button>
+              <FriendRequestBadge onClick={() => setShowFriendRequests(true)} />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowFriendsList(true)}
+              >
+                <Users className="w-5 h-5" />
+              </Button>
               <Button
                 size="sm"
                 className="font-display tracking-wide"
@@ -391,8 +416,38 @@ const Tracker = () => {
         isOpen={showRecordModal}
         onClose={() => setShowRecordModal(false)}
       />
+      
+      {/* Friends Modals */}
+      <UserSearchModal isOpen={showUserSearch} onClose={() => setShowUserSearch(false)} />
+      <FriendRequestsModal isOpen={showFriendRequests} onClose={() => setShowFriendRequests(false)} />
+      <FriendsListModal isOpen={showFriendsList} onClose={() => setShowFriendsList(false)} />
     </div>
   );
 };
+
+// Friend Request Badge Component with count
+function FriendRequestBadge({ onClick }: { onClick: () => void }) {
+  const { pendingRequests } = useFriends();
+  const receivedCount = pendingRequests.filter(r => r.type === 'received').length;
+  
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="relative"
+      onClick={onClick}
+    >
+      <Bell className="w-5 h-5" />
+      {receivedCount > 0 && (
+        <Badge 
+          variant="default" 
+          className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs bg-primary text-primary-foreground"
+        >
+          {receivedCount}
+        </Badge>
+      )}
+    </Button>
+  );
+}
 
 export default Tracker;
