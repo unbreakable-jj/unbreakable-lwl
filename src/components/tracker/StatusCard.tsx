@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { PostMenu } from './PostMenu';
 import { PostCommentSection } from './PostCommentSection';
+import { ShareMenu } from './ShareMenu';
 
 interface StatusCardProps {
   post: PostWithProfile;
@@ -146,9 +147,10 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments }: Status
           >
             <MessageCircle className={`w-5 h-5 mr-2 ${showComments ? 'fill-primary/20' : ''}`} />
             <span className="font-display tracking-wide">
-              {post.comments_count || 0} Comment{post.comments_count !== 1 ? 's' : ''}
+              {post.comments_count || 0}
             </span>
           </Button>
+          <ShareMenu post={post} />
         </div>
 
         {/* Comments Section */}

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Share2, Facebook, Copy, Check, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { RunWithProfile } from '@/hooks/useRuns';
+import { PostWithProfile } from '@/hooks/usePosts';
 
 // Custom icons for Instagram and TikTok
 const InstagramIcon = () => (
@@ -24,14 +25,22 @@ const TikTokIcon = () => (
   </svg>
 );
 
+const TwitterIcon = () => (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+  </svg>
+);
+
 interface ShareMenuProps {
-  run: RunWithProfile;
+  run?: RunWithProfile;
+  post?: PostWithProfile;
 }
 
-export function ShareMenu({ run }: ShareMenuProps) {
+export function ShareMenu({ run, post }: ShareMenuProps) {
   const [copied, setCopied] = useState(false);
 
   const formatRunStats = () => {
+    if (!run) return '';
     const distance = run.distance_km.toFixed(2);
     const hours = Math.floor(run.duration_seconds / 3600);
     const mins = Math.floor((run.duration_seconds % 3600) / 60);
@@ -44,13 +53,21 @@ export function ShareMenu({ run }: ShareMenuProps) {
   };
 
   const getShareText = () => {
-    const stats = formatRunStats();
-    const title = run.title || 'My Run';
-    return `${title}\n${stats}\n\n#UNBREAKABLE #LiveWithoutLimits #Running`;
+    if (run) {
+      const stats = formatRunStats();
+      const title = run.title || 'My Run';
+      return `${title}\n${stats}\n\n#UNBREAKABLE #LiveWithoutLimits #Running`;
+    }
+    
+    if (post) {
+      const content = post.content ? post.content.slice(0, 200) : '';
+      return `${content}\n\n#UNBREAKABLE #LiveWithoutLimits`;
+    }
+    
+    return '#UNBREAKABLE #LiveWithoutLimits';
   };
 
   const getShareUrl = () => {
-    // Use the published URL for sharing
     return 'https://unbreakable-lwl.lovable.app/tracker';
   };
 
@@ -77,14 +94,22 @@ export function ShareMenu({ run }: ShareMenuProps) {
     );
   };
 
+  const handleTwitterShare = () => {
+    const text = encodeURIComponent(getShareText());
+    const url = encodeURIComponent(getShareUrl());
+    window.open(
+      `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
+      '_blank',
+      'width=600,height=400'
+    );
+  };
+
   const handleInstagramShare = async () => {
-    // Instagram doesn't have a direct web share - copy text for user to paste
     const text = `${getShareText()}\n\n${getShareUrl()}`;
     
     try {
       await navigator.clipboard.writeText(text);
       toast.success('Copied! Open Instagram and paste in your story or post.');
-      // Try to open Instagram
       window.open('https://www.instagram.com/', '_blank');
     } catch {
       toast.error('Failed to copy');
@@ -92,13 +117,11 @@ export function ShareMenu({ run }: ShareMenuProps) {
   };
 
   const handleTikTokShare = async () => {
-    // TikTok doesn't have a direct web share - copy text for user to paste
     const text = `${getShareText()}\n\n${getShareUrl()}`;
     
     try {
       await navigator.clipboard.writeText(text);
       toast.success('Copied! Open TikTok and paste in your video caption.');
-      // Try to open TikTok
       window.open('https://www.tiktok.com/', '_blank');
     } catch {
       toast.error('Failed to copy');
@@ -109,12 +132,11 @@ export function ShareMenu({ run }: ShareMenuProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: run.title || 'My Run',
+          title: run?.title || 'My Post',
           text: getShareText(),
           url: getShareUrl(),
         });
       } catch (err) {
-        // User cancelled or error
         if ((err as Error).name !== 'AbortError') {
           toast.error('Failed to share');
         }
@@ -122,7 +144,6 @@ export function ShareMenu({ run }: ShareMenuProps) {
     }
   };
 
-  // Check if native share is available (usually on mobile)
   const hasNativeShare = typeof navigator !== 'undefined' && !!navigator.share;
 
   return (
@@ -146,6 +167,11 @@ export function ShareMenu({ run }: ShareMenuProps) {
         <DropdownMenuItem onClick={handleFacebookShare}>
           <Facebook className="w-4 h-4 mr-2" />
           Facebook
+        </DropdownMenuItem>
+
+        <DropdownMenuItem onClick={handleTwitterShare}>
+          <TwitterIcon />
+          <span className="ml-2">X (Twitter)</span>
         </DropdownMenuItem>
         
         <DropdownMenuItem onClick={handleInstagramShare}>
