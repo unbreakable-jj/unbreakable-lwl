@@ -70,6 +70,33 @@ export type Database = {
         }
         Relationships: []
       }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       kudos: {
         Row: {
           created_at: string
@@ -299,6 +326,7 @@ export type Database = {
           title: string | null
           updated_at: string
           user_id: string
+          visibility: string
           weather_conditions: string | null
         }
         Insert: {
@@ -323,6 +351,7 @@ export type Database = {
           title?: string | null
           updated_at?: string
           user_id: string
+          visibility?: string
           weather_conditions?: string | null
         }
         Update: {
@@ -347,6 +376,7 @@ export type Database = {
           title?: string | null
           updated_at?: string
           user_id?: string
+          visibility?: string
           weather_conditions?: string | null
         }
         Relationships: []
@@ -503,7 +533,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      are_friends: { Args: { user1: string; user2: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

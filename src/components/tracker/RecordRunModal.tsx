@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRuns } from '@/hooks/useRuns';
 import { usePersonalRecords } from '@/hooks/usePersonalRecords';
 import { useMedals } from '@/hooks/useMedals';
@@ -17,7 +17,7 @@ import { MedalCheckStats } from '@/lib/medalDefinitions';
 import { getCategoryLabel, TROPHY_ICONS, TrophyRank } from '@/lib/trophyDefinitions';
 import { encodePolyline, formatSegmentTime } from '@/lib/segmentUtils';
 import { toast } from 'sonner';
-import { Play, Square, MapPin, Timer, Pencil, Trophy, Medal, Crown } from 'lucide-react';
+import { Play, Square, MapPin, Timer, Pencil, Trophy, Medal, Crown, Globe, Users, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RunMap, positionsToGeoJSON } from './RunMap';
 
@@ -59,6 +59,7 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
   const [hours, setHours] = useState('0');
   const [minutes, setMinutes] = useState('');
   const [seconds, setSeconds] = useState('0');
+  const [visibility, setVisibility] = useState<'public' | 'friends' | 'private'>('public');
   const [isPublic, setIsPublic] = useState(true);
 
   // Calculate distance between two coordinates using Haversine formula
@@ -390,7 +391,8 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
       weather_conditions: null,
       temperature_celsius: null,
       notes: null,
-      is_public: isPublic,
+      is_public: visibility === 'public',
+      visibility: visibility,
       comments_enabled: true,
     });
 
@@ -453,7 +455,8 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
       weather_conditions: null,
       temperature_celsius: null,
       notes: null,
-      is_public: isPublic,
+      is_public: visibility === 'public',
+      visibility: visibility,
       comments_enabled: true,
     });
 
@@ -486,7 +489,7 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
     setHours('0');
     setMinutes('');
     setSeconds('0');
-    setIsPublic(true);
+    setVisibility('public');
     setPositions([]);
     setDistance(0);
     setElapsedSeconds(0);
@@ -665,9 +668,33 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
                   />
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <Label>Public activity</Label>
-                  <Switch checked={isPublic} onCheckedChange={setIsPublic} />
+                <div className="space-y-2">
+                  <Label>Who can see this?</Label>
+                  <Select value={visibility} onValueChange={(v) => setVisibility(v as 'public' | 'friends' | 'private')}>
+                    <SelectTrigger className="bg-input border-border">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public">
+                        <div className="flex items-center gap-2">
+                          <Globe className="w-4 h-4" />
+                          Public - Everyone
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="friends">
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          Friends Only
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="private">
+                        <div className="flex items-center gap-2">
+                          <Lock className="w-4 h-4" />
+                          Private - Only Me
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <Button
@@ -755,9 +782,33 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <Label>Public activity</Label>
-              <Switch checked={isPublic} onCheckedChange={setIsPublic} />
+            <div className="space-y-2">
+              <Label>Who can see this?</Label>
+              <Select value={visibility} onValueChange={(v) => setVisibility(v as 'public' | 'friends' | 'private')}>
+                <SelectTrigger className="bg-input border-border">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="public">
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-4 h-4" />
+                      Public - Everyone
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="friends">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      Friends Only
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="private">
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-4 h-4" />
+                      Private - Only Me
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <Button

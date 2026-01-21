@@ -22,6 +22,7 @@ export interface Run {
   temperature_celsius: number | null;
   notes: string | null;
   is_public: boolean;
+  visibility: 'public' | 'friends' | 'private';
   comments_enabled: boolean;
   created_at: string;
   updated_at: string;
@@ -73,6 +74,7 @@ export function useRuns() {
 
           return {
             ...run,
+            visibility: (run.visibility || 'public') as 'public' | 'friends' | 'private',
             profiles: profileResult.data || undefined,
             kudos_count: kudosResult.count || 0,
             comments_count: commentsResult.count || 0,
@@ -188,7 +190,11 @@ export function useUserRuns(userId?: string) {
     if (error) {
       console.error('Error fetching user runs:', error);
     } else {
-      setRuns(data || []);
+      const typedRuns = (data || []).map(run => ({
+        ...run,
+        visibility: (run.visibility || 'public') as 'public' | 'friends' | 'private',
+      }));
+      setRuns(typedRuns);
     }
     setLoading(false);
   };

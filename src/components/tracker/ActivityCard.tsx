@@ -3,7 +3,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Heart, MessageCircle, MapPin, Clock, Zap, TrendingUp } from 'lucide-react';
+import { Heart, MessageCircle, MapPin, Clock, Zap, TrendingUp, Globe, Users, Lock } from 'lucide-react';
 import { RunWithProfile } from '@/hooks/useRuns';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
@@ -63,6 +63,28 @@ export function ActivityCard({ run, onKudos, onDelete, onToggleComments }: Activ
     return 'R';
   };
 
+  const getVisibilityIcon = () => {
+    switch (run.visibility) {
+      case 'friends':
+        return <Users className="w-3 h-3" />;
+      case 'private':
+        return <Lock className="w-3 h-3" />;
+      default:
+        return <Globe className="w-3 h-3" />;
+    }
+  };
+
+  const getVisibilityLabel = () => {
+    switch (run.visibility) {
+      case 'friends':
+        return 'Friends';
+      case 'private':
+        return 'Private';
+      default:
+        return 'Public';
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -91,6 +113,12 @@ export function ActivityCard({ run, onKudos, onDelete, onToggleComments }: Activ
               <div className="flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-1 rounded-full">
                 <MapPin className="w-3 h-3" />
                 GPS
+              </div>
+            )}
+            {run.visibility !== 'public' && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+                {getVisibilityIcon()}
+                {getVisibilityLabel()}
               </div>
             )}
             <PostMenu

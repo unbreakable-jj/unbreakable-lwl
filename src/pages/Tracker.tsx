@@ -10,6 +10,7 @@ import { RecordsView } from '@/components/tracker/RecordsView';
 import { LeaderboardsView } from '@/components/tracker/LeaderboardsView';
 import { RecordRunModal } from '@/components/tracker/RecordRunModal';
 import { AuthModal } from '@/components/tracker/AuthModal';
+import { FriendsWidget } from '@/components/tracker/FriendsWidget';
 import { Button } from '@/components/ui/button';
 import { Play, BarChart3, Users, Trophy, Home, BarChart2, User, Plus, Medal } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -317,14 +318,22 @@ const Tracker = () => {
       </div>
 
       <main className="container mx-auto px-6 py-6">
-        <div className="max-w-2xl mx-auto">
-          {activeTab === 'feed' && (
-            <ActivityFeed onSignIn={() => setShowAuthModal(true)} />
-          )}
-          {activeTab === 'stats' && <StatsView />}
-          {activeTab === 'records' && <RecordsView />}
-          {activeTab === 'leaderboards' && <LeaderboardsView />}
-          {activeTab === 'profile' && <ProfileView />}
+        <div className="flex gap-6 max-w-5xl mx-auto">
+          {/* Main Content */}
+          <div className="flex-1 max-w-2xl">
+            {activeTab === 'feed' && (
+              <ActivityFeed onSignIn={() => setShowAuthModal(true)} />
+            )}
+            {activeTab === 'stats' && <StatsView />}
+            {activeTab === 'records' && <RecordsView />}
+            {activeTab === 'leaderboards' && <LeaderboardsView />}
+            {activeTab === 'profile' && <ProfileView />}
+          </div>
+
+          {/* Desktop Sidebar */}
+          <div className="hidden lg:block w-80 space-y-6">
+            <FriendsWidget />
+          </div>
         </div>
       </main>
 
