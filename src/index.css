@@ -161,3 +161,53 @@
     opacity: 0;
   }
 }
+
+/* Breathing animations for Mindset page */
+@keyframes breathe-in {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 20px 5px hsl(var(--primary) / 0.3);
+  }
+  100% {
+    transform: scale(1.8);
+    box-shadow: 0 0 60px 20px hsl(var(--primary) / 0.5);
+  }
+}
+
+@keyframes breathe-hold {
+  0%, 100% {
+    transform: scale(1.8);
+    box-shadow: 0 0 60px 20px hsl(var(--primary) / 0.5);
+  }
+  50% {
+    box-shadow: 0 0 80px 30px hsl(var(--primary) / 0.6);
+  }
+}
+
+@keyframes breathe-out {
+  0% {
+    transform: scale(1.8);
+    box-shadow: 0 0 60px 20px hsl(var(--primary) / 0.5);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px 5px hsl(var(--primary) / 0.3);
+  }
+}
+
+.animate-breathe-in {
+  animation: breathe-in 4s ease-in-out forwards;
+}
+
+.animate-breathe-hold {
+  animation: breathe-hold 4s ease-in-out infinite;
+}
+
+.animate-breathe-out {
+  animation: breathe-out 4s ease-in-out forwards;
+}
+
+/* Radial gradient background */
+.bg-gradient-radial {
+  background: radial-gradient(circle at center, var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to));
+}
