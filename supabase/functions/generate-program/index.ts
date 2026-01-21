@@ -168,33 +168,48 @@ Requirements:
 - Include specific sets, reps, and intensity guidelines
 - Provide the full 12-week program with daily workouts`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        temperature: 0.7,
-        max_tokens: 16000,
-      }),
-    });
+    // Retry logic with exponential backoff for rate limits
+    const maxRetries = 3;
+    let lastError: Error | null = null;
+    let response: Response | null = null;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      if (attempt > 0) {
+        // Exponential backoff: 2s, 4s, 8s
+        const delayMs = Math.pow(2, attempt) * 1000;
+        console.log(`Retry attempt ${attempt + 1}, waiting ${delayMs}ms`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
       }
+
+      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          temperature: 0.7,
+          max_tokens: 16000,
+        }),
+      });
+
+      if (response.ok) {
+        break;
+      }
+
+      const errorText = await response.text();
+      console.error(`AI gateway error (attempt ${attempt + 1}):`, response.status, errorText);
+
+      if (response.status === 429) {
+        lastError = new Error("Rate limit exceeded");
+        continue; // Retry on rate limit
+      }
+      
       if (response.status === 402) {
         return new Response(
           JSON.stringify({ error: "Service temporarily unavailable. Please try again later." }),
@@ -203,6 +218,13 @@ Requirements:
       }
       
       throw new Error(`AI gateway error: ${response.status}`);
+    }
+
+    if (!response || !response.ok) {
+      return new Response(
+        JSON.stringify({ error: "The AI is currently busy. Please wait a moment and try again." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const data = await response.json();
