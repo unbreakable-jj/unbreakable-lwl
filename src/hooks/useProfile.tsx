@@ -10,6 +10,7 @@ export interface Profile {
   avatar_url: string | null;
   bio: string | null;
   location: string | null;
+  date_of_birth: string | null;
   total_distance_km: number;
   total_runs: number;
   total_time_seconds: number;

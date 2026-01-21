@@ -9,10 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRuns } from '@/hooks/useRuns';
 import { usePersonalRecords } from '@/hooks/usePersonalRecords';
 import { useMedals } from '@/hooks/useMedals';
+import { useTrophies } from '@/hooks/useTrophies';
 import { useProfile } from '@/hooks/useProfile';
 import { useSegments } from '@/hooks/useSegments';
 import { useAuth } from '@/hooks/useAuth';
 import { MedalCheckStats } from '@/lib/medalDefinitions';
+import { getCategoryLabel, TROPHY_ICONS, TrophyRank } from '@/lib/trophyDefinitions';
 import { encodePolyline, formatSegmentTime } from '@/lib/segmentUtils';
 import { toast } from 'sonner';
 import { Play, Square, MapPin, Timer, Pencil, Trophy, Medal, Crown } from 'lucide-react';
@@ -34,6 +36,7 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
   const { createRun } = useRuns();
   const { checkAndUpdatePRs, records } = usePersonalRecords();
   const { checkAndAwardMedals } = useMedals();
+  const { checkAndAwardTrophies } = useTrophies();
   const { profile } = useProfile();
   const { user } = useAuth();
   const { matchRunToSegments, saveSegmentEfforts, autoDetectSegments } = useSegments();
@@ -320,6 +323,29 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
           }, index * 800);
         });
       }, newPRs.length > 0 ? 1500 : 500);
+    }
+
+    // Check for age/distance trophies
+    const awardedTrophies = await checkAndAwardTrophies({
+      id: runData.id,
+      user_id: user!.id,
+      distance_km: runData.distance_km,
+      duration_seconds: runData.duration_seconds,
+      started_at: runData.started_at,
+      pace_per_km_seconds: runData.pace_per_km_seconds,
+    });
+
+    if (awardedTrophies.length > 0) {
+      triggerConfetti();
+      setTimeout(() => {
+        awardedTrophies.forEach((trophy, index) => {
+          setTimeout(() => {
+            toast.success(`${TROPHY_ICONS[trophy.rank]} ${getCategoryLabel(trophy.category)}`, {
+              description: `You're #${trophy.rank} in this category!`,
+            });
+          }, index * 800);
+        });
+      }, (newPRs.length > 0 ? 1500 : 500) + (newMedals.length * 800));
     }
 
     // Check segment achievements for GPS runs

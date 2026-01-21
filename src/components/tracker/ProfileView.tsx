@@ -8,6 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useProfile } from '@/hooks/useProfile';
 import { useUserRuns } from '@/hooks/useRuns';
 import { useAuth } from '@/hooks/useAuth';
+import { useTrophies } from '@/hooks/useTrophies';
+import { TrophyCase, TrophyCountsBadge } from '@/components/tracker/TrophyCase';
 import { toast } from 'sonner';
 import { 
   Edit2, 
@@ -18,6 +20,7 @@ import {
   TrendingUp, 
   Clock,
   Activity,
+  Cake,
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -26,14 +29,17 @@ export function ProfileView() {
   const { user } = useAuth();
   const { profile, updateProfile } = useProfile();
   const { runs } = useUserRuns(user?.id);
+  const { getTrophyCounts } = useTrophies();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     display_name: '',
     username: '',
     bio: '',
     location: '',
+    date_of_birth: '',
   });
   const [saving, setSaving] = useState(false);
+  const trophyCounts = getTrophyCounts();
 
   const startEditing = () => {
     setEditData({
@@ -41,6 +47,7 @@ export function ProfileView() {
       username: profile?.username || '',
       bio: profile?.bio || '',
       location: profile?.location || '',
+      date_of_birth: profile?.date_of_birth || '',
     });
     setIsEditing(true);
   };
@@ -193,6 +200,21 @@ export function ProfileView() {
                     className="bg-input border-border"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Cake className="w-4 h-4" />
+                    Date of Birth
+                  </Label>
+                  <Input
+                    type="date"
+                    value={editData.date_of_birth}
+                    onChange={(e) => setEditData({ ...editData, date_of_birth: e.target.value })}
+                    className="bg-input border-border"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Required for age-group leaderboards and trophies
+                  </p>
+                </div>
               </div>
             ) : (
               <>
@@ -203,6 +225,16 @@ export function ProfileView() {
                   <div className="flex items-center gap-1 text-muted-foreground mt-2">
                     <MapPin className="w-4 h-4" />
                     <span>{profile.location}</span>
+                  </div>
+                )}
+                {/* Trophy counts badge */}
+                {(trophyCounts.gold > 0 || trophyCounts.silver > 0 || trophyCounts.bronze > 0) && (
+                  <div className="mt-3">
+                    <TrophyCountsBadge 
+                      gold={trophyCounts.gold} 
+                      silver={trophyCounts.silver} 
+                      bronze={trophyCounts.bronze} 
+                    />
                   </div>
                 )}
               </>
@@ -298,6 +330,9 @@ export function ProfileView() {
           </p>
         )}
       </Card>
+
+      {/* Trophy Case */}
+      <TrophyCase />
     </div>
   );
 }

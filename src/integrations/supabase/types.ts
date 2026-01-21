@@ -230,6 +230,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string
+          date_of_birth: string | null
           display_name: string | null
           id: string
           location: string | null
@@ -244,6 +245,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          date_of_birth?: string | null
           display_name?: string | null
           id?: string
           location?: string | null
@@ -258,6 +260,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          date_of_birth?: string | null
           display_name?: string | null
           id?: string
           location?: string | null
@@ -447,6 +450,45 @@ export type Database = {
           start_lng?: number
           total_efforts?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      trophies: {
+        Row: {
+          age_group: string | null
+          category: string
+          created_at: string
+          distance_bucket: string
+          earned_at: string
+          id: string
+          pace_per_km_seconds: number
+          rank: number
+          run_id: string | null
+          user_id: string
+        }
+        Insert: {
+          age_group?: string | null
+          category: string
+          created_at?: string
+          distance_bucket: string
+          earned_at?: string
+          id?: string
+          pace_per_km_seconds: number
+          rank: number
+          run_id?: string | null
+          user_id: string
+        }
+        Update: {
+          age_group?: string | null
+          category?: string
+          created_at?: string
+          distance_bucket?: string
+          earned_at?: string
+          id?: string
+          pace_per_km_seconds?: number
+          rank?: number
+          run_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
