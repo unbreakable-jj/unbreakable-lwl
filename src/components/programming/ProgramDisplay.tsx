@@ -1,9 +1,13 @@
 import { useState } from 'react';
-import { GeneratedProgram, Exercise } from '@/lib/programTypes';
+import { GeneratedProgram, Exercise, WorkoutDay } from '@/lib/programTypes';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
+import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
+import { useAuth } from '@/hooks/useAuth';
+import { ActiveWorkoutModal } from './ActiveWorkoutModal';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -12,13 +16,16 @@ import {
   Footprints, 
   Battery,
   RefreshCw,
-  Download,
-  Utensils
+  Save,
+  Utensils,
+  Play,
+  Loader2
 } from 'lucide-react';
 
 interface ProgramDisplayProps {
   program: GeneratedProgram;
   onReset: () => void;
+  savedProgramId?: string;
 }
 
 const equipmentIcons: Record<string, React.ReactNode> = {
@@ -35,9 +42,15 @@ const equipmentColors: Record<string, string> = {
   running: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
 };
 
-export function ProgramDisplay({ program, onReset }: ProgramDisplayProps) {
+export function ProgramDisplay({ program, onReset, savedProgramId }: ProgramDisplayProps) {
   const [selectedWeek, setSelectedWeek] = useState(1);
+  const [showWorkoutModal, setShowWorkoutModal] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<WorkoutDay | null>(null);
   
+  const { user } = useAuth();
+  const { saveProgram } = useTrainingPrograms();
+  const { activeSession, startSession, updateExerciseLog, completeSession, cancelSession } = useWorkoutSessions();
+
   // Support both template-based and full weeks structure with defensive checks
   const templateDays = program?.templateWeek?.days || program?.weeks?.[0]?.days || [];
   const phases = program?.phases || [];
@@ -55,6 +68,33 @@ export function ProgramDisplay({ program, onReset }: ProgramDisplayProps) {
   const handlePrevWeek = () => setSelectedWeek(Math.max(1, selectedWeek - 1));
   const handleNextWeek = () => setSelectedWeek(Math.min(12, selectedWeek + 1));
 
+  const handleSaveProgram = () => {
+    if (!user) return;
+    saveProgram.mutate(program);
+  };
+
+  const handleStartWorkout = (day: WorkoutDay) => {
+    if (!user) return;
+    
+    const exercises = day.exercises.map((ex) => ({
+      name: ex.name,
+      equipment: ex.equipment,
+      sets: typeof ex.sets === 'number' ? ex.sets : parseInt(String(ex.sets)) || 3,
+      reps: ex.reps,
+    }));
+
+    startSession.mutate({
+      programId: savedProgramId,
+      weekNumber: selectedWeek,
+      dayName: day.day,
+      sessionType: day.sessionType,
+      exercises,
+    });
+    
+    setSelectedDay(day);
+    setShowWorkoutModal(true);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -66,6 +106,21 @@ export function ProgramDisplay({ program, onReset }: ProgramDisplayProps) {
           <p className="text-muted-foreground mt-1">{program.overview}</p>
         </div>
         <div className="flex gap-2">
+          {user && !savedProgramId && (
+            <Button 
+              variant="default" 
+              onClick={handleSaveProgram} 
+              className="gap-2"
+              disabled={saveProgram.isPending}
+            >
+              {saveProgram.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              Save Program
+            </Button>
+          )}
           <Button variant="outline" onClick={onReset} className="gap-2">
             <RefreshCw className="w-4 h-4" />
             New Program
@@ -217,10 +272,44 @@ export function ProgramDisplay({ program, onReset }: ProgramDisplayProps) {
                   <span className="text-sm text-muted-foreground">Cooldown:</span>
                   <p className="text-foreground">{day.cooldown}</p>
                 </div>
+
+                {/* Start Workout Button */}
+                {user && (
+                  <Button 
+                    onClick={() => handleStartWorkout(day)} 
+                    className="w-full mt-4 gap-2"
+                    disabled={startSession.isPending}
+                  >
+                    {startSession.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Play className="w-4 h-4" />
+                    )}
+                    Start Workout
+                  </Button>
+                )}
               </Card>
             </TabsContent>
           ))}
         </Tabs>
+      )}
+
+      {/* Active Workout Modal */}
+      {activeSession && (
+        <ActiveWorkoutModal
+          session={activeSession}
+          open={showWorkoutModal}
+          onOpenChange={setShowWorkoutModal}
+          onUpdateLog={(logId, data) => updateExerciseLog.mutate({ logId, ...data })}
+          onComplete={(notes, visibility) => {
+            completeSession.mutate({ sessionId: activeSession.id, notes, visibility });
+            setShowWorkoutModal(false);
+          }}
+          onCancel={() => {
+            cancelSession.mutate(activeSession.id);
+            setShowWorkoutModal(false);
+          }}
+        />
       )}
 
       {/* Progression & Nutrition */}
