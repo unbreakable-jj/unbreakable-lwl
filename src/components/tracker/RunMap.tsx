@@ -408,10 +408,13 @@ export function positionsToGeoJSON(positions: Position[]): string {
   });
 }
 
-// Helper function to parse GeoJSON back to positions
-export function geoJSONToPositions(geoJSON: string): Position[] {
+// Helper function to parse GeoJSON or legacy format back to positions
+export function geoJSONToPositions(routeData: string): Position[] {
+  if (!routeData) return [];
+  
+  // Try to parse as GeoJSON first
   try {
-    const data = JSON.parse(geoJSON);
+    const data = JSON.parse(routeData);
     if (data.geometry?.type === 'LineString' && data.geometry?.coordinates) {
       return data.geometry.coordinates.map((coord: number[], i: number) => ({
         lng: coord[0],
@@ -420,8 +423,20 @@ export function geoJSONToPositions(geoJSON: string): Position[] {
         timestamp: data.properties?.timestamps?.[i] || Date.now(),
       }));
     }
-  } catch (e) {
-    console.error('Failed to parse GeoJSON:', e);
+  } catch {
+    // Not JSON, try legacy pipe-separated format: "lat,lng|lat,lng|..."
+    const points = routeData.split('|');
+    if (points.length > 0 && points[0].includes(',')) {
+      return points.map((point, i) => {
+        const [lat, lng] = point.split(',').map(Number);
+        return {
+          lat: lat || 0,
+          lng: lng || 0,
+          timestamp: Date.now() - (points.length - i) * 1000,
+        };
+      }).filter(p => p.lat !== 0 && p.lng !== 0);
+    }
   }
+  
   return [];
 }
