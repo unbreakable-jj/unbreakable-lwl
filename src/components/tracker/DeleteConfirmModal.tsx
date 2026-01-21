@@ -15,6 +15,8 @@ interface DeleteConfirmModalProps {
   onConfirm: () => void;
   title: string;
   description: string;
+  confirmText?: string;
+  loading?: boolean;
 }
 
 export function DeleteConfirmModal({
@@ -23,6 +25,8 @@ export function DeleteConfirmModal({
   onConfirm,
   title,
   description,
+  confirmText = 'Delete',
+  loading = false,
 }: DeleteConfirmModalProps) {
   return (
     <AlertDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -32,12 +36,13 @@ export function DeleteConfirmModal({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={onClose} disabled={loading}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
+            disabled={loading}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Delete
+            {loading ? 'Processing...' : confirmText}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
