@@ -3,13 +3,14 @@ import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Heart, MessageCircle, Share2, MapPin, Clock, Zap, TrendingUp } from 'lucide-react';
+import { Heart, MessageCircle, MapPin, Clock, Zap, TrendingUp } from 'lucide-react';
 import { RunWithProfile } from '@/hooks/useRuns';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { RunMap, geoJSONToPositions } from './RunMap';
 import { CommentSection } from './CommentSection';
 import { PostMenu } from './PostMenu';
+import { ShareMenu } from './ShareMenu';
 
 interface ActivityCardProps {
   run: RunWithProfile;
@@ -198,9 +199,7 @@ export function ActivityCard({ run, onKudos, onDelete, onToggleComments }: Activ
               {run.comments_count || 0}
             </span>
           </Button>
-          <Button variant="ghost" size="sm" className="text-muted-foreground">
-            <Share2 className="w-5 h-5" />
-          </Button>
+          <ShareMenu run={run} />
         </div>
 
         {/* Comments Section */}
