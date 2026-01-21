@@ -280,6 +280,7 @@ export type Database = {
         Row: {
           average_speed_kph: number | null
           calories_burned: number | null
+          comments_enabled: boolean
           created_at: string
           description: string | null
           distance_km: number
@@ -303,6 +304,7 @@ export type Database = {
         Insert: {
           average_speed_kph?: number | null
           calories_burned?: number | null
+          comments_enabled?: boolean
           created_at?: string
           description?: string | null
           distance_km: number
@@ -326,6 +328,7 @@ export type Database = {
         Update: {
           average_speed_kph?: number | null
           calories_burned?: number | null
+          comments_enabled?: boolean
           created_at?: string
           description?: string | null
           distance_km?: number

@@ -8,16 +8,22 @@ import { RunWithProfile } from '@/hooks/useRuns';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { RunMap, geoJSONToPositions } from './RunMap';
+import { CommentSection } from './CommentSection';
+import { PostMenu } from './PostMenu';
 
 interface ActivityCardProps {
   run: RunWithProfile;
   onKudos: (runId: string) => void;
-  onComment?: (runId: string) => void;
+  onDelete: (runId: string) => void;
+  onToggleComments: (runId: string) => void;
 }
 
-export function ActivityCard({ run, onKudos, onComment }: ActivityCardProps) {
+export function ActivityCard({ run, onKudos, onDelete, onToggleComments }: ActivityCardProps) {
   const { user } = useAuth();
   const [isLiking, setIsLiking] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+
+  const isOwner = user?.id === run.user_id;
 
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -79,12 +85,20 @@ export function ActivityCard({ run, onKudos, onComment }: ActivityCardProps) {
               {formatDistanceToNow(new Date(run.started_at), { addSuffix: true })}
             </p>
           </div>
-          {run.is_gps_tracked && (
-            <div className="flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-1 rounded-full">
-              <MapPin className="w-3 h-3" />
-              GPS
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {run.is_gps_tracked && (
+              <div className="flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-1 rounded-full">
+                <MapPin className="w-3 h-3" />
+                GPS
+              </div>
+            )}
+            <PostMenu
+              isOwner={isOwner}
+              commentsEnabled={run.comments_enabled}
+              onDelete={() => onDelete(run.id)}
+              onToggleComments={() => onToggleComments(run.id)}
+            />
+          </div>
         </div>
 
         {/* Title & Description */}
@@ -176,10 +190,10 @@ export function ActivityCard({ run, onKudos, onComment }: ActivityCardProps) {
           <Button
             variant="ghost"
             size="sm"
-            className="flex-1 text-muted-foreground"
-            onClick={() => onComment?.(run.id)}
+            className={`flex-1 ${showComments ? 'text-primary' : 'text-muted-foreground'}`}
+            onClick={() => setShowComments(!showComments)}
           >
-            <MessageCircle className="w-5 h-5 mr-2" />
+            <MessageCircle className={`w-5 h-5 mr-2 ${showComments ? 'fill-primary/20' : ''}`} />
             <span className="font-display tracking-wide">
               {run.comments_count || 0}
             </span>
@@ -188,6 +202,14 @@ export function ActivityCard({ run, onKudos, onComment }: ActivityCardProps) {
             <Share2 className="w-5 h-5" />
           </Button>
         </div>
+
+        {/* Comments Section */}
+        <CommentSection
+          runId={run.id}
+          commentsEnabled={run.comments_enabled}
+          isExpanded={showComments}
+          onToggle={() => setShowComments(!showComments)}
+        />
       </Card>
     </motion.div>
   );

@@ -22,6 +22,7 @@ export interface Run {
   temperature_celsius: number | null;
   notes: string | null;
   is_public: boolean;
+  comments_enabled: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -132,7 +133,33 @@ export function useRuns() {
     await fetchRuns();
   };
 
-  return { runs, loading, refetch: fetchRuns, createRun, deleteRun, toggleKudos };
+  const toggleCommentsEnabled = async (runId: string) => {
+    if (!user) return { error: new Error('Not authenticated') };
+
+    const run = runs.find((r) => r.id === runId);
+    if (!run) return { error: new Error('Run not found') };
+
+    // Only owner can toggle
+    if (run.user_id !== user.id) return { error: new Error('Not authorized') };
+
+    const { error } = await supabase
+      .from('runs')
+      .update({ comments_enabled: !run.comments_enabled })
+      .eq('id', runId);
+
+    if (!error) {
+      // Update local state
+      setRuns((prev) =>
+        prev.map((r) =>
+          r.id === runId ? { ...r, comments_enabled: !r.comments_enabled } : r
+        )
+      );
+    }
+
+    return { error };
+  };
+
+  return { runs, loading, refetch: fetchRuns, createRun, deleteRun, toggleKudos, toggleCommentsEnabled };
 }
 
 export function useUserRuns(userId?: string) {
