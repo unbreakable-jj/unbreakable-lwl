@@ -7,13 +7,14 @@ import { ActivityFeed } from '@/components/tracker/ActivityFeed';
 import { StatsView } from '@/components/tracker/StatsView';
 import { ProfileView } from '@/components/tracker/ProfileView';
 import { RecordsView } from '@/components/tracker/RecordsView';
+import { LeaderboardsView } from '@/components/tracker/LeaderboardsView';
 import { RecordRunModal } from '@/components/tracker/RecordRunModal';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { Button } from '@/components/ui/button';
 import { Play, BarChart3, Users, Trophy, Home, BarChart2, User, Plus, Medal } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-type Tab = 'feed' | 'stats' | 'records' | 'profile';
+type Tab = 'feed' | 'stats' | 'records' | 'leaderboards' | 'profile';
 
 const Tracker = () => {
   const { user, loading } = useAuth();
@@ -290,6 +291,17 @@ const Tracker = () => {
               RECORDS
             </button>
             <button
+              onClick={() => setActiveTab('leaderboards')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-md font-display tracking-wide transition-all ${
+                activeTab === 'leaderboards'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Trophy className="w-4 h-4" />
+              LEADERBOARDS
+            </button>
+            <button
               onClick={() => setActiveTab('profile')}
               className={`flex items-center gap-2 px-6 py-3 rounded-md font-display tracking-wide transition-all ${
                 activeTab === 'profile'
@@ -311,6 +323,7 @@ const Tracker = () => {
           )}
           {activeTab === 'stats' && <StatsView />}
           {activeTab === 'records' && <RecordsView />}
+          {activeTab === 'leaderboards' && <LeaderboardsView />}
           {activeTab === 'profile' && <ProfileView />}
         </div>
       </main>
