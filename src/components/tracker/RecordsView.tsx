@@ -61,16 +61,16 @@ export function RecordsView() {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="segments" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-muted/50">
-          <TabsTrigger value="segments" className="font-display tracking-wide text-xs">
+        <TabsList className="grid w-full grid-cols-3 bg-background border border-border">
+          <TabsTrigger value="segments" className="font-display tracking-wide text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Crown className="w-4 h-4 mr-1" />
             SEGMENTS
           </TabsTrigger>
-          <TabsTrigger value="records" className="font-display tracking-wide text-xs">
+          <TabsTrigger value="records" className="font-display tracking-wide text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Trophy className="w-4 h-4 mr-1" />
             RECORDS
           </TabsTrigger>
-          <TabsTrigger value="medals" className="font-display tracking-wide text-xs">
+          <TabsTrigger value="medals" className="font-display tracking-wide text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Medal className="w-4 h-4 mr-1" />
             MEDALS
           </TabsTrigger>
@@ -97,17 +97,17 @@ export function RecordsView() {
                   transition={{ delay: index * 0.05 }}
                 >
                   <Card
-                    className={`p-4 border-border ${
+                    className={`p-4 border-l-4 ${
                       pr.record
-                        ? 'bg-gradient-to-r from-primary/10 to-transparent border-primary/30'
-                        : 'bg-card opacity-60'
+                        ? 'bg-card border-border border-l-primary'
+                        : 'bg-background border-border border-l-locked opacity-60'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div
                           className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                            pr.record ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
+                            pr.record ? 'bg-primary/20 text-primary' : 'bg-secondary text-locked'
                           }`}
                         >
                           <Trophy className="w-6 h-6" />
@@ -121,7 +121,7 @@ export function RecordsView() {
                               {format(parseISO(pr.record.achieved_at), 'MMM d, yyyy')}
                             </p>
                           ) : (
-                            <p className="text-sm text-muted-foreground">Not set yet</p>
+                            <p className="text-sm text-locked-foreground">Not set yet</p>
                           )}
                         </div>
                       </div>
@@ -163,8 +163,8 @@ export function RecordsView() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: index * 0.03 }}
                   >
-                    <Card className="p-3 bg-gradient-to-br from-primary/20 to-transparent border-primary/30 text-center">
-                      <div className="text-3xl mb-1">{medal.icon}</div>
+                    <Card className="p-3 bg-card border border-border border-l-4 border-l-primary text-center group relative">
+                      <div className="text-3xl mb-1 medal-unlocked">{medal.icon}</div>
                       <p className="font-display text-xs text-foreground tracking-wide line-clamp-2">
                         {medal.name}
                       </p>
@@ -173,6 +173,10 @@ export function RecordsView() {
                           {format(parseISO(medal.earned.earned_at), 'MMM d')}
                         </p>
                       )}
+                      {/* Tooltip */}
+                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-background border border-border px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                        Earned {medal.earned && format(parseISO(medal.earned.earned_at), 'MMM d, yyyy')}
+                      </div>
                     </Card>
                   </motion.div>
                 ))}
@@ -207,14 +211,18 @@ export function RecordsView() {
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: index * 0.02 }}
                     >
-                      <Card className="p-3 bg-muted/30 border-border text-center opacity-50 grayscale">
-                        <div className="text-3xl mb-1">{medal.icon}</div>
-                        <p className="font-display text-xs text-muted-foreground tracking-wide line-clamp-2">
+                      <Card className="p-3 bg-background border border-border text-center group relative">
+                        <div className="text-3xl mb-1 medal-locked grayscale">{medal.icon}</div>
+                        <p className="font-display text-xs text-locked-foreground tracking-wide line-clamp-2">
                           {medal.name}
                         </p>
-                        <p className="text-[10px] text-muted-foreground/50 mt-1">
+                        <p className="text-[10px] text-locked-foreground mt-1">
                           Locked
                         </p>
+                        {/* Tooltip */}
+                        <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-background border border-border px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 text-muted-foreground">
+                          Unlock: {medal.description || medal.name}
+                        </div>
                       </Card>
                     </motion.div>
                   ))}

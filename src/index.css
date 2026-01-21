@@ -13,74 +13,86 @@
 
 @layer base {
   :root {
-    --background: 0 0% 7%;
-    --foreground: 0 0% 98%;
+    /* LWL Dark & Bold - Pure Black/Orange/White */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
 
     --card: 0 0% 10%;
-    --card-foreground: 0 0% 98%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 100%;
 
     --primary: 24 100% 50%;
     --primary-foreground: 0 0% 100%;
+    --primary-glow: 30 100% 55%;
 
-    --secondary: 24 80% 60%;
-    --secondary-foreground: 0 0% 7%;
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 0 0% 7%;
+    --muted-foreground: 0 0% 80%;
 
     --accent: 24 100% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 20%;
-    --input: 0 0% 12%;
+    --input: 0 0% 0%;
     --ring: 24 100% 50%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 10%;
-    --sidebar-foreground: 0 0% 98%;
+    /* Custom LWL tokens */
+    --surface: 0 0% 10%;
+    --locked: 0 0% 40%;
+    --locked-foreground: 0 0% 60%;
+
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 24 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 0 0% 20%;
     --sidebar-ring: 24 100% 50%;
   }
 
   .dark {
-    --background: 0 0% 7%;
-    --foreground: 0 0% 98%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
 
     --card: 0 0% 10%;
-    --card-foreground: 0 0% 98%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 100%;
 
     --primary: 24 100% 50%;
     --primary-foreground: 0 0% 100%;
+    --primary-glow: 30 100% 55%;
 
-    --secondary: 24 80% 60%;
-    --secondary-foreground: 0 0% 7%;
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 0 0% 7%;
+    --muted-foreground: 0 0% 80%;
 
     --accent: 24 100% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 30%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 20%;
-    --input: 0 0% 12%;
+    --input: 0 0% 0%;
     --ring: 24 100% 50%;
+
+    --surface: 0 0% 10%;
+    --locked: 0 0% 40%;
+    --locked-foreground: 0 0% 60%;
   }
 }
 
@@ -91,6 +103,50 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Global LWL Button Styles */
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-b from-primary to-[hsl(20,100%,45%)] text-primary-foreground font-display tracking-wide rounded-lg shadow-[0_4px_12px_rgba(255,102,0,0.3)] hover:shadow-[0_6px_16px_rgba(255,102,0,0.4)] transition-all;
+  }
+
+  .card-lwl {
+    @apply bg-card border border-border rounded-lg border-l-4 border-l-primary;
+  }
+
+  .input-lwl {
+    @apply bg-background border border-border focus:border-primary focus:ring-primary;
+  }
+
+  /* Medal styles */
+  .medal-locked {
+    @apply text-[hsl(var(--locked))] opacity-50;
+  }
+
+  .medal-unlocked {
+    @apply text-primary;
+    filter: drop-shadow(0 0 8px hsl(var(--primary-glow)));
+    animation: medal-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes medal-pulse {
+    0%, 100% {
+      filter: drop-shadow(0 0 8px hsl(var(--primary-glow)));
+    }
+    50% {
+      filter: drop-shadow(0 0 16px hsl(var(--primary-glow)));
+    }
+  }
+
+  /* Nav active state */
+  .nav-active {
+    @apply text-primary border-b-2 border-primary;
+  }
+
+  .nav-inactive {
+    @apply text-muted-foreground hover:text-foreground;
   }
 }
 
