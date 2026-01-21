@@ -9,6 +9,8 @@ import { ProgramFormStep2 } from '@/components/programming/ProgramFormStep2';
 import { ProgramFormStep3 } from '@/components/programming/ProgramFormStep3';
 import { ProgramFormStep4 } from '@/components/programming/ProgramFormStep4';
 import { ProgramDisplay } from '@/components/programming/ProgramDisplay';
+import { MyProgramsSection } from '@/components/programming/MyProgramsSection';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   Goal, 
   Level, 
@@ -22,11 +24,13 @@ import {
   ArrowRight, 
   Loader2, 
   Sparkles,
-  Brain
+  Brain,
+  Dumbbell
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Programming() {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -320,6 +324,19 @@ export default function Programming() {
           </div>
         </div>
       </main>
+
+      {/* My Programs Section */}
+      {user && (
+        <section className="container mx-auto px-4 py-8 border-t border-border">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="font-display text-2xl text-foreground mb-6 flex items-center gap-2">
+              <Dumbbell className="w-6 h-6 text-primary" />
+              MY PROGRAMS
+            </h2>
+            <MyProgramsSection />
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-border bg-card py-6 mt-auto">
