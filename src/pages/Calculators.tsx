@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import logo from '@/assets/logo.webp';
 import { Button } from '@/components/ui/button';
+import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { Dumbbell, Flame, Timer } from 'lucide-react';
 
 import { StrengthForm } from '@/components/StrengthForm';
@@ -33,7 +34,7 @@ const heroContent = {
     goalResult: "It's to build a",
     goalEmphasis: 'STRONG, MOBILE',
     goalEnd: 'body that carries you confidently through every stage of life.',
-    hashtag: '#Unbreakable',
+    hashtag: '#UNBREAKABLE',
   },
   fuel: {
     title: 'FUEL YOUR',
@@ -47,7 +48,7 @@ const heroContent = {
     goalEmphasis: 'STRONG, ENERGIZED, RESILIENT',
     goalEnd: 'body that performs, recovers, and thrives through every stage of life.',
     extra: 'Fuel to train. Fuel to recover. Fuel to live.',
-    hashtag: '#FuelYourResults',
+    hashtag: '#FUELYOURRESULTS',
   },
   speed: {
     title: 'SPEED',
@@ -61,7 +62,7 @@ const heroContent = {
     goalEmphasis: 'FAST, RESILIENT, ENDURING',
     goalEnd: 'body that carries you confidently through every stage of life.',
     extra: 'Run to build. Run to recover. Run to live.',
-    hashtag: '#RunForLife',
+    hashtag: '#RUNFORLIFE',
   },
 };
 
@@ -155,16 +156,16 @@ const Calculators = () => {
   const hero = heroContent[activeTab];
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
-    { key: 'strength', label: 'Strength', icon: <Dumbbell className="w-4 h-4" /> },
-    { key: 'fuel', label: 'Fuel', icon: <Flame className="w-4 h-4" /> },
-    { key: 'speed', label: 'Speed', icon: <Timer className="w-4 h-4" /> },
+    { key: 'strength', label: 'STRENGTH', icon: <Dumbbell className="w-5 h-5" /> },
+    { key: 'fuel', label: 'FUEL', icon: <Flame className="w-5 h-5" /> },
+    { key: 'speed', label: 'SPEED', icon: <Timer className="w-5 h-5" /> },
   ];
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-4">
+      {/* Minimal Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm">
+        <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
               <img src={logo} alt="Live Without Limits" className="h-10 object-contain" />
@@ -172,27 +173,35 @@ const Calculators = () => {
                 LIVE WITHOUT LIMITS
               </span>
             </Link>
-            <span className="font-display text-muted-foreground tracking-wide">
-              Calculators
-            </span>
+            <NavigationDrawer />
           </div>
         </div>
       </header>
 
-      {/* Page Title */}
-      <section className="py-8 text-center border-b border-border">
-        <h1 className="font-display text-4xl md:text-5xl text-primary tracking-wide mb-2">
-          CALCULATORS
-        </h1>
-        <p className="text-muted-foreground">
-          Choose your calculator below to get started
-        </p>
+      {/* Hero Section - Calculator Title */}
+      <section className="pt-32 pb-12 text-center px-6">
+        <div className="max-w-4xl mx-auto">
+          <img
+            src={logo}
+            alt="Live Without Limits"
+            className="h-32 md:h-40 object-contain mx-auto mb-6"
+          />
+          <h1 className="font-display text-5xl md:text-7xl text-foreground tracking-wide leading-none">
+            {hero.title}
+          </h1>
+          <h1 className="font-display text-5xl md:text-7xl text-primary tracking-wide leading-none mb-6">
+            {hero.titleAccent}
+          </h1>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed uppercase tracking-wide">
+            {hero.intro}
+          </p>
+        </div>
       </section>
 
-      {/* Tab Navigation */}
-      <div className="container mx-auto px-4 py-6">
+      {/* Tab Navigation - Centered Pills */}
+      <div className="container mx-auto px-6 py-8">
         <div className="flex justify-center">
-          <div className="inline-flex bg-card border border-border rounded-lg p-1 gap-1">
+          <div className="inline-flex bg-card border border-border rounded-lg p-1.5 gap-1">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
@@ -212,19 +221,11 @@ const Calculators = () => {
       </div>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-5xl mx-auto">
-          {/* Hero Content */}
-          <div className="bg-card border border-border rounded-lg p-6 md:p-8 mb-8">
-            <h2 className="font-display text-3xl md:text-4xl text-foreground mb-4 tracking-wide">
-              {hero.title} <span className="text-primary">{hero.titleAccent}</span>
-            </h2>
-            
-            <p className="text-muted-foreground leading-relaxed mb-3">
-              {hero.intro}
-            </p>
-            
-            <p className="text-muted-foreground leading-relaxed mb-3">
+      <main className="container mx-auto px-6 py-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Description Card */}
+          <div className="bg-card border border-border rounded-lg p-8 md:p-10 mb-10 text-center max-w-4xl mx-auto">
+            <p className="text-muted-foreground leading-relaxed mb-4">
               {hero.description}{' '}
               <span className="text-primary font-semibold">{hero.emphasis}</span>{' '}
               {hero.emphasisContinue}
@@ -234,28 +235,28 @@ const Calculators = () => {
               {hero.goal}
             </p>
             
-            <p className="text-muted-foreground leading-relaxed mb-3">
+            <p className="text-muted-foreground leading-relaxed">
               {hero.goalResult}{' '}
               <span className="text-primary font-semibold">{hero.goalEmphasis}</span>{' '}
               {hero.goalEnd}
             </p>
             
             {'extra' in hero && hero.extra && (
-              <p className="text-muted-foreground leading-relaxed mb-3">
+              <p className="text-muted-foreground leading-relaxed mt-4">
                 {hero.extra}
               </p>
             )}
             
-            <p className="text-primary font-display text-xl tracking-wide mt-4">
+            <p className="text-primary font-display text-2xl tracking-wide mt-6">
               {hero.hashtag}
             </p>
           </div>
 
           {/* Calculator Grid */}
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid lg:grid-cols-2 gap-8">
             {/* Form */}
-            <div className="bg-card border border-border rounded-lg p-6 md:p-8">
-              <h3 className="font-display text-2xl text-foreground mb-6 tracking-wide">
+            <div className="bg-card border border-border rounded-lg p-8">
+              <h3 className="font-display text-2xl text-foreground mb-8 tracking-wide text-center">
                 {activeTab === 'strength' && 'ENTER YOUR LIFT'}
                 {activeTab === 'fuel' && 'ENTER YOUR DETAILS'}
                 {activeTab === 'speed' && 'ENTER YOUR RACE'}
@@ -276,7 +277,7 @@ const Calculators = () => {
                     unit={strengthResult.unit}
                   />
                 ) : (
-                  <EmptyState emoji="🏋️" title="Ready to Calculate" description="Enter your lift details to see your estimated 1RM and strength level." />
+                  <EmptyState emoji="🏋️" title="READY TO CALCULATE" description="Enter your lift details to see your estimated 1RM and strength level." />
                 )
               )}
               
@@ -284,7 +285,7 @@ const Calculators = () => {
                 fuelResult ? (
                   <FuelResults result={fuelResult} />
                 ) : (
-                  <EmptyState emoji="🔥" title="Ready to Transform?" description="Enter your details to get your personalized calorie and macro targets." />
+                  <EmptyState emoji="🔥" title="READY TO TRANSFORM?" description="Enter your details to get your personalized calorie and macro targets." />
                 )
               )}
               
@@ -292,7 +293,7 @@ const Calculators = () => {
                 speedResult ? (
                   <SpeedResults result={speedResult} />
                 ) : (
-                  <EmptyState emoji="🏃" title="Ready to Analyze" description="Enter your race time to see your speed stats and performance level." />
+                  <EmptyState emoji="🏃" title="READY TO ANALYZE" description="Enter your race time to see your speed stats and performance level." />
                 )
               )}
             </div>
@@ -301,7 +302,7 @@ const Calculators = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border py-8 mt-12 text-center">
+      <footer className="border-t border-border py-10 mt-16 text-center">
         <p className="text-muted-foreground text-sm">
           © 2024 Live Without Limits. All rights reserved.
         </p>
@@ -312,15 +313,15 @@ const Calculators = () => {
 
 function EmptyState({ emoji, title, description }: { emoji: string; title: string; description: string }) {
   return (
-    <div className="bg-card border border-border rounded-lg p-8 h-full flex items-center justify-center min-h-[400px]">
+    <div className="bg-card border border-border rounded-lg p-10 h-full flex items-center justify-center min-h-[450px]">
       <div className="text-center">
-        <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-          <span className="text-4xl">{emoji}</span>
+        <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+          <span className="text-5xl">{emoji}</span>
         </div>
-        <h3 className="font-display text-2xl text-foreground mb-2 tracking-wide">
+        <h3 className="font-display text-2xl text-foreground mb-3 tracking-wide">
           {title}
         </h3>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground max-w-sm mx-auto">
           {description}
         </p>
       </div>
