@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Home, Calculator, Activity, User, LogOut, Settings, Brain } from 'lucide-react';
+import { Menu, X, Home, Calculator, Activity, User, LogOut, Settings, Brain, Sparkles } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -35,6 +35,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
   const navLinks = [
     { to: '/', label: 'HOME', icon: Home },
     { to: '/calculators', label: 'CALCULATORS', icon: Calculator },
+    { to: '/programming', label: 'PROGRAMMING', icon: Sparkles },
     { to: '/tracker', label: 'RUN TRACKER', icon: Activity },
     { to: '/mindset', label: 'MINDSET', icon: Brain },
   ];
