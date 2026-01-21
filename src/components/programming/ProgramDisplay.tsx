@@ -50,6 +50,7 @@ export function ProgramDisplay({ program, onReset, savedProgramId }: ProgramDisp
   const { user } = useAuth();
   const { saveProgram } = useTrainingPrograms();
   const { activeSession, startSession, updateExerciseLog, completeSession, cancelSession } = useWorkoutSessions();
+  const sessionForModal = activeSession ?? (startSession.data ?? null);
 
   // Support both template-based and full weeks structure with defensive checks
   const templateDays = program?.templateWeek?.days || program?.weeks?.[0]?.days || [];
@@ -300,18 +301,18 @@ export function ProgramDisplay({ program, onReset, savedProgramId }: ProgramDisp
       )}
 
       {/* Active Workout Modal */}
-      {activeSession && (
+      {sessionForModal && (
         <ActiveWorkoutModal
-          session={activeSession}
+          session={sessionForModal}
           open={showWorkoutModal}
           onOpenChange={setShowWorkoutModal}
           onUpdateLog={(logId, data) => updateExerciseLog.mutate({ logId, ...data })}
           onComplete={(notes, visibility) => {
-            completeSession.mutate({ sessionId: activeSession.id, notes, visibility });
+            completeSession.mutate({ sessionId: sessionForModal.id, notes, visibility });
             setShowWorkoutModal(false);
           }}
           onCancel={() => {
-            cancelSession.mutate(activeSession.id);
+            cancelSession.mutate(sessionForModal.id);
             setShowWorkoutModal(false);
           }}
         />

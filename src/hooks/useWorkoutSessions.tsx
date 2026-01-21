@@ -70,6 +70,8 @@ export function useWorkoutSessions() {
         .select('*, exercise_logs(*)')
         .eq('user_id', user.id)
         .eq('status', 'in_progress')
+        .order('started_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
       
       if (error) throw error;
@@ -131,12 +133,22 @@ export function useWorkoutSessions() {
         
         if (logsError) throw logsError;
       }
-      
-      return session;
+
+      // Re-fetch the full session with its exercise logs so UIs can open immediately.
+      const { data: fullSession, error: fullSessionError } = await supabase
+        .from('workout_sessions')
+        .select('*, exercise_logs(*)')
+        .eq('id', session.id)
+        .single();
+
+      if (fullSessionError) throw fullSessionError;
+      return fullSession as WorkoutSession;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (user?.id) {
+        queryClient.setQueryData(['active-session', user.id], data);
+      }
       queryClient.invalidateQueries({ queryKey: ['workout-sessions'] });
-      queryClient.invalidateQueries({ queryKey: ['active-session'] });
       toast({ title: 'Workout Started', description: 'Good luck with your session!' });
     },
     onError: (error) => {
