@@ -11,6 +11,9 @@ import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import { useUserRuns } from '@/hooks/useRuns';
 import { useAuth } from '@/hooks/useAuth';
 import { useTrophies } from '@/hooks/useTrophies';
+import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
+import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
+import { MyProgramsSection } from '@/components/programming/MyProgramsSection';
 import { TrophyCase, TrophyCountsBadge } from '@/components/tracker/TrophyCase';
 import { toast } from 'sonner';
 import { 
@@ -27,6 +30,7 @@ import {
   Trash2,
   Globe,
   Lock,
+  Dumbbell,
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -37,6 +41,8 @@ export function ProfileView() {
   const { uploadAvatar, removeAvatar, uploading } = useAvatarUpload();
   const { runs } = useUserRuns(user?.id);
   const { getTrophyCounts } = useTrophies();
+  const { activeProgram } = useTrainingPrograms();
+  const { sessions } = useWorkoutSessions();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     display_name: '',
@@ -444,6 +450,57 @@ export function ProfileView() {
           </Card>
         </motion.div>
       </div>
+
+      {/* My Programmes */}
+      <Card className="bg-card border-border p-6">
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div>
+            <h3 className="font-display text-xl text-foreground tracking-wide">MY PROGRAMMES</h3>
+            <p className="text-sm text-muted-foreground">
+              {activeProgram ? `Active: ${activeProgram.name}` : 'Save a programme to start tracking workouts.'}
+            </p>
+          </div>
+          <Dumbbell className="w-5 h-5 text-primary" />
+        </div>
+        <MyProgramsSection />
+      </Card>
+
+      {/* Workout History */}
+      <Card className="bg-card border-border p-6">
+        <h3 className="font-display text-xl text-foreground mb-4 tracking-wide">WORKOUT HISTORY</h3>
+        {sessions && sessions.length > 0 ? (
+          <div className="space-y-3">
+            {sessions
+              .filter((s) => s.status !== 'cancelled')
+              .slice(0, 8)
+              .map((s) => (
+                <div
+                  key={s.id}
+                  className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+                >
+                  <div className="min-w-0">
+                    <p className="font-medium text-foreground truncate">{s.session_type}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {format(parseISO(s.started_at), 'MMM d, yyyy')} • Week {s.week_number} • {s.day_name}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-muted-foreground capitalize">{s.status.replace('_', ' ')}</p>
+                    {typeof s.duration_seconds === 'number' && (
+                      <p className="text-sm text-muted-foreground">
+                        {Math.floor(s.duration_seconds / 60)}m
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+          </div>
+        ) : (
+          <p className="text-muted-foreground text-center py-8">
+            No workouts logged yet — start your first session from a saved programme.
+          </p>
+        )}
+      </Card>
 
       {/* Recent Activity */}
       <Card className="bg-card border-border p-6">
