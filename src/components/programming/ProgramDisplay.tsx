@@ -83,16 +83,21 @@ export function ProgramDisplay({ program, onReset, savedProgramId }: ProgramDisp
       reps: ex.reps,
     }));
 
-    startSession.mutate({
-      programId: savedProgramId,
-      weekNumber: selectedWeek,
-      dayName: day.day,
-      sessionType: day.sessionType,
-      exercises,
-    });
-    
-    setSelectedDay(day);
-    setShowWorkoutModal(true);
+    startSession.mutate(
+      {
+        programId: savedProgramId,
+        weekNumber: selectedWeek,
+        dayName: day.day,
+        sessionType: day.sessionType,
+        exercises,
+      },
+      {
+        onSuccess: () => {
+          setSelectedDay(day);
+          setShowWorkoutModal(true);
+        },
+      }
+    );
   };
 
   return (
