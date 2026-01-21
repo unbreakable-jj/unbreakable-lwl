@@ -81,92 +81,53 @@ serve(async (req) => {
     if (age) fitnessContext += `\nAge: ${age}`;
     if (gender) fitnessContext += `\nGender: ${gender}`;
 
-    const systemPrompt = `You are an elite strength and conditioning coach creating personalized 12-week training programs. You specialize in hybrid training combining barbell work, dumbbell accessories, bodyweight exercises, and running.
+    const systemPrompt = `You are an elite strength and conditioning coach. Create a concise 12-week training program template.
 
-Your programs follow proven periodization principles:
-- Weeks 1-4: Foundation/Accumulation phase (higher volume, moderate intensity)
-- Weeks 5-8: Intensification phase (moderate volume, higher intensity)
-- Weeks 9-12: Peaking/Realization phase (lower volume, peak intensity)
+Periodization:
+- Phase 1 (Weeks 1-4): Foundation - higher volume, moderate intensity
+- Phase 2 (Weeks 5-8): Intensification - moderate volume, higher intensity  
+- Phase 3 (Weeks 9-12): Peaking - lower volume, peak intensity
+- Deload: Week 4, 8, 12 (reduce volume 40%)
 
-Always include:
-1. Progressive overload through weight, reps, or sets
-2. Appropriate deload weeks (every 4th week typically)
-3. Exercise variety within movement patterns
-4. Running that complements strength goals
-5. Rest day placement for optimal recovery
-
-Format your response as a structured JSON object with the following schema:
+Return ONLY this JSON structure (no markdown):
 {
-  "programName": "string - catchy program name",
-  "overview": "string - 2-3 sentence program description",
-  "weeklySchedule": [
-    {
-      "day": "string - e.g. Monday",
-      "focus": "string - e.g. Upper Body Strength",
-      "type": "strength" | "running" | "rest" | "active_recovery"
-    }
+  "programName": "string",
+  "overview": "2-3 sentences about the program",
+  "weeklySchedule": [{"day": "Monday", "focus": "Lower Strength", "type": "strength|running|rest|active_recovery"}],
+  "phases": [{"name": "Foundation", "weeks": "1-4", "focus": "string", "notes": "string"}],
+  "templateWeek": {
+    "days": [
+      {
+        "day": "Monday",
+        "sessionType": "Lower Strength",
+        "duration": "75 mins",
+        "warmup": "10 min dynamic stretching",
+        "exercises": [
+          {"name": "Back Squat", "equipment": "barbell", "sets": 4, "reps": "6-8", "intensity": "RPE 7-8", "rest": "3 min", "notes": "Control the descent"}
+        ],
+        "cooldown": "5 min stretching"
+      }
+    ]
+  },
+  "phaseProgressions": [
+    {"phase": "Foundation (Weeks 1-4)", "adjustments": "Start at RPE 7, add weight when hitting top of rep range"},
+    {"phase": "Intensification (Weeks 5-8)", "adjustments": "Reduce reps by 2, increase intensity to RPE 8-9"},
+    {"phase": "Peaking (Weeks 9-12)", "adjustments": "Work up to heavy singles/doubles, reduce accessory volume"}
   ],
-  "phases": [
-    {
-      "name": "string - phase name",
-      "weeks": "string - e.g. Weeks 1-4",
-      "focus": "string - phase focus",
-      "notes": "string - key points for this phase"
-    }
-  ],
-  "weeks": [
-    {
-      "weekNumber": number,
-      "phase": "string - which phase",
-      "isDeload": boolean,
-      "days": [
-        {
-          "day": "string - day name",
-          "sessionType": "string - e.g. Upper Strength",
-          "duration": "string - e.g. 60 mins",
-          "warmup": "string - warmup protocol",
-          "exercises": [
-            {
-              "name": "string",
-              "equipment": "barbell" | "dumbbell" | "bodyweight" | "running",
-              "sets": number | string,
-              "reps": string,
-              "intensity": "string - RPE or % or pace",
-              "rest": "string",
-              "notes": "string - form cues or progression notes"
-            }
-          ],
-          "cooldown": "string - cooldown protocol"
-        }
-      ]
-    }
-  ],
-  "progressionRules": [
-    "string - how to progress through the program"
-  ],
-  "nutritionTips": [
-    "string - nutrition recommendations for the goal"
-  ]
-}
+  "progressionRules": ["Add 2.5kg to upper lifts when completing all reps", "Add 5kg to lower lifts"],
+  "nutritionTips": ["Eat 1.6-2g protein per kg bodyweight"]
+}`;
 
-IMPORTANT: Return ONLY valid JSON, no markdown formatting, no code blocks.`;
-
-    const userPrompt = `Create a 12-week training program with these parameters:
+    const userPrompt = `Create a 12-week hybrid training program:
 
 GOAL: ${goal}
-TRAINING DAYS PER WEEK: ${availability}
+DAYS/WEEK: ${availability}
 SESSION LENGTH: ${sessionLength} minutes
-EXPERIENCE LEVEL: ${level}
-COMMITMENT LEVEL: ${commitment}
+LEVEL: ${level}
+COMMITMENT: ${commitment}
 ${fitnessContext}
 
-Requirements:
-- Use only barbell, dumbbell, bodyweight exercises, and running
-- Sessions must fit within ${sessionLength} minutes
-- Appropriate intensity for ${level} level
-- ${commitment === 'realistic' ? 'Conservative progression suitable for busy lifestyle' : commitment === 'committed' ? 'Steady progression with consistent effort expected' : 'Aggressive progression for dedicated athletes'}
-- Include specific sets, reps, and intensity guidelines
-- Provide the full 12-week program with daily workouts`;
+Create a TEMPLATE WEEK with ${availability} training days that will be repeated with phase-based progressions. Include barbell, dumbbell, bodyweight exercises, and running. Be specific with exercises, sets, reps, and intensity.`;
 
     // Retry logic with exponential backoff for rate limits
     const maxRetries = 3;
