@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import { Play, Square, MapPin, Timer, Pencil, Trophy, Medal, Crown, Globe, Users, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RunMap, positionsToGeoJSON } from './RunMap';
+import { CountdownOverlay } from '@/components/CountdownOverlay';
 
 interface RecordRunModalProps {
   isOpen: boolean;
@@ -42,6 +43,7 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
   const { matchRunToSegments, saveSegmentEfforts, autoDetectSegments } = useSegments();
   const [mode, setMode] = useState<'gps' | 'manual'>('gps');
   const [loading, setLoading] = useState(false);
+  const [showCountdown, setShowCountdown] = useState(false);
 
   // GPS tracking state
   const [isTracking, setIsTracking] = useState(false);
@@ -77,12 +79,16 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
     return R * c;
   };
 
-  const startTracking = useCallback(() => {
+  const initiateTracking = useCallback(() => {
     if (!navigator.geolocation) {
       toast.error('Geolocation is not supported by your browser');
       return;
     }
+    setShowCountdown(true);
+  }, []);
 
+  const startTracking = useCallback(() => {
+    setShowCountdown(false);
     setIsTracking(true);
     setStartTime(new Date());
     setPositions([]);
@@ -506,13 +512,20 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg bg-card border-border max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="font-display text-2xl tracking-wide text-center">
-            RECORD YOUR RUN
-          </DialogTitle>
-        </DialogHeader>
+    <>
+      <CountdownOverlay
+        isActive={showCountdown}
+        onComplete={startTracking}
+        startFrom={3}
+      />
+      
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-lg bg-card border-border max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl tracking-wide text-center">
+              RECORD YOUR RUN
+            </DialogTitle>
+          </DialogHeader>
 
         <Tabs value={mode} onValueChange={(v) => setMode(v as 'gps' | 'manual')} className="mt-4">
           <TabsList className="grid w-full grid-cols-2 bg-muted">
@@ -545,7 +558,7 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
                   <Button
                     size="lg"
                     className="font-display text-lg tracking-wide px-12 py-6"
-                    onClick={startTracking}
+                    onClick={initiateTracking}
                   >
                     <Play className="w-5 h-5 mr-2" />
                     START RUN
@@ -822,5 +835,6 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
         </Tabs>
       </DialogContent>
     </Dialog>
+    </>
   );
 }
