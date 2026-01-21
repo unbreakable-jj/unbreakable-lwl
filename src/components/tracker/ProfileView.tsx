@@ -12,6 +12,7 @@ import { useUserRuns } from '@/hooks/useRuns';
 import { useAuth } from '@/hooks/useAuth';
 import { useTrophies } from '@/hooks/useTrophies';
 import { TrophyCase, TrophyCountsBadge } from '@/components/tracker/TrophyCase';
+import { MyTrainingSection } from '@/components/tracker/MyTrainingSection';
 import { toast } from 'sonner';
 import { 
   Edit2, 
@@ -480,6 +481,9 @@ export function ProfileView() {
           </p>
         )}
       </Card>
+
+      {/* My Training (Programs + Workout History) */}
+      <MyTrainingSection />
 
       {/* Trophy Case */}
       <TrophyCase />
