@@ -23,6 +23,16 @@ export function useProfile() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const normalizeUsername = (value: unknown) => {
+    if (typeof value !== 'string') return value;
+    let v = value.trim();
+    if (v.startsWith('@')) v = v.slice(1);
+    // Keep DB constraints happy: only letters/numbers/underscore
+    // Convert common separators to underscores so saves don't fail.
+    v = v.replace(/[.\s-]+/g, '_');
+    return v;
+  };
+
   useEffect(() => {
     if (!user) {
       setProfile(null);
@@ -56,10 +66,13 @@ export function useProfile() {
     // Convert empty strings to null to satisfy database constraints
     const sanitizedUpdates: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(updates)) {
+      const normalizedValue = key === 'username' ? normalizeUsername(value) : value;
       if (value === '') {
         sanitizedUpdates[key] = null;
+      } else if (key === 'username' && typeof normalizedValue === 'string' && normalizedValue.trim() === '') {
+        sanitizedUpdates[key] = null;
       } else {
-        sanitizedUpdates[key] = value;
+        sanitizedUpdates[key] = normalizedValue;
       }
     }
 
@@ -67,6 +80,10 @@ export function useProfile() {
       .from('profiles')
       .update(sanitizedUpdates)
       .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error updating profile:', error);
+    }
 
     if (!error) {
       await fetchProfile();

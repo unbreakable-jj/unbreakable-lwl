@@ -41,6 +41,22 @@ export function ProfileView() {
   const [saving, setSaving] = useState(false);
   const trophyCounts = getTrophyCounts();
 
+  const normalizeUsernameInput = (raw: string) => {
+    let v = raw.trim();
+    if (v.startsWith('@')) v = v.slice(1);
+    v = v.replace(/[.\s-]+/g, '_');
+    return v;
+  };
+
+  const usernameValidationError = (() => {
+    const v = normalizeUsernameInput(editData.username);
+    if (!v) return null; // empty -> will be saved as null
+    if (!/^[a-zA-Z0-9_]{3,30}$/.test(v)) {
+      return 'Nickname must be 3–30 chars and use only letters, numbers, and _';
+    }
+    return null;
+  })();
+
   const startEditing = () => {
     setEditData({
       display_name: profile?.display_name || '',
@@ -58,11 +74,26 @@ export function ProfileView() {
 
   const saveProfile = async () => {
     setSaving(true);
-    const { error } = await updateProfile(editData);
+
+    const normalizedUsername = normalizeUsernameInput(editData.username);
+    if (normalizedUsername && !/^[a-zA-Z0-9_]{3,30}$/.test(normalizedUsername)) {
+      setSaving(false);
+      toast.error('Nickname can only use letters, numbers, and _ (3–30 chars)');
+      return;
+    }
+
+    const payload = {
+      ...editData,
+      username: normalizedUsername,
+    };
+
+    const { error } = await updateProfile(payload);
     setSaving(false);
 
     if (error) {
-      toast.error('Failed to update profile');
+      // Show the real reason (e.g. nickname taken / invalid) so users can fix it.
+      const msg = (error as any)?.message || 'Failed to update profile';
+      toast.error(msg);
     } else {
       toast.success('Profile updated!');
       setIsEditing(false);
@@ -128,10 +159,18 @@ export function ProfileView() {
                     />
                     <Input
                       value={editData.username}
-                      onChange={(e) => setEditData({ ...editData, username: e.target.value })}
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          username: normalizeUsernameInput(e.target.value),
+                        })
+                      }
                       placeholder="@username"
                       className="bg-input border-border"
                     />
+                    {usernameValidationError && (
+                      <p className="text-xs text-destructive">{usernameValidationError}</p>
+                    )}
                   </div>
                 ) : (
                   <>
