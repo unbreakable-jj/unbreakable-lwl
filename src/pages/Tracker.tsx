@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import logo from '@/assets/logo.webp';
+import logo from '@/assets/logo.png';
 import { useAuth } from '@/hooks/useAuth';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { ActivityFeed } from '@/components/tracker/ActivityFeed';
