@@ -57,6 +57,7 @@ function FriendRequestBadge({ onClick }: { onClick: () => void }) {
   );
 }
 
+// Unified Hub - Last updated for structural changes
 const Index = () => {
   const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('feed');
