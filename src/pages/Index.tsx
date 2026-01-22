@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { useAuth } from '@/hooks/useAuth';
 import { UnifiedFeed } from '@/components/hub/UnifiedFeed';
-import { StatsView } from '@/components/tracker/StatsView';
+import { CombinedStatsView } from '@/components/tracker/CombinedStatsView';
 import { ProfileView } from '@/components/tracker/ProfileView';
-import { RecordsView } from '@/components/tracker/RecordsView';
+import { CombinedRecordsView } from '@/components/tracker/CombinedRecordsView';
 import { LeaderboardsView } from '@/components/tracker/LeaderboardsView';
 import { RecordRunModal } from '@/components/tracker/RecordRunModal';
+import { RecordActionMenu } from '@/components/hub/RecordActionMenu';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { FriendsWidget } from '@/components/tracker/FriendsWidget';
 import { UserSearchModal } from '@/components/tracker/UserSearchModal';
@@ -59,12 +60,12 @@ function FriendRequestBadge({ onClick }: { onClick: () => void }) {
 const Index = () => {
   const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('feed');
+  const [showActionMenu, setShowActionMenu] = useState(false);
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showUserSearch, setShowUserSearch] = useState(false);
   const [showFriendRequests, setShowFriendRequests] = useState(false);
   const [showFriendsList, setShowFriendsList] = useState(false);
-
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -99,7 +100,7 @@ const Index = () => {
                 <Button
                   size="sm"
                   className="font-display tracking-wide"
-                  onClick={() => setShowRecordModal(true)}
+                  onClick={() => setShowActionMenu(true)}
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   <span className="hidden sm:inline">RECORD</span>
@@ -178,8 +179,8 @@ const Index = () => {
             {/* Main Content */}
             <div className="flex-1 max-w-2xl">
               {activeTab === 'feed' && <UnifiedFeed onSignIn={() => setShowAuthModal(true)} />}
-              {activeTab === 'stats' && <StatsView />}
-              {activeTab === 'records' && <RecordsView />}
+              {activeTab === 'stats' && <CombinedStatsView />}
+              {activeTab === 'records' && <CombinedRecordsView />}
               {activeTab === 'leaderboards' && <LeaderboardsView />}
               {activeTab === 'profile' && <ProfileView />}
             </div>
@@ -204,7 +205,7 @@ const Index = () => {
               <span className="text-xs font-display tracking-wide">FEED</span>
             </button>
             <button
-              onClick={() => setShowRecordModal(true)}
+              onClick={() => setShowActionMenu(true)}
               className="flex flex-col items-center gap-1 px-4 py-2"
             >
               <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center -mt-6 shadow-lg">
@@ -241,6 +242,11 @@ const Index = () => {
           </div>
         </nav>
 
+        <RecordActionMenu 
+          isOpen={showActionMenu} 
+          onClose={() => setShowActionMenu(false)}
+          onOpenRunModal={() => setShowRecordModal(true)}
+        />
         <RecordRunModal isOpen={showRecordModal} onClose={() => setShowRecordModal(false)} />
         <UserSearchModal isOpen={showUserSearch} onClose={() => setShowUserSearch(false)} />
         <FriendRequestsModal isOpen={showFriendRequests} onClose={() => setShowFriendRequests(false)} />
@@ -308,36 +314,16 @@ const Index = () => {
             <span className="text-primary font-semibold">BUILD A BODY AND MIND THAT DON'T BREAK.</span>
           </p>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap mb-10">
+          {/* Action Button - Single CTA */}
+          <div className="flex justify-center mb-10">
             <Button
               size="lg"
-              className="font-display text-lg tracking-wide px-8 py-6 w-full sm:w-auto"
+              className="font-display text-lg tracking-wide px-12 py-6"
               onClick={() => setShowAuthModal(true)}
             >
               <Sparkles className="w-5 h-5 mr-2" />
               GET STARTED
             </Button>
-            <Link to="/programming">
-              <Button
-                size="lg"
-                variant="outline"
-                className="font-display text-lg tracking-wide px-8 py-6 w-full sm:w-auto"
-              >
-                <Dumbbell className="w-5 h-5 mr-2" />
-                BUILD YOUR PROGRAM
-              </Button>
-            </Link>
-            <Link to="/calculators">
-              <Button
-                size="lg"
-                variant="outline"
-                className="font-display text-lg tracking-wide px-8 py-6 w-full sm:w-auto"
-              >
-                <Timer className="w-5 h-5 mr-2" />
-                CALCULATORS
-              </Button>
-            </Link>
           </div>
 
           {/* Tagline */}
