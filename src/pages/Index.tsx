@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import logo from '@/assets/logo.png';
 import { Button } from '@/components/ui/button';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { useAuth } from '@/hooks/useAuth';
 import { UnifiedFeed } from '@/components/hub/UnifiedFeed';
+import { ProfileView } from '@/components/tracker/ProfileView';
 import { RecordRunModal } from '@/components/tracker/RecordRunModal';
 import { RecordActionMenu } from '@/components/hub/RecordActionMenu';
 import { AuthModal } from '@/components/tracker/AuthModal';
@@ -52,7 +53,6 @@ function FriendRequestBadge({ onClick }: { onClick: () => void }) {
 
 // Unified Hub - Simplified navigation: Feed, Workout, Profile
 const Index = () => {
-  const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('feed');
   const [showActionMenu, setShowActionMenu] = useState(false);
@@ -61,9 +61,6 @@ const Index = () => {
   const [showUserSearch, setShowUserSearch] = useState(false);
   const [showFriendRequests, setShowFriendRequests] = useState(false);
   const [showFriendsList, setShowFriendsList] = useState(false);
-
-  // Import ProfileView dynamically to include stats/records
-  const ProfileView = require('@/components/tracker/ProfileView').ProfileView;
 
   if (loading) {
     return (
