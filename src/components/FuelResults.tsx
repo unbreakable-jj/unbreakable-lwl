@@ -1,112 +1,158 @@
+import { Flame, Zap, Wheat, Droplets, Activity, TrendingUp } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import type { FuelResult } from '@/lib/fuelCalculations';
-import { Flame, Zap, Wheat, Droplets } from 'lucide-react';
 
 interface FuelResultsProps {
   result: FuelResult;
 }
 
 export function FuelResults({ result }: FuelResultsProps) {
-  const totalMacroGrams = result.protein + result.carbs + result.fat;
-  
   return (
-    <div className="space-y-6">
-      {/* Target Calories */}
-      <Card className="bg-card border-primary">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Target Calories - Matches Speed Calculator Hero Card */}
+      <Card className="bg-card border-border overflow-hidden">
+        <div className="bg-primary/10 border-b border-border px-6 py-4">
+          <h3 className="font-display text-lg text-muted-foreground uppercase tracking-wider">
+            DAILY CALORIE TARGET
+          </h3>
+        </div>
         <CardContent className="p-6 text-center">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Flame className="w-6 h-6 text-primary" />
-            <span className="text-muted-foreground uppercase tracking-wide text-sm">Daily Calories</span>
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <Flame className="w-10 h-10 text-primary" />
+            <div className="font-display text-7xl text-primary">
+              {result.targetCalories.toLocaleString()}
+            </div>
           </div>
-          <div className="font-display text-6xl text-primary tracking-wide">
-            {result.targetCalories.toLocaleString()}
-          </div>
-          <p className="text-muted-foreground text-sm mt-2">calories per day</p>
+          <p className="text-muted-foreground">
+            calories per day
+          </p>
         </CardContent>
       </Card>
 
-      {/* Macro Breakdown */}
-      <Card className="bg-card border-border">
-        <CardContent className="p-6">
-          <h3 className="font-display text-2xl text-foreground mb-6 tracking-wide text-center">
+      {/* Macro Breakdown - Matches Speed Performance Level Card */}
+      <Card className="bg-card border-border overflow-hidden">
+        <div className="bg-primary/10 border-b border-border px-6 py-4">
+          <h3 className="font-display text-lg text-muted-foreground uppercase tracking-wider">
             MACRO BREAKDOWN
           </h3>
-          
+        </div>
+        <CardContent className="p-6">
           <div className="space-y-6">
             {/* Protein */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-red-500" />
-                  <span className="font-medium">Protein</span>
+                  <Zap className="w-5 h-5 text-primary" />
+                  <span className="font-display text-xl text-foreground tracking-wide">Protein</span>
                 </div>
                 <div className="text-right">
-                  <span className="font-display text-2xl text-foreground">{result.protein}g</span>
+                  <span className="font-display text-2xl text-primary">{result.protein}g</span>
                   <span className="text-muted-foreground ml-2 text-sm">{result.proteinPercent}%</span>
                 </div>
               </div>
-              <Progress value={result.proteinPercent} className="h-3 bg-muted [&>div]:bg-red-500" />
+              <Progress value={result.proteinPercent} className="h-3" />
             </div>
 
             {/* Carbs */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Wheat className="w-5 h-5 text-yellow-500" />
-                  <span className="font-medium">Carbohydrates</span>
+                  <Wheat className="w-5 h-5 text-primary" />
+                  <span className="font-display text-xl text-foreground tracking-wide">Carbohydrates</span>
                 </div>
                 <div className="text-right">
-                  <span className="font-display text-2xl text-foreground">{result.carbs}g</span>
+                  <span className="font-display text-2xl text-primary">{result.carbs}g</span>
                   <span className="text-muted-foreground ml-2 text-sm">{result.carbPercent}%</span>
                 </div>
               </div>
-              <Progress value={result.carbPercent} className="h-3 bg-muted [&>div]:bg-yellow-500" />
+              <Progress value={result.carbPercent} className="h-3" />
             </div>
 
             {/* Fat */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Droplets className="w-5 h-5 text-blue-500" />
-                  <span className="font-medium">Fat</span>
+                  <Droplets className="w-5 h-5 text-primary" />
+                  <span className="font-display text-xl text-foreground tracking-wide">Fat</span>
                 </div>
                 <div className="text-right">
-                  <span className="font-display text-2xl text-foreground">{result.fat}g</span>
+                  <span className="font-display text-2xl text-primary">{result.fat}g</span>
                   <span className="text-muted-foreground ml-2 text-sm">{result.fatPercent}%</span>
                 </div>
               </div>
-              <Progress value={result.fatPercent} className="h-3 bg-muted [&>div]:bg-blue-500" />
+              <Progress value={result.fatPercent} className="h-3" />
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Additional Info */}
+      {/* BMR/TDEE Stats - Matches Speed Pace Stats Grid */}
       <div className="grid grid-cols-2 gap-4">
         <Card className="bg-card border-border">
-          <CardContent className="p-4 text-center">
-            <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">BMR</p>
-            <p className="font-display text-2xl text-foreground">{result.bmr.toLocaleString()}</p>
-            <p className="text-muted-foreground text-xs">cal/day</p>
+          <CardContent className="p-6 text-center">
+            <Activity className="w-8 h-8 text-primary mx-auto mb-2" />
+            <div className="font-display text-3xl text-primary mb-1">
+              {result.bmr.toLocaleString()}
+            </div>
+            <p className="text-sm text-muted-foreground">BMR cal/day</p>
           </CardContent>
         </Card>
         <Card className="bg-card border-border">
-          <CardContent className="p-4 text-center">
-            <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">TDEE</p>
-            <p className="font-display text-2xl text-foreground">{result.tdee.toLocaleString()}</p>
-            <p className="text-muted-foreground text-xs">cal/day</p>
+          <CardContent className="p-6 text-center">
+            <TrendingUp className="w-8 h-8 text-primary mx-auto mb-2" />
+            <div className="font-display text-3xl text-primary mb-1">
+              {result.tdee.toLocaleString()}
+            </div>
+            <p className="text-sm text-muted-foreground">TDEE cal/day</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Reference */}
-      <Card className="bg-primary/5 border-primary/20">
-        <CardContent className="p-4">
-          <p className="text-center text-sm text-muted-foreground">
-            <span className="text-primary font-semibold">BMR</span> = Basal Metabolic Rate (calories at rest)
-            <br />
-            <span className="text-primary font-semibold">TDEE</span> = Total Daily Energy Expenditure
+      {/* Calorie Distribution Stats - Matches Speed Percentile Grid */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card className="bg-card border-border">
+          <CardContent className="p-6 text-center">
+            <div className="font-display text-4xl text-primary mb-1">
+              {Math.round(result.protein * 4)}
+            </div>
+            <p className="text-sm text-muted-foreground">Protein Calories</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-card border-border">
+          <CardContent className="p-6 text-center">
+            <div className="font-display text-4xl text-primary mb-1">
+              {Math.round(result.carbs * 4 + result.fat * 9)}
+            </div>
+            <p className="text-sm text-muted-foreground">Energy Calories</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Reference - Matches Speed Age-Adjusted Card */}
+      <Card className="bg-card border-border overflow-hidden">
+        <div className="bg-primary/10 border-b border-border px-6 py-4">
+          <h3 className="font-display text-lg text-muted-foreground uppercase tracking-wider">
+            FUEL REFERENCE
+          </h3>
+        </div>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-muted-foreground text-sm mb-1">Basal Metabolic Rate</p>
+              <p className="font-display text-2xl text-foreground tracking-wide">
+                {result.bmr.toLocaleString()} cal
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-muted-foreground text-sm mb-1">Daily Energy Expenditure</p>
+              <div className="font-display text-4xl text-primary">
+                {result.tdee.toLocaleString()}
+              </div>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mt-4 italic">
+            BMR is your resting calorie burn. TDEE includes all daily activity — fuel smart for life.
           </p>
         </CardContent>
       </Card>
