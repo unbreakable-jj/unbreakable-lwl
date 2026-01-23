@@ -1,14 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import logo from '@/assets/logo.png';
 import { Button } from '@/components/ui/button';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { useAuth } from '@/hooks/useAuth';
 import { UnifiedFeed } from '@/components/hub/UnifiedFeed';
-import { CombinedStatsView } from '@/components/tracker/CombinedStatsView';
-import { ProfileView } from '@/components/tracker/ProfileView';
-import { CombinedRecordsView } from '@/components/tracker/CombinedRecordsView';
-import { LeaderboardsView } from '@/components/tracker/LeaderboardsView';
 import { RecordRunModal } from '@/components/tracker/RecordRunModal';
 import { RecordActionMenu } from '@/components/hub/RecordActionMenu';
 import { AuthModal } from '@/components/tracker/AuthModal';
@@ -28,18 +24,15 @@ import {
   Brain,
   Sparkles,
   Home,
-  BarChart2,
   User,
   Plus,
-  Medal,
-  Trophy,
   UserPlus,
   Users,
   Bell,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-type Tab = 'feed' | 'stats' | 'records' | 'leaderboards' | 'profile';
+type Tab = 'feed' | 'workout' | 'profile';
 
 function FriendRequestBadge({ onClick }: { onClick: () => void }) {
   const { pendingRequests } = useFriends();
@@ -57,8 +50,9 @@ function FriendRequestBadge({ onClick }: { onClick: () => void }) {
   );
 }
 
-// Unified Hub - Last updated for structural changes
+// Unified Hub - Simplified navigation: Feed, Workout, Profile
 const Index = () => {
+  const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('feed');
   const [showActionMenu, setShowActionMenu] = useState(false);
@@ -67,6 +61,10 @@ const Index = () => {
   const [showUserSearch, setShowUserSearch] = useState(false);
   const [showFriendRequests, setShowFriendRequests] = useState(false);
   const [showFriendsList, setShowFriendsList] = useState(false);
+
+  // Import ProfileView dynamically to include stats/records
+  const ProfileView = require('@/components/tracker/ProfileView').ProfileView;
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -74,6 +72,11 @@ const Index = () => {
       </div>
     );
   }
+
+  const handleWorkoutTab = () => {
+    // Open the action menu to choose between Track Run or Track Workout
+    setShowActionMenu(true);
+  };
 
   // If logged in, show the unified hub
   if (user) {
@@ -104,7 +107,7 @@ const Index = () => {
                   onClick={() => setShowActionMenu(true)}
                 >
                   <Plus className="w-4 h-4 mr-1" />
-                  <span className="hidden sm:inline">RECORD</span>
+                  <span className="hidden sm:inline">WORKOUT</span>
                 </Button>
                 <NavigationDrawer variant="minimal" />
               </div>
@@ -112,7 +115,7 @@ const Index = () => {
           </div>
         </header>
 
-        {/* Desktop Tab Navigation */}
+        {/* Desktop Tab Navigation - Simplified: Feed, Workout, Profile */}
         <div className="hidden md:block container mx-auto px-6 py-6">
           <div className="flex justify-center">
             <div className="inline-flex bg-card border border-border rounded-lg p-1 gap-1">
@@ -128,37 +131,15 @@ const Index = () => {
                 FEED
               </button>
               <button
-                onClick={() => setActiveTab('stats')}
+                onClick={handleWorkoutTab}
                 className={`flex items-center gap-2 px-6 py-3 rounded-md font-display tracking-wide transition-all ${
-                  activeTab === 'stats'
+                  activeTab === 'workout'
                     ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                <BarChart2 className="w-4 h-4" />
-                STATS
-              </button>
-              <button
-                onClick={() => setActiveTab('records')}
-                className={`flex items-center gap-2 px-6 py-3 rounded-md font-display tracking-wide transition-all ${
-                  activeTab === 'records'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Medal className="w-4 h-4" />
-                RECORDS
-              </button>
-              <button
-                onClick={() => setActiveTab('leaderboards')}
-                className={`flex items-center gap-2 px-6 py-3 rounded-md font-display tracking-wide transition-all ${
-                  activeTab === 'leaderboards'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Trophy className="w-4 h-4" />
-                LEADERBOARDS
+                <Dumbbell className="w-4 h-4" />
+                WORKOUT
               </button>
               <button
                 onClick={() => setActiveTab('profile')}
@@ -180,9 +161,6 @@ const Index = () => {
             {/* Main Content */}
             <div className="flex-1 max-w-2xl">
               {activeTab === 'feed' && <UnifiedFeed onSignIn={() => setShowAuthModal(true)} />}
-              {activeTab === 'stats' && <CombinedStatsView />}
-              {activeTab === 'records' && <CombinedRecordsView />}
-              {activeTab === 'leaderboards' && <LeaderboardsView />}
               {activeTab === 'profile' && <ProfileView />}
             </div>
 
@@ -193,7 +171,7 @@ const Index = () => {
           </div>
         </main>
 
-        {/* Mobile Bottom Navigation */}
+        {/* Mobile Bottom Navigation - Simplified: Feed, + Workout, Profile */}
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50">
           <div className="flex items-center justify-around py-2">
             <button
@@ -212,24 +190,6 @@ const Index = () => {
               <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center -mt-6 shadow-lg">
                 <Plus className="w-7 h-7 text-primary-foreground" />
               </div>
-            </button>
-            <button
-              onClick={() => setActiveTab('stats')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 ${
-                activeTab === 'stats' ? 'text-primary' : 'text-muted-foreground'
-              }`}
-            >
-              <BarChart2 className="w-6 h-6" />
-              <span className="text-xs font-display tracking-wide">STATS</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('records')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 ${
-                activeTab === 'records' ? 'text-primary' : 'text-muted-foreground'
-              }`}
-            >
-              <Medal className="w-6 h-6" />
-              <span className="text-xs font-display tracking-wide">RECORDS</span>
             </button>
             <button
               onClick={() => setActiveTab('profile')}

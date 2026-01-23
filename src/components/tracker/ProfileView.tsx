@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProfile } from '@/hooks/useProfile';
 import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import { useUserRuns } from '@/hooks/useRuns';
@@ -15,6 +16,8 @@ import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import { MyProgramsSection } from '@/components/programming/MyProgramsSection';
 import { TrophyCase, TrophyCountsBadge } from '@/components/tracker/TrophyCase';
+import { CombinedStatsView } from '@/components/tracker/CombinedStatsView';
+import { CombinedRecordsView } from '@/components/tracker/CombinedRecordsView';
 import { toast } from 'sonner';
 import { 
   Edit2, 
@@ -31,6 +34,9 @@ import {
   Globe,
   Lock,
   Dumbbell,
+  BarChart2,
+  Medal,
+  User,
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -53,6 +59,7 @@ export function ProfileView() {
     is_public: true,
   });
   const [saving, setSaving] = useState(false);
+  const [activeProfileTab, setActiveProfileTab] = useState<'overview' | 'stats' | 'records'>('overview');
   const trophyCounts = getTrophyCounts();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -406,140 +413,168 @@ export function ProfileView() {
         </Card>
       </motion.div>
 
-      {/* Stats Summary */}
-      <div className="grid grid-cols-3 gap-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card className="bg-card border-border p-4 text-center">
-            <Activity className="w-6 h-6 text-primary mx-auto mb-2" />
-            <p className="font-display text-2xl text-foreground tracking-wide">
-              {profile.total_runs}
-            </p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">Runs</p>
-          </Card>
-        </motion.div>
+      {/* Profile Tabs: Overview, Stats, Records */}
+      <Tabs value={activeProfileTab} onValueChange={(v) => setActiveProfileTab(v as any)}>
+        <TabsList className="w-full bg-card border border-border">
+          <TabsTrigger value="overview" className="flex-1 font-display tracking-wide">
+            <User className="w-4 h-4 mr-2" />
+            OVERVIEW
+          </TabsTrigger>
+          <TabsTrigger value="stats" className="flex-1 font-display tracking-wide">
+            <BarChart2 className="w-4 h-4 mr-2" />
+            STATS
+          </TabsTrigger>
+          <TabsTrigger value="records" className="flex-1 font-display tracking-wide">
+            <Medal className="w-4 h-4 mr-2" />
+            RECORDS
+          </TabsTrigger>
+        </TabsList>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card className="bg-card border-border p-4 text-center">
-            <TrendingUp className="w-6 h-6 text-primary mx-auto mb-2" />
-            <p className="font-display text-2xl text-foreground tracking-wide">
-              {Number(profile.total_distance_km).toFixed(0)}
-            </p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">km</p>
-          </Card>
-        </motion.div>
+        <TabsContent value="overview" className="mt-6 space-y-6">
+          {/* Quick Stats Summary */}
+          <div className="grid grid-cols-3 gap-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <Card className="bg-card border-border p-4 text-center">
+                <Activity className="w-6 h-6 text-primary mx-auto mb-2" />
+                <p className="font-display text-2xl text-foreground tracking-wide">
+                  {profile.total_runs}
+                </p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Runs</p>
+              </Card>
+            </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card className="bg-card border-border p-4 text-center">
-            <Clock className="w-6 h-6 text-primary mx-auto mb-2" />
-            <p className="font-display text-2xl text-foreground tracking-wide">
-              {formatDuration(profile.total_time_seconds)}
-            </p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">Time</p>
-          </Card>
-        </motion.div>
-      </div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card className="bg-card border-border p-4 text-center">
+                <TrendingUp className="w-6 h-6 text-primary mx-auto mb-2" />
+                <p className="font-display text-2xl text-foreground tracking-wide">
+                  {Number(profile.total_distance_km).toFixed(0)}
+                </p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">km</p>
+              </Card>
+            </motion.div>
 
-      {/* My Programmes */}
-      <Card className="bg-card border-border p-6">
-        <div className="flex items-center justify-between gap-3 mb-4">
-          <div>
-            <h3 className="font-display text-xl text-foreground tracking-wide">MY PROGRAMMES</h3>
-            <p className="text-sm text-muted-foreground">
-              {activeProgram ? `Active: ${activeProgram.name}` : 'Save a programme to start tracking workouts.'}
-            </p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <Card className="bg-card border-border p-4 text-center">
+                <Clock className="w-6 h-6 text-primary mx-auto mb-2" />
+                <p className="font-display text-2xl text-foreground tracking-wide">
+                  {formatDuration(profile.total_time_seconds)}
+                </p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Time</p>
+              </Card>
+            </motion.div>
           </div>
-          <Dumbbell className="w-5 h-5 text-primary" />
-        </div>
-        <MyProgramsSection />
-      </Card>
 
-      {/* Workout History */}
-      <Card className="bg-card border-border p-6">
-        <h3 className="font-display text-xl text-foreground mb-4 tracking-wide">WORKOUT HISTORY</h3>
-        {sessions && sessions.length > 0 ? (
-          <div className="space-y-3">
-            {sessions
-              .filter((s) => s.status !== 'cancelled')
-              .slice(0, 8)
-              .map((s) => (
-                <div
-                  key={s.id}
-                  className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
-                >
-                  <div className="min-w-0">
-                    <p className="font-medium text-foreground truncate">{s.session_type}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {format(parseISO(s.started_at), 'MMM d, yyyy')} • Week {s.week_number} • {s.day_name}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-muted-foreground capitalize">{s.status.replace('_', ' ')}</p>
-                    {typeof s.duration_seconds === 'number' && (
-                      <p className="text-sm text-muted-foreground">
-                        {Math.floor(s.duration_seconds / 60)}m
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
-          </div>
-        ) : (
-          <p className="text-muted-foreground text-center py-8">
-            No workouts logged yet — start your first session from a saved programme.
-          </p>
-        )}
-      </Card>
-
-      {/* Recent Activity */}
-      <Card className="bg-card border-border p-6">
-        <h3 className="font-display text-xl text-foreground mb-4 tracking-wide">
-          RECENT ACTIVITY
-        </h3>
-        {runs.length > 0 ? (
-          <div className="space-y-3">
-            {runs.slice(0, 5).map((run) => (
-              <div
-                key={run.id}
-                className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
-              >
-                <div>
-                  <p className="font-medium text-foreground">{run.title || 'Run'}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {format(parseISO(run.started_at), 'MMM d, yyyy')}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-display text-lg text-primary">
-                    {Number(run.distance_km).toFixed(2)} km
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {Math.floor(run.duration_seconds / 60)}:{(run.duration_seconds % 60).toString().padStart(2, '0')}
-                  </p>
-                </div>
+          {/* My Programmes */}
+          <Card className="bg-card border-border p-6">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <div>
+                <h3 className="font-display text-xl text-foreground tracking-wide">MY PROGRAMMES</h3>
+                <p className="text-sm text-muted-foreground">
+                  {activeProgram ? `Active: ${activeProgram.name}` : 'Save a programme to start tracking workouts.'}
+                </p>
               </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-muted-foreground text-center py-8">
-            No runs recorded yet. Start your journey!
-          </p>
-        )}
-      </Card>
+              <Dumbbell className="w-5 h-5 text-primary" />
+            </div>
+            <MyProgramsSection />
+          </Card>
 
-      {/* Trophy Case */}
-      <TrophyCase />
+          {/* Workout History */}
+          <Card className="bg-card border-border p-6">
+            <h3 className="font-display text-xl text-foreground mb-4 tracking-wide">WORKOUT HISTORY</h3>
+            {sessions && sessions.length > 0 ? (
+              <div className="space-y-3">
+                {sessions
+                  .filter((s) => s.status !== 'cancelled')
+                  .slice(0, 8)
+                  .map((s) => (
+                    <div
+                      key={s.id}
+                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-medium text-foreground truncate">{s.session_type}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {format(parseISO(s.started_at), 'MMM d, yyyy')} • Week {s.week_number} • {s.day_name}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-muted-foreground capitalize">{s.status.replace('_', ' ')}</p>
+                        {typeof s.duration_seconds === 'number' && (
+                          <p className="text-sm text-muted-foreground">
+                            {Math.floor(s.duration_seconds / 60)}m
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-center py-8">
+                No workouts logged yet — start your first session from a saved programme.
+              </p>
+            )}
+          </Card>
+
+          {/* Recent Activity */}
+          <Card className="bg-card border-border p-6">
+            <h3 className="font-display text-xl text-foreground mb-4 tracking-wide">
+              RECENT RUNS
+            </h3>
+            {runs.length > 0 ? (
+              <div className="space-y-3">
+                {runs.slice(0, 5).map((run) => (
+                  <div
+                    key={run.id}
+                    className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+                  >
+                    <div>
+                      <p className="font-medium text-foreground">{run.title || 'Run'}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {format(parseISO(run.started_at), 'MMM d, yyyy')}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-display text-lg text-primary">
+                        {Number(run.distance_km).toFixed(2)} km
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {Math.floor(run.duration_seconds / 60)}:{(run.duration_seconds % 60).toString().padStart(2, '0')}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-center py-8">
+                No runs recorded yet. Start your journey!
+              </p>
+            )}
+          </Card>
+
+          {/* Trophy Case */}
+          <TrophyCase />
+        </TabsContent>
+
+        <TabsContent value="stats" className="mt-6">
+          <CombinedStatsView />
+        </TabsContent>
+
+        <TabsContent value="records" className="mt-6">
+          <CombinedRecordsView />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
