@@ -1,4 +1,4 @@
-import { Star } from 'lucide-react';
+import { Star, Dumbbell, Scale, TrendingUp } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import type { StrengthResult, Exercise } from '@/lib/strengthCalculations';
@@ -15,7 +15,7 @@ export function StrengthResults({ result, exercise, unit }: StrengthResultsProps
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* 1RM Result */}
+      {/* 1RM Result - Matches Speed Calculator Hero Card */}
       <Card className="bg-card border-border overflow-hidden">
         <div className="bg-primary/10 border-b border-border px-6 py-4">
           <h3 className="font-display text-lg text-muted-foreground uppercase tracking-wider">
@@ -23,9 +23,12 @@ export function StrengthResults({ result, exercise, unit }: StrengthResultsProps
           </h3>
         </div>
         <CardContent className="p-6 text-center">
-          <div className="font-display text-7xl text-primary mb-2">
-            {oneRepMax}
-            <span className="text-3xl text-muted-foreground ml-2">{unit}</span>
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <Dumbbell className="w-10 h-10 text-primary" />
+            <div className="font-display text-7xl text-primary">
+              {oneRepMax}
+              <span className="text-3xl text-muted-foreground ml-2">{unit}</span>
+            </div>
           </div>
           <p className="text-muted-foreground">
             {exerciseNames[exercise]}
@@ -33,7 +36,7 @@ export function StrengthResults({ result, exercise, unit }: StrengthResultsProps
         </CardContent>
       </Card>
 
-      {/* Strength Level */}
+      {/* Strength Level - Matches Speed Performance Level */}
       <Card className="bg-card border-border overflow-hidden">
         <div className="bg-primary/10 border-b border-border px-6 py-4">
           <h3 className="font-display text-lg text-muted-foreground uppercase tracking-wider">
@@ -42,9 +45,12 @@ export function StrengthResults({ result, exercise, unit }: StrengthResultsProps
         </div>
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <span className="font-display text-4xl text-foreground tracking-wide">
-              {level.name}
-            </span>
+            <div>
+              <span className="font-display text-4xl text-foreground tracking-wide">
+                {level.name}
+              </span>
+              <p className="text-muted-foreground text-sm mt-1">Based on bodyweight ratio</p>
+            </div>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
@@ -70,11 +76,12 @@ export function StrengthResults({ result, exercise, unit }: StrengthResultsProps
         </CardContent>
       </Card>
 
-      {/* Stats Grid */}
+      {/* Stats Grid - Matches Speed Pace Stats Layout */}
       <div className="grid grid-cols-2 gap-4">
         <Card className="bg-card border-border">
           <CardContent className="p-6 text-center">
-            <div className="font-display text-4xl text-primary mb-1">
+            <Scale className="w-8 h-8 text-primary mx-auto mb-2" />
+            <div className="font-display text-3xl text-primary mb-1">
               {ratio}x
             </div>
             <p className="text-sm text-muted-foreground">Bodyweight Ratio</p>
@@ -82,7 +89,8 @@ export function StrengthResults({ result, exercise, unit }: StrengthResultsProps
         </Card>
         <Card className="bg-card border-border">
           <CardContent className="p-6 text-center">
-            <div className="font-display text-4xl text-primary mb-1">
+            <TrendingUp className="w-8 h-8 text-primary mx-auto mb-2" />
+            <div className="font-display text-3xl text-primary mb-1">
               TOP {100 - percentile}%
             </div>
             <p className="text-sm text-muted-foreground">Overall Percentile</p>
@@ -90,7 +98,27 @@ export function StrengthResults({ result, exercise, unit }: StrengthResultsProps
         </Card>
       </div>
 
-      {/* Age-Adjusted Stats */}
+      {/* Percentile Stats - Matches Speed Percentile Grid */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card className="bg-card border-border">
+          <CardContent className="p-6 text-center">
+            <div className="font-display text-4xl text-primary mb-1">
+              TOP {100 - percentile}%
+            </div>
+            <p className="text-sm text-muted-foreground">Overall Ranking</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-card border-border">
+          <CardContent className="p-6 text-center">
+            <div className="font-display text-4xl text-primary mb-1">
+              TOP {100 - ageAdjustedPercentile}%
+            </div>
+            <p className="text-sm text-muted-foreground">Age-Adjusted</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Age-Adjusted Stats - Exact Match to Speed Calculator */}
       <Card className="bg-card border-border overflow-hidden">
         <div className="bg-primary/10 border-b border-border px-6 py-4">
           <h3 className="font-display text-lg text-muted-foreground uppercase tracking-wider">
