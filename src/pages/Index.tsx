@@ -13,6 +13,7 @@ import { FriendsWidget } from '@/components/tracker/FriendsWidget';
 import { UserSearchModal } from '@/components/tracker/UserSearchModal';
 import { FriendRequestsModal } from '@/components/tracker/FriendRequestsModal';
 import { FriendsListModal } from '@/components/tracker/FriendsListModal';
+import { ThemeToggle } from '@/components/hub/ThemeToggle';
 import { useFriends } from '@/hooks/useFriends';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -90,7 +91,8 @@ const Index = () => {
                 </span>
               </Link>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
                 <Button variant="ghost" size="sm" onClick={() => setShowUserSearch(true)}>
                   <UserPlus className="w-5 h-5" />
                 </Button>

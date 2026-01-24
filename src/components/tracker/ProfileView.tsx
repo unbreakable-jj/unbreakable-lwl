@@ -18,6 +18,7 @@ import { MyProgramsSection } from '@/components/programming/MyProgramsSection';
 import { TrophyCase, TrophyCountsBadge } from '@/components/tracker/TrophyCase';
 import { CombinedStatsView } from '@/components/tracker/CombinedStatsView';
 import { CombinedRecordsView } from '@/components/tracker/CombinedRecordsView';
+import { SettingsPanel } from '@/components/settings/SettingsPanel';
 import { toast } from 'sonner';
 import { 
   Edit2, 
@@ -37,6 +38,7 @@ import {
   BarChart2,
   Medal,
   User,
+  Settings,
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -59,7 +61,7 @@ export function ProfileView() {
     is_public: true,
   });
   const [saving, setSaving] = useState(false);
-  const [activeProfileTab, setActiveProfileTab] = useState<'overview' | 'stats' | 'records'>('overview');
+  const [activeProfileTab, setActiveProfileTab] = useState<'overview' | 'stats' | 'records' | 'settings'>('overview');
   const trophyCounts = getTrophyCounts();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -416,17 +418,24 @@ export function ProfileView() {
       {/* Profile Tabs: Overview, Stats, Records */}
       <Tabs value={activeProfileTab} onValueChange={(v) => setActiveProfileTab(v as any)}>
         <TabsList className="w-full bg-card border border-border">
-          <TabsTrigger value="overview" className="flex-1 font-display tracking-wide">
-            <User className="w-4 h-4 mr-2" />
-            OVERVIEW
+          <TabsTrigger value="overview" className="flex-1 font-display tracking-wide text-xs sm:text-sm">
+            <User className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">OVERVIEW</span>
+            <span className="sm:hidden">ABOUT</span>
           </TabsTrigger>
-          <TabsTrigger value="stats" className="flex-1 font-display tracking-wide">
-            <BarChart2 className="w-4 h-4 mr-2" />
+          <TabsTrigger value="stats" className="flex-1 font-display tracking-wide text-xs sm:text-sm">
+            <BarChart2 className="w-4 h-4 mr-1 sm:mr-2" />
             STATS
           </TabsTrigger>
-          <TabsTrigger value="records" className="flex-1 font-display tracking-wide">
-            <Medal className="w-4 h-4 mr-2" />
-            RECORDS
+          <TabsTrigger value="records" className="flex-1 font-display tracking-wide text-xs sm:text-sm">
+            <Medal className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">RECORDS</span>
+            <span className="sm:hidden">PRs</span>
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="flex-1 font-display tracking-wide text-xs sm:text-sm">
+            <Settings className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">SETTINGS</span>
+            <span className="sm:hidden">⚙️</span>
           </TabsTrigger>
         </TabsList>
 
@@ -573,6 +582,10 @@ export function ProfileView() {
 
         <TabsContent value="records" className="mt-6">
           <CombinedRecordsView />
+        </TabsContent>
+
+        <TabsContent value="settings" className="mt-6">
+          <SettingsPanel />
         </TabsContent>
       </Tabs>
     </div>

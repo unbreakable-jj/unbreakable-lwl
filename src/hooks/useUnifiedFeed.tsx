@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
@@ -48,6 +48,19 @@ export interface FeedWorkout {
   sets_completed?: number;
 }
 
+export interface FeedMilestone {
+  id: string;
+  user_id: string;
+  milestone_type: string;
+  title: string;
+  description: string | null;
+  icon: string | null;
+  value: number | null;
+  is_shared: boolean;
+  visibility: 'public' | 'friends' | 'private';
+  achieved_at: string;
+}
+
 export interface FeedProfile {
   display_name: string | null;
   avatar_url: string | null;
@@ -65,21 +78,29 @@ export interface FeedItemBase {
 export type FeedItem =
   | { type: 'run'; data: FeedRun & FeedItemBase }
   | { type: 'post'; data: FeedPost & FeedItemBase }
-  | { type: 'workout'; data: FeedWorkout & FeedItemBase };
+  | { type: 'workout'; data: FeedWorkout & FeedItemBase }
+  | { type: 'milestone'; data: FeedMilestone & FeedItemBase };
+
+const ITEMS_PER_PAGE = 15;
 
 export function useUnifiedFeed() {
   const { user } = useAuth();
   const [runs, setRuns] = useState<(FeedRun & FeedItemBase)[]>([]);
   const [posts, setPosts] = useState<(FeedPost & FeedItemBase)[]>([]);
   const [workouts, setWorkouts] = useState<(FeedWorkout & FeedItemBase)[]>([]);
+  const [milestones, setMilestones] = useState<(FeedMilestone & FeedItemBase)[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
-  const fetchRuns = useCallback(async () => {
+  const fetchRuns = useCallback(async (offset: number = 0) => {
     const { data, error } = await supabase
       .from('runs')
       .select('*')
       .order('started_at', { ascending: false })
-      .limit(30);
+      .range(offset, offset + ITEMS_PER_PAGE - 1);
 
     if (error || !data) return [];
 
@@ -109,12 +130,12 @@ export function useUnifiedFeed() {
     return enriched;
   }, [user]);
 
-  const fetchPosts = useCallback(async () => {
+  const fetchPosts = useCallback(async (offset: number = 0) => {
     const { data, error } = await supabase
       .from('posts')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(30);
+      .range(offset, offset + ITEMS_PER_PAGE - 1);
 
     if (error || !data) return [];
 
@@ -144,13 +165,13 @@ export function useUnifiedFeed() {
     return enriched;
   }, [user]);
 
-  const fetchWorkouts = useCallback(async () => {
+  const fetchWorkouts = useCallback(async (offset: number = 0) => {
     const { data, error } = await supabase
       .from('workout_sessions')
       .select('*, exercise_logs(id, completed)')
       .eq('status', 'completed')
       .order('started_at', { ascending: false })
-      .limit(30);
+      .range(offset, offset + ITEMS_PER_PAGE - 1);
 
     if (error || !data) return [];
 
@@ -194,31 +215,122 @@ export function useUnifiedFeed() {
     return enriched;
   }, [user]);
 
-  const fetchAll = useCallback(async () => {
-    setLoading(true);
-    const [runsData, postsData, workoutsData] = await Promise.all([
-      fetchRuns(),
-      fetchPosts(),
-      fetchWorkouts(),
-    ]);
-    setRuns(runsData);
-    setPosts(postsData);
-    setWorkouts(workoutsData);
-    setLoading(false);
-  }, [fetchRuns, fetchPosts, fetchWorkouts]);
+  const fetchMilestones = useCallback(async (offset: number = 0) => {
+    const { data, error } = await supabase
+      .from('milestones')
+      .select('*')
+      .eq('is_shared', true)
+      .order('achieved_at', { ascending: false })
+      .range(offset, offset + ITEMS_PER_PAGE - 1);
 
+    if (error || !data) return [];
+
+    const enriched = await Promise.all(
+      data.map(async (milestone) => {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('display_name, avatar_url, username')
+          .eq('user_id', milestone.user_id)
+          .maybeSingle();
+
+        return {
+          ...milestone,
+          visibility: (milestone.visibility || 'public') as 'public' | 'friends' | 'private',
+          timestamp: new Date(milestone.achieved_at),
+          profiles: profileData || undefined,
+        };
+      })
+    );
+
+    return enriched;
+  }, []);
+
+  const fetchAll = useCallback(async (reset: boolean = true) => {
+    if (reset) {
+      setLoading(true);
+      setPage(0);
+      setHasMore(true);
+    } else {
+      setLoadingMore(true);
+    }
+
+    const offset = reset ? 0 : page * ITEMS_PER_PAGE;
+    
+    const [runsData, postsData, workoutsData, milestonesData] = await Promise.all([
+      fetchRuns(offset),
+      fetchPosts(offset),
+      fetchWorkouts(offset),
+      fetchMilestones(offset),
+    ]);
+
+    // Check if we have more items
+    const totalNew = runsData.length + postsData.length + workoutsData.length + milestonesData.length;
+    if (totalNew < ITEMS_PER_PAGE) {
+      setHasMore(false);
+    }
+
+    if (reset) {
+      setRuns(runsData);
+      setPosts(postsData);
+      setWorkouts(workoutsData);
+      setMilestones(milestonesData);
+    } else {
+      setRuns(prev => [...prev, ...runsData]);
+      setPosts(prev => [...prev, ...postsData]);
+      setWorkouts(prev => [...prev, ...workoutsData]);
+      setMilestones(prev => [...prev, ...milestonesData]);
+    }
+
+    setLoading(false);
+    setLoadingMore(false);
+  }, [fetchRuns, fetchPosts, fetchWorkouts, fetchMilestones, page]);
+
+  const loadMore = useCallback(() => {
+    if (!loadingMore && hasMore) {
+      setPage(prev => prev + 1);
+    }
+  }, [loadingMore, hasMore]);
+
+  // Initial fetch
   useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
+    fetchAll(true);
+  }, [user]);
+
+  // Load more when page changes
+  useEffect(() => {
+    if (page > 0) {
+      fetchAll(false);
+    }
+  }, [page]);
+
+  // Intersection observer for infinite scroll
+  const lastItemRef = useCallback((node: HTMLDivElement | null) => {
+    if (loading || loadingMore) return;
+    
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
+    observerRef.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        loadMore();
+      }
+    });
+
+    if (node) {
+      observerRef.current.observe(node);
+    }
+  }, [loading, loadingMore, hasMore, loadMore]);
 
   const feedItems = useMemo((): FeedItem[] => {
     const items: FeedItem[] = [
       ...runs.map((run) => ({ type: 'run' as const, data: run })),
       ...posts.map((post) => ({ type: 'post' as const, data: post })),
       ...workouts.map((workout) => ({ type: 'workout' as const, data: workout })),
+      ...milestones.map((milestone) => ({ type: 'milestone' as const, data: milestone })),
     ];
     return items.sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime());
-  }, [runs, posts, workouts]);
+  }, [runs, posts, workouts, milestones]);
 
   // Kudos toggles
   const toggleRunKudos = async (runId: string) => {
@@ -230,7 +342,7 @@ export function useUnifiedFeed() {
     } else {
       await supabase.from('kudos').insert({ run_id: runId, user_id: user.id });
     }
-    fetchAll();
+    fetchAll(true);
   };
 
   const togglePostKudos = async (postId: string) => {
@@ -242,7 +354,7 @@ export function useUnifiedFeed() {
     } else {
       await supabase.from('post_kudos').insert({ post_id: postId, user_id: user.id });
     }
-    fetchAll();
+    fetchAll(true);
   };
 
   const toggleWorkoutKudos = async (workoutId: string) => {
@@ -254,25 +366,31 @@ export function useUnifiedFeed() {
     } else {
       await supabase.from('workout_kudos').insert({ workout_id: workoutId, user_id: user.id });
     }
-    fetchAll();
+    fetchAll(true);
   };
 
   // Delete actions
   const deleteRun = async (runId: string) => {
     const { error } = await supabase.from('runs').delete().eq('id', runId);
-    if (!error) fetchAll();
+    if (!error) fetchAll(true);
     return { error };
   };
 
   const deletePost = async (postId: string) => {
     const { error } = await supabase.from('posts').delete().eq('id', postId);
-    if (!error) fetchAll();
+    if (!error) fetchAll(true);
     return { error };
   };
 
   const deleteWorkout = async (workoutId: string) => {
     const { error } = await supabase.from('workout_sessions').delete().eq('id', workoutId);
-    if (!error) fetchAll();
+    if (!error) fetchAll(true);
+    return { error };
+  };
+
+  const deleteMilestone = async (milestoneId: string) => {
+    const { error } = await supabase.from('milestones').delete().eq('id', milestoneId);
+    if (!error) fetchAll(true);
     return { error };
   };
 
@@ -282,7 +400,7 @@ export function useUnifiedFeed() {
     const run = runs.find((r) => r.id === runId);
     if (!run || run.user_id !== user.id) return { error: new Error('Not authorized') };
     const { error } = await supabase.from('runs').update({ comments_enabled: !run.comments_enabled }).eq('id', runId);
-    if (!error) fetchAll();
+    if (!error) fetchAll(true);
     return { error };
   };
 
@@ -291,7 +409,7 @@ export function useUnifiedFeed() {
     const post = posts.find((p) => p.id === postId);
     if (!post || post.user_id !== user.id) return { error: new Error('Not authorized') };
     const { error } = await supabase.from('posts').update({ comments_enabled: !post.comments_enabled }).eq('id', postId);
-    if (!error) fetchAll();
+    if (!error) fetchAll(true);
     return { error };
   };
 
@@ -300,22 +418,52 @@ export function useUnifiedFeed() {
     const workout = workouts.find((w) => w.id === workoutId);
     if (!workout || workout.user_id !== user.id) return { error: new Error('Not authorized') };
     const { error } = await supabase.from('workout_sessions').update({ comments_enabled: !workout.comments_enabled }).eq('id', workoutId);
-    if (!error) fetchAll();
+    if (!error) fetchAll(true);
+    return { error };
+  };
+
+  // Share/unshare milestones
+  const shareMilestone = async (milestoneId: string, visibility: 'public' | 'friends' | 'private' = 'public') => {
+    if (!user) return { error: new Error('Not authenticated') };
+    const { error } = await supabase
+      .from('milestones')
+      .update({ is_shared: true, visibility })
+      .eq('id', milestoneId)
+      .eq('user_id', user.id);
+    if (!error) fetchAll(true);
+    return { error };
+  };
+
+  const unshareMilestone = async (milestoneId: string) => {
+    if (!user) return { error: new Error('Not authenticated') };
+    const { error } = await supabase
+      .from('milestones')
+      .update({ is_shared: false })
+      .eq('id', milestoneId)
+      .eq('user_id', user.id);
+    if (!error) fetchAll(true);
     return { error };
   };
 
   return {
     feedItems,
     loading,
-    refetch: fetchAll,
+    loadingMore,
+    hasMore,
+    lastItemRef,
+    refetch: () => fetchAll(true),
+    loadMore,
     toggleRunKudos,
     togglePostKudos,
     toggleWorkoutKudos,
     deleteRun,
     deletePost,
     deleteWorkout,
+    deleteMilestone,
     toggleRunComments,
     togglePostComments,
     toggleWorkoutComments,
+    shareMilestone,
+    unshareMilestone,
   };
 }

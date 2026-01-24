@@ -264,6 +264,48 @@ export type Database = {
           },
         ]
       }
+      milestones: {
+        Row: {
+          achieved_at: string
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_shared: boolean | null
+          milestone_type: string
+          title: string
+          user_id: string
+          value: number | null
+          visibility: string | null
+        }
+        Insert: {
+          achieved_at?: string
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_shared?: boolean | null
+          milestone_type: string
+          title: string
+          user_id: string
+          value?: number | null
+          visibility?: string | null
+        }
+        Update: {
+          achieved_at?: string
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_shared?: boolean | null
+          milestone_type?: string
+          title?: string
+          user_id?: string
+          value?: number | null
+          visibility?: string | null
+        }
+        Relationships: []
+      }
       personal_records: {
         Row: {
           achieved_at: string
@@ -719,6 +761,60 @@ export type Database = {
           pace_per_km_seconds?: number
           rank?: number
           run_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          allow_comments_default: boolean | null
+          allow_friend_requests: boolean | null
+          created_at: string
+          id: string
+          notify_achievements: boolean | null
+          notify_comments: boolean | null
+          notify_friend_requests: boolean | null
+          notify_likes: boolean | null
+          profile_visibility: string | null
+          show_achievements_in_feed: boolean | null
+          show_community_posts: boolean | null
+          show_stats_publicly: boolean | null
+          theme: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allow_comments_default?: boolean | null
+          allow_friend_requests?: boolean | null
+          created_at?: string
+          id?: string
+          notify_achievements?: boolean | null
+          notify_comments?: boolean | null
+          notify_friend_requests?: boolean | null
+          notify_likes?: boolean | null
+          profile_visibility?: string | null
+          show_achievements_in_feed?: boolean | null
+          show_community_posts?: boolean | null
+          show_stats_publicly?: boolean | null
+          theme?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allow_comments_default?: boolean | null
+          allow_friend_requests?: boolean | null
+          created_at?: string
+          id?: string
+          notify_achievements?: boolean | null
+          notify_comments?: boolean | null
+          notify_friend_requests?: boolean | null
+          notify_likes?: boolean | null
+          profile_visibility?: string | null
+          show_achievements_in_feed?: boolean | null
+          show_community_posts?: boolean | null
+          show_stats_publicly?: boolean | null
+          theme?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
