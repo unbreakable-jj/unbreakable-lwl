@@ -456,7 +456,7 @@ const Mindset = () => {
         <main className="container mx-auto px-6 py-8">
           <div className="max-w-6xl mx-auto">
             {/* Description Card - matches Calculator style */}
-            <div className="bg-card border border-border rounded-lg p-8 md:p-10 mb-10 text-center max-w-4xl mx-auto">
+            <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8 md:p-10 mb-10 text-center max-w-4xl mx-auto">
               <p className="text-muted-foreground leading-relaxed mb-4">
                 {heroContent.intro}{' '}
                 <span className="text-primary font-semibold">{heroContent.emphasis}</span>.
@@ -474,7 +474,7 @@ const Mindset = () => {
                 {heroContent.goalEnd}
               </p>
               
-              <p className="text-primary font-display text-2xl tracking-wide mt-6">
+              <p className="text-primary font-display text-2xl tracking-wide mt-6 neon-glow-subtle">
                 {heroContent.hashtag}
               </p>
             </div>
@@ -489,7 +489,7 @@ const Mindset = () => {
               {BREATHING_EXERCISES.map((exercise) => (
                 <Card
                   key={exercise.id}
-                  className="bg-card border border-border border-l-4 border-l-primary p-6 cursor-pointer hover:bg-muted/50 transition-all group"
+                  className="bg-card border-2 border-primary/30 neon-border-subtle border-l-4 border-l-primary p-6 cursor-pointer hover:bg-muted/50 transition-all group"
                   onClick={() => selectExercise(exercise)}
                 >
                   {/* Icon & Title */}
