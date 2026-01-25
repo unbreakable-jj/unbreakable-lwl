@@ -24,7 +24,7 @@ import {
   ArrowRight, 
   Loader2, 
   Sparkles,
-  Brain,
+  Target,
   Dumbbell
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -137,7 +137,7 @@ export default function Programming() {
 
   if (generatedProgram) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background brick-texture">
         {/* Header */}
         <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4">
@@ -166,7 +166,7 @@ export default function Programming() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background brick-texture">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
@@ -196,9 +196,9 @@ export default function Programming() {
             transition={{ duration: 0.6 }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-6">
-              <Brain className="w-4 h-4 text-primary" />
+              <Target className="w-4 h-4 text-primary" />
               <span className="text-sm font-display text-primary tracking-wide">
-                AI-POWERED PROGRAMMING
+                PERSONALISED PROGRAMMING
               </span>
             </div>
             <h1 className="font-display text-4xl md:text-6xl tracking-wider mb-4">

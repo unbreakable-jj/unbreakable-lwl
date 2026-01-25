@@ -79,7 +79,7 @@ const Index = () => {
   // If logged in, show the unified hub
   if (user) {
     return (
-      <div className="min-h-screen bg-background pb-20 md:pb-8">
+      <div className="min-h-screen bg-background pb-20 md:pb-8 brick-texture">
         {/* Header */}
         <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
           <div className="container mx-auto px-6 py-4">
@@ -217,7 +217,7 @@ const Index = () => {
 
   // Not logged in - show landing page
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background brick-texture">
       {/* Minimal Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4">
