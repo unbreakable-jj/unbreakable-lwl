@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import logo from '@/assets/logo.png';
+import { ThemedLogo } from '@/components/ThemedLogo';
 import { Button } from '@/components/ui/button';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { Dumbbell, Flame, Timer } from 'lucide-react';
@@ -169,7 +169,7 @@ const Calculators = () => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
-              <img src={logo} alt="Unbreakable - Live Without Limits" className="h-10 object-contain" />
+              <ThemedLogo />
               <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
                 UNBREAKABLE
               </span>
@@ -182,11 +182,7 @@ const Calculators = () => {
       {/* Hero Section - Calculator Title */}
       <section className="pt-32 pb-12 text-center px-6">
         <div className="max-w-4xl mx-auto">
-          <img
-            src={logo}
-            alt="Unbreakable - Live Without Limits"
-            className="h-32 md:h-40 object-contain mx-auto mb-6"
-          />
+          <ThemedLogo className="h-32 md:h-40 object-contain mx-auto mb-6" />
           <h1 className="font-display text-6xl md:text-8xl text-foreground tracking-wide leading-none mb-2">
             {hero.title}
           </h1>

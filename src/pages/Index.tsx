@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import logo from '@/assets/logo.png';
+import { ThemedLogo } from '@/components/ThemedLogo';
 import { Button } from '@/components/ui/button';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { useAuth } from '@/hooks/useAuth';
@@ -85,7 +85,7 @@ const Index = () => {
           <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <Link to="/" className="flex items-center gap-3">
-                <img src={logo} alt="Unbreakable" className="h-10 object-contain" />
+                <ThemedLogo />
                 <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
                   UNBREAKABLE
                 </span>
@@ -223,7 +223,7 @@ const Index = () => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
-              <img src={logo} alt="Unbreakable - Live Without Limits" className="h-10 object-contain" />
+              <ThemedLogo />
               <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
                 UNBREAKABLE
               </span>
@@ -250,11 +250,7 @@ const Index = () => {
           className="max-w-4xl mx-auto"
         >
           {/* Large centered logo */}
-          <img
-            src={logo}
-            alt="Unbreakable - Live Without Limits"
-            className="h-48 md:h-64 lg:h-72 object-contain mx-auto mb-8"
-          />
+          <ThemedLogo className="h-48 md:h-64 lg:h-72 object-contain mx-auto mb-8" />
 
           {/* Dramatic title */}
           <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-foreground tracking-wide leading-none mb-2">
