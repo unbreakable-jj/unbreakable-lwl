@@ -4,6 +4,7 @@ import { ActivityCard } from '@/components/tracker/ActivityCard';
 import { StatusCard } from '@/components/tracker/StatusCard';
 import { WorkoutCard } from './WorkoutCard';
 import { MilestoneCard } from './MilestoneCard';
+import { StoriesSection } from './StoriesSection';
 import { CreatePostBox } from '@/components/tracker/CreatePostBox';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -108,6 +109,9 @@ export function UnifiedFeed({ onSignIn }: UnifiedFeedProps) {
 
   return (
     <div className="space-y-6">
+      {/* Stories Section */}
+      {user && <StoriesSection />}
+
       {/* Create Post Box */}
       {user && <CreatePostBox />}
 

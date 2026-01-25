@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
-import { Timer, Dumbbell, AlertCircle } from 'lucide-react';
+import { Timer, Dumbbell, AlertCircle, Footprints } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
@@ -21,12 +21,12 @@ export function RecordActionMenu({ isOpen, onClose, onOpenRunModal }: RecordActi
   const { activeSession } = useWorkoutSessions();
   const [showNoProgramWarning, setShowNoProgramWarning] = useState(false);
 
-  const handleTrackRun = () => {
+  const handleCardioTracker = () => {
     onClose();
     onOpenRunModal();
   };
 
-  const handleTrackWorkout = () => {
+  const handleProgrammeTracking = () => {
     if (activeSession) {
       // Resume active session - navigate to programming page
       toast.info('Resuming your active workout session');
@@ -75,7 +75,7 @@ export function RecordActionMenu({ isOpen, onClose, onOpenRunModal }: RecordActi
                 onClick={handleGoToProgramming}
               >
                 <Dumbbell className="w-4 h-4 mr-2" />
-                GO TO PROGRAMMES
+                GO TO PROGRAMMING
               </Button>
               <Button 
                 variant="outline"
@@ -107,15 +107,15 @@ export function RecordActionMenu({ isOpen, onClose, onOpenRunModal }: RecordActi
           >
             <Card 
               className="p-4 bg-background border-border hover:border-primary cursor-pointer transition-colors"
-              onClick={handleTrackRun}
+              onClick={handleCardioTracker}
             >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Timer className="w-6 h-6 text-primary" />
+                  <Footprints className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-display text-lg text-foreground tracking-wide">TRACK RUN</h3>
-                  <p className="text-sm text-muted-foreground">GPS or manual entry</p>
+                  <h3 className="font-display text-lg text-foreground tracking-wide">CARDIO TRACKER</h3>
+                  <p className="text-sm text-muted-foreground">Walk, Run, or Cycle with GPS</p>
                 </div>
               </div>
             </Card>
@@ -128,14 +128,14 @@ export function RecordActionMenu({ isOpen, onClose, onOpenRunModal }: RecordActi
           >
             <Card 
               className="p-4 bg-background border-border hover:border-primary cursor-pointer transition-colors"
-              onClick={handleTrackWorkout}
+              onClick={handleProgrammeTracking}
             >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                   <Dumbbell className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-display text-lg text-foreground tracking-wide">TRACK WORKOUT</h3>
+                  <h3 className="font-display text-lg text-foreground tracking-wide">PROGRAMME TRACKING</h3>
                   <p className="text-sm text-muted-foreground">
                     {activeSession 
                       ? 'Resume active session' 
