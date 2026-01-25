@@ -856,6 +856,7 @@ export type Database = {
       }
       user_settings: {
         Row: {
+          ai_feedback_enabled: boolean | null
           allow_comments_default: boolean | null
           allow_friend_requests: boolean | null
           created_at: string
@@ -873,6 +874,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ai_feedback_enabled?: boolean | null
           allow_comments_default?: boolean | null
           allow_friend_requests?: boolean | null
           created_at?: string
@@ -890,6 +892,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ai_feedback_enabled?: boolean | null
           allow_comments_default?: boolean | null
           allow_friend_requests?: boolean | null
           created_at?: string

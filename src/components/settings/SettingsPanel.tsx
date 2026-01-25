@@ -29,6 +29,7 @@ import {
   Dumbbell,
   Share2,
   LogOut,
+  Sparkles,
   ExternalLink,
 } from 'lucide-react';
 import { useUserSettings, UserSettings } from '@/hooks/useUserSettings';
@@ -336,6 +337,24 @@ export function SettingsPanel() {
               </p>
             </div>
             <Switch defaultChecked />
+          </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-foreground font-medium flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                Workout Feedback
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Get personalised feedback on form, progression, and recovery
+              </p>
+            </div>
+            <Switch
+              checked={settings.ai_feedback_enabled}
+              onCheckedChange={(checked) => handleUpdate({ ai_feedback_enabled: checked })}
+            />
           </div>
         </CardContent>
       </Card>
