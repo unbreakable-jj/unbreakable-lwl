@@ -1,6 +1,4 @@
-import logoLight from '@/assets/logo-light.png';
-import logoDark from '@/assets/logo-dark.png';
-import { useUserSettings } from '@/hooks/useUserSettings';
+import logo from '@/assets/logo.png';
 
 interface ThemedLogoProps {
   className?: string;
@@ -8,17 +6,11 @@ interface ThemedLogoProps {
 }
 
 export function ThemedLogo({ className = 'h-10 object-contain', alt = 'Unbreakable - Live Without Limits' }: ThemedLogoProps) {
-  const { settings } = useUserSettings();
-  
-  // Default to dark theme logo (black background) if settings not loaded
-  const isDark = settings?.theme !== 'light';
-  const logo = isDark ? logoDark : logoLight;
-
   return (
     <img
       src={logo}
       alt={alt}
-      className={className}
+      className={`${className} logo-neon-glow`}
     />
   );
 }
