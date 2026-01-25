@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import logo from '@/assets/logo.png';
+import { ThemedLogo } from '@/components/ThemedLogo';
 import { Button } from '@/components/ui/button';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { ProgramFormStep1 } from '@/components/programming/ProgramFormStep1';
@@ -143,7 +143,7 @@ export default function Programming() {
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <Link to="/" className="flex items-center gap-3">
-                <img src={logo} alt="Unbreakable" className="h-10 object-contain" />
+                <ThemedLogo />
                 <div className="hidden sm:block">
                   <span className="font-display text-lg tracking-wide text-foreground">
                     UNBREAKABLE
@@ -172,7 +172,7 @@ export default function Programming() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
-              <img src={logo} alt="Unbreakable" className="h-10 object-contain" />
+              <ThemedLogo />
               <div className="hidden sm:block">
                 <span className="font-display text-lg tracking-wide text-foreground">
                   UNBREAKABLE

@@ -10,7 +10,7 @@ import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useHelpChat, Message } from '@/hooks/useHelpChat';
-import logo from '@/assets/logo.png';
+import { ThemedLogo } from '@/components/ThemedLogo';
 
 const SAMPLE_QUESTIONS = [
   "I'm stuck on my squat progression — what should I do?",
@@ -105,7 +105,7 @@ export default function Help() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <img src={logo} alt="Unbreakable" className="h-10 object-contain" />
+            <ThemedLogo />
             <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
               UNBREAKABLE
             </span>
