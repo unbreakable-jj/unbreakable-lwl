@@ -99,24 +99,22 @@ export function RecordActionMenu({ isOpen, onClose, onOpenRunModal }: RecordActi
             TRACK ACTIVITY
           </DialogTitle>
         </DialogHeader>
-        <div className="space-y-3 py-4">
+        <div className="space-y-4 py-4">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
             <Card 
-              className="p-4 bg-background border-border hover:border-primary cursor-pointer transition-colors"
+              className="cursor-pointer transition-all border-2 border-primary/30 hover:border-primary hover:bg-primary/10 neon-border-subtle"
               onClick={handleCardioTracker}
             >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Footprints className="w-6 h-6 text-primary" />
+              <div className="p-6 text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 neon-border-subtle">
+                  <Footprints className="w-8 h-8 text-primary" />
                 </div>
-                <div>
-                  <h3 className="font-display text-lg text-foreground tracking-wide">CARDIO TRACKER</h3>
-                  <p className="text-sm text-muted-foreground">Walk, Run, or Cycle with GPS</p>
-                </div>
+                <h3 className="font-display text-xl text-foreground tracking-wide mb-1">CARDIO TRACKER</h3>
+                <p className="text-sm text-muted-foreground">Walk, Run, or Cycle with GPS</p>
               </div>
             </Card>
           </motion.div>
@@ -127,24 +125,22 @@ export function RecordActionMenu({ isOpen, onClose, onOpenRunModal }: RecordActi
             transition={{ delay: 0.2 }}
           >
             <Card 
-              className="p-4 bg-background border-border hover:border-primary cursor-pointer transition-colors"
+              className="cursor-pointer transition-all border-2 border-primary/30 hover:border-primary hover:bg-primary/10 neon-border-subtle"
               onClick={handleProgrammeTracking}
             >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Dumbbell className="w-6 h-6 text-primary" />
+              <div className="p-6 text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 neon-border-subtle">
+                  <Dumbbell className="w-8 h-8 text-primary" />
                 </div>
-                <div>
-                  <h3 className="font-display text-lg text-foreground tracking-wide">PROGRAMME TRACKING</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {activeSession 
-                      ? 'Resume active session' 
-                      : activeProgram 
-                        ? `From: ${activeProgram.name}`
-                        : 'Start from your programme'
-                    }
-                  </p>
-                </div>
+                <h3 className="font-display text-xl text-foreground tracking-wide mb-1">PROGRAMME TRACKING</h3>
+                <p className="text-sm text-muted-foreground">
+                  {activeSession 
+                    ? 'Resume active session' 
+                    : activeProgram 
+                      ? `From: ${activeProgram.name}`
+                      : 'Start from your programme'
+                  }
+                </p>
               </div>
             </Card>
           </motion.div>
