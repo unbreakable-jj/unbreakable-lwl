@@ -55,7 +55,7 @@ export function CardioProgramDisplay({ program, onSave, onBack, isSaving }: Card
           {program.overview}
         </p>
         <Badge className="mt-4 font-display tracking-wide">
-          {activityLabels[program.activityType]} • 8 WEEKS
+          {activityLabels[program.activityType]} • 12 WEEKS
         </Badge>
       </div>
 
