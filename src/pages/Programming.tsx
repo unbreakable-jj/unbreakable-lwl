@@ -211,11 +211,8 @@ export default function Programming() {
             transition={{ duration: 0.6 }}
           >
             <h1 className="font-display text-5xl sm:text-6xl md:text-8xl tracking-wide leading-none mb-2">
-              <span className="text-foreground">BUILD YOUR </span>
+              <span className="text-foreground">BECOME </span>
               <span className="text-primary neon-glow-subtle">UNBREAKABLE</span>
-            </h1>
-            <h1 className="font-display text-5xl sm:text-6xl md:text-8xl text-foreground tracking-wide leading-none">
-              PROGRAMME
             </h1>
             <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">
               LIVE WITHOUT LIMITS
@@ -226,7 +223,7 @@ export default function Programming() {
               <span className="text-foreground font-medium">Auto</span> to let the system build a programme for you.
               Once created, programmes are ready to track, log, and receive optional guidance.
             </p>
-            <p className="text-primary font-semibold mt-3">KEEP SHOWING UP.</p>
+            <p className="text-primary font-display text-lg mt-3 neon-glow-subtle">KEEP SHOWING UP.</p>
           </motion.div>
         </div>
       </section>
