@@ -206,7 +206,7 @@ const Tracker = () => {
                           </div>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Zap className="w-4 h-4 text-primary" />
-                            <span>8-week programmes</span>
+                            <span>12-week programmes</span>
                           </div>
                         </div>
                         <Button

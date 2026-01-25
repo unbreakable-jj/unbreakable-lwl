@@ -33,6 +33,8 @@ interface Position {
   lat: number;
   lng: number;
   timestamp: number;
+  accuracy: number;
+  speed: number | null;
 }
 
 const ACTIVITY_CONFIG = {
@@ -89,6 +91,9 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [positions, setPositions] = useState<Position[]>([]);
   const [distance, setDistance] = useState(0);
+  const [currentSpeed, setCurrentSpeed] = useState<number | null>(null);
+  const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
+  const [gpsStatus, setGpsStatus] = useState<'acquiring' | 'active' | 'error'>('acquiring');
   const watchIdRef = useRef<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -137,22 +142,44 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     setPositions([]);
     setDistance(0);
     setElapsedSeconds(0);
+    setGpsStatus('acquiring');
+    setGpsAccuracy(null);
+    setCurrentSpeed(null);
 
     // Start timer
     timerRef.current = setInterval(() => {
       setElapsedSeconds((prev) => prev + 1);
     }, 1000);
 
-    // Start GPS tracking (background only - no map)
+    // Request location permission and start high-accuracy GPS tracking
     watchIdRef.current = navigator.geolocation.watchPosition(
       (position) => {
+        const { latitude, longitude, accuracy, speed } = position.coords;
+        
+        // Update GPS status and accuracy
+        setGpsStatus('active');
+        setGpsAccuracy(accuracy);
+        
+        // Update current speed from GPS if available (m/s to km/h)
+        if (speed !== null && speed > 0) {
+          setCurrentSpeed(speed * 3.6);
+        }
+
         const newPosition: Position = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
+          lat: latitude,
+          lng: longitude,
           timestamp: Date.now(),
+          accuracy: accuracy,
+          speed: speed,
         };
 
         setPositions((prev) => {
+          // Filter out positions with poor accuracy (> 20 meters)
+          if (accuracy > 20) {
+            console.log(`GPS accuracy poor: ${accuracy}m - skipping`);
+            return prev;
+          }
+
           if (prev.length > 0) {
             const lastPos = prev[prev.length - 1];
             const segmentDistance = calculateDistance(
@@ -161,8 +188,16 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
               newPosition.lat,
               newPosition.lng
             );
-            // Only add if moved more than 5 meters
-            if (segmentDistance > 0.005) {
+            
+            // Only add if moved more than 3 meters (improved threshold)
+            // and the movement is plausible (not GPS drift)
+            const timeDelta = (newPosition.timestamp - lastPos.timestamp) / 1000;
+            const speedMps = segmentDistance * 1000 / timeDelta;
+            
+            // Filter out unrealistic speeds (> 50 km/h for running/walking, > 80 for cycling)
+            const maxSpeed = 80 / 3.6; // 80 km/h in m/s
+            
+            if (segmentDistance > 0.003 && speedMps < maxSpeed) {
               setDistance((d) => d + segmentDistance);
               return [...prev, newPosition];
             }
@@ -172,13 +207,27 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
         });
       },
       (error) => {
-        console.error('GPS Error:', error);
-        toast.error('Could not get your location');
+        console.error('GPS Error:', error.code, error.message);
+        setGpsStatus('error');
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            toast.error('Location access denied. Please enable location permissions.');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            toast.error('Location unavailable. Please check GPS is enabled.');
+            break;
+          case error.TIMEOUT:
+            toast.error('Location request timed out. Retrying...');
+            break;
+          default:
+            toast.error('Could not get your location');
+        }
       },
       {
-        enableHighAccuracy: true,
-        maximumAge: 0,
-        timeout: 5000,
+        enableHighAccuracy: true,  // Use GPS for precise tracking
+        maximumAge: 0,             // Always get fresh position
+        timeout: 10000,            // 10 second timeout (increased for better accuracy)
       }
     );
   }, []);
@@ -465,6 +514,9 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     setManualHours('0');
     setManualMinutes('');
     setManualSeconds('0');
+    setCurrentSpeed(null);
+    setGpsAccuracy(null);
+    setGpsStatus('acquiring');
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
@@ -729,32 +781,48 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                     {formatTime(elapsedSeconds)}
                   </p>
                   
-                  {/* GPS Indicator */}
-                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                    <motion.div
-                      animate={{ scale: [1, 1.3, 1] }}
-                      transition={{ repeat: Infinity, duration: 1.5 }}
-                      className="w-2 h-2 bg-emerald-500 rounded-full"
-                    />
-                    GPS Active
+                  {/* GPS Status Indicator */}
+                  <div className="flex items-center justify-center gap-3 text-sm">
+                    <div className="flex items-center gap-2">
+                      <motion.div
+                        animate={{ scale: gpsStatus === 'active' ? [1, 1.3, 1] : 1 }}
+                        transition={{ repeat: gpsStatus === 'active' ? Infinity : 0, duration: 1.5 }}
+                        className={`w-2 h-2 rounded-full ${
+                          gpsStatus === 'active' ? 'bg-emerald-500' : 
+                          gpsStatus === 'acquiring' ? 'bg-amber-500' : 'bg-destructive'
+                        }`}
+                      />
+                      <span className={
+                        gpsStatus === 'active' ? 'text-emerald-500' : 
+                        gpsStatus === 'acquiring' ? 'text-amber-500' : 'text-destructive'
+                      }>
+                        {gpsStatus === 'active' ? 'GPS Active' : 
+                         gpsStatus === 'acquiring' ? 'Acquiring GPS...' : 'GPS Error'}
+                      </span>
+                    </div>
+                    {gpsAccuracy !== null && gpsStatus === 'active' && (
+                      <span className="text-muted-foreground">
+                        ±{Math.round(gpsAccuracy)}m
+                      </span>
+                    )}
                   </div>
                 </div>
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-3 mb-8">
-                  <div className="bg-muted/50 rounded-xl p-4 text-center">
+                  <div className="bg-muted/50 rounded-xl p-4 text-center neon-border-subtle">
                     <p className="font-display text-3xl text-foreground tracking-wide">
                       {distance.toFixed(2)}
                     </p>
                     <p className="text-xs text-muted-foreground uppercase tracking-wide">km</p>
                   </div>
-                  <div className="bg-muted/50 rounded-xl p-4 text-center">
+                  <div className="bg-muted/50 rounded-xl p-4 text-center neon-border-subtle">
                     <p className="font-display text-3xl text-foreground tracking-wide">
-                      {calculateSpeed().toFixed(1)}
+                      {currentSpeed !== null ? currentSpeed.toFixed(1) : calculateSpeed().toFixed(1)}
                     </p>
                     <p className="text-xs text-muted-foreground uppercase tracking-wide">km/h</p>
                   </div>
-                  <div className="bg-muted/50 rounded-xl p-4 text-center">
+                  <div className="bg-muted/50 rounded-xl p-4 text-center neon-border-subtle">
                     <p className="font-display text-3xl text-foreground tracking-wide">
                       {calculatePace()}
                     </p>
