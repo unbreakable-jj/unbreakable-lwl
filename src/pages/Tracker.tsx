@@ -7,9 +7,10 @@ import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { CardioProgramBuilder } from '@/components/cardio/CardioProgramBuilder';
 import { CardioProgramDisplay } from '@/components/cardio/CardioProgramDisplay';
+import { SavedCardioPrograms } from '@/components/cardio/SavedCardioPrograms';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
+import { useCardioPrograms } from '@/hooks/useCardioPrograms';
 import { 
   Timer, 
   Footprints, 
@@ -28,12 +29,13 @@ type ViewState = 'hub' | 'builder' | 'program';
 
 const Tracker = () => {
   const { user, loading } = useAuth();
-  const { toast } = useToast();
+  const { saveProgram: saveProgramMutation } = useCardioPrograms();
   const [view, setView] = useState<ViewState>('hub');
   const [showCardioModal, setShowCardioModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<ActivityType>(null);
   const [generatedProgram, setGeneratedProgram] = useState<GeneratedCardioProgram | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleActivitySelect = (activity: ActivityType) => {
     if (!user) {
@@ -58,11 +60,20 @@ const Tracker = () => {
   };
 
   const handleSaveProgram = async () => {
-    // For now, just show a toast - can be extended to save to database
-    toast({
-      title: 'Programme Saved',
-      description: 'Your cardio programme has been saved to your profile.',
-    });
+    if (!generatedProgram) return;
+    setIsSaving(true);
+    try {
+      await saveProgramMutation.mutateAsync(generatedProgram);
+      setView('hub');
+      setGeneratedProgram(null);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleViewSavedProgram = (program: GeneratedCardioProgram) => {
+    setGeneratedProgram(program);
+    setView('program');
   };
 
   if (loading) {
@@ -131,7 +142,8 @@ const Tracker = () => {
             <CardioProgramDisplay
               program={generatedProgram}
               onSave={handleSaveProgram}
-              onBack={() => setView('builder')}
+              onBack={() => setView('hub')}
+              isSaving={isSaving}
             />
           </div>
         </section>
@@ -215,22 +227,37 @@ const Tracker = () => {
                 </Card>
               </motion.div>
 
+              {/* Saved Programmes */}
+              {user && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.25 }}
+                  className="mb-10"
+                >
+                  <SavedCardioPrograms onViewProgram={handleViewSavedProgram} />
+                </motion.div>
+              )}
+
               {/* Activity Tracker Cards */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <Card className="bg-card border-border overflow-hidden">
+                <Card className="bg-card border-border overflow-hidden neon-border-subtle">
                   <div className="bg-primary/10 border-b border-border px-6 py-4">
                     <h3 className="font-display text-lg text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                       <Timer className="w-5 h-5 text-primary" />
                       TRACK ACTIVITY
                     </h3>
                   </div>
-                  <CardContent className="p-6">
-                    <p className="text-muted-foreground mb-6 text-center">
-                      Choose your activity. Focus your mind. Move with intention.
+                  <CardContent className="p-8">
+                    <h2 className="font-display text-4xl md:text-5xl text-foreground tracking-wide mb-4 text-center">
+                      CHOOSE YOUR <span className="text-primary neon-glow-subtle">ACTIVITY</span>
+                    </h2>
+                    <p className="text-muted-foreground mb-8 text-center">
+                      Focus your mind. Move with intention.
                     </p>
                     
                     <div className="grid md:grid-cols-3 gap-4">
@@ -292,38 +319,38 @@ const Tracker = () => {
                 </Card>
               </motion.div>
 
-              {/* Stats Grid - Matching Strength Calculator Style */}
+              {/* Stats Grid - Uniform Cards */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="grid grid-cols-3 gap-4 mt-10"
+                className="grid grid-cols-3 gap-3 sm:gap-4 mt-10"
               >
-                <Card className="bg-card border-border">
-                  <CardContent className="p-6 text-center">
-                    <Timer className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <div className="font-display text-3xl text-primary mb-1">
+                <Card className="bg-card border-border neon-border-subtle aspect-square flex items-center justify-center">
+                  <CardContent className="p-4 sm:p-6 text-center flex flex-col items-center justify-center h-full">
+                    <Timer className="w-6 h-6 sm:w-8 sm:h-8 text-primary mb-2" />
+                    <div className="font-display text-xl sm:text-2xl md:text-3xl text-primary leading-tight">
                       TIME
                     </div>
-                    <p className="text-sm text-muted-foreground">Precise tracking</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">Precise</p>
                   </CardContent>
                 </Card>
-                <Card className="bg-card border-border">
-                  <CardContent className="p-6 text-center">
-                    <TrendingUp className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <div className="font-display text-3xl text-primary mb-1">
-                      DISTANCE
+                <Card className="bg-card border-border neon-border-subtle aspect-square flex items-center justify-center">
+                  <CardContent className="p-4 sm:p-6 text-center flex flex-col items-center justify-center h-full">
+                    <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-primary mb-2" />
+                    <div className="font-display text-xl sm:text-2xl md:text-3xl text-primary leading-tight">
+                      KM
                     </div>
-                    <p className="text-sm text-muted-foreground">GPS accuracy</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">GPS</p>
                   </CardContent>
                 </Card>
-                <Card className="bg-card border-border">
-                  <CardContent className="p-6 text-center">
-                    <Zap className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <div className="font-display text-3xl text-primary mb-1">
-                      SPEED
+                <Card className="bg-card border-border neon-border-subtle aspect-square flex items-center justify-center">
+                  <CardContent className="p-4 sm:p-6 text-center flex flex-col items-center justify-center h-full">
+                    <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-primary mb-2" />
+                    <div className="font-display text-xl sm:text-2xl md:text-3xl text-primary leading-tight">
+                      PACE
                     </div>
-                    <p className="text-sm text-muted-foreground">Real-time pace</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">Live</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -333,9 +360,9 @@ const Tracker = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className="text-center mt-16"
+                className="text-center mt-12"
               >
-                <p className="text-primary font-display text-3xl tracking-wide neon-glow-subtle">
+                <p className="text-primary font-display text-2xl sm:text-3xl tracking-wide neon-glow-subtle">
                   #UNBREAKABLEMOVEMENT
                 </p>
               </motion.div>
