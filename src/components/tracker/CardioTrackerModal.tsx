@@ -41,9 +41,9 @@ const ACTIVITY_CONFIG = {
   walk: { 
     label: 'WALK', 
     icon: Footprints, 
-    color: 'text-sky-500',
-    bgColor: 'bg-sky-500/10',
-    borderColor: 'border-sky-500/30'
+    color: 'text-primary',
+    bgColor: 'bg-primary/10',
+    borderColor: 'border-primary/30'
   },
   run: { 
     label: 'RUN', 
@@ -55,9 +55,9 @@ const ACTIVITY_CONFIG = {
   cycle: { 
     label: 'CYCLE', 
     icon: Bike, 
-    color: 'text-emerald-500',
-    bgColor: 'bg-emerald-500/10',
-    borderColor: 'border-emerald-500/30'
+    color: 'text-primary',
+    bgColor: 'bg-primary/10',
+    borderColor: 'border-primary/30'
   },
 };
 
