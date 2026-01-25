@@ -6,7 +6,7 @@ import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { useAuth } from '@/hooks/useAuth';
 import { UnifiedFeed } from '@/components/hub/UnifiedFeed';
 import { ProfileView } from '@/components/tracker/ProfileView';
-import { RecordRunModal } from '@/components/tracker/RecordRunModal';
+import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
 import { RecordActionMenu } from '@/components/hub/RecordActionMenu';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { FriendsWidget } from '@/components/tracker/FriendsWidget';
@@ -207,7 +207,7 @@ const Index = () => {
           onClose={() => setShowActionMenu(false)}
           onOpenRunModal={() => setShowRecordModal(true)}
         />
-        <RecordRunModal isOpen={showRecordModal} onClose={() => setShowRecordModal(false)} />
+        <CardioTrackerModal isOpen={showRecordModal} onClose={() => setShowRecordModal(false)} />
         <UserSearchModal isOpen={showUserSearch} onClose={() => setShowUserSearch(false)} />
         <FriendRequestsModal isOpen={showFriendRequests} onClose={() => setShowFriendRequests(false)} />
         <FriendsListModal isOpen={showFriendsList} onClose={() => setShowFriendsList(false)} />
