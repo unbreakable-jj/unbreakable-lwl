@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Collapsible,
   CollapsibleContent,
@@ -22,7 +22,6 @@ import {
   ChevronDown,
   Dumbbell,
   Lightbulb,
-  Info,
   MessageCircle,
 } from 'lucide-react';
 import {
@@ -33,6 +32,7 @@ import {
   LibraryExercise,
   BodyPart,
 } from '@/lib/exerciseLibrary';
+import { BodyPartIcon, BODY_PART_ICONS } from './BodyPartIcon';
 import { Link } from 'react-router-dom';
 
 interface ExerciseLibraryModalProps {
@@ -106,13 +106,14 @@ export function ExerciseLibraryModal({
             >
               All
             </TabsTrigger>
-            {BODY_PARTS.map((bp) => (
+            {BODY_PART_ICONS.map((bp) => (
               <TabsTrigger
                 key={bp.value}
                 value={bp.value}
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-1"
               >
-                {bp.icon} {bp.label}
+                <BodyPartIcon bodyPart={bp.value} size="sm" showGlow={false} />
+                {bp.label}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -209,9 +210,8 @@ export function ExerciseLibraryModal({
 
                             {/* Alternatives */}
                             {exercise.alternatives.length > 0 && (
-                              <div className="flex items-center gap-2 text-sm">
-                                <Info className="w-4 h-4 text-muted-foreground" />
-                                <span className="text-muted-foreground">Alternatives:</span>
+                              <div className="text-sm">
+                                <span className="text-muted-foreground">Alternatives: </span>
                                 <span>{exercise.alternatives.join(', ')}</span>
                               </div>
                             )}
