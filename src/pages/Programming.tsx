@@ -4,16 +4,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ThemedLogo } from '@/components/ThemedLogo';
 import { Button } from '@/components/ui/button';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
+import { UnifiedFooter } from '@/components/UnifiedFooter';
 import { ProgramFormStep1 } from '@/components/programming/ProgramFormStep1';
 import { ProgramFormStep2 } from '@/components/programming/ProgramFormStep2';
 import { ProgramFormStep3 } from '@/components/programming/ProgramFormStep3';
 import { ProgramFormStep4 } from '@/components/programming/ProgramFormStep4';
 import { ProgramDisplay } from '@/components/programming/ProgramDisplay';
 import { MyProgramsSection } from '@/components/programming/MyProgramsSection';
+import { ManualWorkoutBuilder } from '@/components/programming/ManualWorkoutBuilder';
 import { useAuth } from '@/hooks/useAuth';
 import { 
   Goal, 
-  Level, 
+  Level,
   Commitment, 
   ProgramFormData, 
   GeneratedProgram,
@@ -336,14 +338,16 @@ export default function Programming() {
         </section>
       )}
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-card py-6 mt-auto">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            © 2025 Unbreakable. Live Without Limits.
-          </p>
-        </div>
-      </footer>
+      {/* Manual Workout Builder */}
+      {user && (
+        <section className="container mx-auto px-4 py-8 border-t border-border">
+          <div className="max-w-3xl mx-auto">
+            <ManualWorkoutBuilder />
+          </div>
+        </section>
+      )}
+
+      <UnifiedFooter className="mt-auto" />
     </div>
   );
 }
