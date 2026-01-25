@@ -36,7 +36,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
     { to: '/', label: 'HOME', icon: Home },
     { to: '/calculators', label: 'CALCULATORS', icon: Calculator },
     { to: '/programming', label: 'PROGRAMMING', icon: Sparkles },
-    { to: '/tracker', label: 'RUN TRACKER', icon: Activity },
+    { to: '/tracker', label: 'CARDIO CENTRAL', icon: Activity },
     { to: '/mindset', label: 'MINDSET', icon: Brain },
   ];
 

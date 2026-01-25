@@ -12,11 +12,10 @@ import {
   Footprints, 
   Zap, 
   Bike, 
-  Brain, 
   ArrowRight,
-  Dumbbell,
   TrendingUp,
-  Target
+  Target,
+  Sparkles
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -94,14 +93,14 @@ const Tracker = () => {
               CARDIO
             </h1>
             <h1 className="font-display text-6xl md:text-8xl text-primary tracking-wide leading-none neon-glow-subtle">
-              COMMAND
+              CENTRAL
             </h1>
             <p className="text-muted-foreground text-lg mt-6 max-w-xl mx-auto">
-              AI-powered programming. Intentional tracking. Zero excuses.
+              Build your programme. Track with intention. Zero excuses.
             </p>
           </motion.div>
 
-          {/* AI Programme Builder - Premium Card */}
+          {/* Programme Builder - Premium Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -111,8 +110,8 @@ const Tracker = () => {
             <Card className="bg-card border-border overflow-hidden neon-border-subtle">
               <div className="bg-primary/10 border-b border-border px-6 py-4">
                 <h3 className="font-display text-lg text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                  <Brain className="w-5 h-5 text-primary" />
-                  AI PROGRAMME BUILDER
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  PROGRAMME BUILDER
                 </h3>
               </div>
               <CardContent className="p-8">
@@ -123,7 +122,7 @@ const Tracker = () => {
                     </h2>
                     <p className="text-muted-foreground mb-6">
                       Generate a personalized walk, run, or cycle programme based on your goals, 
-                      fitness level, and target distances. Powered by AI, driven by you.
+                      fitness level, and target distances. Driven by you.
                     </p>
                     <div className="flex flex-wrap gap-4 mb-6">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -135,7 +134,7 @@ const Tracker = () => {
                         <span>Progressive overload</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Dumbbell className="w-4 h-4 text-primary" />
+                        <Zap className="w-4 h-4 text-primary" />
                         <span>Hybrid integration</span>
                       </div>
                     </div>
@@ -144,13 +143,13 @@ const Tracker = () => {
                       className="font-display text-lg tracking-wide px-8 py-6"
                       onClick={handleProgrammeBuilder}
                     >
-                      <Brain className="w-5 h-5 mr-2" />
+                      <Sparkles className="w-5 h-5 mr-2" />
                       GENERATE PROGRAMME
                       <ArrowRight className="w-5 h-5 ml-2" />
                     </Button>
                   </div>
                   <div className="w-40 h-40 rounded-full bg-primary/10 flex items-center justify-center neon-border">
-                    <Brain className="w-20 h-20 text-primary" />
+                    <Sparkles className="w-20 h-20 text-primary" />
                   </div>
                 </div>
               </CardContent>
