@@ -300,7 +300,7 @@ const Calculators = () => {
       {/* Footer */}
       <footer className="border-t border-border py-10 mt-16 text-center">
         <p className="text-muted-foreground text-sm">
-          © 2024 Unbreakable - Live Without Limits. All rights reserved.
+          © 2025 Unbreakable. Live Without Limits.
         </p>
       </footer>
     </div>
