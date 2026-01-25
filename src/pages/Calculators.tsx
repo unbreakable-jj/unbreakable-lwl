@@ -26,44 +26,44 @@ const heroContent = {
   strength: {
     title: 'STRENGTH',
     titleAccent: 'CALCULATOR',
-    tagline: 'YOUR BODY IS YOUR ARMOUR. BUILD IT TO LAST.',
-    intro: "Strength isn't about lifting heavy once — it's about building a foundation that",
+    tagline: 'LIVE WITHOUT LIMITS',
+    intro: "Your body is your armour. Strength isn't about lifting heavy once — it's about building a foundation that",
     emphasis: 'CARRIES YOU THROUGH LIFE',
-    description: 'This calculator puts your lifts into context. Age-adjusted standards mean you\'re measured against what\'s',
-    descEmphasis: 'REALISTIC AND ACHIEVABLE',
-    descEnd: 'for you — regardless of age.',
-    goal: 'Build a body that\'s',
-    goalEmphasis: 'STRONG, MOBILE, AND RESILIENT',
-    goalEnd: 'enough to protect everything you love. Keep showing up.',
-    hashtag: '#UNBREAKABLESTRENGTH',
+    description: 'Age-adjusted standards mean you\'re measured against what\'s realistic and achievable for you —',
+    descEmphasis: 'REGARDLESS OF AGE',
+    descEnd: '.',
+    goal: 'Build a body that\'s strong, mobile, and resilient.',
+    goalEmphasis: 'KEEP SHOWING UP',
+    goalEnd: '.',
+    hashtag: '#UNBREAKABLEMOVEMENT',
   },
   fuel: {
     title: 'FUEL',
     titleAccent: 'CALCULATOR',
-    tagline: 'FOOD IS NOT THE ENEMY. IT\'S THE WEAPON.',
-    intro: 'Forget restrictive diets and quick fixes. Your body needs',
+    tagline: 'LIVE WITHOUT LIMITS',
+    intro: 'Food is not the enemy — it\'s the weapon. Your body needs',
     emphasis: 'STRATEGIC FUEL',
-    description: 'This calculator gives you precise targets based on your body, your activity, and your goals — so you can stop guessing and start',
+    description: 'Precise targets based on your body, your activity, and your goals — so you can stop guessing and start',
     descEmphasis: 'EATING WITH PURPOSE',
     descEnd: '.',
     goal: 'Fuel a body built to last — not just look good.',
-    goalEmphasis: 'ENERGISED, POWERFUL, AND RESILIENT',
-    goalEnd: 'for decades. Live without limits.',
-    hashtag: '#UNBREAKABLEFUEL',
+    goalEmphasis: 'KEEP SHOWING UP',
+    goalEnd: '.',
+    hashtag: '#UNBREAKABLEMOVEMENT',
   },
   speed: {
     title: 'SPEED',
     titleAccent: 'CALCULATOR',
-    tagline: 'EVERY FINISH LINE IS A NEW STARTING POINT.',
-    intro: "This isn't about chasing personal bests for ego — it's about understanding where you stand and",
-    emphasis: 'BUILDING SPEED THAT LASTS',
-    description: 'Enter your race times and discover your true level. Age-adjusted ratings mean you\'re competing against the',
-    descEmphasis: 'BEST VERSION OF YOU',
-    descEnd: ' — not someone else\'s genetics.',
-    goal: 'Every step forward is a step toward',
-    goalEmphasis: 'UNBREAKABLE ENDURANCE',
-    goalEnd: '. Keep showing up.',
-    hashtag: '#UNBREAKABLESPEED',
+    tagline: 'LIVE WITHOUT LIMITS',
+    intro: "Every finish line is a new starting point. Understand where you stand and",
+    emphasis: 'BUILD SPEED THAT LASTS',
+    description: 'Age-adjusted ratings mean you\'re competing against the best version of you —',
+    descEmphasis: 'NOT SOMEONE ELSE\'S GENETICS',
+    descEnd: '.',
+    goal: 'Every step forward is a step toward unbreakable endurance.',
+    goalEmphasis: 'KEEP SHOWING UP',
+    goalEnd: '.',
+    hashtag: '#UNBREAKABLEMOVEMENT',
   },
 };
 
@@ -193,7 +193,7 @@ const Calculators = () => {
           <h1 className="font-display text-6xl md:text-8xl text-primary tracking-wide leading-none neon-glow-subtle">
             {hero.titleAccent}
           </h1>
-          <p className="text-muted-foreground text-lg mt-6 max-w-xl mx-auto">
+          <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">
             {hero.tagline}
           </p>
         </div>

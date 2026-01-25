@@ -161,13 +161,16 @@ const Tracker = () => {
                 className="text-center mb-16"
               >
                 <h1 className="font-display text-6xl md:text-8xl text-foreground tracking-wide leading-none mb-2">
-                  CARDIO
+                  BUILD YOUR
                 </h1>
                 <h1 className="font-display text-6xl md:text-8xl text-primary tracking-wide leading-none neon-glow-subtle">
-                  CENTRAL
+                  CARDIO PROGRAMME
                 </h1>
-                <p className="text-muted-foreground text-lg mt-6 max-w-xl mx-auto">
-                  Build your programme. Track with intention. Zero excuses.
+                <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">
+                  LIVE WITHOUT LIMITS
+                </p>
+                <p className="text-muted-foreground text-lg mt-4 max-w-xl mx-auto">
+                  Personalised cardio training built for your goals. Keep showing up.
                 </p>
               </motion.div>
 

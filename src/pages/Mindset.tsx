@@ -31,16 +31,16 @@ const VOICE_OPTIONS = [
 const heroContent = {
   title: "MINDSET",
   titleAccent: "TRAINING",
-  tagline: "YOUR MIND IS YOUR ULTIMATE WEAPON. TRAIN IT TO BE UNBREAKABLE.",
-  intro: "This isn't meditation for relaxation — it's",
+  tagline: "LIVE WITHOUT LIMITS",
+  intro: "Your mind is your ultimate weapon. This isn't meditation for relaxation — it's",
   emphasis: "MENTAL CONDITIONING",
   description: "Controlled breathing rewires your nervous system. Every session builds",
   descEmphasis: "RESILIENCE UNDER PRESSURE",
   descEnd: ".",
-  goal: "Develop a mind that stays calm in chaos —",
-  goalEmphasis: "FOCUSED, PRESENT, AND UNSHAKEABLE",
-  goalEnd: ". Keep showing up.",
-  hashtag: "#UNBREAKABLEMINDSET",
+  goal: "Develop a mind that stays calm in chaos — focused, present, and unshakeable.",
+  goalEmphasis: "KEEP SHOWING UP",
+  goalEnd: ".",
+  hashtag: "#UNBREAKABLEMOVEMENT",
 };
 
 const Mindset = () => {
@@ -429,7 +429,7 @@ const Mindset = () => {
             <h1 className="font-display text-6xl md:text-8xl text-primary tracking-wide leading-none neon-glow-subtle">
               {heroContent.titleAccent}
             </h1>
-            <p className="text-muted-foreground text-lg mt-6 max-w-xl mx-auto">
+            <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">
               {heroContent.tagline}
             </p>
 

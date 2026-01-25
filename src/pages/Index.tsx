@@ -263,13 +263,16 @@ const Index = () => {
           <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-primary tracking-wide leading-none neon-glow-subtle">
             UNBREAKABLE
           </h1>
-          <p className="text-muted-foreground text-lg mt-6 max-w-xl mx-auto mb-8">
-            Live Without Limits. Build a body to last — not just look good.
+          <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">
+            LIVE WITHOUT LIMITS
+          </p>
+          <p className="text-muted-foreground text-lg mt-4 max-w-xl mx-auto mb-8">
+            Build a body and mind that don't break — at 30, at 50, at 70.
           </p>
 
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10">
             Strength. Fuel. Speed. Mindset. Train with purpose, regardless of age.{' '}
-            <span className="text-primary font-semibold">BUILD A BODY AND MIND THAT DON'T BREAK.</span>
+            <span className="text-primary font-semibold">KEEP SHOWING UP.</span>
           </p>
 
           {/* Action Button - Single CTA */}
@@ -307,13 +310,13 @@ const Index = () => {
               <p className="text-muted-foreground uppercase tracking-wide text-sm mb-4">
                 The Unbreakable method is built on one truth:
               </p>
-              <h3 className="font-display text-3xl md:text-4xl text-foreground mb-6 tracking-wide neon-glow-subtle">
-                LIVE WITHOUT LIMITS
+              <h3 className="font-display text-3xl md:text-4xl text-primary mb-6 tracking-wide neon-glow-subtle">
+                KEEP SHOWING UP
               </h3>
               <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-                Not a project to fix. Not a problem to solve. Your body is the vessel that carries your
-                dreams, your ambitions, and everyone who depends on you. When you build it with intention —
-                when you fuel it with purpose — you become unstoppable. Regardless of age.
+                Your body is the vessel that carries your dreams, your ambitions, and everyone who depends on you. 
+                When you build it with intention — when you fuel it with purpose — you become unstoppable. 
+                Regardless of age. <span className="text-primary font-semibold">LIVE WITHOUT LIMITS.</span>
               </p>
             </div>
           </div>
