@@ -384,7 +384,7 @@ const Mindset = () => {
   // Exercise selection view - matches Calculator page structure
   if (view === "selection") {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background brick-texture">
         {/* Minimal Header - matches Calculators */}
         <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm">
           <div className="container mx-auto px-6 py-4">
@@ -552,7 +552,7 @@ const Mindset = () => {
 
   // Exercise/Complete view
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen bg-background brick-texture flex flex-col items-center justify-center relative overflow-hidden">
       {/* Background pulse effect */}
       <div 
         className={`absolute inset-0 transition-opacity duration-1000 ${
