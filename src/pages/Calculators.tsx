@@ -225,7 +225,7 @@ const Calculators = () => {
       <main className="container mx-auto px-6 py-8">
         <div className="max-w-6xl mx-auto">
           {/* Description Card */}
-          <div className="bg-card border border-border rounded-lg p-8 md:p-10 mb-10 text-center max-w-4xl mx-auto">
+          <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8 md:p-10 mb-10 text-center max-w-4xl mx-auto">
             <p className="text-muted-foreground leading-relaxed mb-4">
               {hero.intro}{' '}
               <span className="text-primary font-semibold">{hero.emphasis}</span>.
@@ -243,7 +243,7 @@ const Calculators = () => {
               {hero.goalEnd}
             </p>
             
-            <p className="text-primary font-display text-2xl tracking-wide mt-6">
+            <p className="text-primary font-display text-2xl tracking-wide mt-6 neon-glow-subtle">
               {hero.hashtag}
             </p>
           </div>
@@ -251,7 +251,7 @@ const Calculators = () => {
           {/* Calculator Grid */}
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Form */}
-            <div className="bg-card border border-border rounded-lg p-8">
+            <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8">
               <h3 className="font-display text-2xl text-foreground mb-8 tracking-wide text-center">
                 {activeTab === 'strength' && 'ENTER YOUR LIFT'}
                 {activeTab === 'fuel' && 'ENTER YOUR DETAILS'}
@@ -309,9 +309,9 @@ const Calculators = () => {
 
 function EmptyState({ emoji, title, description }: { emoji: string; title: string; description: string }) {
   return (
-    <div className="bg-card border border-border rounded-lg p-10 h-full flex items-center justify-center min-h-[450px]">
+    <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-10 h-full flex items-center justify-center min-h-[450px]">
       <div className="text-center">
-        <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+        <div className="w-24 h-24 rounded-full bg-primary/10 neon-border-subtle flex items-center justify-center mx-auto mb-6">
           <span className="text-5xl">{emoji}</span>
         </div>
         <h3 className="font-display text-2xl text-foreground mb-3 tracking-wide">

@@ -305,11 +305,11 @@ const Index = () => {
 
           {/* Central philosophy card */}
           <div className="max-w-4xl mx-auto mb-20">
-            <div className="bg-card border border-border rounded-lg p-10 text-center">
+            <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-10 text-center">
               <p className="text-muted-foreground uppercase tracking-wide text-sm mb-4">
                 The Unbreakable method is built on one truth:
               </p>
-              <h3 className="font-display text-3xl md:text-4xl text-foreground mb-6 tracking-wide">
+              <h3 className="font-display text-3xl md:text-4xl text-foreground mb-6 tracking-wide neon-glow-subtle">
                 LIVE WITHOUT LIMITS
               </h3>
               <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto">
@@ -323,7 +323,7 @@ const Index = () => {
           {/* Four pillars */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
             <div className="text-center">
-              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 rounded-full bg-primary/10 neon-border-subtle flex items-center justify-center mx-auto mb-6">
                 <Dumbbell className="w-10 h-10 text-primary" />
               </div>
               <h3 className="font-display text-2xl text-foreground mb-4 tracking-wide">STRENGTH</h3>
@@ -334,7 +334,7 @@ const Index = () => {
             </div>
 
             <div className="text-center">
-              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 rounded-full bg-primary/10 neon-border-subtle flex items-center justify-center mx-auto mb-6">
                 <Flame className="w-10 h-10 text-primary" />
               </div>
               <h3 className="font-display text-2xl text-foreground mb-4 tracking-wide">FUEL</h3>
@@ -345,7 +345,7 @@ const Index = () => {
             </div>
 
             <div className="text-center">
-              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 rounded-full bg-primary/10 neon-border-subtle flex items-center justify-center mx-auto mb-6">
                 <Timer className="w-10 h-10 text-primary" />
               </div>
               <h3 className="font-display text-2xl text-foreground mb-4 tracking-wide">SPEED</h3>
@@ -356,7 +356,7 @@ const Index = () => {
             </div>
 
             <div className="text-center">
-              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 rounded-full bg-primary/10 neon-border-subtle flex items-center justify-center mx-auto mb-6">
                 <Brain className="w-10 h-10 text-primary" />
               </div>
               <h3 className="font-display text-2xl text-foreground mb-4 tracking-wide">MINDSET</h3>
@@ -383,7 +383,7 @@ const Index = () => {
       <section className="py-24 md:py-32 bg-card/50">
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="bg-card border border-border rounded-lg p-8">
+            <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8">
               <Target className="w-12 h-12 text-primary mb-6" />
               <h3 className="font-display text-xl text-foreground mb-3 tracking-wide">
                 AGE-ADJUSTED STANDARDS
@@ -394,7 +394,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-8">
+            <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8">
               <Heart className="w-12 h-12 text-primary mb-6" />
               <h3 className="font-display text-xl text-foreground mb-3 tracking-wide">
                 CONTEXT-AWARE CALCULATIONS
@@ -405,7 +405,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-8">
+            <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8">
               <Zap className="w-12 h-12 text-primary mb-6" />
               <h3 className="font-display text-xl text-foreground mb-3 tracking-wide">BUILD LONGEVITY</h3>
               <p className="text-muted-foreground">
