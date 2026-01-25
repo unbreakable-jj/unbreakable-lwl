@@ -9,6 +9,7 @@ import { Play, Pause, RotateCcw, Share2, Brain, ChevronLeft, Zap, Target, Heart,
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemedLogo } from "@/components/ThemedLogo";
 import { NavigationDrawer } from "@/components/NavigationDrawer";
+import { UnifiedFooter } from "@/components/UnifiedFooter";
 import { CountdownOverlay } from "@/components/CountdownOverlay";
 import { BREATHING_EXERCISES, BreathingExercise } from "@/lib/breathingExercises";
 import { useBreathingAudio, VoiceType } from "@/hooks/useBreathingAudio";
@@ -522,12 +523,7 @@ const Mindset = () => {
           </div>
         </main>
 
-        {/* Footer - matches Calculator */}
-        <footer className="border-t border-border py-10 mt-16 text-center">
-          <p className="text-muted-foreground text-sm">
-            © 2024 Unbreakable - Live Without Limits. All rights reserved.
-          </p>
-        </footer>
+        <UnifiedFooter className="mt-16" />
       </div>
     );
   }

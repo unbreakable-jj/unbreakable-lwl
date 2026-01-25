@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
+import { UnifiedFooter } from '@/components/UnifiedFooter';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useHelpChat, Message } from '@/hooks/useHelpChat';
@@ -274,6 +275,7 @@ export default function Help() {
         </div>
       </main>
 
+      <UnifiedFooter />
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );

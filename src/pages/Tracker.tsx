@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import logo from '@/assets/logo.png';
 import { useAuth } from '@/hooks/useAuth';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
+import { UnifiedFooter } from '@/components/UnifiedFooter';
 import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { CardioProgramDisplay } from '@/components/cardio/CardioProgramDisplay';
@@ -629,14 +630,7 @@ const Tracker = () => {
         </p>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-card py-6 mt-auto">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            © 2025 Unbreakable. Live Without Limits.
-          </p>
-        </div>
-      </footer>
+      <UnifiedFooter className="mt-auto" />
 
       {/* Modals */}
       <CardioTrackerModal

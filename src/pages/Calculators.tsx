@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { ThemedLogo } from '@/components/ThemedLogo';
 import { Button } from '@/components/ui/button';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
+import { UnifiedFooter } from '@/components/UnifiedFooter';
 import { Dumbbell, Flame, Timer } from 'lucide-react';
 
 import { StrengthForm } from '@/components/StrengthForm';
@@ -293,12 +294,7 @@ const Calculators = () => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border py-10 mt-16 text-center">
-        <p className="text-muted-foreground text-sm">
-          © 2025 Unbreakable. Live Without Limits.
-        </p>
-      </footer>
+      <UnifiedFooter className="mt-16" />
     </div>
   );
 };
