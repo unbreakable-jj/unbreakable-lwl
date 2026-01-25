@@ -8,7 +8,7 @@ import { StatsView } from '@/components/tracker/StatsView';
 import { ProfileView } from '@/components/tracker/ProfileView';
 import { RecordsView } from '@/components/tracker/RecordsView';
 import { LeaderboardsView } from '@/components/tracker/LeaderboardsView';
-import { RecordRunModal } from '@/components/tracker/RecordRunModal';
+import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { FriendsWidget } from '@/components/tracker/FriendsWidget';
 import { UserSearchModal } from '@/components/tracker/UserSearchModal';
@@ -17,7 +17,7 @@ import { FriendsListModal } from '@/components/tracker/FriendsListModal';
 import { useFriends } from '@/hooks/useFriends';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Play, BarChart3, Users, Trophy, Home, BarChart2, User, Plus, Medal, UserPlus, Bell } from 'lucide-react';
+import { Play, BarChart3, Users, Trophy, Home, BarChart2, User, Plus, Medal, UserPlus, Bell, Timer } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 type Tab = 'feed' | 'stats' | 'records' | 'leaderboards' | 'profile' | 'friends';
@@ -25,7 +25,7 @@ type Tab = 'feed' | 'stats' | 'records' | 'leaderboards' | 'profile' | 'friends'
 const Tracker = () => {
   const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('feed');
-  const [showRecordModal, setShowRecordModal] = useState(false);
+  const [showCardioModal, setShowCardioModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showUserSearch, setShowUserSearch] = useState(false);
   const [showFriendRequests, setShowFriendRequests] = useState(false);
@@ -83,7 +83,7 @@ const Tracker = () => {
 
             {/* Dramatic title */}
             <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-foreground tracking-wide leading-none">
-              RUN
+              CARDIO
             </h1>
             <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-primary tracking-wide leading-none mb-10">
               TRACKER
@@ -91,14 +91,13 @@ const Tracker = () => {
 
             {/* Subtitle */}
             <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-4 uppercase tracking-wide">
-              Track every mile. Celebrate every stride.
+              Walk. Run. Cycle.
               <br />
-              Join the community that runs for life.
+              Track your movement with intention.
             </p>
 
             <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10">
-              GPS tracking, performance analytics, and a supportive community — all in one place.
-              Build a body that carries you confidently through every stage of life.
+              Minimal, focused cardio tracking. Time, distance, speed — nothing more, nothing less.
             </p>
 
             {/* CTA Button */}
@@ -107,13 +106,13 @@ const Tracker = () => {
               className="font-display text-xl tracking-wide px-12 py-7"
               onClick={() => setShowAuthModal(true)}
             >
-              <Play className="w-6 h-6 mr-2" />
+              <Timer className="w-6 h-6 mr-2" />
               GET STARTED
             </Button>
 
             {/* Hashtag */}
             <p className="text-primary font-display text-2xl md:text-3xl tracking-wide mt-10">
-              #RUNFORLIFE
+              #MOVEINTENTIONALLY
             </p>
           </motion.div>
         </section>
@@ -122,10 +121,10 @@ const Tracker = () => {
         <section className="py-24 md:py-32">
           <div className="container mx-auto px-6">
             <h2 className="font-display text-4xl md:text-5xl text-primary text-center mb-16 tracking-wide">
-              WHY RUN WITH US?
+              FOCUSED TRACKING
             </h2>
 
-            <div className="grid md:grid-cols-4 gap-10 max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-10 max-w-4xl mx-auto">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -133,13 +132,13 @@ const Tracker = () => {
                 className="text-center"
               >
                 <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                  <Play className="w-10 h-10 text-primary" />
+                  <Timer className="w-10 h-10 text-primary" />
                 </div>
                 <h3 className="font-display text-xl text-foreground mb-3 tracking-wide">
-                  GPS TRACKING
+                  TIME
                 </h3>
                 <p className="text-muted-foreground">
-                  Track your runs in real-time with accurate GPS and route mapping
+                  Precise session timing with mindset-led countdown start
                 </p>
               </motion.div>
 
@@ -150,13 +149,13 @@ const Tracker = () => {
                 className="text-center"
               >
                 <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                  <BarChart3 className="w-10 h-10 text-primary" />
+                  <Play className="w-10 h-10 text-primary" />
                 </div>
                 <h3 className="font-display text-xl text-foreground mb-3 tracking-wide">
-                  ANALYTICS
+                  DISTANCE
                 </h3>
                 <p className="text-muted-foreground">
-                  Deep insights into pace, distance, and performance trends
+                  Background GPS tracking for accurate distance measurement
                 </p>
               </motion.div>
 
@@ -167,30 +166,13 @@ const Tracker = () => {
                 className="text-center"
               >
                 <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                  <Users className="w-10 h-10 text-primary" />
+                  <BarChart3 className="w-10 h-10 text-primary" />
                 </div>
                 <h3 className="font-display text-xl text-foreground mb-3 tracking-wide">
-                  COMMUNITY
+                  SPEED
                 </h3>
                 <p className="text-muted-foreground">
-                  Share runs, give kudos, and connect with fellow runners
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="text-center"
-              >
-                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                  <Trophy className="w-10 h-10 text-primary" />
-                </div>
-                <h3 className="font-display text-xl text-foreground mb-3 tracking-wide">
-                  ACHIEVEMENTS
-                </h3>
-                <p className="text-muted-foreground">
-                  Personal records, milestones, and training insights
+                  Real-time pace and speed calculations as you move
                 </p>
               </motion.div>
             </div>
@@ -201,17 +183,17 @@ const Tracker = () => {
         <section className="py-24 md:py-32 bg-card/50">
           <div className="container mx-auto px-6 text-center">
             <h2 className="font-display text-5xl md:text-6xl text-foreground mb-4 tracking-wide">
-              READY TO <span className="text-primary">RUN?</span>
+              READY TO <span className="text-primary">MOVE?</span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto mb-10 text-lg">
-              Join the Live Without Limits running community today.
+              Simple. Focused. Intentional cardio tracking.
             </p>
             <Button
               size="lg"
               className="font-display text-xl tracking-wide px-12 py-7"
               onClick={() => setShowAuthModal(true)}
             >
-              START RUNNING
+              START TRACKING
             </Button>
           </div>
         </section>
@@ -242,7 +224,7 @@ const Tracker = () => {
                   LIVE WITHOUT LIMITS
                 </span>
                 <span className="font-display text-sm tracking-wide text-primary ml-2">
-                  RUN TRACKER
+                  CARDIO TRACKER
                 </span>
               </div>
             </Link>
@@ -268,10 +250,10 @@ const Tracker = () => {
               <Button
                 size="sm"
                 className="font-display tracking-wide"
-                onClick={() => setShowRecordModal(true)}
+                onClick={() => setShowCardioModal(true)}
               >
-                <Plus className="w-4 h-4 mr-1" />
-                <span className="hidden sm:inline">RECORD RUN</span>
+                <Timer className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">TRACK</span>
               </Button>
               <NavigationDrawer variant="minimal" />
             </div>
@@ -375,11 +357,11 @@ const Tracker = () => {
             <span className="text-xs font-display tracking-wide">FEED</span>
           </button>
           <button
-            onClick={() => setShowRecordModal(true)}
+            onClick={() => setShowCardioModal(true)}
             className="flex flex-col items-center gap-1 px-4 py-2"
           >
             <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center -mt-6 shadow-lg">
-              <Plus className="w-7 h-7 text-primary-foreground" />
+              <Timer className="w-7 h-7 text-primary-foreground" />
             </div>
           </button>
           <button
@@ -412,9 +394,9 @@ const Tracker = () => {
         </div>
       </nav>
 
-      <RecordRunModal
-        isOpen={showRecordModal}
-        onClose={() => setShowRecordModal(false)}
+      <CardioTrackerModal
+        isOpen={showCardioModal}
+        onClose={() => setShowCardioModal(false)}
       />
       
       {/* Friends Modals */}
