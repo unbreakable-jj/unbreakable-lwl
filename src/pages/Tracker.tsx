@@ -1,35 +1,50 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import logo from '@/assets/logo.png';
 import { useAuth } from '@/hooks/useAuth';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
-import { ActivityFeed } from '@/components/tracker/ActivityFeed';
-import { StatsView } from '@/components/tracker/StatsView';
-import { ProfileView } from '@/components/tracker/ProfileView';
-import { RecordsView } from '@/components/tracker/RecordsView';
-import { LeaderboardsView } from '@/components/tracker/LeaderboardsView';
 import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
 import { AuthModal } from '@/components/tracker/AuthModal';
-import { FriendsWidget } from '@/components/tracker/FriendsWidget';
-import { UserSearchModal } from '@/components/tracker/UserSearchModal';
-import { FriendRequestsModal } from '@/components/tracker/FriendRequestsModal';
-import { FriendsListModal } from '@/components/tracker/FriendsListModal';
-import { useFriends } from '@/hooks/useFriends';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Play, BarChart3, Users, Trophy, Home, BarChart2, User, Plus, Medal, UserPlus, Bell, Timer } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { 
+  Timer, 
+  Footprints, 
+  Zap, 
+  Bike, 
+  Brain, 
+  ArrowRight,
+  Dumbbell,
+  TrendingUp,
+  Target
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 
-type Tab = 'feed' | 'stats' | 'records' | 'leaderboards' | 'profile' | 'friends';
+type ActivityType = 'walk' | 'run' | 'cycle' | null;
 
 const Tracker = () => {
   const { user, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<Tab>('feed');
+  const navigate = useNavigate();
   const [showCardioModal, setShowCardioModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showUserSearch, setShowUserSearch] = useState(false);
-  const [showFriendRequests, setShowFriendRequests] = useState(false);
-  const [showFriendsList, setShowFriendsList] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<ActivityType>(null);
+
+  const handleActivitySelect = (activity: ActivityType) => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+    setSelectedActivity(activity);
+    setShowCardioModal(true);
+  };
+
+  const handleProgrammeBuilder = () => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+    navigate('/programming');
+  };
 
   if (loading) {
     return (
@@ -39,397 +54,255 @@ const Tracker = () => {
     );
   }
 
-  // If not logged in, show landing page
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background">
-        {/* Minimal Header */}
-        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm">
-          <div className="container mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-3">
-                <img src={logo} alt="Live Without Limits" className="h-10 object-contain" />
-                <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
-                  LIVE WITHOUT LIMITS
-                </span>
-              </Link>
-              <div className="flex items-center gap-3">
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Minimal Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-3">
+              <img src={logo} alt="Live Without Limits" className="h-10 object-contain" />
+              <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
+                LIVE WITHOUT LIMITS
+              </span>
+            </Link>
+            <div className="flex items-center gap-3">
+              {!user && (
                 <Button
                   className="font-display tracking-wide"
                   onClick={() => setShowAuthModal(true)}
                 >
                   SIGN IN
                 </Button>
-                <NavigationDrawer variant="minimal" />
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Hero Section - Full Height, Centered */}
-        <section className="min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-4xl mx-auto"
-          >
-            {/* Large centered logo */}
-            <img
-              src={logo}
-              alt="Live Without Limits"
-              className="h-40 md:h-52 object-contain mx-auto mb-8"
-            />
-
-            {/* Dramatic title */}
-            <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-foreground tracking-wide leading-none">
-              CARDIO
-            </h1>
-            <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-primary tracking-wide leading-none mb-10">
-              TRACKER
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-4 uppercase tracking-wide">
-              Walk. Run. Cycle.
-              <br />
-              Track your movement with intention.
-            </p>
-
-            <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10">
-              Minimal, focused cardio tracking. Time, distance, speed — nothing more, nothing less.
-            </p>
-
-            {/* CTA Button */}
-            <Button
-              size="lg"
-              className="font-display text-xl tracking-wide px-12 py-7"
-              onClick={() => setShowAuthModal(true)}
-            >
-              <Timer className="w-6 h-6 mr-2" />
-              GET STARTED
-            </Button>
-
-            {/* Hashtag */}
-            <p className="text-primary font-display text-2xl md:text-3xl tracking-wide mt-10">
-              #MOVEINTENTIONALLY
-            </p>
-          </motion.div>
-        </section>
-
-        {/* Features Section */}
-        <section className="py-24 md:py-32">
-          <div className="container mx-auto px-6">
-            <h2 className="font-display text-4xl md:text-5xl text-primary text-center mb-16 tracking-wide">
-              FOCUSED TRACKING
-            </h2>
-
-            <div className="grid md:grid-cols-3 gap-10 max-w-4xl mx-auto">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="text-center"
-              >
-                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                  <Timer className="w-10 h-10 text-primary" />
-                </div>
-                <h3 className="font-display text-xl text-foreground mb-3 tracking-wide">
-                  TIME
-                </h3>
-                <p className="text-muted-foreground">
-                  Precise session timing with mindset-led countdown start
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="text-center"
-              >
-                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                  <Play className="w-10 h-10 text-primary" />
-                </div>
-                <h3 className="font-display text-xl text-foreground mb-3 tracking-wide">
-                  DISTANCE
-                </h3>
-                <p className="text-muted-foreground">
-                  Background GPS tracking for accurate distance measurement
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-center"
-              >
-                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                  <BarChart3 className="w-10 h-10 text-primary" />
-                </div>
-                <h3 className="font-display text-xl text-foreground mb-3 tracking-wide">
-                  SPEED
-                </h3>
-                <p className="text-muted-foreground">
-                  Real-time pace and speed calculations as you move
-                </p>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-24 md:py-32 bg-card/50">
-          <div className="container mx-auto px-6 text-center">
-            <h2 className="font-display text-5xl md:text-6xl text-foreground mb-4 tracking-wide">
-              READY TO <span className="text-primary">MOVE?</span>
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto mb-10 text-lg">
-              Simple. Focused. Intentional cardio tracking.
-            </p>
-            <Button
-              size="lg"
-              className="font-display text-xl tracking-wide px-12 py-7"
-              onClick={() => setShowAuthModal(true)}
-            >
-              START TRACKING
-            </Button>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="border-t border-border py-10 text-center">
-          <Link to="/" className="text-muted-foreground hover:text-foreground text-sm">
-            ← Back to Live Without Limits
-          </Link>
-        </footer>
-
-        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
-      </div>
-    );
-  }
-
-  // Logged in dashboard
-  return (
-    <div className="min-h-screen bg-background pb-20 md:pb-8">
-      {/* Minimal Header */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-3">
-              <img src={logo} alt="Live Without Limits" className="h-10 object-contain" />
-              <div className="hidden sm:block">
-                <span className="font-display text-lg tracking-wide text-foreground">
-                  LIVE WITHOUT LIMITS
-                </span>
-                <span className="font-display text-sm tracking-wide text-primary ml-2">
-                  CARDIO TRACKER
-                </span>
-              </div>
-            </Link>
-
-            <div className="flex items-center gap-3">
-              {/* Friends Quick Actions */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="relative"
-                onClick={() => setShowUserSearch(true)}
-              >
-                <UserPlus className="w-5 h-5" />
-              </Button>
-              <FriendRequestBadge onClick={() => setShowFriendRequests(true)} />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowFriendsList(true)}
-              >
-                <Users className="w-5 h-5" />
-              </Button>
-              <Button
-                size="sm"
-                className="font-display tracking-wide"
-                onClick={() => setShowCardioModal(true)}
-              >
-                <Timer className="w-4 h-4 mr-1" />
-                <span className="hidden sm:inline">TRACK</span>
-              </Button>
+              )}
               <NavigationDrawer variant="minimal" />
             </div>
           </div>
         </div>
       </header>
 
-      {/* Desktop Tab Navigation */}
-      <div className="hidden md:block container mx-auto px-6 py-6">
-        <div className="flex justify-center">
-          <div className="inline-flex bg-card border border-border rounded-lg p-1 gap-1">
-            <button
-              onClick={() => setActiveTab('feed')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-md font-display tracking-wide transition-all ${
-                activeTab === 'feed'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Home className="w-4 h-4" />
-              FEED
-            </button>
-            <button
-              onClick={() => setActiveTab('stats')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-md font-display tracking-wide transition-all ${
-                activeTab === 'stats'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <BarChart2 className="w-4 h-4" />
-              STATS
-            </button>
-            <button
-              onClick={() => setActiveTab('records')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-md font-display tracking-wide transition-all ${
-                activeTab === 'records'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Medal className="w-4 h-4" />
-              RECORDS
-            </button>
-            <button
-              onClick={() => setActiveTab('leaderboards')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-md font-display tracking-wide transition-all ${
-                activeTab === 'leaderboards'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Trophy className="w-4 h-4" />
-              LEADERBOARDS
-            </button>
-            <button
-              onClick={() => setActiveTab('profile')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-md font-display tracking-wide transition-all ${
-                activeTab === 'profile'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <User className="w-4 h-4" />
-              PROFILE
-            </button>
-          </div>
+      {/* Hero Section */}
+      <section className="pt-28 pb-16 px-6">
+        <div className="container mx-auto max-w-5xl">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h1 className="font-display text-6xl md:text-8xl text-foreground tracking-wide leading-none mb-2">
+              CARDIO
+            </h1>
+            <h1 className="font-display text-6xl md:text-8xl text-primary tracking-wide leading-none neon-glow-subtle">
+              COMMAND
+            </h1>
+            <p className="text-muted-foreground text-lg mt-6 max-w-xl mx-auto">
+              AI-powered programming. Intentional tracking. Zero excuses.
+            </p>
+          </motion.div>
+
+          {/* AI Programme Builder - Premium Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-10"
+          >
+            <Card className="bg-card border-border overflow-hidden neon-border-subtle">
+              <div className="bg-primary/10 border-b border-border px-6 py-4">
+                <h3 className="font-display text-lg text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                  <Brain className="w-5 h-5 text-primary" />
+                  AI PROGRAMME BUILDER
+                </h3>
+              </div>
+              <CardContent className="p-8">
+                <div className="flex flex-col md:flex-row items-center gap-8">
+                  <div className="flex-1">
+                    <h2 className="font-display text-4xl md:text-5xl text-foreground tracking-wide mb-4">
+                      BUILD YOUR <span className="text-primary neon-glow-subtle">CARDIO PLAN</span>
+                    </h2>
+                    <p className="text-muted-foreground mb-6">
+                      Generate a personalized walk, run, or cycle programme based on your goals, 
+                      fitness level, and target distances. Powered by AI, driven by you.
+                    </p>
+                    <div className="flex flex-wrap gap-4 mb-6">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Target className="w-4 h-4 text-primary" />
+                        <span>Goal-driven plans</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <TrendingUp className="w-4 h-4 text-primary" />
+                        <span>Progressive overload</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Dumbbell className="w-4 h-4 text-primary" />
+                        <span>Hybrid integration</span>
+                      </div>
+                    </div>
+                    <Button
+                      size="lg"
+                      className="font-display text-lg tracking-wide px-8 py-6"
+                      onClick={handleProgrammeBuilder}
+                    >
+                      <Brain className="w-5 h-5 mr-2" />
+                      GENERATE PROGRAMME
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </div>
+                  <div className="w-40 h-40 rounded-full bg-primary/10 flex items-center justify-center neon-border">
+                    <Brain className="w-20 h-20 text-primary" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Activity Tracker Cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Card className="bg-card border-border overflow-hidden">
+              <div className="bg-primary/10 border-b border-border px-6 py-4">
+                <h3 className="font-display text-lg text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                  <Timer className="w-5 h-5 text-primary" />
+                  TRACK ACTIVITY
+                </h3>
+              </div>
+              <CardContent className="p-6">
+                <p className="text-muted-foreground mb-6 text-center">
+                  Choose your activity. Focus your mind. Move with intention.
+                </p>
+                
+                <div className="grid md:grid-cols-3 gap-4">
+                  {/* Walk Card */}
+                  <Card 
+                    className="bg-background border-border hover:border-primary cursor-pointer transition-all group hover:neon-border-subtle"
+                    onClick={() => handleActivitySelect('walk')}
+                  >
+                    <CardContent className="p-6 text-center">
+                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
+                        <Footprints className="w-8 h-8 text-primary" />
+                      </div>
+                      <h3 className="font-display text-2xl text-foreground tracking-wide mb-2">
+                        WALK
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Low-impact, steady state movement
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  {/* Run Card */}
+                  <Card 
+                    className="bg-background border-border hover:border-primary cursor-pointer transition-all group hover:neon-border-subtle"
+                    onClick={() => handleActivitySelect('run')}
+                  >
+                    <CardContent className="p-6 text-center">
+                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
+                        <Zap className="w-8 h-8 text-primary" />
+                      </div>
+                      <h3 className="font-display text-2xl text-foreground tracking-wide mb-2">
+                        RUN
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Build speed, power, endurance
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  {/* Cycle Card */}
+                  <Card 
+                    className="bg-background border-border hover:border-primary cursor-pointer transition-all group hover:neon-border-subtle"
+                    onClick={() => handleActivitySelect('cycle')}
+                  >
+                    <CardContent className="p-6 text-center">
+                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
+                        <Bike className="w-8 h-8 text-primary" />
+                      </div>
+                      <h3 className="font-display text-2xl text-foreground tracking-wide mb-2">
+                        CYCLE
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Leg power, zero impact
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Stats Grid - Matching Strength Calculator Style */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="grid grid-cols-3 gap-4 mt-10"
+          >
+            <Card className="bg-card border-border">
+              <CardContent className="p-6 text-center">
+                <Timer className="w-8 h-8 text-primary mx-auto mb-2" />
+                <div className="font-display text-3xl text-primary mb-1">
+                  TIME
+                </div>
+                <p className="text-sm text-muted-foreground">Precise tracking</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-card border-border">
+              <CardContent className="p-6 text-center">
+                <TrendingUp className="w-8 h-8 text-primary mx-auto mb-2" />
+                <div className="font-display text-3xl text-primary mb-1">
+                  DISTANCE
+                </div>
+                <p className="text-sm text-muted-foreground">GPS accuracy</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-card border-border">
+              <CardContent className="p-6 text-center">
+                <Zap className="w-8 h-8 text-primary mx-auto mb-2" />
+                <div className="font-display text-3xl text-primary mb-1">
+                  SPEED
+                </div>
+                <p className="text-sm text-muted-foreground">Real-time pace</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Hashtag */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-center mt-16"
+          >
+            <p className="text-primary font-display text-3xl tracking-wide neon-glow-subtle">
+              #MOVEINTENTIONALLY
+            </p>
+          </motion.div>
         </div>
-      </div>
+      </section>
 
-      <main className="container mx-auto px-6 py-6">
-        <div className="flex gap-6 max-w-5xl mx-auto">
-          {/* Main Content */}
-          <div className="flex-1 max-w-2xl">
-            {activeTab === 'feed' && (
-              <ActivityFeed onSignIn={() => setShowAuthModal(true)} />
-            )}
-            {activeTab === 'stats' && <StatsView />}
-            {activeTab === 'records' && <RecordsView />}
-            {activeTab === 'leaderboards' && <LeaderboardsView />}
-            {activeTab === 'profile' && <ProfileView />}
-          </div>
+      {/* Footer */}
+      <footer className="border-t border-border py-10 text-center">
+        <Link to="/" className="text-muted-foreground hover:text-foreground text-sm">
+          ← Back to Live Without Limits
+        </Link>
+      </footer>
 
-          {/* Desktop Sidebar */}
-          <div className="hidden lg:block w-80 space-y-6">
-            <FriendsWidget />
-          </div>
-        </div>
-      </main>
-
-      {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50">
-        <div className="flex items-center justify-around py-2">
-          <button
-            onClick={() => setActiveTab('feed')}
-            className={`flex flex-col items-center gap-1 px-4 py-2 ${
-              activeTab === 'feed' ? 'text-primary' : 'text-muted-foreground'
-            }`}
-          >
-            <Home className="w-6 h-6" />
-            <span className="text-xs font-display tracking-wide">FEED</span>
-          </button>
-          <button
-            onClick={() => setShowCardioModal(true)}
-            className="flex flex-col items-center gap-1 px-4 py-2"
-          >
-            <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center -mt-6 shadow-lg">
-              <Timer className="w-7 h-7 text-primary-foreground" />
-            </div>
-          </button>
-          <button
-            onClick={() => setActiveTab('stats')}
-            className={`flex flex-col items-center gap-1 px-4 py-2 ${
-              activeTab === 'stats' ? 'text-primary' : 'text-muted-foreground'
-            }`}
-          >
-            <BarChart2 className="w-6 h-6" />
-            <span className="text-xs font-display tracking-wide">STATS</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('records')}
-            className={`flex flex-col items-center gap-1 px-4 py-2 ${
-              activeTab === 'records' ? 'text-primary' : 'text-muted-foreground'
-            }`}
-          >
-            <Medal className="w-6 h-6" />
-            <span className="text-xs font-display tracking-wide">RECORDS</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('profile')}
-            className={`flex flex-col items-center gap-1 px-4 py-2 ${
-              activeTab === 'profile' ? 'text-primary' : 'text-muted-foreground'
-            }`}
-          >
-            <User className="w-6 h-6" />
-            <span className="text-xs font-display tracking-wide">PROFILE</span>
-          </button>
-        </div>
-      </nav>
-
+      {/* Modals */}
       <CardioTrackerModal
         isOpen={showCardioModal}
-        onClose={() => setShowCardioModal(false)}
+        onClose={() => {
+          setShowCardioModal(false);
+          setSelectedActivity(null);
+        }}
+        initialActivity={selectedActivity || undefined}
       />
-      
-      {/* Friends Modals */}
-      <UserSearchModal isOpen={showUserSearch} onClose={() => setShowUserSearch(false)} />
-      <FriendRequestsModal isOpen={showFriendRequests} onClose={() => setShowFriendRequests(false)} />
-      <FriendsListModal isOpen={showFriendsList} onClose={() => setShowFriendsList(false)} />
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
 };
-
-// Friend Request Badge Component with count
-function FriendRequestBadge({ onClick }: { onClick: () => void }) {
-  const { pendingRequests } = useFriends();
-  const receivedCount = pendingRequests.filter(r => r.type === 'received').length;
-  
-  return (
-    <Button
-      variant="ghost"
-      size="sm"
-      className="relative"
-      onClick={onClick}
-    >
-      <Bell className="w-5 h-5" />
-      {receivedCount > 0 && (
-        <Badge 
-          variant="default" 
-          className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs bg-primary text-primary-foreground"
-        >
-          {receivedCount}
-        </Badge>
-      )}
-    </Button>
-  );
-}
 
 export default Tracker;

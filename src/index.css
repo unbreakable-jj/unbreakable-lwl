@@ -137,7 +137,7 @@
 
 /* ========================================
    BRICKWORK TEXTURE SYSTEM
-   Industrial texture with neon glow cement
+   Industrial texture with orange neon cement
    ======================================== */
 
 @layer components {
@@ -145,29 +145,79 @@
     position: relative;
   }
 
+  /* CSS-based brick pattern with orange cement lines */
   .brick-texture::before {
     content: '';
     position: fixed;
     inset: 0;
-    background-image: url('/src/assets/brick-texture.png');
-    background-repeat: repeat;
-    background-size: 180px 180px;
-    opacity: var(--brick-opacity);
+    --brick-width: 120px;
+    --brick-height: 40px;
+    --cement-width: 3px;
+    --cement-color: hsl(var(--primary) / 0.25);
+    --cement-glow: hsl(var(--primary) / 0.15);
+    background-color: transparent;
+    background-image: 
+      /* Horizontal cement lines with glow */
+      linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent calc(var(--brick-height) - var(--cement-width)),
+        var(--cement-glow) calc(var(--brick-height) - var(--cement-width)),
+        var(--cement-color) calc(var(--brick-height) - 1px),
+        var(--cement-glow) var(--brick-height)
+      ),
+      /* Vertical cement lines - row 1 with glow */
+      linear-gradient(
+        to right,
+        transparent 0px,
+        transparent calc(var(--brick-width) - var(--cement-width)),
+        var(--cement-glow) calc(var(--brick-width) - var(--cement-width)),
+        var(--cement-color) calc(var(--brick-width) - 1px),
+        var(--cement-glow) var(--brick-width)
+      );
+    background-size: 
+      var(--brick-width) var(--brick-height),
+      var(--brick-width) calc(var(--brick-height) * 2);
+    background-position: 
+      0 0,
+      0 0;
     pointer-events: none;
     z-index: 0;
+    opacity: 1;
   }
 
-  /* Neon glow cement effect - subtle orange glow */
+  /* Offset brick pattern for staggered look */
   .brick-texture::after {
     content: '';
     position: fixed;
     inset: 0;
-    background: 
-      radial-gradient(ellipse 80% 50% at 50% 0%, hsl(var(--primary) / var(--brick-glow-opacity)), transparent 50%),
-      radial-gradient(ellipse 50% 35% at 85% 100%, hsl(var(--primary-glow) / var(--brick-glow-opacity)), transparent 40%),
-      radial-gradient(ellipse 40% 25% at 15% 85%, hsl(var(--primary) / var(--brick-glow-opacity)), transparent 35%);
+    --brick-width: 120px;
+    --brick-height: 40px;
+    --cement-width: 3px;
+    --cement-color: hsl(var(--primary) / 0.2);
+    background-image: 
+      linear-gradient(
+        to right,
+        transparent 0px,
+        transparent calc(var(--brick-width) - var(--cement-width)),
+        var(--cement-color) calc(var(--brick-width) - 1px),
+        transparent var(--brick-width)
+      );
+    background-size: var(--brick-width) calc(var(--brick-height) * 2);
+    background-position: calc(var(--brick-width) / 2) var(--brick-height);
     pointer-events: none;
     z-index: 0;
+    opacity: 1;
+  }
+
+  /* Dark mode - stronger cement glow */
+  .dark .brick-texture::before {
+    --cement-color: hsl(var(--primary) / 0.35);
+    --cement-glow: hsl(var(--primary) / 0.2);
+  }
+
+  .dark .brick-texture::after {
+    --cement-color: hsl(var(--primary) / 0.3);
   }
 
   /* Ensure content sits above texture */

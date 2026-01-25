@@ -23,6 +23,7 @@ import { CountdownOverlay } from '@/components/CountdownOverlay';
 interface CardioTrackerModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialActivity?: 'walk' | 'run' | 'cycle';
 }
 
 type ActivityType = 'walk' | 'run' | 'cycle';
@@ -58,7 +59,7 @@ const ACTIVITY_CONFIG = {
   },
 };
 
-export function CardioTrackerModal({ isOpen, onClose }: CardioTrackerModalProps) {
+export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioTrackerModalProps) {
   const { createRun } = useRuns();
   const { checkAndUpdatePRs } = usePersonalRecords();
   const { checkAndAwardMedals } = useMedals();
@@ -68,8 +69,20 @@ export function CardioTrackerModal({ isOpen, onClose }: CardioTrackerModalProps)
   
   const [entryMode, setEntryMode] = useState<EntryMode>('live');
   const [phase, setPhase] = useState<'select' | 'countdown' | 'tracking' | 'summary' | 'manual'>('select');
-  const [activity, setActivity] = useState<ActivityType | null>(null);
+  const [activity, setActivity] = useState<ActivityType | null>(initialActivity || null);
   const [loading, setLoading] = useState(false);
+
+  // Auto-start countdown if initialActivity is provided
+  useEffect(() => {
+    if (isOpen && initialActivity && phase === 'select') {
+      if (!navigator.geolocation) {
+        toast.error('Geolocation is not supported by your browser');
+        return;
+      }
+      setActivity(initialActivity);
+      setPhase('countdown');
+    }
+  }, [isOpen, initialActivity, phase]);
 
   // GPS tracking state
   const [startTime, setStartTime] = useState<Date | null>(null);
