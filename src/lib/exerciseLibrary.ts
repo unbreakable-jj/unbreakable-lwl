@@ -47,15 +47,85 @@ export type SplitType =
   | 'bro_split'
   | 'custom';
 
-export const BODY_PARTS: { value: BodyPart; label: string; icon: string }[] = [
-  { value: 'chest', label: 'Chest', icon: '💪' },
-  { value: 'back', label: 'Back', icon: '🔙' },
-  { value: 'shoulders', label: 'Shoulders', icon: '🎯' },
-  { value: 'legs', label: 'Legs', icon: '🦵' },
-  { value: 'arms', label: 'Arms', icon: '💪' },
-  { value: 'core', label: 'Core', icon: '🔥' },
-  { value: 'glutes', label: 'Glutes', icon: '🍑' },
-  { value: 'full_body', label: 'Full Body', icon: '⚡' },
+// Body parts with labels (icons now handled by BodyPartIcon component)
+export const BODY_PARTS: { value: BodyPart; label: string }[] = [
+  { value: 'chest', label: 'Chest' },
+  { value: 'back', label: 'Back' },
+  { value: 'shoulders', label: 'Shoulders' },
+  { value: 'legs', label: 'Legs' },
+  { value: 'arms', label: 'Arms' },
+  { value: 'core', label: 'Core' },
+  { value: 'glutes', label: 'Glutes' },
+  { value: 'full_body', label: 'Full Body' },
+];
+
+// Cardio exercises
+export const CARDIO_EXERCISES: LibraryExercise[] = [
+  {
+    id: 'treadmill-run',
+    name: 'Treadmill Running',
+    bodyPart: 'full_body',
+    equipment: ['cardio'],
+    category: 'cardio',
+    difficulty: 'beginner',
+    defaultSets: 1,
+    defaultReps: '20-30 mins',
+    description: 'Cardiovascular training on the treadmill.',
+    tips: ['Start with a warm-up pace', 'Gradually increase speed', 'Maintain good posture'],
+    alternatives: ['Outdoor Running', 'Incline Walking'],
+  },
+  {
+    id: 'rowing-machine',
+    name: 'Rowing Machine',
+    bodyPart: 'full_body',
+    equipment: ['cardio'],
+    category: 'cardio',
+    difficulty: 'beginner',
+    defaultSets: 1,
+    defaultReps: '15-20 mins',
+    description: 'Full body cardio and conditioning on the rowing machine.',
+    tips: ['Drive with legs first', 'Keep core engaged', 'Smooth, controlled strokes'],
+    alternatives: ['Kayaking', 'Battle Ropes'],
+  },
+  {
+    id: 'stationary-bike',
+    name: 'Stationary Bike',
+    bodyPart: 'legs',
+    equipment: ['cardio'],
+    category: 'cardio',
+    difficulty: 'beginner',
+    defaultSets: 1,
+    defaultReps: '20-30 mins',
+    description: 'Low-impact cardiovascular exercise.',
+    tips: ['Adjust seat height properly', 'Vary resistance levels', 'Keep a steady cadence'],
+    alternatives: ['Outdoor Cycling', 'Spin Class'],
+  },
+  {
+    id: 'jump-rope',
+    name: 'Jump Rope',
+    bodyPart: 'full_body',
+    equipment: ['bodyweight'],
+    category: 'cardio',
+    difficulty: 'intermediate',
+    defaultSets: 3,
+    defaultReps: '2-3 mins',
+    description: 'High-intensity cardio and coordination exercise.',
+    tips: ['Use wrists to turn rope', 'Land softly on balls of feet', 'Keep jumps low'],
+    alternatives: ['High Knees', 'Mountain Climbers'],
+  },
+  {
+    id: 'burpees',
+    name: 'Burpees',
+    bodyPart: 'full_body',
+    equipment: ['bodyweight'],
+    category: 'plyometric',
+    difficulty: 'intermediate',
+    defaultSets: 3,
+    defaultReps: '10-15',
+    description: 'Full body explosive exercise combining squat, plank, and jump.',
+    tips: ['Keep core tight', 'Land softly', 'Modify by stepping instead of jumping'],
+    alternatives: ['Squat Thrusts', 'Mountain Climbers'],
+  },
 ];
 
 export const SPLIT_TYPES: { value: SplitType; label: string; description: string; daysRequired: number[] }[] = [
