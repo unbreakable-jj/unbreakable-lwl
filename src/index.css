@@ -4,7 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Live Without Limits - UNBREAKABLE Design System */
+/* ========================================
+   LIVE WITHOUT LIMITS - UNBREAKABLE
+   Premium Industrial Design System
+   ======================================== */
 
 .font-display {
   font-family: 'Bebas Neue', sans-serif;
@@ -13,25 +16,25 @@
 
 @layer base {
   :root {
-    /* LWL Dark & Bold - Pure Black/Orange/White */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    /* Light Mode - Soft industrial warmth */
+    --background: 30 8% 96%;
+    --foreground: 20 10% 10%;
 
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 100%;
+    --card: 30 8% 99%;
+    --card-foreground: 20 10% 10%;
 
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 30 8% 99%;
+    --popover-foreground: 20 10% 10%;
 
     --primary: 24 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 30 100% 55%;
+    --primary-glow: 30 100% 58%;
 
-    --secondary: 0 0% 20%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 20 8% 90%;
+    --secondary-foreground: 20 10% 15%;
 
-    --muted: 0 0% 7%;
-    --muted-foreground: 0 0% 80%;
+    --muted: 20 8% 92%;
+    --muted-foreground: 20 8% 45%;
 
     --accent: 24 100% 50%;
     --accent-foreground: 0 0% 100%;
@@ -39,115 +42,82 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 0%;
+    --border: 20 8% 88%;
+    --input: 20 8% 94%;
     --ring: 24 100% 50%;
 
     --radius: 0.5rem;
 
-    /* Custom LWL tokens */
-    --surface: 0 0% 10%;
-    --locked: 0 0% 40%;
-    --locked-foreground: 0 0% 60%;
+    --surface: 30 8% 97%;
+    --locked: 20 8% 75%;
+    --locked-foreground: 20 8% 40%;
 
-    --sidebar-background: 0 0% 0%;
-    --sidebar-foreground: 0 0% 100%;
+    --sidebar-background: 30 8% 97%;
+    --sidebar-foreground: 20 10% 25%;
     --sidebar-primary: 24 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 20%;
+    --sidebar-accent: 24 15% 94%;
+    --sidebar-accent-foreground: 20 10% 15%;
+    --sidebar-border: 20 8% 88%;
     --sidebar-ring: 24 100% 50%;
+
+    /* Brick texture opacity */
+    --brick-opacity: 0.035;
+    --brick-glow-opacity: 0.015;
   }
 
-  /* Light Theme - Soft whites and greys, maintains brand accent */
-  .light {
-    --background: 0 0% 98%;
-    --foreground: 0 0% 10%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-
-    --primary: 24 100% 50%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 30 100% 55%;
-
-    --secondary: 0 0% 90%;
-    --secondary-foreground: 0 0% 10%;
-
-    --muted: 0 0% 94%;
-    --muted-foreground: 0 0% 40%;
-
-    --accent: 24 100% 50%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 88%;
-    --input: 0 0% 100%;
-    --ring: 24 100% 50%;
-
-    --surface: 0 0% 96%;
-    --locked: 0 0% 70%;
-    --locked-foreground: 0 0% 50%;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 10%;
-    --sidebar-primary: 24 100% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 94%;
-    --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 0 0% 88%;
-    --sidebar-ring: 24 100% 50%;
-  }
-
-  /* Dark Theme - Deep charcoal, not pure black */
+  /* Dark Mode - Deep charcoal industrial */
   .dark {
     --background: 0 0% 7%;
     --foreground: 0 0% 98%;
 
-    --card: 0 0% 12%;
+    --card: 0 0% 11%;
     --card-foreground: 0 0% 98%;
 
     --popover: 0 0% 10%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 24 100% 50%;
+    --primary: 24 100% 52%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 30 100% 55%;
+    --primary-glow: 30 100% 60%;
 
-    --secondary: 0 0% 18%;
+    --secondary: 0 0% 17%;
     --secondary-foreground: 0 0% 98%;
 
     --muted: 0 0% 14%;
-    --muted-foreground: 0 0% 70%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 24 100% 50%;
+    --accent: 24 100% 52%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62% 30%;
+    --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 22%;
+    --border: 0 0% 20%;
     --input: 0 0% 7%;
-    --ring: 24 100% 50%;
+    --ring: 24 100% 52%;
 
-    --surface: 0 0% 14%;
-    --locked: 0 0% 45%;
+    --surface: 0 0% 13%;
+    --locked: 0 0% 40%;
     --locked-foreground: 0 0% 55%;
 
-    --sidebar-background: 0 0% 7%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 24 100% 50%;
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 24 100% 52%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 14%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 22%;
-    --sidebar-ring: 24 100% 50%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 24 100% 52%;
+
+    /* Brick texture opacity */
+    --brick-opacity: 0.05;
+    --brick-glow-opacity: 0.025;
+  }
+
+  /* Default to dark mode */
+  :root {
+    color-scheme: dark;
   }
 }
 
@@ -156,26 +126,21 @@
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
   }
 }
 
-/* Global LWL Button Styles */
+/* ========================================
+   BRICKWORK TEXTURE SYSTEM
+   Industrial texture with neon glow cement
+   ======================================== */
+
 @layer components {
-  .btn-primary {
-    @apply bg-gradient-to-b from-primary to-[hsl(20,100%,45%)] text-primary-foreground font-display tracking-wide rounded-lg shadow-[0_4px_12px_rgba(255,102,0,0.3)] hover:shadow-[0_6px_16px_rgba(255,102,0,0.4)] transition-all;
-  }
-
-  .card-lwl {
-    @apply bg-card border border-border rounded-lg border-l-4 border-l-primary;
-  }
-
-  .input-lwl {
-    @apply bg-background border border-border focus:border-primary focus:ring-primary;
-  }
-
-  /* Brick texture overlay - subtle across all pages */
   .brick-texture {
     position: relative;
   }
@@ -186,18 +151,114 @@
     inset: 0;
     background-image: url('/src/assets/brick-texture.png');
     background-repeat: repeat;
-    background-size: 256px 256px;
-    opacity: 0.03;
+    background-size: 180px 180px;
+    opacity: var(--brick-opacity);
     pointer-events: none;
     z-index: 0;
   }
 
-  .dark .brick-texture::before {
-    opacity: 0.04;
+  /* Neon glow cement effect - subtle orange glow */
+  .brick-texture::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 50% at 50% 0%, hsl(var(--primary) / var(--brick-glow-opacity)), transparent 50%),
+      radial-gradient(ellipse 50% 35% at 85% 100%, hsl(var(--primary-glow) / var(--brick-glow-opacity)), transparent 40%),
+      radial-gradient(ellipse 40% 25% at 15% 85%, hsl(var(--primary) / var(--brick-glow-opacity)), transparent 35%);
+    pointer-events: none;
+    z-index: 0;
   }
 
-  .light .brick-texture::before {
-    opacity: 0.02;
+  /* Ensure content sits above texture */
+  .brick-texture > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* ========================================
+   NEON GLOW EFFECTS
+   Premium brand glow system
+   ======================================== */
+
+@layer components {
+  .neon-glow {
+    text-shadow: 
+      0 0 10px hsl(var(--primary) / 0.8),
+      0 0 20px hsl(var(--primary) / 0.6),
+      0 0 40px hsl(var(--primary) / 0.4),
+      0 0 60px hsl(var(--primary) / 0.2);
+  }
+
+  .neon-glow-subtle {
+    text-shadow: 
+      0 0 8px hsl(var(--primary) / 0.5),
+      0 0 16px hsl(var(--primary) / 0.3);
+  }
+
+  .neon-border {
+    box-shadow: 
+      0 0 10px hsl(var(--primary) / 0.5),
+      0 0 20px hsl(var(--primary) / 0.25),
+      inset 0 0 10px hsl(var(--primary) / 0.1);
+    border-color: hsl(var(--primary) / 0.7);
+  }
+
+  .neon-border-subtle {
+    box-shadow: 
+      0 0 5px hsl(var(--primary) / 0.35),
+      0 0 10px hsl(var(--primary) / 0.2);
+    border-color: hsl(var(--primary) / 0.5);
+  }
+
+  /* Glow pulse animation */
+  @keyframes glow-pulse {
+    0%, 100% {
+      box-shadow: 
+        0 0 10px hsl(var(--primary) / 0.4),
+        0 0 20px hsl(var(--primary) / 0.2);
+    }
+    50% {
+      box-shadow: 
+        0 0 20px hsl(var(--primary) / 0.6),
+        0 0 40px hsl(var(--primary) / 0.4);
+    }
+  }
+
+  .neon-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+}
+
+/* ========================================
+   COMPONENT STYLES
+   ======================================== */
+
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-b from-primary to-[hsl(20,100%,45%)] text-primary-foreground font-display tracking-wide rounded-lg;
+    box-shadow: 0 4px 12px hsl(var(--primary) / 0.3);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 6px 16px hsl(var(--primary) / 0.45);
+  }
+
+  .card-lwl {
+    @apply bg-card border border-border rounded-lg border-l-4 border-l-primary;
+  }
+
+  .card-industrial {
+    @apply bg-card border border-border;
+    box-shadow: 
+      0 4px 6px -1px hsl(0 0% 0% / 0.08),
+      0 0 0 1px hsl(var(--border)),
+      inset 0 1px 0 hsl(var(--card) / 0.5);
+  }
+
+  .input-lwl {
+    @apply bg-background border border-border focus:border-primary focus:ring-primary;
   }
 
   /* Medal styles */
@@ -220,7 +281,7 @@
     }
   }
 
-  /* Nav active state */
+  /* Nav states */
   .nav-active {
     @apply text-primary border-b-2 border-primary;
   }
@@ -228,28 +289,28 @@
   .nav-inactive {
     @apply text-muted-foreground hover:text-foreground;
   }
-
-  /* Neon glow effect for cardio results */
-  .neon-glow {
-    text-shadow: 
-      0 0 10px hsl(var(--primary) / 0.8),
-      0 0 20px hsl(var(--primary) / 0.6),
-      0 0 30px hsl(var(--primary) / 0.4),
-      0 0 40px hsl(var(--primary) / 0.2);
-  }
-
-  .neon-border {
-    box-shadow: 
-      0 0 10px hsl(var(--primary) / 0.5),
-      inset 0 0 10px hsl(var(--primary) / 0.1);
-    border-color: hsl(var(--primary));
-  }
 }
 
-/* Confetti animation for KOM celebrations */
+/* ========================================
+   COUNTDOWN STYLES
+   Power - Speed - Mindset sequence
+   ======================================== */
+
+.countdown-power {
+  background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+/* Confetti celebration */
 @keyframes confetti-fall {
   0% {
-    transform: translateY(0) rotate(0deg);
+    transform: translateY(-10vh) rotate(0deg);
     opacity: 1;
   }
   100% {
@@ -258,7 +319,7 @@
   }
 }
 
-/* Breathing animations for Mindset page */
+/* Breathing exercises */
 @keyframes breathe-in {
   0% {
     transform: scale(1);
@@ -303,15 +364,83 @@
   animation: breathe-out 4s ease-in-out forwards;
 }
 
+/* ========================================
+   UTILITIES
+   ======================================== */
+
+/* Hide scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.4);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.6);
+}
+
+/* Hero text with industrial shadow */
+.hero-text {
+  text-shadow: 
+    2px 2px 0 hsl(var(--background)),
+    4px 4px 0 hsl(var(--primary) / 0.25);
+}
+
+/* Hover scale */
+.hover-scale {
+  transition: transform 0.2s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.03);
+}
+
+/* Glass effect */
+.glass {
+  background: hsl(var(--card) / 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
 /* Radial gradient background */
 .bg-gradient-radial {
   background: radial-gradient(circle at center, var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to));
 }
 
-/* Power countdown text styles */
-.countdown-power {
-  background: linear-gradient(180deg, hsl(var(--primary)), hsl(20, 100%, 40%));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

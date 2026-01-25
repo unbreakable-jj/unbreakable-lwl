@@ -17,15 +17,25 @@ export interface Story {
   };
 }
 
+interface GroupedStory {
+  userId: string;
+  profile: Story['profiles'];
+  stories: Story[];
+}
+
 export function useStories() {
   const { user } = useAuth();
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchStories = useCallback(async () => {
+    setLoading(true);
+    
+    // Fetch non-expired stories only
     const { data, error } = await supabase
       .from('stories')
       .select('*')
+      .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -36,6 +46,13 @@ export function useStories() {
 
     // Fetch profiles for story owners
     const userIds = [...new Set((data || []).map(s => s.user_id))];
+    
+    if (userIds.length === 0) {
+      setStories([]);
+      setLoading(false);
+      return;
+    }
+
     const { data: profiles } = await supabase
       .from('profiles')
       .select('user_id, display_name, username, avatar_url')
@@ -57,6 +74,24 @@ export function useStories() {
 
   useEffect(() => {
     fetchStories();
+  }, [fetchStories]);
+
+  // Real-time subscription for stories
+  useEffect(() => {
+    const channel = supabase
+      .channel('stories-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'stories' },
+        () => {
+          fetchStories();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [fetchStories]);
 
   const createStory = async (story: {
@@ -85,10 +120,13 @@ export function useStories() {
   };
 
   const deleteStory = async (storyId: string) => {
+    if (!user) return { error: new Error('Not authenticated') };
+
     const { error } = await supabase
       .from('stories')
       .delete()
-      .eq('id', storyId);
+      .eq('id', storyId)
+      .eq('user_id', user.id);
 
     if (!error) {
       setStories((prev) => prev.filter((s) => s.id !== storyId));
@@ -98,21 +136,30 @@ export function useStories() {
   };
 
   // Group stories by user
-  const groupedStories = stories.reduce((acc, story) => {
-    if (!acc[story.user_id]) {
-      acc[story.user_id] = {
-        userId: story.user_id,
-        profile: story.profiles,
-        stories: [],
-      };
-    }
-    acc[story.user_id].stories.push(story);
-    return acc;
-  }, {} as Record<string, { userId: string; profile: Story['profiles']; stories: Story[] }>);
+  const groupedStories: GroupedStory[] = Object.values(
+    stories.reduce((acc, story) => {
+      if (!acc[story.user_id]) {
+        acc[story.user_id] = {
+          userId: story.user_id,
+          profile: story.profiles,
+          stories: [],
+        };
+      }
+      acc[story.user_id].stories.push(story);
+      return acc;
+    }, {} as Record<string, GroupedStory>)
+  );
+
+  // Sort stories within each group by created_at ascending (oldest first for viewing)
+  groupedStories.forEach(group => {
+    group.stories.sort((a, b) => 
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+  });
 
   return {
     stories,
-    groupedStories: Object.values(groupedStories),
+    groupedStories,
     loading,
     refetch: fetchStories,
     createStory,
