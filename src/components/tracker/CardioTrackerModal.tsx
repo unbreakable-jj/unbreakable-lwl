@@ -810,20 +810,20 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-3 mb-8">
-                  <div className="bg-muted/50 rounded-xl p-4 text-center neon-border-subtle">
-                    <p className="font-display text-3xl text-foreground tracking-wide">
+                  <div className="bg-primary/10 rounded-xl p-4 text-center border-2 border-primary/30 neon-border-subtle">
+                    <p className="font-display text-3xl text-primary neon-glow-subtle tracking-wide">
                       {distance.toFixed(2)}
                     </p>
                     <p className="text-xs text-muted-foreground uppercase tracking-wide">km</p>
                   </div>
-                  <div className="bg-muted/50 rounded-xl p-4 text-center neon-border-subtle">
-                    <p className="font-display text-3xl text-foreground tracking-wide">
+                  <div className="bg-primary/10 rounded-xl p-4 text-center border-2 border-primary/30 neon-border-subtle">
+                    <p className="font-display text-3xl text-primary neon-glow-subtle tracking-wide">
                       {currentSpeed !== null ? currentSpeed.toFixed(1) : calculateSpeed().toFixed(1)}
                     </p>
                     <p className="text-xs text-muted-foreground uppercase tracking-wide">km/h</p>
                   </div>
-                  <div className="bg-muted/50 rounded-xl p-4 text-center neon-border-subtle">
-                    <p className="font-display text-3xl text-foreground tracking-wide">
+                  <div className="bg-primary/10 rounded-xl p-4 text-center border-2 border-primary/30 neon-border-subtle">
+                    <p className="font-display text-3xl text-primary neon-glow-subtle tracking-wide">
                       {calculatePace()}
                     </p>
                     <p className="text-xs text-muted-foreground uppercase tracking-wide">/km</p>
@@ -854,7 +854,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                 exit={{ opacity: 0 }}
               >
                 <DialogHeader>
-                  <DialogTitle className="font-display text-2xl tracking-wide text-center">
+                  <DialogTitle className="font-display text-2xl tracking-wide text-center neon-glow-subtle">
                     SESSION COMPLETE
                   </DialogTitle>
                 </DialogHeader>
@@ -862,7 +862,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                 <div className="py-6 space-y-6">
                   {/* Activity Badge */}
                   <div className="flex justify-center">
-                    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${config?.bgColor}`}>
+                    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${config?.bgColor} neon-border-subtle`}>
                       <ActivityIcon className={`w-5 h-5 ${config?.color}`} />
                       <span className={`font-display tracking-wide ${config?.color}`}>
                         {config?.label}
@@ -872,21 +872,21 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
 
                   {/* Final Stats */}
                   <div className="grid grid-cols-3 gap-3 text-center">
-                    <div>
-                      <p className="font-display text-3xl text-primary">{distance.toFixed(2)}</p>
-                      <p className="text-xs text-muted-foreground">km</p>
+                    <div className="bg-primary/10 rounded-xl p-4 border-2 border-primary/30 neon-border-subtle">
+                      <p className="font-display text-3xl text-primary neon-glow-subtle">{distance.toFixed(2)}</p>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">km</p>
                     </div>
-                    <div>
-                      <p className="font-display text-3xl text-foreground">
+                    <div className="bg-primary/10 rounded-xl p-4 border-2 border-primary/30 neon-border-subtle">
+                      <p className="font-display text-3xl text-primary neon-glow-subtle">
                         {formatTime(elapsedSeconds)}
                       </p>
-                      <p className="text-xs text-muted-foreground">time</p>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">time</p>
                     </div>
-                    <div>
-                      <p className="font-display text-3xl text-foreground">
+                    <div className="bg-primary/10 rounded-xl p-4 border-2 border-primary/30 neon-border-subtle">
+                      <p className="font-display text-3xl text-primary neon-glow-subtle">
                         {calculateSpeed().toFixed(1)}
                       </p>
-                      <p className="text-xs text-muted-foreground">km/h</p>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">km/h</p>
                     </div>
                   </div>
 
