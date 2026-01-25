@@ -201,12 +201,13 @@ export default function Programming() {
                 AI-POWERED PROGRAMMING
               </span>
             </div>
-            <h1 className="font-display text-4xl md:text-6xl tracking-wider mb-4">
+            <h1 className="font-display text-6xl md:text-8xl tracking-wide leading-none mb-2">
               <span className="text-foreground">BUILD YOUR</span>
-              <br />
-              <span className="text-primary">TRAINING PROGRAM</span>
             </h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <h1 className="font-display text-6xl md:text-8xl text-primary tracking-wide leading-none neon-glow-subtle">
+              TRAINING PROGRAM
+            </h1>
+            <p className="text-muted-foreground text-lg mt-6 max-w-xl mx-auto">
               Get a personalized 12-week training program using barbell, dumbbell, 
               bodyweight exercises, and running. Tailored to your goals, schedule, and current fitness level.
             </p>

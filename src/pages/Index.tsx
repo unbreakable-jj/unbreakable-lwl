@@ -257,15 +257,13 @@ const Index = () => {
           />
 
           {/* Dramatic title */}
-          <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-foreground tracking-wide leading-none">
+          <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-foreground tracking-wide leading-none mb-2">
             BECOME
           </h1>
-          <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-primary tracking-wide leading-none mb-10">
+          <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-primary tracking-wide leading-none neon-glow-subtle">
             UNBREAKABLE
           </h1>
-
-          {/* Subtitle copy */}
-          <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-4 uppercase tracking-wide">
+          <p className="text-muted-foreground text-lg mt-6 max-w-xl mx-auto mb-8">
             Live Without Limits. Build a body to last — not just look good.
           </p>
 
@@ -287,8 +285,8 @@ const Index = () => {
           </div>
 
           {/* Tagline */}
-          <p className="text-primary font-display text-2xl md:text-3xl tracking-wide">
-            KEEP SHOWING UP
+          <p className="text-primary font-display text-2xl md:text-3xl tracking-wide neon-glow-subtle">
+            #UNBREAKABLEMOVEMENT
           </p>
         </motion.div>
       </section>
@@ -296,7 +294,7 @@ const Index = () => {
       {/* Why Section */}
       <section className="py-24 md:py-32">
         <div className="container mx-auto px-6">
-          <h2 className="font-display text-4xl md:text-5xl text-primary text-center mb-4 tracking-wide">
+          <h2 className="font-display text-4xl md:text-5xl text-primary text-center mb-4 tracking-wide neon-glow-subtle">
             WHY BECOME UNBREAKABLE?
           </h2>
           <p className="text-muted-foreground text-center mb-16 text-lg uppercase tracking-wide">

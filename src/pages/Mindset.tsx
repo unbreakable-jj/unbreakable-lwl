@@ -423,13 +423,13 @@ const Mindset = () => {
               alt="Unbreakable - Live Without Limits"
               className="h-32 md:h-40 object-contain mx-auto mb-6"
             />
-            <h1 className="font-display text-5xl md:text-7xl text-foreground tracking-wide leading-none">
+            <h1 className="font-display text-6xl md:text-8xl text-foreground tracking-wide leading-none mb-2">
               {heroContent.title}
             </h1>
-            <h1 className="font-display text-5xl md:text-7xl text-primary tracking-wide leading-none mb-6">
+            <h1 className="font-display text-6xl md:text-8xl text-primary tracking-wide leading-none neon-glow-subtle">
               {heroContent.titleAccent}
             </h1>
-            <p className="text-foreground text-xl md:text-2xl max-w-2xl mx-auto leading-relaxed uppercase tracking-wide font-medium">
+            <p className="text-muted-foreground text-lg mt-6 max-w-xl mx-auto">
               {heroContent.tagline}
             </p>
 
