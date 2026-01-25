@@ -16,6 +16,7 @@ export interface UserSettings {
   notify_achievements: boolean;
   show_community_posts: boolean;
   show_achievements_in_feed: boolean;
+  ai_feedback_enabled: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -32,6 +33,7 @@ const defaultSettings: Omit<UserSettings, 'id' | 'user_id' | 'created_at' | 'upd
   notify_achievements: true,
   show_community_posts: true,
   show_achievements_in_feed: true,
+  ai_feedback_enabled: true,
 };
 
 export function useUserSettings() {

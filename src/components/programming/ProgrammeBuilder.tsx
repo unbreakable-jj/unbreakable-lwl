@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -33,6 +34,8 @@ import {
   RotateCcw,
   Edit3,
   MessageCircle,
+  Link2,
+  Unlink,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
@@ -55,6 +58,7 @@ interface ProgrammeExercise {
   sets: number;
   reps: string;
   notes?: string;
+  supersetGroupId?: string; // Links exercises together in a superset
 }
 
 interface ProgrammeDay {
@@ -80,6 +84,7 @@ export function ProgrammeBuilder() {
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [targetDayId, setTargetDayId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedExercises, setSelectedExercises] = useState<Set<string>>(new Set());
 
   // Initialize days based on split
   const initializeDays = useCallback(() => {
@@ -180,6 +185,81 @@ export function ProgrammeBuilder() {
     setDays((prev) =>
       prev.map((day) => (day.id === dayId ? { ...day, exercises: newOrder } : day))
     );
+  };
+
+  // Toggle exercise selection for superset
+  const toggleExerciseSelection = (exerciseId: string) => {
+    setSelectedExercises((prev) => {
+      const next = new Set(prev);
+      if (next.has(exerciseId)) {
+        next.delete(exerciseId);
+      } else {
+        next.add(exerciseId);
+      }
+      return next;
+    });
+  };
+
+  // Create superset from selected exercises
+  const handleCreateSuperset = (dayId: string) => {
+    if (selectedExercises.size < 2) {
+      toast({
+        title: 'Select More Exercises',
+        description: 'Select at least 2 exercises to create a superset.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const supersetGroupId = generateId();
+    setDays((prev) =>
+      prev.map((day) =>
+        day.id === dayId
+          ? {
+              ...day,
+              exercises: day.exercises.map((ex) =>
+                selectedExercises.has(ex.id)
+                  ? { ...ex, supersetGroupId }
+                  : ex
+              ),
+            }
+          : day
+      )
+    );
+
+    setSelectedExercises(new Set());
+    toast({
+      title: 'Superset Created',
+      description: `${selectedExercises.size} exercises grouped into a superset.`,
+    });
+  };
+
+  // Remove exercise from superset (unlink)
+  const handleRemoveFromSuperset = (dayId: string, exerciseId: string) => {
+    setDays((prev) =>
+      prev.map((day) =>
+        day.id === dayId
+          ? {
+              ...day,
+              exercises: day.exercises.map((ex) =>
+                ex.id === exerciseId ? { ...ex, supersetGroupId: undefined } : ex
+              ),
+            }
+          : day
+      )
+    );
+  };
+
+  // Get unique superset groups in a day
+  const getSupersetGroups = (exercises: ProgrammeExercise[]) => {
+    const groups = new Map<string, ProgrammeExercise[]>();
+    exercises.forEach((ex) => {
+      if (ex.supersetGroupId) {
+        const existing = groups.get(ex.supersetGroupId) || [];
+        groups.set(ex.supersetGroupId, [...existing, ex]);
+      }
+    });
+    return groups;
   };
 
   // Update day name
@@ -445,6 +525,31 @@ export function ProgrammeBuilder() {
                               />
                             </div>
 
+                            {/* Superset Creation Button */}
+                            {selectedExercises.size >= 2 && (
+                              <div className="flex items-center gap-2 p-2 bg-primary/10 border border-primary/30 rounded-lg">
+                                <Link2 className="w-4 h-4 text-primary" />
+                                <span className="text-sm text-primary flex-1">
+                                  {selectedExercises.size} exercises selected
+                                </span>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleCreateSuperset(day.id)}
+                                  className="gap-1"
+                                >
+                                  <Link2 className="w-3 h-3" />
+                                  Create Superset
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setSelectedExercises(new Set())}
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            )}
+
                             {/* Exercises */}
                             {day.exercises.length > 0 ? (
                               <Reorder.Group
@@ -455,91 +560,134 @@ export function ProgrammeBuilder() {
                                 }
                                 className="space-y-2"
                               >
-                                {day.exercises.map((exercise) => (
-                                  <Reorder.Item
-                                    key={exercise.id}
-                                    value={exercise}
-                                    className="bg-surface border border-border rounded-lg p-3 cursor-grab active:cursor-grabbing"
-                                  >
-                                    <div className="flex items-start gap-3">
-                                      <GripVertical className="w-4 h-4 text-muted-foreground mt-2 shrink-0" />
-                                      <div className="flex-1 space-y-2">
-                                        <Input
-                                          value={exercise.name}
-                                          onChange={(e) =>
-                                            handleUpdateExercise(day.id, exercise.id, {
-                                              name: e.target.value,
-                                            })
-                                          }
-                                          placeholder="Exercise name"
-                                          className="h-8 font-medium"
+                                {day.exercises.map((exercise) => {
+                                  const isInSuperset = !!exercise.supersetGroupId;
+                                  const supersetGroup = exercise.supersetGroupId 
+                                    ? day.exercises.filter(e => e.supersetGroupId === exercise.supersetGroupId)
+                                    : [];
+                                  const isFirstInSuperset = isInSuperset && supersetGroup[0]?.id === exercise.id;
+                                  const supersetLetter = isInSuperset 
+                                    ? String.fromCharCode(65 + supersetGroup.findIndex(e => e.id === exercise.id))
+                                    : null;
+
+                                  return (
+                                    <Reorder.Item
+                                      key={exercise.id}
+                                      value={exercise}
+                                      className={`bg-surface border rounded-lg p-3 cursor-grab active:cursor-grabbing ${
+                                        isInSuperset 
+                                          ? 'border-primary/40 bg-primary/5' 
+                                          : 'border-border'
+                                      } ${selectedExercises.has(exercise.id) ? 'ring-2 ring-primary' : ''}`}
+                                    >
+                                      <div className="flex items-start gap-3">
+                                        {/* Checkbox for superset selection */}
+                                        <Checkbox
+                                          checked={selectedExercises.has(exercise.id)}
+                                          onCheckedChange={() => toggleExerciseSelection(exercise.id)}
+                                          className="mt-2"
                                         />
-                                        <div className="grid grid-cols-4 gap-2">
-                                          <Select
-                                            value={exercise.equipment}
-                                            onValueChange={(v) =>
-                                              handleUpdateExercise(day.id, exercise.id, {
-                                                equipment: v,
-                                              })
-                                            }
-                                          >
-                                            <SelectTrigger className="h-8 text-xs">
-                                              <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                              {EQUIPMENT_OPTIONS.map((eq) => (
-                                                <SelectItem key={eq.value} value={eq.value}>
-                                                  {eq.label}
-                                                </SelectItem>
-                                              ))}
-                                            </SelectContent>
-                                          </Select>
+                                        <GripVertical className="w-4 h-4 text-muted-foreground mt-2 shrink-0" />
+                                        
+                                        {/* Superset indicator */}
+                                        {isInSuperset && (
+                                          <div className="flex flex-col items-center shrink-0">
+                                            <Badge 
+                                              variant="outline" 
+                                              className="h-6 w-6 p-0 flex items-center justify-center text-xs bg-primary/20 text-primary border-primary/40"
+                                            >
+                                              {supersetLetter}
+                                            </Badge>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              className="h-5 w-5 mt-1"
+                                              onClick={() => handleRemoveFromSuperset(day.id, exercise.id)}
+                                              title="Remove from superset"
+                                            >
+                                              <Unlink className="w-3 h-3 text-muted-foreground" />
+                                            </Button>
+                                          </div>
+                                        )}
+
+                                        <div className="flex-1 space-y-2">
                                           <Input
-                                            type="number"
-                                            value={exercise.sets}
+                                            value={exercise.name}
                                             onChange={(e) =>
                                               handleUpdateExercise(day.id, exercise.id, {
-                                                sets: parseInt(e.target.value) || 1,
+                                                name: e.target.value,
                                               })
                                             }
-                                            placeholder="Sets"
-                                            className="h-8 text-xs"
+                                            placeholder="Exercise name"
+                                            className="h-8 font-medium"
                                           />
+                                          <div className="grid grid-cols-4 gap-2">
+                                            <Select
+                                              value={exercise.equipment}
+                                              onValueChange={(v) =>
+                                                handleUpdateExercise(day.id, exercise.id, {
+                                                  equipment: v,
+                                                })
+                                              }
+                                            >
+                                              <SelectTrigger className="h-8 text-xs">
+                                                <SelectValue />
+                                              </SelectTrigger>
+                                              <SelectContent>
+                                                {EQUIPMENT_OPTIONS.map((eq) => (
+                                                  <SelectItem key={eq.value} value={eq.value}>
+                                                    {eq.label}
+                                                  </SelectItem>
+                                                ))}
+                                              </SelectContent>
+                                            </Select>
+                                            <Input
+                                              type="number"
+                                              value={exercise.sets}
+                                              onChange={(e) =>
+                                                handleUpdateExercise(day.id, exercise.id, {
+                                                  sets: parseInt(e.target.value) || 1,
+                                                })
+                                              }
+                                              placeholder="Sets"
+                                              className="h-8 text-xs"
+                                            />
+                                            <Input
+                                              value={exercise.reps}
+                                              onChange={(e) =>
+                                                handleUpdateExercise(day.id, exercise.id, {
+                                                  reps: e.target.value,
+                                                })
+                                              }
+                                              placeholder="Reps"
+                                              className="h-8 text-xs"
+                                            />
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              className="h-8 w-8 text-destructive hover:text-destructive"
+                                              onClick={() =>
+                                                handleRemoveExercise(day.id, exercise.id)
+                                              }
+                                            >
+                                              <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                          </div>
                                           <Input
-                                            value={exercise.reps}
+                                            value={exercise.notes || ''}
                                             onChange={(e) =>
                                               handleUpdateExercise(day.id, exercise.id, {
-                                                reps: e.target.value,
+                                                notes: e.target.value,
                                               })
                                             }
-                                            placeholder="Reps"
+                                            placeholder="Notes (tempo, rest, etc.)"
                                             className="h-8 text-xs"
                                           />
-                                          <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-destructive hover:text-destructive"
-                                            onClick={() =>
-                                              handleRemoveExercise(day.id, exercise.id)
-                                            }
-                                          >
-                                            <Trash2 className="w-4 h-4" />
-                                          </Button>
                                         </div>
-                                        <Input
-                                          value={exercise.notes || ''}
-                                          onChange={(e) =>
-                                            handleUpdateExercise(day.id, exercise.id, {
-                                              notes: e.target.value,
-                                            })
-                                          }
-                                          placeholder="Notes (tempo, rest, etc.)"
-                                          className="h-8 text-xs"
-                                        />
                                       </div>
-                                    </div>
-                                  </Reorder.Item>
-                                ))}
+                                    </Reorder.Item>
+                                  );
+                                })}
                               </Reorder.Group>
                             ) : (
                               <div className="text-center py-6 text-muted-foreground text-sm">
@@ -568,6 +716,13 @@ export function ProgrammeBuilder() {
                                 Custom
                               </Button>
                             </div>
+
+                            {/* Superset Instructions */}
+                            {day.exercises.length >= 2 && selectedExercises.size === 0 && (
+                              <p className="text-xs text-muted-foreground text-center">
+                                Tip: Select exercises using checkboxes to group them into a superset
+                              </p>
+                            )}
                           </div>
                         </CollapsibleContent>
                       </div>

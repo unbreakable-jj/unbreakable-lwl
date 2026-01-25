@@ -209,9 +209,10 @@ export default function Programming() {
             transition={{ duration: 0.6 }}
           >
             <h1 className="font-display text-5xl sm:text-6xl md:text-8xl tracking-wide leading-none mb-2">
-              <span className="text-foreground">BUILD YOUR</span>
+              <span className="text-foreground">BUILD YOUR </span>
+              <span className="text-primary neon-glow-subtle">UNBREAKABLE</span>
             </h1>
-            <h1 className="font-display text-5xl sm:text-6xl md:text-8xl text-primary tracking-wide leading-none neon-glow-subtle">
+            <h1 className="font-display text-5xl sm:text-6xl md:text-8xl text-foreground tracking-wide leading-none">
               PROGRAMME
             </h1>
             <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">
