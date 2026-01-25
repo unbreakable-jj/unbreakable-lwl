@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Home, Calculator, Activity, User, LogOut, Settings, Brain, Sparkles } from 'lucide-react';
+import { Menu, X, Home, Calculator, Activity, User, LogOut, Settings, Brain, Sparkles, HelpCircle } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -38,6 +38,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
     { to: '/programming', label: 'PROGRAMMING', icon: Sparkles },
     { to: '/tracker', label: 'CARDIO CENTRAL', icon: Activity },
     { to: '/mindset', label: 'MINDSET', icon: Brain },
+    { to: '/help', label: 'HELP', icon: HelpCircle },
   ];
 
   const isActive = (path: string) => location.pathname === path;
