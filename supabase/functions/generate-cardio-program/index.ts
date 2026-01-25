@@ -135,7 +135,7 @@ Create a progressive 12-week programme with ${sessionsPerWeek} sessions per week
       if (response.ok) break;
 
       const errorText = await response.text();
-      console.error(`AI gateway error (attempt ${attempt + 1}):`, response.status, errorText);
+      console.error(`Gateway error (attempt ${attempt + 1}):`, response.status, errorText);
 
       if (response.status === 429) continue;
       
@@ -146,12 +146,12 @@ Create a progressive 12-week programme with ${sessionsPerWeek} sessions per week
         );
       }
       
-      throw new Error(`AI gateway error: ${response.status}`);
+      throw new Error(`Gateway error: ${response.status}`);
     }
 
     if (!response || !response.ok) {
       return new Response(
-        JSON.stringify({ error: "The AI is currently busy. Please wait a moment and try again." }),
+        JSON.stringify({ error: "The service is currently busy. Please wait a moment and try again." }),
         { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -160,7 +160,7 @@ Create a progressive 12-week programme with ${sessionsPerWeek} sessions per week
     const content = data.choices?.[0]?.message?.content;
     
     if (!content) {
-      throw new Error("No content in AI response");
+      throw new Error("No content in response");
     }
 
     // Clean and parse JSON
@@ -190,7 +190,7 @@ Create a progressive 12-week programme with ${sessionsPerWeek} sessions per week
     try {
       program = JSON.parse(cleanedContent);
     } catch (parseError) {
-      console.error("Failed to parse AI response:", cleanedContent.substring(0, 500));
+      console.error("Failed to parse response:", cleanedContent.substring(0, 500));
       throw new Error("Failed to parse programme data");
     }
 
