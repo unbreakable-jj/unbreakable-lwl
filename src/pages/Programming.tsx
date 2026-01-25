@@ -195,21 +195,18 @@ export default function Programming() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border-2 border-primary/30 neon-border-subtle mb-6">
-              <Brain className="w-4 h-4 text-primary" />
-              <span className="text-sm font-display text-primary tracking-wide">
-                AI-POWERED PROGRAMMING
-              </span>
-            </div>
             <h1 className="font-display text-6xl md:text-8xl tracking-wide leading-none mb-2">
               <span className="text-foreground">BUILD YOUR</span>
             </h1>
             <h1 className="font-display text-6xl md:text-8xl text-primary tracking-wide leading-none neon-glow-subtle">
-              TRAINING PROGRAM
+              TRAINING PROGRAMME
             </h1>
-            <p className="text-muted-foreground text-lg mt-6 max-w-xl mx-auto">
-              Get a personalized 12-week training program using barbell, dumbbell, 
-              bodyweight exercises, and running. Tailored to your goals, schedule, and current fitness level.
+            <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">
+              LIVE WITHOUT LIMITS
+            </p>
+            <p className="text-muted-foreground text-lg mt-4 max-w-xl mx-auto">
+              Personalised 12-week training using barbell, dumbbell, bodyweight, and running. 
+              Tailored to your goals. <span className="text-primary font-semibold">KEEP SHOWING UP.</span>
             </p>
           </motion.div>
         </div>
