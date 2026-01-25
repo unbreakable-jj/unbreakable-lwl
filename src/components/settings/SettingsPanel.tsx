@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -24,12 +25,19 @@ import {
   Eye,
   UserPlus,
   Settings,
+  Footprints,
+  Dumbbell,
+  Share2,
+  LogOut,
+  ExternalLink,
 } from 'lucide-react';
 import { useUserSettings, UserSettings } from '@/hooks/useUserSettings';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
 export function SettingsPanel() {
   const { settings, loading, updateSettings, toggleTheme } = useUserSettings();
+  const { signOut } = useAuth();
   const [saving, setSaving] = useState(false);
 
   if (loading || !settings) {
@@ -56,6 +64,15 @@ export function SettingsPanel() {
     if (error) {
       toast.error('Failed to update theme');
     }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success('Signed out successfully');
+  };
+
+  const handleSocialConnect = (platform: string) => {
+    toast.info(`${platform} integration coming soon`);
   };
 
   return (
@@ -188,6 +205,141 @@ export function SettingsPanel() {
         </CardContent>
       </Card>
 
+      {/* Social Integration */}
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="font-display text-xl tracking-wide flex items-center gap-2">
+            <Share2 className="w-5 h-5" />
+            SOCIAL ACCOUNTS
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground mb-4">
+            Connect your social accounts to share achievements and posts directly
+          </p>
+          
+          <div className="space-y-3">
+            <Button 
+              variant="outline" 
+              className="w-full justify-between"
+              onClick={() => handleSocialConnect('Facebook')}
+            >
+              <span className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">f</div>
+                Facebook
+              </span>
+              <ExternalLink className="w-4 h-4 text-muted-foreground" />
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="w-full justify-between"
+              onClick={() => handleSocialConnect('Instagram')}
+            >
+              <span className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 rounded flex items-center justify-center text-white text-xs font-bold">📷</div>
+                Instagram
+              </span>
+              <ExternalLink className="w-4 h-4 text-muted-foreground" />
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="w-full justify-between"
+              onClick={() => handleSocialConnect('TikTok')}
+            >
+              <span className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-black rounded flex items-center justify-center text-white text-xs font-bold">♪</div>
+                TikTok
+              </span>
+              <ExternalLink className="w-4 h-4 text-muted-foreground" />
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="w-full justify-between"
+              onClick={() => handleSocialConnect('X')}
+            >
+              <span className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-black rounded flex items-center justify-center text-white text-xs font-bold">𝕏</div>
+                X (Twitter)
+              </span>
+              <ExternalLink className="w-4 h-4 text-muted-foreground" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Cardio Tracker Preferences */}
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="font-display text-xl tracking-wide flex items-center gap-2">
+            <Footprints className="w-5 h-5" />
+            CARDIO TRACKER
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground mb-2">
+            Configure your cardio tracking preferences
+          </p>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-foreground font-medium">Auto-pause</Label>
+              <p className="text-sm text-muted-foreground">
+                Automatically pause when stationary
+              </p>
+            </div>
+            <Switch defaultChecked />
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-foreground font-medium">Audio Cues</Label>
+              <p className="text-sm text-muted-foreground">
+                Voice updates during sessions
+              </p>
+            </div>
+            <Switch defaultChecked />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Programme Tracking Preferences */}
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="font-display text-xl tracking-wide flex items-center gap-2">
+            <Dumbbell className="w-5 h-5" />
+            PROGRAMME TRACKING
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground mb-2">
+            Configure your strength training preferences
+          </p>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-foreground font-medium">Rest Timer Alerts</Label>
+              <p className="text-sm text-muted-foreground">
+                Sound and vibration when rest ends
+              </p>
+            </div>
+            <Switch defaultChecked />
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-foreground font-medium">Auto-start Rest Timer</Label>
+              <p className="text-sm text-muted-foreground">
+                Start timer after logging a set
+              </p>
+            </div>
+            <Switch defaultChecked />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Notification Settings */}
       <Card className="bg-card border-border">
         <CardHeader>
@@ -297,6 +449,20 @@ export function SettingsPanel() {
               onCheckedChange={(checked) => handleUpdate({ show_achievements_in_feed: checked })}
             />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Sign Out */}
+      <Card className="bg-card border-border border-destructive/30">
+        <CardContent className="pt-6">
+          <Button 
+            variant="destructive" 
+            className="w-full font-display tracking-wide"
+            onClick={handleSignOut}
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            SIGN OUT
+          </Button>
         </CardContent>
       </Card>
     </div>

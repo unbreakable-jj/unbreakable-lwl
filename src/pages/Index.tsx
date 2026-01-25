@@ -106,7 +106,7 @@ const Index = () => {
                   onClick={() => setShowActionMenu(true)}
                 >
                   <Plus className="w-4 h-4 mr-1" />
-                  <span className="hidden sm:inline">WORKOUT</span>
+                  <span className="hidden sm:inline">TRACK</span>
                 </Button>
                 <NavigationDrawer variant="minimal" />
               </div>

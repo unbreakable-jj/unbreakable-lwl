@@ -17,19 +17,21 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/calculators" element={<Calculators />} />
-            <Route path="/tracker" element={<Tracker />} />
-            <Route path="/mindset" element={<Mindset />} />
-            <Route path="/programming" element={<Programming />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <div className="brick-texture min-h-screen">
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/calculators" element={<Calculators />} />
+              <Route path="/tracker" element={<Tracker />} />
+              <Route path="/mindset" element={<Mindset />} />
+              <Route path="/programming" element={<Programming />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </div>
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>

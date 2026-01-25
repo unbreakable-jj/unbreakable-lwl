@@ -684,6 +684,36 @@ export type Database = {
         }
         Relationships: []
       }
+      stories: {
+        Row: {
+          content: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          image_url: string | null
+          user_id: string
+          visibility: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          image_url?: string | null
+          user_id: string
+          visibility?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          image_url?: string | null
+          user_id?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
       training_programs: {
         Row: {
           created_at: string
