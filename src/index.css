@@ -150,7 +150,7 @@
     content: '';
     position: fixed;
     inset: 0;
-    background-image: url('@/assets/brick-background.png');
+    background-image: url('/images/brick-background.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
