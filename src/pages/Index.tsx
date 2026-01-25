@@ -324,7 +324,7 @@ const Index = () => {
               <div className="w-20 h-20 rounded-full bg-primary/10 neon-border-subtle flex items-center justify-center mx-auto mb-6">
                 <Dumbbell className="w-10 h-10 text-primary" />
               </div>
-              <h3 className="font-display text-2xl text-foreground mb-4 tracking-wide">STRENGTH</h3>
+              <h3 className="font-display text-2xl text-primary mb-4 tracking-wide neon-glow-subtle">STRENGTH</h3>
               <p className="text-muted-foreground leading-relaxed">
                 Your body is your armour. Build it to last. Strength isn't about lifting heavy once — it's
                 about a foundation that carries you through life.
@@ -335,7 +335,7 @@ const Index = () => {
               <div className="w-20 h-20 rounded-full bg-primary/10 neon-border-subtle flex items-center justify-center mx-auto mb-6">
                 <Flame className="w-10 h-10 text-primary" />
               </div>
-              <h3 className="font-display text-2xl text-foreground mb-4 tracking-wide">FUEL</h3>
+              <h3 className="font-display text-2xl text-primary mb-4 tracking-wide neon-glow-subtle">FUEL</h3>
               <p className="text-muted-foreground leading-relaxed">
                 Food is not the enemy. It's the weapon. Strategic fuel to perform, recover, and dominate
                 for decades — not days.
@@ -346,7 +346,7 @@ const Index = () => {
               <div className="w-20 h-20 rounded-full bg-primary/10 neon-border-subtle flex items-center justify-center mx-auto mb-6">
                 <Timer className="w-10 h-10 text-primary" />
               </div>
-              <h3 className="font-display text-2xl text-foreground mb-4 tracking-wide">SPEED</h3>
+              <h3 className="font-display text-2xl text-primary mb-4 tracking-wide neon-glow-subtle">SPEED</h3>
               <p className="text-muted-foreground leading-relaxed">
                 Every finish line is a new starting point. Build speed that lasts — unbreakable endurance
                 for every race, every decade.
@@ -357,7 +357,7 @@ const Index = () => {
               <div className="w-20 h-20 rounded-full bg-primary/10 neon-border-subtle flex items-center justify-center mx-auto mb-6">
                 <Brain className="w-10 h-10 text-primary" />
               </div>
-              <h3 className="font-display text-2xl text-foreground mb-4 tracking-wide">MINDSET</h3>
+              <h3 className="font-display text-2xl text-primary mb-4 tracking-wide neon-glow-subtle">MINDSET</h3>
               <p className="text-muted-foreground leading-relaxed">
                 The body follows the mind. Cultivate unbreakable discipline, resilience, and the mental
                 fortitude to keep showing up — every single day.
@@ -383,7 +383,7 @@ const Index = () => {
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8">
               <Target className="w-12 h-12 text-primary mb-6" />
-              <h3 className="font-display text-xl text-foreground mb-3 tracking-wide">
+              <h3 className="font-display text-xl text-primary mb-3 tracking-wide neon-glow-subtle">
                 AGE-ADJUSTED STANDARDS
               </h3>
               <p className="text-muted-foreground">
@@ -394,7 +394,7 @@ const Index = () => {
 
             <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8">
               <Heart className="w-12 h-12 text-primary mb-6" />
-              <h3 className="font-display text-xl text-foreground mb-3 tracking-wide">
+              <h3 className="font-display text-xl text-primary mb-3 tracking-wide neon-glow-subtle">
                 CONTEXT-AWARE CALCULATIONS
               </h3>
               <p className="text-muted-foreground">
@@ -405,7 +405,7 @@ const Index = () => {
 
             <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8">
               <Zap className="w-12 h-12 text-primary mb-6" />
-              <h3 className="font-display text-xl text-foreground mb-3 tracking-wide">BUILD LONGEVITY</h3>
+              <h3 className="font-display text-xl text-primary mb-3 tracking-wide neon-glow-subtle">BUILD LONGEVITY</h3>
               <p className="text-muted-foreground">
                 The goal isn't to peak for a moment. It's to build a body that performs, recovers, and
                 thrives for decades.
@@ -418,8 +418,11 @@ const Index = () => {
       {/* CTA Section */}
       <section className="py-24 md:py-32">
         <div className="container mx-auto px-6 text-center">
-          <h2 className="font-display text-5xl md:text-6xl text-foreground mb-4 tracking-wide">
-            READY TO <span className="text-primary">LIVE WITHOUT LIMITS?</span>
+          <h2 className="font-display text-5xl md:text-6xl text-foreground mb-2 tracking-wide">
+            READY TO
+          </h2>
+          <h2 className="font-display text-5xl md:text-6xl text-primary mb-4 tracking-wide neon-glow-subtle">
+            LIVE WITHOUT LIMITS?
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto mb-10 text-lg">
             The goal isn't to "look good" for a moment. It's to build a body and mind that support every

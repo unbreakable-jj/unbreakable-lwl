@@ -252,7 +252,7 @@ const Calculators = () => {
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Form */}
             <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8">
-              <h3 className="font-display text-2xl text-foreground mb-8 tracking-wide text-center">
+              <h3 className="font-display text-2xl text-primary mb-8 tracking-wide text-center neon-glow-subtle">
                 {activeTab === 'strength' && 'ENTER YOUR LIFT'}
                 {activeTab === 'fuel' && 'ENTER YOUR DETAILS'}
                 {activeTab === 'speed' && 'ENTER YOUR RACE'}
@@ -314,7 +314,7 @@ function EmptyState({ emoji, title, description }: { emoji: string; title: strin
         <div className="w-24 h-24 rounded-full bg-primary/10 neon-border-subtle flex items-center justify-center mx-auto mb-6">
           <span className="text-5xl">{emoji}</span>
         </div>
-        <h3 className="font-display text-2xl text-foreground mb-3 tracking-wide">
+        <h3 className="font-display text-2xl text-primary mb-3 tracking-wide neon-glow-subtle">
           {title}
         </h3>
         <p className="text-muted-foreground max-w-sm mx-auto">
