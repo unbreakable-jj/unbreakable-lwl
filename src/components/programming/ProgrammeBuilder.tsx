@@ -41,6 +41,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
 import { useAuth } from '@/hooks/useAuth';
 import { ExerciseLibraryModal } from './ExerciseLibraryModal';
+import { InlineExerciseLibrary } from './InlineExerciseLibrary';
 import {
   SplitType,
   SPLIT_TYPES,
@@ -85,6 +86,7 @@ export function ProgrammeBuilder() {
   const [targetDayId, setTargetDayId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [selectedExercises, setSelectedExercises] = useState<Set<string>>(new Set());
+  const [showInlineLibrary, setShowInlineLibrary] = useState<string | null>(null);
 
   // Initialize days based on split
   const initializeDays = useCallback(() => {
@@ -99,10 +101,40 @@ export function ProgrammeBuilder() {
     setStep('build');
   }, [splitType, daysPerWeek]);
 
-  // Add exercise from library
+  // Add exercise from library (modal)
   const handleAddFromLibrary = (dayId: string) => {
     setTargetDayId(dayId);
     setLibraryOpen(true);
+  };
+
+  // Toggle inline library for a specific day
+  const handleToggleInlineLibrary = (dayId: string) => {
+    setShowInlineLibrary(showInlineLibrary === dayId ? null : dayId);
+    setTargetDayId(dayId);
+  };
+
+  // Handle exercise selection from inline library
+  const handleInlineSelect = (exercise: LibraryExercise, dayId: string) => {
+    const newExercise: ProgrammeExercise = {
+      id: generateId(),
+      name: exercise.name,
+      equipment: exercise.equipment[0],
+      sets: exercise.defaultSets,
+      reps: exercise.defaultReps,
+    };
+
+    setDays((prev) =>
+      prev.map((day) =>
+        day.id === dayId
+          ? { ...day, exercises: [...day.exercises, newExercise] }
+          : day
+      )
+    );
+
+    toast({
+      title: 'Exercise Added',
+      description: `${exercise.name} added to your workout.`,
+    });
   };
 
   const handleSelectExercise = (exercise: LibraryExercise) => {
@@ -698,13 +730,22 @@ export function ProgrammeBuilder() {
                             {/* Add Exercise Buttons */}
                             <div className="flex flex-wrap gap-2">
                               <Button
-                                variant="outline"
+                                variant={showInlineLibrary === day.id ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => handleToggleInlineLibrary(day.id)}
+                                className="gap-1"
+                              >
+                                <Library className="w-4 h-4" />
+                                {showInlineLibrary === day.id ? 'Hide Library' : 'Browse Library'}
+                              </Button>
+                              <Button
+                                variant="ghost"
                                 size="sm"
                                 onClick={() => handleAddFromLibrary(day.id)}
                                 className="gap-1"
                               >
-                                <Library className="w-4 h-4" />
-                                From Library
+                                <Sparkles className="w-4 h-4" />
+                                Full Library
                               </Button>
                               <Button
                                 variant="outline"
@@ -717,8 +758,26 @@ export function ProgrammeBuilder() {
                               </Button>
                             </div>
 
+                            {/* Inline Exercise Library */}
+                            <AnimatePresence>
+                              {showInlineLibrary === day.id && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: 'auto', opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.2 }}
+                                  className="overflow-hidden"
+                                >
+                                  <InlineExerciseLibrary
+                                    onSelectExercise={(exercise) => handleInlineSelect(exercise, day.id)}
+                                    onClose={() => setShowInlineLibrary(null)}
+                                  />
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+
                             {/* Superset Instructions */}
-                            {day.exercises.length >= 2 && selectedExercises.size === 0 && (
+                            {day.exercises.length >= 2 && selectedExercises.size === 0 && !showInlineLibrary && (
                               <p className="text-xs text-muted-foreground text-center">
                                 Tip: Select exercises using checkboxes to group them into a superset
                               </p>

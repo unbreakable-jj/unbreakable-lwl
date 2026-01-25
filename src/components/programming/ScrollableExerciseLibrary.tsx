@@ -202,8 +202,8 @@ export function ScrollableExerciseLibrary({
       </div>
 
       {/* Scrollable Exercise List */}
-      <ScrollArea className="flex-1 -mx-1 px-1">
-        <div className="space-y-1 py-3">
+      <ScrollArea className="flex-1 min-h-0 max-h-[60vh]">
+        <div className="space-y-1 py-3 px-1">
           {Object.entries(groupedExercises).map(([bodyPart, exercises]) => (
             <div key={bodyPart} className="mb-4">
               {/* Sticky Header */}
