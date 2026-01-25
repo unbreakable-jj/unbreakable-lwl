@@ -51,12 +51,12 @@ serve(async (req) => {
 
     const activityName = activityType === 'walk' ? 'Walking' : activityType === 'run' ? 'Running' : 'Cycling';
 
-    const systemPrompt = `You are an elite endurance coach. Create a focused 12-week ${activityName.toLowerCase()} programme.
+    const systemPrompt = `You are an elite endurance coach. Create a focused 8-week ${activityName.toLowerCase()} programme.
 
 Programme Structure:
-- Phase 1 (Weeks 1-4): Base Building - establish aerobic foundation
-- Phase 2 (Weeks 5-8): Development - increase intensity and volume
-- Phase 3 (Weeks 9-12): Peak/Race Prep - optimize performance
+- Phase 1 (Weeks 1-3): Base Building - establish aerobic foundation
+- Phase 2 (Weeks 4-6): Development - increase intensity and volume
+- Phase 3 (Weeks 7-8): Peak/Race Prep - optimize performance
 
 Return ONLY this JSON structure (no markdown):
 {
@@ -64,7 +64,7 @@ Return ONLY this JSON structure (no markdown):
   "overview": "2-3 sentences about the programme",
   "activityType": "${activityType}",
   "weeklySchedule": [{"day": "Monday", "focus": "Easy ${activityName}", "type": "${activityType}|cross_training|rest|active_recovery"}],
-  "phases": [{"name": "Base Building", "weeks": "1-4", "focus": "string", "notes": "string"}],
+  "phases": [{"name": "Base Building", "weeks": "1-3", "focus": "string", "notes": "string"}],
   "weeks": [
     {
       "weekNumber": 1,
@@ -87,12 +87,12 @@ Return ONLY this JSON structure (no markdown):
       ]
     }
   ],
-  "progressionRules": ["Increase weekly distance by 10% max", "Add intervals after 4 weeks"],
+  "progressionRules": ["Increase weekly distance by 10% max", "Add intervals after 3 weeks"],
   "recoveryTips": ["Sleep 7-9 hours", "Stay hydrated"],
   "nutritionTips": ["Fuel before longer sessions"]
 }`;
 
-    const userPrompt = `Create a 12-week ${activityName.toLowerCase()} programme:
+    const userPrompt = `Create an 8-week ${activityName.toLowerCase()} programme:
 
 ACTIVITY: ${activityName}
 GOAL: ${goal}
