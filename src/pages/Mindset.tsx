@@ -480,7 +480,7 @@ const Mindset = () => {
             </div>
 
             {/* Exercise Selection Header */}
-            <h2 className="font-display text-2xl text-foreground mb-8 tracking-wide text-center">
+            <h2 className="font-display text-2xl text-primary mb-8 tracking-wide text-center neon-glow-subtle">
               SELECT YOUR SESSION
             </h2>
 
