@@ -11,8 +11,10 @@ import { ProgramFormStep3 } from '@/components/programming/ProgramFormStep3';
 import { ProgramFormStep4 } from '@/components/programming/ProgramFormStep4';
 import { ProgramDisplay } from '@/components/programming/ProgramDisplay';
 import { MyProgramsSection } from '@/components/programming/MyProgramsSection';
+import { ProgrammeBuilder } from '@/components/programming/ProgrammeBuilder';
 import { ManualWorkoutBuilder } from '@/components/programming/ManualWorkoutBuilder';
 import { useAuth } from '@/hooks/useAuth';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { 
   Goal, 
   Level,
@@ -27,13 +29,15 @@ import {
   Loader2, 
   Sparkles,
   Brain,
-  Dumbbell
+  Dumbbell,
+  Wrench
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Programming() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<'ai' | 'manual'>('ai');
   const [currentStep, setCurrentStep] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedProgram, setGeneratedProgram] = useState<GeneratedProgram | null>(null);
@@ -163,6 +167,8 @@ export default function Programming() {
         <main className="container mx-auto px-4 py-8">
           <ProgramDisplay program={generatedProgram} onReset={handleReset} />
         </main>
+        
+        <UnifiedFooter className="mt-auto" />
       </div>
     );
   }
@@ -201,128 +207,178 @@ export default function Programming() {
               <span className="text-foreground">BUILD YOUR</span>
             </h1>
             <h1 className="font-display text-6xl md:text-8xl text-primary tracking-wide leading-none neon-glow-subtle">
-              TRAINING PROGRAMME
+              PROGRAMME
             </h1>
             <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">
               LIVE WITHOUT LIMITS
             </p>
             <p className="text-muted-foreground text-lg mt-4 max-w-xl mx-auto">
-              Personalised 12-week training using barbell, dumbbell, bodyweight, and running. 
-              Tailored to your goals. <span className="text-primary font-semibold">KEEP SHOWING UP.</span>
+              {activeTab === 'ai' 
+                ? 'Personalised 12-week training using barbell, dumbbell, bodyweight, and running. Tailored to your goals.'
+                : 'Select your days, splits, and exercises from our library to create a programme tailored to you.'}
+              {' '}
+              <span className="text-primary font-semibold">KEEP SHOWING UP.</span>
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Progress Bar */}
-      <div className="bg-card border-b border-border py-4">
+      {/* Mode Tabs */}
+      <div className="bg-card border-b border-border">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Step {currentStep} of {totalSteps}</span>
-            <span className="text-sm text-primary font-display">
-              {currentStep === 1 && 'SELECT GOAL'}
-              {currentStep === 2 && 'SET SCHEDULE'}
-              {currentStep === 3 && 'YOUR LEVEL'}
-              {currentStep === 4 && 'CURRENT STATS'}
-            </span>
-          </div>
-          <div className="h-2 bg-surface rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-primary"
-              initial={{ width: 0 }}
-              animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
-              transition={{ duration: 0.3 }}
-            />
-          </div>
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'ai' | 'manual')} className="w-full">
+            <TabsList className="w-full h-14 bg-transparent gap-4 justify-center">
+              <TabsTrigger 
+                value="ai" 
+                className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6"
+              >
+                <Sparkles className="w-4 h-4" />
+                PERSONALISED PROGRAMME
+              </TabsTrigger>
+              <TabsTrigger 
+                value="manual" 
+                className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6"
+              >
+                <Wrench className="w-4 h-4" />
+                BUILD YOUR OWN
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </div>
 
-      {/* Form Steps */}
       <main className="container mx-auto px-4 py-8 md:py-12">
-        <div className="max-w-3xl mx-auto">
-          <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait">
+          {activeTab === 'ai' ? (
             <motion.div
-              key={currentStep}
+              key="ai"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
             >
-              {currentStep === 1 && (
-                <ProgramFormStep1 
-                  selectedGoal={goal} 
-                  onSelect={setGoal} 
-                />
-              )}
-              {currentStep === 2 && (
-                <ProgramFormStep2
-                  availability={availability}
-                  sessionLength={sessionLength}
-                  onAvailabilityChange={setAvailability}
-                  onSessionLengthChange={setSessionLength}
-                />
-              )}
-              {currentStep === 3 && (
-                <ProgramFormStep3
-                  level={level}
-                  commitment={commitment}
-                  onLevelChange={setLevel}
-                  onCommitmentChange={setCommitment}
-                />
-              )}
-              {currentStep === 4 && (
-                <ProgramFormStep4
-                  strengthData={strengthData}
-                  speedData={speedData}
-                  bodyweight={bodyweight}
-                  age={age}
-                  gender={gender}
-                  onStrengthDataChange={setStrengthData}
-                  onSpeedDataChange={setSpeedData}
-                  onBodyweightChange={setBodyweight}
-                  onAgeChange={setAge}
-                  onGenderChange={setGender}
-                />
-              )}
+              {/* Progress Bar */}
+              <div className="max-w-3xl mx-auto mb-8">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-muted-foreground">Step {currentStep} of {totalSteps}</span>
+                  <span className="text-sm text-primary font-display">
+                    {currentStep === 1 && 'SELECT GOAL'}
+                    {currentStep === 2 && 'SET SCHEDULE'}
+                    {currentStep === 3 && 'YOUR LEVEL'}
+                    {currentStep === 4 && 'CURRENT STATS'}
+                  </span>
+                </div>
+                <div className="h-2 bg-surface rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-primary"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </div>
+              </div>
+
+              {/* Form Steps */}
+              <div className="max-w-3xl mx-auto">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentStep}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {currentStep === 1 && (
+                      <ProgramFormStep1 
+                        selectedGoal={goal} 
+                        onSelect={setGoal} 
+                      />
+                    )}
+                    {currentStep === 2 && (
+                      <ProgramFormStep2
+                        availability={availability}
+                        sessionLength={sessionLength}
+                        onAvailabilityChange={setAvailability}
+                        onSessionLengthChange={setSessionLength}
+                      />
+                    )}
+                    {currentStep === 3 && (
+                      <ProgramFormStep3
+                        level={level}
+                        commitment={commitment}
+                        onLevelChange={setLevel}
+                        onCommitmentChange={setCommitment}
+                      />
+                    )}
+                    {currentStep === 4 && (
+                      <ProgramFormStep4
+                        strengthData={strengthData}
+                        speedData={speedData}
+                        bodyweight={bodyweight}
+                        age={age}
+                        gender={gender}
+                        onStrengthDataChange={setStrengthData}
+                        onSpeedDataChange={setSpeedData}
+                        onBodyweightChange={setBodyweight}
+                        onAgeChange={setAge}
+                        onGenderChange={setGender}
+                      />
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+
+                {/* Navigation Buttons */}
+                <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
+                  <Button
+                    variant="outline"
+                    onClick={handleBack}
+                    disabled={currentStep === 1}
+                    className="gap-2"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    Back
+                  </Button>
+
+                  <Button
+                    onClick={handleNext}
+                    disabled={!canProceed() || isGenerating}
+                    className="gap-2 min-w-[160px]"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : currentStep === totalSteps ? (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        Generate Program
+                      </>
+                    ) : (
+                      <>
+                        Next
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
             </motion.div>
-          </AnimatePresence>
-
-          {/* Navigation Buttons */}
-          <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              disabled={currentStep === 1}
-              className="gap-2"
+          ) : (
+            <motion.div
+              key="manual"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="max-w-3xl mx-auto space-y-8"
             >
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-
-            <Button
-              onClick={handleNext}
-              disabled={!canProceed() || isGenerating}
-              className="gap-2 min-w-[160px]"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Generating...
-                </>
-              ) : currentStep === totalSteps ? (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  Generate Program
-                </>
-              ) : (
-                <>
-                  Next
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
+              {/* Programme Builder */}
+              <ProgrammeBuilder />
+              
+              {/* Manual Workout Builder for quick sessions */}
+              {user && <ManualWorkoutBuilder />}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* My Programs Section */}
@@ -331,18 +387,9 @@ export default function Programming() {
           <div className="max-w-3xl mx-auto">
             <h2 className="font-display text-2xl text-foreground mb-6 flex items-center gap-2">
               <Dumbbell className="w-6 h-6 text-primary" />
-              MY PROGRAMS
+              MY PROGRAMMES
             </h2>
             <MyProgramsSection />
-          </div>
-        </section>
-      )}
-
-      {/* Manual Workout Builder */}
-      {user && (
-        <section className="container mx-auto px-4 py-8 border-t border-border">
-          <div className="max-w-3xl mx-auto">
-            <ManualWorkoutBuilder />
           </div>
         </section>
       )}
