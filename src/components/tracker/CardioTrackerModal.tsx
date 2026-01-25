@@ -596,11 +596,11 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                       return (
                         <Card
                           key={type}
-                          className={`p-6 cursor-pointer border-2 transition-all hover:scale-105 ${cfg.bgColor} ${cfg.borderColor} hover:border-opacity-100`}
+                          className={`p-6 cursor-pointer border-2 transition-all hover:scale-105 neon-border-subtle ${cfg.bgColor} ${cfg.borderColor} hover:border-primary`}
                           onClick={() => selectActivity(type)}
                         >
                           <div className="flex flex-col items-center gap-3">
-                            <div className={`w-14 h-14 rounded-full ${cfg.bgColor} flex items-center justify-center`}>
+                            <div className={`w-14 h-14 rounded-full ${cfg.bgColor} flex items-center justify-center neon-border-subtle`}>
                               <Icon className={`w-7 h-7 ${cfg.color}`} />
                             </div>
                             <span className={`font-display text-sm tracking-wide ${cfg.color}`}>
