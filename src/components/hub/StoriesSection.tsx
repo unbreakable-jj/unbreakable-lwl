@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -8,15 +8,21 @@ import { useStories, Story } from '@/hooks/useStories';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Globe, Users, Lock, Image, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Globe, Users, Lock, Image, X, ChevronLeft, ChevronRight, Trash2, MoreVertical } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export function StoriesSection() {
   const { user } = useAuth();
   const { profile } = useProfile();
-  const { groupedStories, createStory, loading, refetch } = useStories();
+  const { groupedStories, createStory, deleteStory, loading, refetch } = useStories();
   const [showCreate, setShowCreate] = useState(false);
   const [showViewer, setShowViewer] = useState(false);
   const [activeUserIndex, setActiveUserIndex] = useState(0);
@@ -26,7 +32,19 @@ export function StoriesSection() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-progress for story viewer
+  useEffect(() => {
+    if (!showViewer) return;
+    
+    const timer = setTimeout(() => {
+      nextStory();
+    }, 5000); // 5 seconds per story
+
+    return () => clearTimeout(timer);
+  }, [showViewer, activeUserIndex, activeStoryIndex]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -97,6 +115,32 @@ export function StoriesSection() {
     }
   };
 
+  const handleDeleteStory = async (storyId: string) => {
+    setDeleting(true);
+    const { error } = await deleteStory(storyId);
+    setDeleting(false);
+    
+    if (error) {
+      toast.error('Failed to delete story');
+    } else {
+      toast.success('Story deleted');
+      // Move to next story or close viewer
+      const currentUserStories = groupedStories[activeUserIndex]?.stories || [];
+      if (currentUserStories.length <= 1) {
+        if (groupedStories.length <= 1) {
+          setShowViewer(false);
+        } else if (activeUserIndex < groupedStories.length - 1) {
+          setActiveStoryIndex(0);
+        } else {
+          setActiveUserIndex(prev => prev - 1);
+          setActiveStoryIndex(0);
+        }
+      } else if (activeStoryIndex >= currentUserStories.length - 1) {
+        setActiveStoryIndex(prev => Math.max(0, prev - 1));
+      }
+    }
+  };
+
   const openViewer = (userIndex: number) => {
     setActiveUserIndex(userIndex);
     setActiveStoryIndex(0);
@@ -132,6 +176,7 @@ export function StoriesSection() {
 
   const currentUserGroup = groupedStories[activeUserIndex];
   const currentStory = currentUserGroup?.stories[activeStoryIndex];
+  const isOwnStory = currentStory?.user_id === user?.id;
 
   return (
     <>
@@ -141,20 +186,20 @@ export function StoriesSection() {
         {user && (
           <button
             onClick={() => setShowCreate(true)}
-            className="flex flex-col items-center gap-2 flex-shrink-0"
+            className="flex flex-col items-center gap-2 flex-shrink-0 group"
           >
             <div className="relative">
-              <Avatar className="h-16 w-16 border-2 border-dashed border-primary/50">
+              <Avatar className="h-16 w-16 border-2 border-dashed border-primary/50 group-hover:border-primary transition-colors">
                 <AvatarImage src={profile?.avatar_url || undefined} />
                 <AvatarFallback className="bg-primary/10 text-primary font-display">
                   {getInitials(profile?.display_name)}
                 </AvatarFallback>
               </Avatar>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center neon-border-subtle">
                 <Plus className="w-4 h-4 text-primary-foreground" />
               </div>
             </div>
-            <span className="text-xs text-muted-foreground font-display tracking-wide">
+            <span className="text-xs text-muted-foreground font-display tracking-wide group-hover:text-primary transition-colors">
               ADD STORY
             </span>
           </button>
@@ -165,9 +210,9 @@ export function StoriesSection() {
           <button
             key={group.userId}
             onClick={() => openViewer(index)}
-            className="flex flex-col items-center gap-2 flex-shrink-0"
+            className="flex flex-col items-center gap-2 flex-shrink-0 group"
           >
-            <div className="p-0.5 rounded-full bg-gradient-to-br from-primary to-primary-glow">
+            <div className="p-0.5 rounded-full bg-gradient-to-br from-primary to-primary-glow neon-border-subtle">
               <Avatar className="h-16 w-16 border-2 border-background">
                 <AvatarImage src={group.profile?.avatar_url || undefined} />
                 <AvatarFallback className="bg-card text-foreground font-display">
@@ -175,7 +220,7 @@ export function StoriesSection() {
                 </AvatarFallback>
               </Avatar>
             </div>
-            <span className="text-xs text-muted-foreground truncate max-w-16">
+            <span className="text-xs text-muted-foreground truncate max-w-16 group-hover:text-foreground transition-colors">
               {group.profile?.display_name?.split(' ')[0] || 'User'}
             </span>
           </button>
@@ -192,7 +237,7 @@ export function StoriesSection() {
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="bg-card border-border max-w-sm">
           <DialogHeader>
-            <DialogTitle className="font-display text-xl tracking-wide text-center">
+            <DialogTitle className="font-display text-xl tracking-wide text-center neon-glow-subtle">
               ADD TO STORY
             </DialogTitle>
           </DialogHeader>
@@ -293,14 +338,20 @@ export function StoriesSection() {
                   key={idx}
                   className="flex-1 h-1 rounded-full bg-white/30 overflow-hidden"
                 >
-                  <div
-                    className={`h-full bg-white transition-all duration-300 ${
-                      idx < activeStoryIndex
-                        ? 'w-full'
-                        : idx === activeStoryIndex
-                        ? 'w-full animate-pulse'
-                        : 'w-0'
-                    }`}
+                  <motion.div
+                    className="h-full bg-white"
+                    initial={{ width: idx < activeStoryIndex ? '100%' : '0%' }}
+                    animate={{ 
+                      width: idx < activeStoryIndex 
+                        ? '100%' 
+                        : idx === activeStoryIndex 
+                          ? '100%' 
+                          : '0%' 
+                    }}
+                    transition={{ 
+                      duration: idx === activeStoryIndex ? 5 : 0,
+                      ease: 'linear'
+                    }}
                   />
                 </div>
               ))}
@@ -324,14 +375,42 @@ export function StoriesSection() {
                   </p>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:bg-white/10"
-                onClick={() => setShowViewer(false)}
-              >
-                <X className="w-6 h-6" />
-              </Button>
+              
+              <div className="flex items-center gap-2">
+                {/* Delete option for own stories */}
+                {isOwnStory && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-white hover:bg-white/10"
+                      >
+                        <MoreVertical className="w-5 h-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-card border-border">
+                      <DropdownMenuItem
+                        className="text-destructive focus:text-destructive cursor-pointer"
+                        onClick={() => handleDeleteStory(currentStory.id)}
+                        disabled={deleting}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        {deleting ? 'Deleting...' : 'Delete Story'}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+                
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white hover:bg-white/10"
+                  onClick={() => setShowViewer(false)}
+                >
+                  <X className="w-6 h-6" />
+                </Button>
+              </div>
             </div>
 
             {/* Story Content */}

@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRuns } from '@/hooks/useRuns';
 import { usePersonalRecords } from '@/hooks/usePersonalRecords';
 import { useMedals } from '@/hooks/useMedals';
@@ -15,7 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { MedalCheckStats } from '@/lib/medalDefinitions';
 import { getCategoryLabel, TROPHY_ICONS } from '@/lib/trophyDefinitions';
 import { toast } from 'sonner';
-import { Play, Square, Timer, Globe, Users, Lock, Footprints, Bike } from 'lucide-react';
+import { Play, Square, Timer, Globe, Users, Lock, Footprints, Bike, Edit3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CountdownOverlay } from '@/components/CountdownOverlay';
 
@@ -25,6 +26,7 @@ interface CardioTrackerModalProps {
 }
 
 type ActivityType = 'walk' | 'run' | 'cycle';
+type EntryMode = 'live' | 'manual';
 
 interface Position {
   lat: number;
@@ -64,7 +66,8 @@ export function CardioTrackerModal({ isOpen, onClose }: CardioTrackerModalProps)
   const { profile } = useProfile();
   const { user } = useAuth();
   
-  const [phase, setPhase] = useState<'select' | 'countdown' | 'tracking' | 'summary'>('select');
+  const [entryMode, setEntryMode] = useState<EntryMode>('live');
+  const [phase, setPhase] = useState<'select' | 'countdown' | 'tracking' | 'summary' | 'manual'>('select');
   const [activity, setActivity] = useState<ActivityType | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -76,10 +79,16 @@ export function CardioTrackerModal({ isOpen, onClose }: CardioTrackerModalProps)
   const watchIdRef = useRef<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Post-session state
+  // Post-session state (also used for manual entry)
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'friends' | 'private'>('public');
+
+  // Manual entry fields
+  const [manualDistance, setManualDistance] = useState('');
+  const [manualHours, setManualHours] = useState('0');
+  const [manualMinutes, setManualMinutes] = useState('');
+  const [manualSeconds, setManualSeconds] = useState('0');
 
   // Haversine distance calculation
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -97,12 +106,16 @@ export function CardioTrackerModal({ isOpen, onClose }: CardioTrackerModalProps)
   };
 
   const selectActivity = (type: ActivityType) => {
-    if (!navigator.geolocation) {
-      toast.error('Geolocation is not supported by your browser');
-      return;
-    }
     setActivity(type);
-    setPhase('countdown');
+    if (entryMode === 'live') {
+      if (!navigator.geolocation) {
+        toast.error('Geolocation is not supported by your browser');
+        return;
+      }
+      setPhase('countdown');
+    } else {
+      setPhase('manual');
+    }
   };
 
   const startTracking = useCallback(() => {
@@ -358,9 +371,76 @@ export function CardioTrackerModal({ isOpen, onClose }: CardioTrackerModalProps)
     }
   };
 
+  const handleManualSave = async () => {
+    const distanceKm = parseFloat(manualDistance);
+    const hours = parseInt(manualHours) || 0;
+    const mins = parseInt(manualMinutes) || 0;
+    const secs = parseInt(manualSeconds) || 0;
+    const totalSeconds = hours * 3600 + mins * 60 + secs;
+
+    if (isNaN(distanceKm) || distanceKm <= 0) {
+      toast.error('Please enter a valid distance');
+      return;
+    }
+
+    if (totalSeconds <= 0) {
+      toast.error('Please enter a valid duration');
+      return;
+    }
+
+    setLoading(true);
+
+    const paceSeconds = Math.round(totalSeconds / distanceKm);
+    const speedKph = (distanceKm / totalSeconds) * 3600;
+    const activityLabel = ACTIVITY_CONFIG[activity!].label;
+    const sessionStart = new Date();
+
+    const { error, data } = await createRun({
+      title: title || `${activityLabel} Session`,
+      description: description || null,
+      distance_km: Math.round(distanceKm * 1000) / 1000,
+      duration_seconds: totalSeconds,
+      started_at: sessionStart.toISOString(),
+      ended_at: new Date(sessionStart.getTime() + totalSeconds * 1000).toISOString(),
+      pace_per_km_seconds: paceSeconds,
+      average_speed_kph: Math.round(speedKph * 100) / 100,
+      elevation_gain_m: null,
+      calories_burned: Math.round(distanceKm * 60),
+      route_polyline: null,
+      map_snapshot_url: null,
+      is_gps_tracked: false,
+      weather_conditions: null,
+      temperature_celsius: null,
+      notes: `${activity} (manual entry)`,
+      is_public: visibility === 'public',
+      visibility: visibility,
+      comments_enabled: true,
+    });
+
+    if (error) {
+      setLoading(false);
+      toast.error('Failed to save session');
+    } else {
+      if (data) {
+        await checkAchievements({
+          id: data.id,
+          distance_km: distanceKm,
+          duration_seconds: totalSeconds,
+          started_at: sessionStart.toISOString(),
+          is_gps_tracked: false,
+          pace_per_km_seconds: paceSeconds,
+        });
+      }
+      setLoading(false);
+      toast.success('Session saved!');
+      resetAndClose();
+    }
+  };
+
   const resetAndClose = () => {
     setPhase('select');
     setActivity(null);
+    setEntryMode('live');
     setTitle('');
     setDescription('');
     setVisibility('public');
@@ -368,6 +448,10 @@ export function CardioTrackerModal({ isOpen, onClose }: CardioTrackerModalProps)
     setDistance(0);
     setElapsedSeconds(0);
     setStartTime(null);
+    setManualDistance('');
+    setManualHours('0');
+    setManualMinutes('');
+    setManualSeconds('0');
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
@@ -414,14 +498,30 @@ export function CardioTrackerModal({ isOpen, onClose }: CardioTrackerModalProps)
                 exit={{ opacity: 0 }}
               >
                 <DialogHeader>
-                  <DialogTitle className="font-display text-2xl tracking-wide text-center">
+                  <DialogTitle className="font-display text-2xl tracking-wide text-center neon-glow-subtle">
                     CARDIO TRACKER
                   </DialogTitle>
                 </DialogHeader>
                 
-                <div className="py-8 space-y-4">
-                  <p className="text-center text-muted-foreground mb-6">
-                    Select your activity
+                <div className="py-6 space-y-6">
+                  {/* Entry Mode Toggle */}
+                  <Tabs value={entryMode} onValueChange={(v) => setEntryMode(v as EntryMode)} className="w-full">
+                    <TabsList className="w-full">
+                      <TabsTrigger value="live" className="flex-1 font-display tracking-wide">
+                        <Timer className="w-4 h-4 mr-2" />
+                        LIVE TRACK
+                      </TabsTrigger>
+                      <TabsTrigger value="manual" className="flex-1 font-display tracking-wide">
+                        <Edit3 className="w-4 h-4 mr-2" />
+                        MANUAL LOG
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+
+                  <p className="text-center text-muted-foreground text-sm">
+                    {entryMode === 'live' 
+                      ? 'Track with GPS in real-time' 
+                      : 'Log a completed session manually'}
                   </p>
                   
                   <div className="grid grid-cols-3 gap-3">
@@ -446,6 +546,150 @@ export function CardioTrackerModal({ isOpen, onClose }: CardioTrackerModalProps)
                       );
                     })}
                   </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Manual Entry Phase */}
+            {phase === 'manual' && (
+              <motion.div
+                key="manual"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <DialogHeader>
+                  <DialogTitle className="font-display text-2xl tracking-wide text-center">
+                    MANUAL LOG
+                  </DialogTitle>
+                </DialogHeader>
+
+                <div className="py-6 space-y-6">
+                  {/* Activity Badge */}
+                  <div className="flex justify-center">
+                    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${config?.bgColor}`}>
+                      <ActivityIcon className={`w-5 h-5 ${config?.color}`} />
+                      <span className={`font-display tracking-wide ${config?.color}`}>
+                        {config?.label}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Distance Input */}
+                  <div className="space-y-2">
+                    <Label>Distance (km)</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={manualDistance}
+                      onChange={(e) => setManualDistance(e.target.value)}
+                      placeholder="5.00"
+                      className="bg-input border-border text-center text-2xl font-display"
+                    />
+                  </div>
+
+                  {/* Duration Inputs */}
+                  <div className="space-y-2">
+                    <Label>Duration</Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="text-center">
+                        <Input
+                          type="number"
+                          min="0"
+                          value={manualHours}
+                          onChange={(e) => setManualHours(e.target.value)}
+                          className="bg-input border-border text-center"
+                        />
+                        <span className="text-xs text-muted-foreground">hrs</span>
+                      </div>
+                      <div className="text-center">
+                        <Input
+                          type="number"
+                          min="0"
+                          max="59"
+                          value={manualMinutes}
+                          onChange={(e) => setManualMinutes(e.target.value)}
+                          placeholder="30"
+                          className="bg-input border-border text-center"
+                        />
+                        <span className="text-xs text-muted-foreground">mins</span>
+                      </div>
+                      <div className="text-center">
+                        <Input
+                          type="number"
+                          min="0"
+                          max="59"
+                          value={manualSeconds}
+                          onChange={(e) => setManualSeconds(e.target.value)}
+                          className="bg-input border-border text-center"
+                        />
+                        <span className="text-xs text-muted-foreground">secs</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Title & Notes */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Title (optional)</Label>
+                      <Input
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder={`${config?.label} Session`}
+                        className="bg-input border-border"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Notes (optional)</Label>
+                      <Textarea
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="How did it feel?"
+                        className="bg-input border-border"
+                        rows={2}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Visibility</Label>
+                      <Select value={visibility} onValueChange={(v) => setVisibility(v as 'public' | 'friends' | 'private')}>
+                        <SelectTrigger className="bg-input border-border">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="public">
+                            <div className="flex items-center gap-2">
+                              <Globe className="w-4 h-4" />
+                              Public
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="friends">
+                            <div className="flex items-center gap-2">
+                              <Users className="w-4 h-4" />
+                              Friends Only
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="private">
+                            <div className="flex items-center gap-2">
+                              <Lock className="w-4 h-4" />
+                              Private
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Save Button */}
+                  <Button
+                    className="w-full font-display tracking-wide py-6"
+                    onClick={handleManualSave}
+                    disabled={loading || !manualDistance}
+                  >
+                    {loading ? 'Saving...' : 'SAVE SESSION'}
+                  </Button>
                 </div>
               </motion.div>
             )}
