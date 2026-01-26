@@ -118,19 +118,38 @@ export function VideoRecorder({
 
       setPermissionState('granted');
       streamRef.current = stream;
+      setIsRecording(true); // Set recording state early so video element renders
       
+      // Use requestAnimationFrame to ensure DOM has updated with video element
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      
+      // Now assign stream to video element
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        // Wait for video to be ready
+        
+        // Wait for video to be ready and playing
         await new Promise<void>((resolve, reject) => {
           if (!videoRef.current) return reject('No video element');
-          videoRef.current.onloadedmetadata = () => {
+          
+          const handleLoadedMetadata = () => {
             videoRef.current?.play()
-              .then(resolve)
+              .then(() => {
+                console.log('Camera preview playing');
+                resolve();
+              })
               .catch(reject);
           };
-          videoRef.current.onerror = reject;
+          
+          // Check if already loaded
+          if (videoRef.current.readyState >= 1) {
+            handleLoadedMetadata();
+          } else {
+            videoRef.current.onloadedmetadata = handleLoadedMetadata;
+          }
+          videoRef.current.onerror = () => reject('Video element error');
         });
+      } else {
+        console.error('Video ref not available after DOM update');
       }
 
       // Check MediaRecorder support
@@ -160,9 +179,10 @@ export function VideoRecorder({
       };
 
       mediaRecorder.start();
-      setIsRecording(true);
+      // Recording state already set above to ensure video element is mounted
     } catch (err: any) {
       console.error('Failed to start recording:', err);
+      setIsRecording(false); // Reset on error
       
       // Handle specific error types
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
@@ -342,18 +362,29 @@ export function VideoRecorder({
       ) : isRecording ? (
         <div className="space-y-3">
           <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
+            {/* Key fix: Ensure video element is always mounted and visible during recording */}
             <video
               ref={videoRef}
               autoPlay
               muted
               playsInline
-              className="w-full h-full object-cover"
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                objectFit: 'cover',
+                transform: 'scaleX(-1)', // Mirror for selfie-style preview
+              }}
             />
-            <div className="absolute top-2 right-2">
-              <Badge variant="destructive" className="animate-pulse gap-1">
-                <div className="w-2 h-2 rounded-full bg-white" />
-                Recording
-              </Badge>
+            {/* Recording indicator overlay */}
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute top-2 right-2">
+                <Badge variant="destructive" className="animate-pulse gap-1 shadow-lg">
+                  <div className="w-2 h-2 rounded-full bg-white animate-ping" />
+                  REC
+                </Badge>
+              </div>
+              {/* Border glow to indicate recording */}
+              <div className="absolute inset-0 border-2 border-destructive/50 rounded-lg" />
             </div>
           </div>
           <Button
