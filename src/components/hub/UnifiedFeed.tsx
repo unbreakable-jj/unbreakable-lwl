@@ -39,6 +39,7 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
     toggleRunComments,
     togglePostComments,
     toggleWorkoutComments,
+    updatePost,
     shareMilestone,
     unshareMilestone,
   } = useUnifiedFeed();
@@ -78,6 +79,10 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
   const handleTogglePostComments = async (postId: string) => {
     const { error } = await togglePostComments(postId);
     if (error) toast.error('Failed to update comments setting');
+  };
+
+  const handleUpdatePost = async (postId: string, updates: { content?: string; visibility?: string }) => {
+    return await updatePost(postId, updates);
   };
 
   const handleToggleWorkoutComments = async (workoutId: string) => {
@@ -202,6 +207,7 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
                   onKudos={togglePostKudos}
                   onDelete={handleDeletePost}
                   onToggleComments={handleTogglePostComments}
+                  onUpdatePost={handleUpdatePost}
                   onViewProfile={handleViewProfile}
                 />
               )}

@@ -414,6 +414,30 @@ export function useUnifiedFeed() {
     return { error };
   };
 
+  const updatePost = async (postId: string, updates: { content?: string; visibility?: string }) => {
+    if (!user) return { error: new Error('Not authenticated') };
+    const post = posts.find((p) => p.id === postId);
+    if (!post || post.user_id !== user.id) return { error: new Error('Not authorized') };
+    const { error } = await supabase
+      .from('posts')
+      .update({
+        content: updates.content,
+        visibility: updates.visibility,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', postId);
+    if (!error) {
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === postId
+            ? { ...p, content: updates.content ?? p.content, visibility: (updates.visibility ?? p.visibility) as 'public' | 'friends' | 'private' }
+            : p
+        )
+      );
+    }
+    return { error };
+  };
+
   const toggleWorkoutComments = async (workoutId: string) => {
     if (!user) return { error: new Error('Not authenticated') };
     const workout = workouts.find((w) => w.id === workoutId);
@@ -464,6 +488,7 @@ export function useUnifiedFeed() {
     toggleRunComments,
     togglePostComments,
     toggleWorkoutComments,
+    updatePost,
     shareMilestone,
     unshareMilestone,
   };

@@ -111,6 +111,9 @@ export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onVi
               onDelete={() => onDelete(workout.id)}
               onToggleComments={() => onToggleComments(workout.id)}
               commentsEnabled={workout.comments_enabled}
+              hasMedia={false}
+              onEdit={() => {}}
+              onShareToStory={() => {}}
             />
           )}
         </div>
