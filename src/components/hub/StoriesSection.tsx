@@ -350,7 +350,8 @@ export function StoriesSection() {
                 <video
                   src={videoPreview}
                   controls
-                  className="w-full h-48 object-cover rounded-lg"
+                  className="w-full max-h-[300px] rounded-lg"
+                  style={{ display: 'block' }}
                 />
                 <Button
                   variant="ghost"
