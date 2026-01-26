@@ -7,6 +7,7 @@ export interface Post {
   user_id: string;
   content: string | null;
   image_url: string | null;
+  video_url: string | null;
   visibility: 'public' | 'friends' | 'private';
   comments_enabled: boolean;
   created_at: string;
@@ -74,7 +75,7 @@ export function usePosts() {
     fetchPosts();
   }, [fetchPosts]);
 
-  const createPost = async (postData: { content?: string; image_url?: string; visibility: string }) => {
+  const createPost = async (postData: { content?: string; image_url?: string; video_url?: string; visibility: string }) => {
     if (!user) return { error: new Error('Not authenticated'), data: null };
 
     const { data, error } = await supabase
@@ -83,6 +84,7 @@ export function usePosts() {
         user_id: user.id,
         content: postData.content || null,
         image_url: postData.image_url || null,
+        video_url: postData.video_url || null,
         visibility: postData.visibility,
       })
       .select()
@@ -165,6 +167,24 @@ export function usePosts() {
     return { url: data.publicUrl, error: null };
   };
 
+  const uploadVideo = async (file: File): Promise<{ url: string | null; error: Error | null }> => {
+    if (!user) return { url: null, error: new Error('Not authenticated') };
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('post-videos')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      return { url: null, error: uploadError };
+    }
+
+    const { data } = supabase.storage.from('post-videos').getPublicUrl(fileName);
+    return { url: data.publicUrl, error: null };
+  };
+
   return {
     posts,
     loading,
@@ -174,5 +194,6 @@ export function usePosts() {
     toggleKudos,
     toggleCommentsEnabled,
     uploadImage,
+    uploadVideo,
   };
 }

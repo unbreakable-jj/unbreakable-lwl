@@ -7,6 +7,7 @@ export interface Story {
   user_id: string;
   content: string | null;
   image_url: string | null;
+  video_url: string | null;
   visibility: string;
   expires_at: string;
   created_at: string;
@@ -97,6 +98,7 @@ export function useStories() {
   const createStory = async (story: {
     content?: string | null;
     image_url?: string | null;
+    video_url?: string | null;
     visibility?: string;
   }) => {
     if (!user) return { error: new Error('Not authenticated') };
@@ -107,6 +109,7 @@ export function useStories() {
         user_id: user.id,
         content: story.content || null,
         image_url: story.image_url || null,
+        video_url: story.video_url || null,
         visibility: story.visibility || 'public',
       })
       .select()

@@ -181,6 +181,7 @@ export function UnifiedFeed({ onSignIn }: UnifiedFeedProps) {
                 <StatusCard
                   post={{
                     ...item.data,
+                    video_url: item.data.video_url || null,
                     updated_at: item.data.created_at,
                   }}
                   onKudos={togglePostKudos}

@@ -8,7 +8,7 @@ import { useStories, Story } from '@/hooks/useStories';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Globe, Users, Lock, Image, X, ChevronLeft, ChevronRight, Trash2, MoreVertical } from 'lucide-react';
+import { Plus, Globe, Users, Lock, Image, Video, X, ChevronLeft, ChevronRight, Trash2, MoreVertical, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
@@ -30,18 +30,27 @@ export function StoriesSection() {
   const [content, setContent] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'friends' | 'private'>('public');
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const storyVideoRef = useRef<HTMLVideoElement>(null);
 
-  // Auto-progress for story viewer
+  // Auto-progress for story viewer (only for image stories)
   useEffect(() => {
     if (!showViewer) return;
     
+    const currentStory = groupedStories[activeUserIndex]?.stories[activeStoryIndex];
+    if (currentStory?.video_url) return; // Don't auto-progress for videos
+
     const timer = setTimeout(() => {
       nextStory();
-    }, 5000); // 5 seconds per story
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, [showViewer, activeUserIndex, activeStoryIndex]);
@@ -55,28 +64,49 @@ export function StoriesSection() {
       return;
     }
 
+    setVideoFile(null);
+    setVideoPreview(null);
     setImageFile(file);
     const reader = new FileReader();
     reader.onloadend = () => setImagePreview(reader.result as string);
     reader.readAsDataURL(file);
   };
 
-  const clearImage = () => {
+  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error('Video must be under 50MB');
+      return;
+    }
+
     setImageFile(null);
     setImagePreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    setVideoFile(file);
+    const url = URL.createObjectURL(file);
+    setVideoPreview(url);
+  };
+
+  const clearMedia = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setVideoFile(null);
+    if (videoPreview) URL.revokeObjectURL(videoPreview);
+    setVideoPreview(null);
+    if (imageInputRef.current) imageInputRef.current.value = '';
+    if (videoInputRef.current) videoInputRef.current.value = '';
   };
 
   const handleCreate = async () => {
-    if (!content.trim() && !imageFile) {
-      toast.error('Add some content or an image');
+    if (!content.trim() && !imageFile && !videoFile) {
+      toast.error('Add some content, image, or video');
       return;
     }
 
     setUploading(true);
     let imageUrl: string | null = null;
+    let videoUrl: string | null = null;
 
     if (imageFile) {
       const ext = imageFile.name.split('.').pop();
@@ -97,9 +127,29 @@ export function StoriesSection() {
       imageUrl = urlData.publicUrl;
     }
 
+    if (videoFile) {
+      const ext = videoFile.name.split('.').pop();
+      const path = `${user!.id}/${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('post-videos')
+        .upload(path, videoFile);
+
+      if (uploadError) {
+        toast.error('Failed to upload video');
+        setUploading(false);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('post-videos')
+        .getPublicUrl(path);
+      videoUrl = urlData.publicUrl;
+    }
+
     const { error } = await createStory({
       content: content.trim() || null,
       image_url: imageUrl,
+      video_url: videoUrl,
       visibility,
     });
 
@@ -110,7 +160,7 @@ export function StoriesSection() {
     } else {
       toast.success('Story added!');
       setContent('');
-      clearImage();
+      clearMedia();
       setShowCreate(false);
     }
   };
@@ -124,7 +174,6 @@ export function StoriesSection() {
       toast.error('Failed to delete story');
     } else {
       toast.success('Story deleted');
-      // Move to next story or close viewer
       const currentUserStories = groupedStories[activeUserIndex]?.stories || [];
       if (currentUserStories.length <= 1) {
         if (groupedStories.length <= 1) {
@@ -250,7 +299,7 @@ export function StoriesSection() {
               maxLength={280}
             />
 
-            {imagePreview ? (
+            {imagePreview && (
               <div className="relative">
                 <img
                   src={imagePreview}
@@ -261,28 +310,65 @@ export function StoriesSection() {
                   variant="ghost"
                   size="icon"
                   className="absolute top-2 right-2 bg-black/50 hover:bg-black/70"
-                  onClick={clearImage}
+                  onClick={clearMedia}
                 >
                   <X className="w-4 h-4" />
                 </Button>
               </div>
-            ) : (
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Image className="w-4 h-4 mr-2" />
-                Add Photo
-              </Button>
+            )}
+
+            {videoPreview && (
+              <div className="relative">
+                <video
+                  src={videoPreview}
+                  controls
+                  className="w-full h-48 object-cover rounded-lg"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 bg-black/50 hover:bg-black/70"
+                  onClick={clearMedia}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+
+            {!imagePreview && !videoPreview && (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => imageInputRef.current?.click()}
+                >
+                  <Image className="w-4 h-4 mr-2" />
+                  Photo
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => videoInputRef.current?.click()}
+                >
+                  <Video className="w-4 h-4 mr-2" />
+                  Video
+                </Button>
+              </div>
             )}
 
             <input
-              ref={fileInputRef}
+              ref={imageInputRef}
               type="file"
               accept="image/*"
               className="hidden"
               onChange={handleImageSelect}
+            />
+            <input
+              ref={videoInputRef}
+              type="file"
+              accept="video/*"
+              className="hidden"
+              onChange={handleVideoSelect}
             />
 
             <Select value={visibility} onValueChange={(v) => setVisibility(v as any)}>
@@ -314,7 +400,7 @@ export function StoriesSection() {
             <Button
               className="w-full font-display tracking-wide"
               onClick={handleCreate}
-              disabled={uploading || (!content.trim() && !imageFile)}
+              disabled={uploading || (!content.trim() && !imageFile && !videoFile)}
             >
               {uploading ? 'Posting...' : 'SHARE STORY'}
             </Button>
@@ -333,7 +419,7 @@ export function StoriesSection() {
           >
             {/* Progress bars */}
             <div className="absolute top-4 left-4 right-4 flex gap-1">
-              {currentUserGroup.stories.map((_, idx) => (
+              {currentUserGroup.stories.map((story, idx) => (
                 <div
                   key={idx}
                   className="flex-1 h-1 rounded-full bg-white/30 overflow-hidden"
@@ -349,7 +435,7 @@ export function StoriesSection() {
                           : '0%' 
                     }}
                     transition={{ 
-                      duration: idx === activeStoryIndex ? 5 : 0,
+                      duration: idx === activeStoryIndex && !story.video_url ? 5 : 0,
                       ease: 'linear'
                     }}
                   />
@@ -377,7 +463,6 @@ export function StoriesSection() {
               </div>
               
               <div className="flex items-center gap-2">
-                {/* Delete option for own stories */}
                 {isOwnStory && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -415,7 +500,53 @@ export function StoriesSection() {
 
             {/* Story Content */}
             <div className="w-full max-w-md px-4">
-              {currentStory.image_url && (
+              {currentStory.video_url && (
+                <div className="relative">
+                  <video
+                    ref={storyVideoRef}
+                    src={currentStory.video_url}
+                    className="w-full max-h-[60vh] object-contain rounded-lg"
+                    autoPlay
+                    loop
+                    muted={isMuted}
+                    playsInline
+                    onEnded={nextStory}
+                  />
+                  <div className="absolute bottom-4 right-4 flex gap-2">
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="bg-black/50 hover:bg-black/70 text-white h-8 w-8"
+                      onClick={() => {
+                        if (storyVideoRef.current) {
+                          if (isPlaying) {
+                            storyVideoRef.current.pause();
+                          } else {
+                            storyVideoRef.current.play();
+                          }
+                          setIsPlaying(!isPlaying);
+                        }
+                      }}
+                    >
+                      {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="bg-black/50 hover:bg-black/70 text-white h-8 w-8"
+                      onClick={() => {
+                        if (storyVideoRef.current) {
+                          storyVideoRef.current.muted = !isMuted;
+                          setIsMuted(!isMuted);
+                        }
+                      }}
+                    >
+                      {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {currentStory.image_url && !currentStory.video_url && (
                 <img
                   src={currentStory.image_url}
                   alt="Story"
