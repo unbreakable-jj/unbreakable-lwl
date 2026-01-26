@@ -7,6 +7,7 @@ import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { ThemeToggle } from '@/components/hub/ThemeToggle';
 import { NotificationsPanel } from '@/components/hub/NotificationsPanel';
 import { MessagesPanel } from '@/components/hub/MessagesPanel';
+import { GoLiveButton } from '@/components/live/GoLiveButton';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useConversations } from '@/hooks/useConversations';
 import {
@@ -16,6 +17,7 @@ import {
   UserPlus,
   Users,
   Plus,
+  Inbox,
 } from 'lucide-react';
 
 interface SocialHeaderProps {
@@ -145,6 +147,17 @@ export function SocialHeader({
             <Button variant="ghost" size="sm" onClick={onShowFriendsList} className="hidden sm:flex">
               <Users className="w-5 h-5" />
             </Button>
+            <Link to="/inbox" className="hidden sm:block">
+              <Button variant="ghost" size="sm" className="relative">
+                <Inbox className="w-5 h-5" />
+                {messageCount > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] bg-destructive">
+                    {messageCount > 9 ? '9+' : messageCount}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
+            <GoLiveButton variant="outline" size="sm" className="hidden sm:flex" />
             <Button
               size="sm"
               className="font-display tracking-wide"

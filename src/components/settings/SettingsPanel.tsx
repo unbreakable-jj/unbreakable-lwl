@@ -31,6 +31,8 @@ import {
   LogOut,
   Sparkles,
   ExternalLink,
+  Video,
+  Radio,
 } from 'lucide-react';
 import { useUserSettings, UserSettings } from '@/hooks/useUserSettings';
 import { useAuth } from '@/hooks/useAuth';
@@ -416,6 +418,102 @@ export function SettingsPanel() {
               checked={settings.ai_feedback_enabled}
               onCheckedChange={(checked) => handleUpdate({ ai_feedback_enabled: checked })}
             />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Live Streaming Settings */}
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="font-display text-xl tracking-wide flex items-center gap-2">
+            <Radio className="w-5 h-5" />
+            LIVE STREAMING
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-foreground font-medium flex items-center gap-2">
+                <Bell className="w-4 h-4" />
+                Live Notifications
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Notify friends when you go live
+              </p>
+            </div>
+            <Switch
+              checked={(settings as any).live_notifications_enabled ?? true}
+              onCheckedChange={(checked) => handleUpdate({ live_notifications_enabled: checked } as any)}
+            />
+          </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-foreground font-medium">Default Stream Visibility</Label>
+              <p className="text-sm text-muted-foreground">
+                Who can view your live streams by default
+              </p>
+            </div>
+            <Select
+              value={(settings as any).default_stream_visibility || 'friends'}
+              onValueChange={(value: 'public' | 'friends' | 'private') => 
+                handleUpdate({ default_stream_visibility: value } as any)
+              }
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="public">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4" />
+                    Everyone
+                  </div>
+                </SelectItem>
+                <SelectItem value="friends">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    Friends Only
+                  </div>
+                </SelectItem>
+                <SelectItem value="private">
+                  <div className="flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    Private
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-foreground font-medium flex items-center gap-2">
+                <Video className="w-4 h-4" />
+                Default Stream Quality
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Video quality for your streams
+              </p>
+            </div>
+            <Select
+              value={(settings as any).stream_quality || 'auto'}
+              onValueChange={(value: 'auto' | '1080p' | '720p' | '480p') => 
+                handleUpdate({ stream_quality: value } as any)
+              }
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="auto">Auto</SelectItem>
+                <SelectItem value="1080p">1080p HD</SelectItem>
+                <SelectItem value="720p">720p</SelectItem>
+                <SelectItem value="480p">480p</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>

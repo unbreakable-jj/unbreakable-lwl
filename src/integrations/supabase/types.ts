@@ -297,6 +297,57 @@ export type Database = {
           },
         ]
       }
+      live_streams: {
+        Row: {
+          allow_comments: boolean | null
+          created_at: string
+          description: string | null
+          ended_at: string | null
+          id: string
+          started_at: string | null
+          status: string
+          stream_key: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          viewer_count: number | null
+          visibility: string
+        }
+        Insert: {
+          allow_comments?: boolean | null
+          created_at?: string
+          description?: string | null
+          ended_at?: string | null
+          id?: string
+          started_at?: string | null
+          status?: string
+          stream_key?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id: string
+          viewer_count?: number | null
+          visibility?: string
+        }
+        Update: {
+          allow_comments?: boolean | null
+          created_at?: string
+          description?: string | null
+          ended_at?: string | null
+          id?: string
+          started_at?: string | null
+          status?: string
+          stream_key?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          viewer_count?: number | null
+          visibility?: string
+        }
+        Relationships: []
+      }
       local_legend_stats: {
         Row: {
           effort_count: number | null
@@ -384,10 +435,13 @@ export type Database = {
           content: string | null
           conversation_id: string
           created_at: string
+          delivered_at: string | null
           id: string
           image_url: string | null
           is_deleted: boolean
+          read_at: string | null
           sender_id: string
+          status: string | null
           updated_at: string
           video_url: string | null
         }
@@ -395,10 +449,13 @@ export type Database = {
           content?: string | null
           conversation_id: string
           created_at?: string
+          delivered_at?: string | null
           id?: string
           image_url?: string | null
           is_deleted?: boolean
+          read_at?: string | null
           sender_id: string
+          status?: string | null
           updated_at?: string
           video_url?: string | null
         }
@@ -406,10 +463,13 @@ export type Database = {
           content?: string | null
           conversation_id?: string
           created_at?: string
+          delivered_at?: string | null
           id?: string
           image_url?: string | null
           is_deleted?: boolean
+          read_at?: string | null
           sender_id?: string
+          status?: string | null
           updated_at?: string
           video_url?: string | null
         }
@@ -1018,7 +1078,9 @@ export type Database = {
           allow_friend_requests: boolean | null
           allow_messages: string | null
           created_at: string
+          default_stream_visibility: string | null
           id: string
+          live_notifications_enabled: boolean | null
           notify_achievements: boolean | null
           notify_comments: boolean | null
           notify_friend_requests: boolean | null
@@ -1029,6 +1091,7 @@ export type Database = {
           show_community_posts: boolean | null
           show_online_status: boolean | null
           show_stats_publicly: boolean | null
+          stream_quality: string | null
           theme: string | null
           updated_at: string
           user_id: string
@@ -1039,7 +1102,9 @@ export type Database = {
           allow_friend_requests?: boolean | null
           allow_messages?: string | null
           created_at?: string
+          default_stream_visibility?: string | null
           id?: string
+          live_notifications_enabled?: boolean | null
           notify_achievements?: boolean | null
           notify_comments?: boolean | null
           notify_friend_requests?: boolean | null
@@ -1050,6 +1115,7 @@ export type Database = {
           show_community_posts?: boolean | null
           show_online_status?: boolean | null
           show_stats_publicly?: boolean | null
+          stream_quality?: string | null
           theme?: string | null
           updated_at?: string
           user_id: string
@@ -1060,7 +1126,9 @@ export type Database = {
           allow_friend_requests?: boolean | null
           allow_messages?: string | null
           created_at?: string
+          default_stream_visibility?: string | null
           id?: string
+          live_notifications_enabled?: boolean | null
           notify_achievements?: boolean | null
           notify_comments?: boolean | null
           notify_friend_requests?: boolean | null
@@ -1071,6 +1139,7 @@ export type Database = {
           show_community_posts?: boolean | null
           show_online_status?: boolean | null
           show_stats_publicly?: boolean | null
+          stream_quality?: string | null
           theme?: string | null
           updated_at?: string
           user_id?: string

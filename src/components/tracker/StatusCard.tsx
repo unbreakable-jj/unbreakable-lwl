@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import { PostMenu } from './PostMenu';
 import { PostCommentSection } from './PostCommentSection';
 import { ShareMenu } from './ShareMenu';
+import { VideoQualitySelector, VideoQuality, useVideoQuality } from '@/components/video/VideoQualitySelector';
 
 interface StatusCardProps {
   post: PostWithProfile;
@@ -26,6 +27,14 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onViewPr
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { quality, setQuality, initializeQuality } = useVideoQuality();
+
+  // Initialize video quality detection
+  useEffect(() => {
+    if (post.video_url) {
+      initializeQuality();
+    }
+  }, [post.video_url]);
 
   const isOwner = user?.id === post.user_id;
 
@@ -175,14 +184,20 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onViewPr
               </Button>
             </div>
             {/* Mute Button */}
-            <Button
-              variant="secondary"
-              size="icon"
-              className="absolute bottom-4 right-4 bg-black/50 hover:bg-black/70 text-white h-8 w-8"
-              onClick={toggleMute}
-            >
-              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-            </Button>
+            <div className="absolute bottom-4 right-4 flex items-center gap-2">
+              <VideoQualitySelector
+                currentQuality={quality}
+                onQualityChange={setQuality}
+              />
+              <Button
+                variant="secondary"
+                size="icon"
+                className="bg-black/50 hover:bg-black/70 text-white h-8 w-8"
+                onClick={toggleMute}
+              >
+                {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              </Button>
+            </div>
           </div>
         )}
 
