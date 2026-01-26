@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,19 +8,25 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useSavedFoods } from '@/hooks/useSavedFoods';
 import { useFoodLogs } from '@/hooks/useFoodLogs';
 import { useNutritionFeedback } from '@/hooks/useNutritionFeedback';
+import { useFoodSearch, FoodSearchResult } from '@/hooks/useFoodSearch';
 import { MealType, mealTypeLabels } from '@/lib/fuelTypes';
 import { 
   Barcode, 
+  Camera,
+  SwitchCamera,
   Search, 
   Loader2,
   Flame,
   CheckCircle,
   MessageSquare,
-  X
+  X,
+  AlertCircle,
+  Keyboard
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import { toast } from 'sonner';
 
 interface BarcodeScannerProps {
   isOpen: boolean;
@@ -28,89 +34,169 @@ interface BarcodeScannerProps {
   mealType?: MealType;
 }
 
-// Mock barcode database - in production, would use Open Food Facts API
-const mockBarcodeDb: Record<string, {
-  name: string;
-  brand: string;
-  servingSize: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  fiber?: number;
-  sugar?: number;
-  sodium?: number;
-}> = {
-  '5000112611793': {
-    name: 'Skyr Natural',
-    brand: 'Arla',
-    servingSize: '150g',
-    calories: 99,
-    protein: 17,
-    carbs: 6,
-    fat: 0.2,
-    sugar: 4,
-  },
-  '5010029215809': {
-    name: 'Chicken Breast Fillets',
-    brand: 'Tesco',
-    servingSize: '100g',
-    calories: 106,
-    protein: 24,
-    carbs: 0,
-    fat: 1.1,
-  },
-  '5018374350114': {
-    name: 'Rolled Oats',
-    brand: 'Flahavans',
-    servingSize: '40g',
-    calories: 149,
-    protein: 5,
-    carbs: 26,
-    fat: 3.2,
-    fiber: 4,
-  },
-};
+type ScanMode = 'camera' | 'manual';
+type CameraState = 'idle' | 'requesting' | 'active' | 'error' | 'denied';
 
 export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeScannerProps) {
   const { saveFood } = useSavedFoods();
   const { addFoodLog } = useFoodLogs();
   const { analyzeFood, isAnalyzing } = useNutritionFeedback();
+  const { lookupBarcode, isSearching } = useFoodSearch();
   
+  const [mode, setMode] = useState<ScanMode>('camera');
+  const [cameraState, setCameraState] = useState<CameraState>('idle');
   const [barcodeInput, setBarcodeInput] = useState('');
-  const [scannedItem, setScannedItem] = useState<typeof mockBarcodeDb[string] | null>(null);
+  const [scannedItem, setScannedItem] = useState<FoodSearchResult | null>(null);
   const [analysis, setAnalysis] = useState<string | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<MealType>(mealType);
+  const [servings, setServings] = useState(1);
+  
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const handleSearch = async () => {
-    if (!barcodeInput.trim()) return;
+  // Initialize canvas for barcode detection
+  useEffect(() => {
+    if (!canvasRef.current) {
+      canvasRef.current = document.createElement('canvas');
+    }
+  }, []);
+
+  // Start camera when modal opens in camera mode
+  useEffect(() => {
+    if (isOpen && mode === 'camera' && cameraState === 'idle') {
+      startCamera();
+    }
     
-    setIsSearching(true);
+    return () => {
+      if (!isOpen) {
+        stopCamera();
+        resetScanner();
+      }
+    };
+  }, [isOpen, mode]);
+
+  const startCamera = async () => {
+    setCameraState('requesting');
+    
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { 
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
+      });
+      
+      streamRef.current = stream;
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+        setCameraState('active');
+        startBarcodeDetection();
+      }
+    } catch (error) {
+      console.error('Camera error:', error);
+      if ((error as Error).name === 'NotAllowedError') {
+        setCameraState('denied');
+      } else {
+        setCameraState('error');
+      }
+      // Fall back to manual mode
+      setMode('manual');
+    }
+  };
+
+  const stopCamera = () => {
+    if (scanIntervalRef.current) {
+      clearInterval(scanIntervalRef.current);
+      scanIntervalRef.current = null;
+    }
+    
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    
+    setCameraState('idle');
+  };
+
+  const startBarcodeDetection = () => {
+    // Use BarcodeDetector API if available (Chrome, Edge)
+    if ('BarcodeDetector' in window) {
+      const barcodeDetector = new (window as any).BarcodeDetector({
+        formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39'],
+      });
+
+      scanIntervalRef.current = setInterval(async () => {
+        if (videoRef.current && videoRef.current.readyState === 4 && !scannedItem) {
+          try {
+            const barcodes = await barcodeDetector.detect(videoRef.current);
+            if (barcodes.length > 0) {
+              const code = barcodes[0].rawValue;
+              handleBarcodeDetected(code);
+            }
+          } catch (e) {
+            // Detection failed, continue scanning
+          }
+        }
+      }, 500);
+    } else {
+      // Fallback: prompt manual entry if BarcodeDetector not available
+      toast.info('Camera scanning not supported on this device. Please enter barcode manually.');
+      setMode('manual');
+    }
+  };
+
+  const handleBarcodeDetected = async (code: string) => {
+    if (scannedItem) return; // Already found something
+    
+    // Stop scanning while looking up
+    if (scanIntervalRef.current) {
+      clearInterval(scanIntervalRef.current);
+    }
+    
+    setBarcodeInput(code);
+    await performLookup(code);
+  };
+
+  const performLookup = async (code: string) => {
     setNotFound(false);
     setAnalysis(null);
     
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    const result = await lookupBarcode(code);
     
-    const item = mockBarcodeDb[barcodeInput.trim()];
-    
-    if (item) {
-      setScannedItem(item);
+    if (result) {
+      setScannedItem(result);
+      stopCamera();
     } else {
       setNotFound(true);
-      setScannedItem(null);
+      // Resume scanning after a delay
+      if (mode === 'camera' && cameraState === 'active') {
+        setTimeout(() => {
+          startBarcodeDetection();
+        }, 2000);
+      }
     }
-    
-    setIsSearching(false);
+  };
+
+  const handleManualSearch = async () => {
+    if (!barcodeInput.trim()) return;
+    await performLookup(barcodeInput.trim());
   };
 
   const handleGetFeedback = async () => {
     if (!scannedItem) return;
     
     const result = await analyzeFood('barcode', {
-      name: `${scannedItem.brand} ${scannedItem.name}`,
+      name: scannedItem.brand ? `${scannedItem.brand} ${scannedItem.name}` : scannedItem.name,
       calories: scannedItem.calories,
       protein: scannedItem.protein,
       carbs: scannedItem.carbs,
@@ -132,7 +218,7 @@ export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeS
     await addFoodLog.mutateAsync({
       food_name: scannedItem.name,
       brand: scannedItem.brand,
-      barcode: barcodeInput,
+      barcode: scannedItem.barcode || barcodeInput,
       serving_size: scannedItem.servingSize,
       calories: scannedItem.calories,
       protein_g: scannedItem.protein,
@@ -142,15 +228,15 @@ export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeS
       sugar_g: scannedItem.sugar,
       sodium_mg: scannedItem.sodium,
       meal_type: selectedMeal,
-      servings: 1,
+      servings,
       logged_at: new Date().toISOString(),
     });
     
-    // Save to food library
+    // Save to food library for future use
     saveFood.mutate({
       food_name: scannedItem.name,
       brand: scannedItem.brand,
-      barcode: barcodeInput,
+      barcode: scannedItem.barcode || barcodeInput,
       serving_size: scannedItem.servingSize,
       calories: scannedItem.calories,
       protein_g: scannedItem.protein,
@@ -162,6 +248,7 @@ export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeS
       is_favourite: false,
     });
     
+    toast.success('Added to food log');
     onClose();
   };
 
@@ -170,44 +257,157 @@ export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeS
     setScannedItem(null);
     setAnalysis(null);
     setNotFound(false);
+    setServings(1);
+  };
+
+  const handleScanAnother = () => {
+    resetScanner();
+    if (mode === 'camera') {
+      startCamera();
+    }
+  };
+
+  const switchMode = (newMode: ScanMode) => {
+    if (newMode === mode) return;
+    
+    stopCamera();
+    resetScanner();
+    setMode(newMode);
+    
+    if (newMode === 'camera') {
+      setTimeout(() => startCamera(), 100);
+    }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg max-h-[85vh] overflow-hidden flex flex-col">
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) {
+        stopCamera();
+        onClose();
+      }
+    }}>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="font-display tracking-wide flex items-center gap-2">
             <Barcode className="w-5 h-5 text-primary" />
-            SCAN BARCODE
+            SCAN FOOD
           </DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto space-y-4">
-          {/* Barcode Input */}
-          <div className="space-y-2">
-            <Label>Enter Barcode Number</Label>
+          {/* Mode Toggle */}
+          {!scannedItem && (
             <div className="flex gap-2">
-              <Input
-                placeholder="e.g., 5000112611793"
-                value={barcodeInput}
-                onChange={(e) => setBarcodeInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              />
-              <Button 
-                onClick={handleSearch} 
-                disabled={isSearching || !barcodeInput.trim()}
+              <Button
+                variant={mode === 'camera' ? 'default' : 'outline'}
+                size="sm"
+                className="flex-1 gap-2"
+                onClick={() => switchMode('camera')}
               >
-                {isSearching ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Search className="w-4 h-4" />
-                )}
+                <Camera className="w-4 h-4" />
+                Camera
+              </Button>
+              <Button
+                variant={mode === 'manual' ? 'default' : 'outline'}
+                size="sm"
+                className="flex-1 gap-2"
+                onClick={() => switchMode('manual')}
+              >
+                <Keyboard className="w-4 h-4" />
+                Manual
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Try: 5000112611793 (Skyr), 5010029215809 (Chicken), 5018374350114 (Oats)
-            </p>
-          </div>
+          )}
+
+          {/* Camera View */}
+          {mode === 'camera' && !scannedItem && (
+            <div className="space-y-3">
+              <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
+                {cameraState === 'requesting' && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                  </div>
+                )}
+                
+                {cameraState === 'denied' && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+                    <AlertCircle className="w-10 h-10 text-destructive mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      Camera access denied. Please enable camera permissions or use manual entry.
+                    </p>
+                  </div>
+                )}
+                
+                {cameraState === 'error' && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+                    <AlertCircle className="w-10 h-10 text-destructive mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      Could not access camera. Try manual entry instead.
+                    </p>
+                  </div>
+                )}
+                
+                <video
+                  ref={videoRef}
+                  className="w-full h-full object-cover"
+                  playsInline
+                  muted
+                />
+                
+                {cameraState === 'active' && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="w-64 h-32 border-2 border-primary rounded-lg">
+                      <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-primary" />
+                      <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-primary" />
+                      <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-primary" />
+                      <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-primary" />
+                    </div>
+                  </div>
+                )}
+
+                {isSearching && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                    <div className="bg-card p-4 rounded-lg flex items-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                      <span className="text-sm">Looking up product...</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <p className="text-xs text-center text-muted-foreground">
+                Position barcode within the frame to scan
+              </p>
+            </div>
+          )}
+
+          {/* Manual Entry */}
+          {mode === 'manual' && !scannedItem && (
+            <div className="space-y-2">
+              <Label>Enter Barcode Number</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="e.g., 5000112611793"
+                  value={barcodeInput}
+                  onChange={(e) => setBarcodeInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleManualSearch()}
+                />
+                <Button 
+                  onClick={handleManualSearch} 
+                  disabled={isSearching || !barcodeInput.trim()}
+                >
+                  {isSearching ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Search className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Find the barcode number on the product packaging
+              </p>
+            </div>
+          )}
 
           {/* Not Found Message */}
           <AnimatePresence>
@@ -222,7 +422,7 @@ export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeS
                     <X className="w-8 h-8 text-destructive mx-auto mb-2" />
                     <p className="font-medium">Product not found</p>
                     <p className="text-sm text-muted-foreground">
-                      Try adding it manually in the Food Library
+                      {mode === 'camera' ? 'Scanning again...' : 'Add it manually in the Food Library'}
                     </p>
                   </CardContent>
                 </Card>
@@ -242,10 +442,24 @@ export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeS
                 <Card className="border-primary/50 bg-primary/5">
                   <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
-                      <div>
-                        <Badge variant="secondary" className="mb-1">{scannedItem.brand}</Badge>
-                        <CardTitle className="font-display text-lg">{scannedItem.name}</CardTitle>
-                        <p className="text-sm text-muted-foreground">{scannedItem.servingSize}</p>
+                      <div className="flex gap-3">
+                        {scannedItem.imageUrl && (
+                          <img 
+                            src={scannedItem.imageUrl} 
+                            alt={scannedItem.name}
+                            className="w-16 h-16 object-contain rounded-lg bg-white"
+                          />
+                        )}
+                        <div>
+                          {scannedItem.brand && (
+                            <Badge variant="secondary" className="mb-1">{scannedItem.brand}</Badge>
+                          )}
+                          <CardTitle className="font-display text-lg">{scannedItem.name}</CardTitle>
+                          <p className="text-sm text-muted-foreground">{scannedItem.servingSize}</p>
+                          {scannedItem.source === 'user_library' && (
+                            <Badge variant="outline" className="mt-1 text-xs">From your library</Badge>
+                          )}
+                        </div>
                       </div>
                       <div className="text-right">
                         <p className="font-display text-2xl text-primary">{scannedItem.calories}</p>
@@ -271,22 +485,47 @@ export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeS
                   </CardContent>
                 </Card>
 
-                {/* Meal Type Selection */}
-                <div className="space-y-2">
-                  <Label>Add to meal</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {(['breakfast', 'lunch', 'dinner', 'snack'] as MealType[]).map((meal) => (
-                      <Badge
-                        key={meal}
-                        variant={selectedMeal === meal ? 'default' : 'outline'}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedMeal(meal)}
-                      >
-                        {mealTypeLabels[meal]}
-                      </Badge>
-                    ))}
+                {/* Servings & Meal Type */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Servings</Label>
+                    <Input
+                      type="number"
+                      min={0.5}
+                      step={0.5}
+                      value={servings}
+                      onChange={(e) => setServings(parseFloat(e.target.value) || 1)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Meal</Label>
+                    <div className="flex flex-wrap gap-1">
+                      {(['breakfast', 'lunch', 'dinner', 'snack'] as MealType[]).map((meal) => (
+                        <Badge
+                          key={meal}
+                          variant={selectedMeal === meal ? 'default' : 'outline'}
+                          className="cursor-pointer text-xs"
+                          onClick={() => setSelectedMeal(meal)}
+                        >
+                          {mealTypeLabels[meal]}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </div>
+
+                {/* Calculated Totals */}
+                {servings !== 1 && (
+                  <div className="p-3 bg-muted/30 rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">Total for {servings} servings:</p>
+                    <p className="font-display text-primary">
+                      {Math.round(scannedItem.calories * servings)} kcal · 
+                      P: {Math.round(scannedItem.protein * servings)}g · 
+                      C: {Math.round(scannedItem.carbs * servings)}g · 
+                      F: {Math.round(scannedItem.fat * servings)}g
+                    </p>
+                  </div>
+                )}
 
                 {/* AI Feedback Button */}
                 <Button
@@ -332,7 +571,7 @@ export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeS
 
                 {/* Action Buttons */}
                 <div className="flex gap-2">
-                  <Button variant="outline" className="flex-1" onClick={resetScanner}>
+                  <Button variant="outline" className="flex-1" onClick={handleScanAnother}>
                     Scan Another
                   </Button>
                   <Button 
@@ -340,7 +579,11 @@ export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeS
                     onClick={handleAddToLog}
                     disabled={addFoodLog.isPending}
                   >
-                    <CheckCircle className="w-4 h-4" />
+                    {addFoodLog.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <CheckCircle className="w-4 h-4" />
+                    )}
                     ADD TO LOG
                   </Button>
                 </div>
