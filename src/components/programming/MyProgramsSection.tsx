@@ -138,15 +138,15 @@ export function MyProgramsSection() {
   return (
     <div className="space-y-4">
       {/* Active Programs Counter */}
-      <div className="flex items-center justify-between p-3 bg-surface rounded-lg border border-border">
-        <div className="flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-primary" />
-          <span className="text-sm text-muted-foreground">
+      <div className="flex items-center justify-between p-4 bg-surface rounded-lg border border-border">
+        <div className="flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-primary shrink-0" />
+          <span className="text-sm md:text-base text-muted-foreground">
             Active Programmes: <span className="text-foreground font-medium">{activeProgramCount}</span> / {maxActivePrograms}
           </span>
         </div>
         {!canActivateMore && (
-          <Badge variant="outline" className="border-yellow-500/50 text-yellow-400">
+          <Badge variant="outline" className="border-yellow-500/50 text-yellow-400 shrink-0">
             Max Reached
           </Badge>
         )}

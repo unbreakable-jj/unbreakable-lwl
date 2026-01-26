@@ -203,32 +203,33 @@ export default function Programming() {
       </header>
 
       {/* Hero */}
-      <section className="py-12 md:py-16 border-b border-border">
-        <div className="container mx-auto px-4 text-center">
+      <section className="py-16 md:py-20 lg:py-24 border-b border-border">
+        <div className="container mx-auto px-4 text-center max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            className="space-y-6"
           >
-            <h1 className="font-display text-5xl sm:text-6xl md:text-8xl tracking-wide leading-none mb-2">
+            <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wide leading-none">
               <span className="text-foreground">BECOME </span>
               <span className="text-primary neon-glow-subtle">UNBREAKABLE</span>
             </h1>
-            <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">
+            <p className="text-primary font-display text-xl md:text-2xl tracking-wide neon-glow-subtle">
               LIVE WITHOUT LIMITS
             </p>
-            <p className="text-muted-foreground text-base md:text-lg mt-4 max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
               Choose how you want to create a personalised programme. Select{' '}
               <span className="text-foreground font-medium">Manual</span> for full customisation or{' '}
               <span className="text-foreground font-medium">Auto</span> to let the system build a programme for you.
               Once created, programmes are ready to track, log, and receive optional guidance.
             </p>
-            <p className="text-primary font-display text-lg mt-3 neon-glow-subtle">KEEP SHOWING UP.</p>
+            <p className="text-primary font-display text-lg neon-glow-subtle">KEEP SHOWING UP.</p>
           </motion.div>
         </div>
       </section>
 
-      <main className="container mx-auto px-4 py-8 md:py-12">
+      <main className="container mx-auto px-4 py-12 md:py-16 lg:py-20">
         <AnimatePresence mode="wait">
           {/* Mode Selection */}
           {builderMode === 'select' && (
@@ -237,7 +238,6 @@ export default function Programming() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="mb-12"
             >
               <BuilderModeSelector onSelectMode={(mode) => setBuilderMode(mode as 'auto' | 'manual')} />
             </motion.div>
@@ -385,11 +385,11 @@ export default function Programming() {
 
       {/* My Programs Section */}
       {user && (
-        <section className="container mx-auto px-4 py-8 border-t border-border">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="font-display text-2xl text-foreground mb-6 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center neon-glow">
-                <Dumbbell className="w-5 h-5 text-primary" />
+        <section className="container mx-auto px-4 py-12 md:py-16 border-t border-border">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <h2 className="font-display text-2xl md:text-3xl text-foreground flex items-center gap-3">
+              <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center neon-glow">
+                <Dumbbell className="w-6 h-6 text-primary" />
               </div>
               MY PROGRAMMES
             </h2>
@@ -400,11 +400,11 @@ export default function Programming() {
 
       {/* Workout Logs Section */}
       {user && (
-        <section className="container mx-auto px-4 py-8 border-t border-border">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="font-display text-2xl text-foreground mb-6 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center neon-glow">
-                <History className="w-5 h-5 text-primary" />
+        <section className="container mx-auto px-4 py-12 md:py-16 border-t border-border">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <h2 className="font-display text-2xl md:text-3xl text-foreground flex items-center gap-3">
+              <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center neon-glow">
+                <History className="w-6 h-6 text-primary" />
               </div>
               PROGRAMME TRACKING & LOGS
             </h2>

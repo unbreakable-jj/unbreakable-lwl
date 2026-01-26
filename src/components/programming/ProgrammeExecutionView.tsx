@@ -166,49 +166,49 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 md:space-y-8">
       {/* Header with Progress */}
-      <Card className="p-6 border border-primary/50 bg-gradient-to-br from-primary/10 to-transparent">
-        <div className="flex items-start justify-between mb-4">
+      <Card className="p-5 md:p-6 border border-primary/50 bg-gradient-to-br from-primary/10 to-transparent">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
           <div>
-            <h2 className="font-display text-2xl text-foreground mb-1">{program.name}</h2>
+            <h2 className="font-display text-xl md:text-2xl text-foreground mb-1">{program.name}</h2>
             <p className="text-sm text-muted-foreground">
               Week {program.current_week} • Day {program.current_day}
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={onClose}>
+          <Button variant="outline" size="sm" onClick={onClose} className="self-start shrink-0">
             <X className="w-4 h-4 mr-1" />
             Close
           </Button>
         </div>
         
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-sm gap-4">
             <span className="text-muted-foreground">Programme Progress</span>
-            <span className="text-foreground font-medium">
+            <span className="text-foreground font-medium whitespace-nowrap">
               {progress.completed} / {progress.total} sessions ({progress.percentage}%)
             </span>
           </div>
-          <Progress value={progress.percentage} className="h-2" />
+          <Progress value={progress.percentage} className="h-2.5" />
         </div>
       </Card>
 
       {/* Next Session CTA */}
       {nextSession && (
-        <Card className="p-4 border border-primary bg-card">
-          <div className="flex items-center justify-between">
+        <Card className="p-5 md:p-6 border border-primary bg-card">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                <Dumbbell className="w-6 h-6 text-primary" />
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                <Dumbbell className="w-6 h-6 md:w-7 md:h-7 text-primary" />
               </div>
               <div>
-                <h3 className="font-display text-lg text-foreground">
+                <h3 className="font-display text-lg md:text-xl text-foreground">
                   {hasActiveSession ? 'Continue Workout' : 'Next Session'}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground mt-0.5">
                   {nextSession.session_type} • Week {nextSession.week_number}, Day {nextSession.day_number}
                 </p>
-                <p className="text-xs text-primary mt-0.5">
+                <p className="text-xs text-primary mt-1">
                   {nextSession.planned_exercises.length} exercises
                 </p>
               </div>
@@ -218,7 +218,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
               size="lg" 
               onClick={() => hasActiveSession ? setShowWorkoutModal(true) : handleStartSession(nextSession)}
               disabled={isStartingSession || startSession.isPending}
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto shrink-0"
             >
               {isStartingSession || startSession.isPending ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

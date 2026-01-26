@@ -10,30 +10,30 @@ interface BuilderModeSelectorProps {
 
 export function BuilderModeSelector({ onSelectMode }: BuilderModeSelectorProps) {
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-10">
       {/* Coaching Link Banner */}
-      <Link to="/help" className="block">
-        <Card className="border-2 border-primary/40 bg-primary/5 p-4 hover:bg-primary/10 transition-all neon-border-subtle">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                <Flame className="w-5 h-5 text-primary" />
+      <Link to="/help" className="block group">
+        <Card className="border-2 border-primary/40 bg-primary/5 p-5 md:p-6 hover:bg-primary/10 transition-all neon-border-subtle">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                <Flame className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <p className="font-display text-lg tracking-wide text-foreground">
+                <p className="font-display text-lg md:text-xl tracking-wide text-foreground">
                   NEED HELP? <span className="text-primary">ASK YOUR COACH</span>
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground mt-1">
                   Get personalised guidance on exercises, form, programming, and more
                 </p>
               </div>
             </div>
-            <ArrowRight className="w-5 h-5 text-primary" />
+            <ArrowRight className="w-5 h-5 text-primary shrink-0 group-hover:translate-x-1 transition-transform" />
           </div>
         </Card>
       </Link>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 gap-6 md:gap-8">
         {/* Auto Builder Card */}
         <motion.div
           whileHover={{ scale: 1.02 }}
@@ -51,26 +51,26 @@ export function BuilderModeSelector({ onSelectMode }: BuilderModeSelectorProps) 
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
             
-            <div className="relative z-10">
-              <div className="w-16 h-16 rounded-xl bg-primary/20 flex items-center justify-center mb-4 neon-glow">
-                <Sparkles className="w-8 h-8 text-primary" />
+            <div className="relative z-10 space-y-4">
+              <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-primary/20 flex items-center justify-center neon-glow">
+                <Sparkles className="w-7 h-7 md:w-8 md:h-8 text-primary" />
               </div>
               
-              <h3 className="font-display text-2xl text-foreground mb-2">
+              <h3 className="font-display text-xl md:text-2xl text-foreground">
                 AUTO <span className="text-primary neon-glow-subtle">BUILDER</span>
               </h3>
               
-              <p className="text-muted-foreground text-sm mb-4">
+              <p className="text-muted-foreground text-sm leading-relaxed">
                 Answer a few questions about your goals, schedule, and experience. 
                 Let us build a personalised 12-week programme tailored to you.
               </p>
 
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
-                <MessageCircle className="w-4 h-4 text-primary" />
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <MessageCircle className="w-4 h-4 text-primary shrink-0" />
                 <span>Includes coaching support & feedback</span>
               </div>
               
-              <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-display tracking-wide text-sm">
+              <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg font-display tracking-wide text-sm">
                 START AUTO BUILD
                 <ArrowRight className="w-4 h-4" />
               </div>
@@ -94,26 +94,26 @@ export function BuilderModeSelector({ onSelectMode }: BuilderModeSelectorProps) 
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-muted/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
             
-            <div className="relative z-10">
-              <div className="w-16 h-16 rounded-xl bg-muted/40 flex items-center justify-center mb-4">
-                <Wrench className="w-8 h-8 text-muted-foreground" />
+            <div className="relative z-10 space-y-4">
+              <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-muted/40 flex items-center justify-center">
+                <Wrench className="w-7 h-7 md:w-8 md:h-8 text-muted-foreground" />
               </div>
               
-              <h3 className="font-display text-2xl text-foreground mb-2">
+              <h3 className="font-display text-xl md:text-2xl text-foreground">
                 MANUAL <span className="text-muted-foreground">BUILDER</span>
               </h3>
               
-              <p className="text-muted-foreground text-sm mb-4">
+              <p className="text-muted-foreground text-sm leading-relaxed">
                 Full control over your programme. Pick exercises from our comprehensive library, 
                 set your own sets, reps, and progression. Perfect for experienced lifters.
               </p>
 
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
-                <Dumbbell className="w-4 h-4 text-primary" />
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Dumbbell className="w-4 h-4 text-primary shrink-0" />
                 <span>150+ exercises with coaching tips</span>
               </div>
               
-              <div className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-lg font-display tracking-wide text-sm">
+              <div className="inline-flex items-center gap-2 bg-muted text-foreground px-5 py-2.5 rounded-lg font-display tracking-wide text-sm">
                 BUILD MANUALLY
                 <ArrowRight className="w-4 h-4" />
               </div>
