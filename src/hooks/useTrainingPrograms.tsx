@@ -290,6 +290,40 @@ export function useTrainingPrograms() {
     },
   });
 
+  // UPDATE PROGRAM DATA - for editing program details
+  const updateProgram = useMutation({
+    mutationFn: async ({ programId, programData }: { programId: string; programData: GeneratedProgram }) => {
+      if (!user) throw new Error('Must be logged in');
+      
+      const { data, error } = await supabase
+        .from('training_programs')
+        .update({
+          name: programData.programName,
+          overview: programData.overview,
+          program_data: programData as unknown as Json,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', programId)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return toTrainingProgram(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['training-programs'] });
+      queryClient.invalidateQueries({ queryKey: ['active-programs'] });
+      toast({ 
+        title: 'Programme Updated', 
+        description: 'Your changes have been saved.' 
+      });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
   const deleteProgram = useMutation({
     mutationFn: async (programId: string) => {
       // First delete associated session planners
@@ -323,6 +357,7 @@ export function useTrainingPrograms() {
     maxActivePrograms: MAX_ACTIVE_PROGRAMS,
     isLoading,
     saveProgram,
+    updateProgram,
     startProgrammeExecution,
     activateProgram,
     deactivateProgram,
