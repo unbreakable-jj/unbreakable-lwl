@@ -3,34 +3,52 @@ import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useTrainingPrograms, TrainingProgram } from '@/hooks/useTrainingPrograms';
+import { useTrainingPrograms, TrainingProgram, ProgramStatus } from '@/hooks/useTrainingPrograms';
 import { useAuth } from '@/hooks/useAuth';
 import { ProgramDisplay } from './ProgramDisplay';
 import { 
   Calendar, 
   Play, 
+  Pause,
   Trash2, 
   ChevronRight,
   Dumbbell,
   Clock,
   Loader2,
-  FolderOpen
+  FolderOpen,
+  AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 
+const statusConfig: Record<ProgramStatus, { label: string; className: string }> = {
+  not_started: { label: 'Not Started', className: 'bg-muted text-muted-foreground border-muted' },
+  active: { label: 'Active', className: 'bg-primary text-primary-foreground border-primary' },
+  completed: { label: 'Completed', className: 'bg-green-500/20 text-green-400 border-green-500/30' },
+  paused: { label: 'Paused', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
+};
+
 export function MyProgramsSection() {
   const { user } = useAuth();
-  const { programs, isLoading, activeProgram, activateProgram, deleteProgram } = useTrainingPrograms();
+  const { 
+    programs, 
+    isLoading, 
+    activeProgramCount,
+    canActivateMore,
+    maxActivePrograms,
+    activateProgram, 
+    deactivateProgram,
+    deleteProgram 
+  } = useTrainingPrograms();
   const [expandedProgramId, setExpandedProgramId] = useState<string | null>(null);
 
   if (!user) {
     return (
       <Card className="p-6 border border-border bg-card text-center">
         <FolderOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="font-display text-lg text-foreground mb-2">Sign in to view your programs</h3>
+        <h3 className="font-display text-lg text-foreground mb-2">Sign in to view your programmes</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Save and track your generated training programs by signing in.
+          Save and track your generated training programmes by signing in.
         </p>
         <Link to="/tracker">
           <Button variant="default">Sign In</Button>
@@ -51,9 +69,9 @@ export function MyProgramsSection() {
     return (
       <Card className="p-6 border border-border bg-card text-center">
         <Dumbbell className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="font-display text-lg text-foreground mb-2">No saved programs</h3>
+        <h3 className="font-display text-lg text-foreground mb-2">No saved programmes</h3>
         <p className="text-sm text-muted-foreground">
-          Generate and save a program above to start tracking your workouts.
+          Generate and save a programme above to start tracking your workouts.
         </p>
       </Card>
     );
@@ -68,9 +86,14 @@ export function MyProgramsSection() {
     activateProgram.mutate(programId);
   };
 
+  const handleDeactivate = (programId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    deactivateProgram.mutate(programId);
+  };
+
   const handleDelete = (programId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm('Are you sure you want to delete this program?')) {
+    if (confirm('Are you sure you want to delete this programme?')) {
       deleteProgram.mutate(programId);
       if (expandedProgramId === programId) {
         setExpandedProgramId(null);
@@ -80,6 +103,21 @@ export function MyProgramsSection() {
 
   return (
     <div className="space-y-4">
+      {/* Active Programs Counter */}
+      <div className="flex items-center justify-between p-3 bg-surface rounded-lg border border-border">
+        <div className="flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-primary" />
+          <span className="text-sm text-muted-foreground">
+            Active Programmes: <span className="text-foreground font-medium">{activeProgramCount}</span> / {maxActivePrograms}
+          </span>
+        </div>
+        {!canActivateMore && (
+          <Badge variant="outline" className="border-yellow-500/50 text-yellow-400">
+            Max Reached
+          </Badge>
+        )}
+      </div>
+
       {programs.map((program) => (
         <div key={program.id}>
           <Card 
@@ -90,16 +128,19 @@ export function MyProgramsSection() {
           >
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <h3 className="font-display text-lg text-foreground truncate">
                     {program.name}
                   </h3>
-                  {program.is_active && (
-                    <Badge variant="default" className="bg-primary shrink-0">Active</Badge>
-                  )}
+                  <Badge 
+                    variant="outline" 
+                    className={statusConfig[program.status].className}
+                  >
+                    {statusConfig[program.status].label}
+                  </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground line-clamp-1">
-                  {program.overview || 'Custom training program'}
+                  {program.overview || 'Custom training programme'}
                 </p>
                 <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
@@ -116,13 +157,29 @@ export function MyProgramsSection() {
               </div>
               
               <div className="flex items-center gap-2 ml-4">
-                {!program.is_active && (
+                {program.is_active ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => handleDeactivate(program.id, e)}
+                    disabled={deactivateProgram.isPending}
+                    className="gap-1"
+                  >
+                    {deactivateProgram.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Pause className="w-4 h-4" />
+                    )}
+                    Pause
+                  </Button>
+                ) : (
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={(e) => handleActivate(program.id, e)}
-                    disabled={activateProgram.isPending}
+                    disabled={activateProgram.isPending || !canActivateMore}
                     className="gap-1"
+                    title={!canActivateMore ? `Maximum ${maxActivePrograms} active programmes` : undefined}
                   >
                     {activateProgram.isPending ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
