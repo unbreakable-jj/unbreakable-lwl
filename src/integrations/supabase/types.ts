@@ -615,6 +615,7 @@ export type Database = {
           image_url: string | null
           updated_at: string
           user_id: string
+          video_url: string | null
           visibility: string
         }
         Insert: {
@@ -625,6 +626,7 @@ export type Database = {
           image_url?: string | null
           updated_at?: string
           user_id: string
+          video_url?: string | null
           visibility?: string
         }
         Update: {
@@ -635,6 +637,7 @@ export type Database = {
           image_url?: string | null
           updated_at?: string
           user_id?: string
+          video_url?: string | null
           visibility?: string
         }
         Relationships: []
@@ -884,6 +887,7 @@ export type Database = {
           id: string
           image_url: string | null
           user_id: string
+          video_url: string | null
           visibility: string
         }
         Insert: {
@@ -893,6 +897,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           user_id: string
+          video_url?: string | null
           visibility?: string
         }
         Update: {
@@ -902,6 +907,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           user_id?: string
+          video_url?: string | null
           visibility?: string
         }
         Relationships: []

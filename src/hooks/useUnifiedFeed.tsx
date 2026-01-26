@@ -25,6 +25,7 @@ export interface FeedPost {
   user_id: string;
   content: string | null;
   image_url: string | null;
+  video_url: string | null;
   visibility: 'public' | 'friends' | 'private';
   comments_enabled: boolean;
   created_at: string;

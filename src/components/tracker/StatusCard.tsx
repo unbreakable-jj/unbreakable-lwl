@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Heart, MessageCircle, Globe, Users, Lock } from 'lucide-react';
+import { Heart, MessageCircle, Globe, Users, Lock, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { PostWithProfile } from '@/hooks/usePosts';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
@@ -22,6 +22,9 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments }: Status
   const { user } = useAuth();
   const [isLiking, setIsLiking] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const isOwner = user?.id === post.user_id;
 
@@ -30,6 +33,24 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments }: Status
     setIsLiking(true);
     await onKudos(post.id);
     setIsLiking(false);
+  };
+
+  const togglePlayPause = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
   };
 
   const getInitials = () => {
@@ -117,6 +138,42 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments }: Status
               alt="Post"
               className="rounded-lg w-full max-h-[500px] object-cover"
             />
+          </div>
+        )}
+
+        {/* Video */}
+        {post.video_url && (
+          <div className="px-4 pb-3 relative group">
+            <video
+              ref={videoRef}
+              src={post.video_url}
+              className="rounded-lg w-full max-h-[500px] object-cover"
+              loop
+              muted={isMuted}
+              playsInline
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+            />
+            {/* Video Controls Overlay */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                variant="secondary"
+                size="icon"
+                className="bg-black/50 hover:bg-black/70 text-white h-14 w-14 rounded-full"
+                onClick={togglePlayPause}
+              >
+                {isPlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-1" />}
+              </Button>
+            </div>
+            {/* Mute Button */}
+            <Button
+              variant="secondary"
+              size="icon"
+              className="absolute bottom-4 right-4 bg-black/50 hover:bg-black/70 text-white h-8 w-8"
+              onClick={toggleMute}
+            >
+              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            </Button>
           </div>
         )}
 

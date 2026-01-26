@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Image, X, Loader2, Globe, Users, Lock, Send } from 'lucide-react';
+import { Image, Video, X, Loader2, Globe, Users, Lock, Send } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { usePosts } from '@/hooks/usePosts';
@@ -14,15 +14,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 export function CreatePostBox() {
   const { user } = useAuth();
   const { profile } = useProfile();
-  const { createPost, uploadImage } = usePosts();
+  const { createPost, uploadImage, uploadVideo } = usePosts();
   
   const [content, setContent] = useState('');
   const [visibility, setVisibility] = useState('public');
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   if (!user) return null;
 
@@ -45,6 +48,10 @@ export function CreatePostBox() {
         toast.error('Image must be less than 5MB');
         return;
       }
+      // Clear video if selecting image
+      setVideoFile(null);
+      setVideoPreview(null);
+      
       setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -55,23 +62,50 @@ export function CreatePostBox() {
     }
   };
 
-  const removeImage = () => {
+  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 50 * 1024 * 1024) {
+        toast.error('Video must be less than 50MB');
+        return;
+      }
+      // Clear image if selecting video
+      setImageFile(null);
+      setImagePreview(null);
+      
+      setVideoFile(file);
+      const url = URL.createObjectURL(file);
+      setVideoPreview(url);
+      setIsExpanded(true);
+    }
+  };
+
+  const removeMedia = () => {
     setImageFile(null);
     setImagePreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+    setVideoFile(null);
+    if (videoPreview) {
+      URL.revokeObjectURL(videoPreview);
+    }
+    setVideoPreview(null);
+    if (imageInputRef.current) {
+      imageInputRef.current.value = '';
+    }
+    if (videoInputRef.current) {
+      videoInputRef.current.value = '';
     }
   };
 
   const handleSubmit = async () => {
-    if (!content.trim() && !imageFile) {
-      toast.error('Please add some content or an image');
+    if (!content.trim() && !imageFile && !videoFile) {
+      toast.error('Please add some content, image, or video');
       return;
     }
 
     setIsSubmitting(true);
 
     let imageUrl: string | null = null;
+    let videoUrl: string | null = null;
 
     if (imageFile) {
       const { url, error: uploadError } = await uploadImage(imageFile);
@@ -83,9 +117,20 @@ export function CreatePostBox() {
       imageUrl = url;
     }
 
+    if (videoFile) {
+      const { url, error: uploadError } = await uploadVideo(videoFile);
+      if (uploadError) {
+        toast.error('Failed to upload video');
+        setIsSubmitting(false);
+        return;
+      }
+      videoUrl = url;
+    }
+
     const { error } = await createPost({
       content: content.trim() || undefined,
       image_url: imageUrl || undefined,
+      video_url: videoUrl || undefined,
       visibility,
     });
 
@@ -94,8 +139,7 @@ export function CreatePostBox() {
     } else {
       toast.success('Post shared!');
       setContent('');
-      setImageFile(null);
-      setImagePreview(null);
+      removeMedia();
       setIsExpanded(false);
     }
 
@@ -156,7 +200,33 @@ export function CreatePostBox() {
                   variant="destructive"
                   size="sm"
                   className="absolute top-2 right-2 h-8 w-8 p-0"
-                  onClick={removeImage}
+                  onClick={removeMedia}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Video Preview */}
+          <AnimatePresence>
+            {videoPreview && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="relative"
+              >
+                <video
+                  src={videoPreview}
+                  controls
+                  className="max-h-64 rounded-lg w-full"
+                />
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="absolute top-2 right-2 h-8 w-8 p-0"
+                  onClick={removeMedia}
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -178,17 +248,35 @@ export function CreatePostBox() {
                     type="file"
                     accept="image/*"
                     onChange={handleImageSelect}
-                    ref={fileInputRef}
+                    ref={imageInputRef}
+                    className="hidden"
+                  />
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={handleVideoSelect}
+                    ref={videoInputRef}
                     className="hidden"
                   />
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={() => imageInputRef.current?.click()}
                     className="text-muted-foreground"
+                    disabled={!!videoFile}
                   >
                     <Image className="w-5 h-5 mr-1" />
                     Photo
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => videoInputRef.current?.click()}
+                    className="text-muted-foreground"
+                    disabled={!!imageFile}
+                  >
+                    <Video className="w-5 h-5 mr-1" />
+                    Video
                   </Button>
 
                   <Select value={visibility} onValueChange={setVisibility}>
@@ -223,7 +311,7 @@ export function CreatePostBox() {
 
                 <Button
                   onClick={handleSubmit}
-                  disabled={isSubmitting || (!content.trim() && !imageFile)}
+                  disabled={isSubmitting || (!content.trim() && !imageFile && !videoFile)}
                   className="font-display tracking-wide"
                 >
                   {isSubmitting ? (
