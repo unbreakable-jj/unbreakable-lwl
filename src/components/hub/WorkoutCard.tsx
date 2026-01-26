@@ -219,6 +219,8 @@ export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onUp
               session_type: workout.session_type,
               duration_seconds: workout.duration_seconds,
             }}
+            hasMedia={false}
+            onShareToStory={handleShareToStory}
           />
         </div>
 

@@ -1,14 +1,14 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Image, Video, X, Loader2, Globe, Users, Lock, Send } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { usePosts } from '@/hooks/usePosts';
 import { useHashtagPrediction } from '@/hooks/useHashtagPrediction';
+import { MentionTextarea } from '@/components/ui/mention-textarea';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -20,7 +20,7 @@ export function CreatePostBox({ onPostCreated }: CreatePostBoxProps) {
   const { user } = useAuth();
   const { profile } = useProfile();
   const { createPost, uploadImage, uploadVideo } = usePosts();
-  const { getPredictions, extractAndSaveHashtags } = useHashtagPrediction();
+  const { extractAndSaveHashtags } = useHashtagPrediction();
   
   const [content, setContent] = useState('');
   const [visibility, setVisibility] = useState('public');
@@ -32,56 +32,13 @@ export function CreatePostBox({ onPostCreated }: CreatePostBoxProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [showPredictions, setShowPredictions] = useState(false);
-  const [predictions, setPredictions] = useState<string[]>([]);
-  const [cursorPosition, setCursorPosition] = useState(0);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Handle hashtag detection and predictions - defined before early return
-  const handleContentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    const cursor = e.target.selectionStart || 0;
+  const handleContentChange = useCallback((value: string) => {
     setContent(value);
-    setCursorPosition(cursor);
     if (value) setIsExpanded(true);
-
-    // Check if we're typing a hashtag
-    const textBeforeCursor = value.slice(0, cursor);
-    const hashtagMatch = textBeforeCursor.match(/#(\w*)$/);
-    
-    if (hashtagMatch) {
-      const partial = hashtagMatch[1];
-      const preds = getPredictions(partial);
-      setPredictions(preds);
-      setShowPredictions(preds.length > 0);
-    } else {
-      setShowPredictions(false);
-    }
-  }, [getPredictions]);
-
-  const insertHashtag = useCallback((hashtag: string) => {
-    const textBeforeCursor = content.slice(0, cursorPosition);
-    const textAfterCursor = content.slice(cursorPosition);
-    
-    // Find the start of the current hashtag
-    const hashtagStart = textBeforeCursor.lastIndexOf('#');
-    if (hashtagStart === -1) return;
-
-    const newContent = textBeforeCursor.slice(0, hashtagStart) + '#' + hashtag + ' ' + textAfterCursor;
-    setContent(newContent);
-    setShowPredictions(false);
-
-    // Focus back on textarea
-    setTimeout(() => {
-      if (textareaRef.current) {
-        const newCursorPos = hashtagStart + hashtag.length + 2;
-        textareaRef.current.focus();
-        textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
-      }
-    }, 0);
-  }, [content, cursorPosition]);
+  }, []);
 
   if (!user) return null;
 
@@ -262,45 +219,17 @@ export function CreatePostBox({ onPostCreated }: CreatePostBoxProps) {
 
         <div className="flex-1 space-y-3 relative">
           {/* Input Area */}
-          <div className="relative">
-            <Textarea
-              ref={textareaRef}
-              placeholder="What's on your mind?"
-              value={content}
-              onChange={handleContentChange}
-              onFocus={() => setIsExpanded(true)}
-              onBlur={() => setTimeout(() => setShowPredictions(false), 200)}
-              className={`bg-muted/50 border-0 resize-none transition-all ${
-                isExpanded ? 'min-h-[100px]' : 'min-h-[44px]'
-              }`}
-            />
-
-            {/* Hashtag Predictions Dropdown */}
-            <AnimatePresence>
-              {showPredictions && predictions.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute left-0 right-0 top-full mt-1 bg-popover border border-border rounded-lg shadow-lg z-50 overflow-hidden"
-                >
-                  {predictions.map((tag) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      className="w-full px-3 py-2 text-left hover:bg-muted transition-colors text-sm"
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        insertHashtag(tag);
-                      }}
-                    >
-                      <span className="text-primary">#</span>{tag}
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          <MentionTextarea
+            value={content}
+            onChange={handleContentChange}
+            placeholder="What's on your mind?"
+            className={`bg-muted/50 border-0 transition-all ${
+              isExpanded ? 'min-h-[100px]' : 'min-h-[44px]'
+            }`}
+            onFocus={() => setIsExpanded(true)}
+            enableHashtags={true}
+            enableMentions={true}
+          />
 
           {/* Image Preview */}
           <AnimatePresence>

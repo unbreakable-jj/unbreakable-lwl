@@ -3,10 +3,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { formatDistanceToNow } from 'date-fns';
 import { Send, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { MentionTextarea } from '@/components/ui/mention-textarea';
 
 interface Comment {
   id: string;
@@ -158,11 +158,13 @@ export function WorkoutCommentSection({
 
             {user && (
               <div className="flex gap-2 pt-2 border-t border-border">
-                <Textarea
+                <MentionTextarea
                   value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
+                  onChange={setNewComment}
                   placeholder="Write a comment..."
-                  className="min-h-[60px] resize-none"
+                  className="min-h-[60px]"
+                  enableHashtags={true}
+                  enableMentions={true}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
