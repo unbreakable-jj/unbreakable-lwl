@@ -13,6 +13,7 @@ import { RecipeLibrary } from '@/components/fuel/RecipeLibrary';
 import { MealPlanning } from '@/components/fuel/MealPlanning';
 import { FoodLibrary } from '@/components/fuel/FoodLibrary';
 import { MyFuel } from '@/components/fuel/MyFuel';
+import { NutritionHistoryView } from '@/components/fuel/NutritionHistoryView';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { 
@@ -22,6 +23,7 @@ import {
   Calendar,
   Apple,
   BarChart3,
+  History,
   ArrowRight
 } from 'lucide-react';
 
@@ -126,10 +128,14 @@ export default function Fuel() {
       <main className="container mx-auto px-4 py-6">
         {user ? (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-5 w-full max-w-2xl mx-auto mb-8">
+            <TabsList className="grid grid-cols-6 w-full max-w-3xl mx-auto mb-8">
               <TabsTrigger value="track" className="flex flex-col sm:flex-row items-center gap-1 text-xs sm:text-sm">
                 <UtensilsCrossed className="w-4 h-4" />
                 <span className="hidden sm:inline">Track</span>
+              </TabsTrigger>
+              <TabsTrigger value="history" className="flex flex-col sm:flex-row items-center gap-1 text-xs sm:text-sm">
+                <History className="w-4 h-4" />
+                <span className="hidden sm:inline">History</span>
               </TabsTrigger>
               <TabsTrigger value="recipes" className="flex flex-col sm:flex-row items-center gap-1 text-xs sm:text-sm">
                 <BookOpen className="w-4 h-4" />
@@ -152,6 +158,10 @@ export default function Fuel() {
             <div className="max-w-4xl mx-auto">
               <TabsContent value="track">
                 <FoodTracker />
+              </TabsContent>
+
+              <TabsContent value="history">
+                <NutritionHistoryView />
               </TabsContent>
 
               <TabsContent value="recipes">

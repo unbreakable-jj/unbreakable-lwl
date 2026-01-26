@@ -45,9 +45,18 @@ export function useMealPlans() {
     enabled: !!activePlan,
   });
 
+  // Count active plans
+  const activePlansCount = mealPlans?.filter(p => p.is_active).length || 0;
+  const canActivateMore = activePlansCount < 3;
+
   const createMealPlan = useMutation({
     mutationFn: async (plan: Omit<MealPlan, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
       if (!user) throw new Error('Not authenticated');
+
+      // Check if trying to activate and already at limit
+      if (plan.is_active && !canActivateMore) {
+        throw new Error('Maximum 3 active meal plans allowed');
+      }
 
       const { data, error } = await supabase
         .from('meal_plans')
@@ -66,7 +75,8 @@ export function useMealPlans() {
       toast.success('Meal plan created');
     },
     onError: (error) => {
-      toast.error('Failed to create meal plan');
+      const message = error instanceof Error ? error.message : 'Failed to create meal plan';
+      toast.error(message);
       console.error(error);
     },
   });
@@ -100,13 +110,18 @@ export function useMealPlans() {
     mutationFn: async (id: string) => {
       if (!user) throw new Error('Not authenticated');
 
-      // Deactivate all plans first
-      await supabase
-        .from('meal_plans')
-        .update({ is_active: false })
-        .eq('user_id', user.id);
+      // Check if plan is already active
+      const targetPlan = mealPlans?.find(p => p.id === id);
+      if (targetPlan?.is_active) {
+        return targetPlan; // Already active, no change needed
+      }
 
-      // Activate the selected plan
+      // Check active plan limit (only if activating a new one)
+      if (!canActivateMore) {
+        throw new Error('Maximum 3 active meal plans allowed. Deactivate one first.');
+      }
+
+      // Activate the selected plan (don't deactivate others - allow multiple active)
       const { data, error } = await supabase
         .from('meal_plans')
         .update({ is_active: true })
@@ -120,10 +135,36 @@ export function useMealPlans() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['meal-plans'] });
-      toast.success('Active meal plan updated');
+      toast.success('Meal plan activated');
     },
     onError: (error) => {
-      toast.error('Failed to set active plan');
+      const message = error instanceof Error ? error.message : 'Failed to set active plan';
+      toast.error(message);
+      console.error(error);
+    },
+  });
+
+  const deactivatePlan = useMutation({
+    mutationFn: async (id: string) => {
+      if (!user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('meal_plans')
+        .update({ is_active: false })
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['meal-plans'] });
+      toast.success('Meal plan deactivated');
+    },
+    onError: (error) => {
+      toast.error('Failed to deactivate plan');
       console.error(error);
     },
   });
@@ -199,11 +240,15 @@ export function useMealPlans() {
   return {
     mealPlans,
     activePlan,
+    activePlans: mealPlans?.filter(p => p.is_active) || [],
+    activePlansCount,
+    canActivateMore,
     planItems,
     isLoading,
     createMealPlan,
     updateMealPlan,
     setActivePlan,
+    deactivatePlan,
     deleteMealPlan,
     addPlanItem,
     deletePlanItem,

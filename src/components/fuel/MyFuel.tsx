@@ -1,11 +1,15 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { useNutritionGoals } from '@/hooks/useNutritionGoals';
 import { useFoodLogs } from '@/hooks/useFoodLogs';
 import { useMealPlans } from '@/hooks/useMealPlans';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useQuery } from '@tanstack/react-query';
 import { 
   Target, 
   TrendingUp,
@@ -13,15 +17,17 @@ import {
   Flame,
   Award,
   Settings,
-  ChevronRight
+  ChevronRight,
+  Play
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
-import { format, subDays, eachDayOfInterval } from 'date-fns';
+import { format, subDays, eachDayOfInterval, startOfDay, endOfDay } from 'date-fns';
 
 export function MyFuel() {
+  const { user } = useAuth();
   const { goals, saveGoals, isLoading: goalsLoading } = useNutritionGoals();
-  const { mealPlans, activePlan } = useMealPlans();
+  const { mealPlans, activePlans } = useMealPlans();
   const [showGoalsModal, setShowGoalsModal] = useState(false);
   const [editedGoals, setEditedGoals] = useState({
     daily_calories: goals?.daily_calories || 2000,
@@ -30,13 +36,80 @@ export function MyFuel() {
     daily_fat_g: goals?.daily_fat_g || 70,
   });
 
+  // Fetch recent food logs for streak calculation
+  const { data: recentLogs } = useQuery({
+    queryKey: ['food-logs-streak', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      const thirtyDaysAgo = subDays(new Date(), 30);
+      const { data, error } = await supabase
+        .from('food_logs')
+        .select('logged_at')
+        .eq('user_id', user.id)
+        .gte('logged_at', thirtyDaysAgo.toISOString())
+        .order('logged_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  // Calculate streak
+  const { streak, goalsHitThisWeek } = useMemo(() => {
+    if (!recentLogs?.length || !goals?.daily_calories) {
+      return { streak: 0, goalsHitThisWeek: 0 };
+    }
+
+    // Group logs by date
+    const logsByDate = new Map<string, number>();
+    recentLogs.forEach(log => {
+      const date = format(new Date(log.logged_at), 'yyyy-MM-dd');
+      logsByDate.set(date, (logsByDate.get(date) || 0) + 1);
+    });
+
+    // Calculate streak (consecutive days with logs)
+    let currentStreak = 0;
+    let checkDate = new Date();
+    
+    // Check if today has logs
+    const todayStr = format(checkDate, 'yyyy-MM-dd');
+    if (!logsByDate.has(todayStr)) {
+      checkDate = subDays(checkDate, 1);
+    }
+
+    while (true) {
+      const dateStr = format(checkDate, 'yyyy-MM-dd');
+      if (logsByDate.has(dateStr)) {
+        currentStreak++;
+        checkDate = subDays(checkDate, 1);
+      } else {
+        break;
+      }
+    }
+
+    // Count days this week hitting 80% of calorie goal
+    const weekDays = eachDayOfInterval({
+      start: subDays(new Date(), 6),
+      end: new Date(),
+    });
+
+    let goalsHit = 0;
+    // This is simplified - would need full daily calorie totals
+    weekDays.forEach(day => {
+      if (logsByDate.has(format(day, 'yyyy-MM-dd'))) {
+        goalsHit++; // Simplified: count days with any logs
+      }
+    });
+
+    return { streak: currentStreak, goalsHitThisWeek: goalsHit };
+  }, [recentLogs, goals]);
+
   const handleSaveGoals = async () => {
     await saveGoals.mutateAsync(editedGoals);
     setShowGoalsModal(false);
   };
-
-  // Calculate streak (simplified - would need more data)
-  const streak = 0; // Would calculate from food_logs
 
   return (
     <div className="space-y-6">
@@ -161,39 +234,52 @@ export function MyFuel() {
         <Card>
           <CardContent className="p-6 text-center">
             <Calendar className="w-10 h-10 text-primary mx-auto mb-3" />
-            <p className="font-display text-3xl text-primary mb-1">{mealPlans?.length || 0}</p>
-            <p className="text-sm text-muted-foreground">Meal Plans</p>
+            <p className="font-display text-3xl text-primary mb-1">{activePlans?.length || 0}</p>
+            <p className="text-sm text-muted-foreground">Active Plans</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardContent className="p-6 text-center">
             <Award className="w-10 h-10 text-primary mx-auto mb-3" />
-            <p className="font-display text-3xl text-primary mb-1">0</p>
-            <p className="text-sm text-muted-foreground">Goals Hit This Week</p>
+            <p className="font-display text-3xl text-primary mb-1">{goalsHitThisWeek}</p>
+            <p className="text-sm text-muted-foreground">Days Logged This Week</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Active Meal Plan */}
-      {activePlan && (
+      {/* Active Meal Plans */}
+      {activePlans && activePlans.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="font-display tracking-wide flex items-center gap-2">
               <Calendar className="w-5 h-5 text-primary" />
-              ACTIVE MEAL PLAN
+              ACTIVE MEAL PLANS
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">{activePlan.name}</p>
-                {activePlan.description && (
-                  <p className="text-sm text-muted-foreground">{activePlan.description}</p>
-                )}
+          <CardContent className="space-y-3">
+            {activePlans.map((plan) => (
+              <div 
+                key={plan.id}
+                className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+              >
+                <div className="flex items-center gap-3">
+                  <Badge className="bg-primary/20 text-primary">
+                    <Flame className="w-3 h-3 mr-1" />
+                    Active
+                  </Badge>
+                  <div>
+                    <p className="font-medium">{plan.name}</p>
+                    {plan.description && (
+                      <p className="text-sm text-muted-foreground">{plan.description}</p>
+                    )}
+                  </div>
+                </div>
+                <Button variant="ghost" size="icon">
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                </Button>
               </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground" />
-            </div>
+            ))}
           </CardContent>
         </Card>
       )}
