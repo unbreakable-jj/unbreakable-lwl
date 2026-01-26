@@ -12,6 +12,9 @@ verify_jwt = false
 [functions.generate-workout-feedback]
 verify_jwt = false
 
+[functions.food-lookup]
+verify_jwt = false
+
 [functions.analyze-movement]
 verify_jwt = false
 
