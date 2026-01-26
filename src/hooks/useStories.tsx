@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { generateVideoThumbnail, compressVideo } from '@/lib/videoUtils';
 
 export interface Story {
   id: string;
@@ -160,6 +161,55 @@ export function useStories() {
     );
   });
 
+  const uploadVideo = async (
+    file: File,
+    onProgress?: (stage: string) => void
+  ): Promise<{ url: string | null; thumbnailUrl: string | null; error: Error | null }> => {
+    if (!user) return { url: null, thumbnailUrl: null, error: new Error('Not authenticated') };
+
+    try {
+      onProgress?.('Compressing video...');
+      const compressedFile = await compressVideo(file, 10, 1080);
+
+      onProgress?.('Generating thumbnail...');
+      const thumbnail = await generateVideoThumbnail(compressedFile);
+
+      onProgress?.('Uploading video...');
+      const timestamp = Date.now();
+      const videoExt = compressedFile.name.split('.').pop() || 'webm';
+      const videoFileName = `stories/${user.id}/${timestamp}.${videoExt}`;
+
+      const { error: videoUploadError } = await supabase.storage
+        .from('post-videos')
+        .upload(videoFileName, compressedFile);
+
+      if (videoUploadError) {
+        return { url: null, thumbnailUrl: null, error: videoUploadError };
+      }
+
+      const { data: videoData } = supabase.storage.from('post-videos').getPublicUrl(videoFileName);
+
+      let thumbnailUrl: string | null = null;
+      if (thumbnail) {
+        onProgress?.('Uploading thumbnail...');
+        const thumbFileName = `stories/${user.id}/${timestamp}_thumb.jpg`;
+
+        const { error: thumbUploadError } = await supabase.storage
+          .from('post-images')
+          .upload(thumbFileName, thumbnail);
+
+        if (!thumbUploadError) {
+          const { data: thumbData } = supabase.storage.from('post-images').getPublicUrl(thumbFileName);
+          thumbnailUrl = thumbData.publicUrl;
+        }
+      }
+
+      return { url: videoData.publicUrl, thumbnailUrl, error: null };
+    } catch (error) {
+      return { url: null, thumbnailUrl: null, error: error as Error };
+    }
+  };
+
   return {
     stories,
     groupedStories,
@@ -167,5 +217,6 @@ export function useStories() {
     refetch: fetchStories,
     createStory,
     deleteStory,
+    uploadVideo,
   };
 }

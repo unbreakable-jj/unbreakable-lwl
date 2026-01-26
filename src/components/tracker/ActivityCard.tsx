@@ -17,9 +17,10 @@ interface ActivityCardProps {
   onKudos: (runId: string) => void;
   onDelete: (runId: string) => void;
   onToggleComments: (runId: string) => void;
+  onViewProfile?: (userId: string) => void;
 }
 
-export function ActivityCard({ run, onKudos, onDelete, onToggleComments }: ActivityCardProps) {
+export function ActivityCard({ run, onKudos, onDelete, onToggleComments, onViewProfile }: ActivityCardProps) {
   const { user } = useAuth();
   const [isLiking, setIsLiking] = useState(false);
   const [showComments, setShowComments] = useState(false);
@@ -94,16 +95,24 @@ export function ActivityCard({ run, onKudos, onDelete, onToggleComments }: Activ
       <Card className="bg-card border-border overflow-hidden">
         {/* Header */}
         <div className="p-4 flex items-start gap-3">
-          <Avatar className="h-12 w-12">
-            <AvatarImage src={run.profiles?.avatar_url || undefined} />
-            <AvatarFallback className="bg-primary text-primary-foreground font-display">
-              {getInitials()}
-            </AvatarFallback>
-          </Avatar>
+          <button
+            onClick={() => onViewProfile?.(run.user_id)}
+            className="focus:outline-none focus:ring-2 focus:ring-primary rounded-full transition-transform hover:scale-105"
+          >
+            <Avatar className="h-12 w-12 cursor-pointer">
+              <AvatarImage src={run.profiles?.avatar_url || undefined} />
+              <AvatarFallback className="bg-primary text-primary-foreground font-display">
+                {getInitials()}
+              </AvatarFallback>
+            </Avatar>
+          </button>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-foreground truncate">
+            <button
+              onClick={() => onViewProfile?.(run.user_id)}
+              className="font-semibold text-foreground truncate hover:underline focus:outline-none text-left"
+            >
               {run.profiles?.display_name || 'Runner'}
-            </p>
+            </button>
             <p className="text-sm text-muted-foreground">
               {formatDistanceToNow(new Date(run.started_at), { addSuffix: true })}
             </p>

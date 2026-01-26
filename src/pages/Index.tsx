@@ -75,7 +75,12 @@ const Index = () => {
           <div className="flex gap-6 max-w-5xl mx-auto">
             {/* Main Content */}
             <div className="flex-1 max-w-2xl">
-              {activeTab === 'feed' && <UnifiedFeed onSignIn={() => setShowAuthModal(true)} />}
+              {activeTab === 'feed' && (
+                <UnifiedFeed 
+                  onSignIn={() => setShowAuthModal(true)} 
+                  onOpenMessages={() => setActiveTab('messages')}
+                />
+              )}
               {activeTab === 'profile' && <ProfileView />}
             </div>
 
