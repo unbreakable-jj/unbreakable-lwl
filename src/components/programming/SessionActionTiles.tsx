@@ -46,8 +46,6 @@ export function SessionActionTiles({
       title: 'View Results',
       description: 'Session summary & stats',
       icon: Trophy,
-      color: 'text-primary',
-      bgColor: 'bg-primary/10',
       onClick: onOpenResults,
     }] : []),
     {
@@ -55,8 +53,6 @@ export function SessionActionTiles({
       title: 'Log Session',
       description: 'Record sets, reps & weight',
       icon: ClipboardList,
-      color: 'text-primary',
-      bgColor: 'bg-primary/10',
       onClick: onOpenLogging,
     },
     {
@@ -64,8 +60,6 @@ export function SessionActionTiles({
       title: 'Session Notes',
       description: 'Add workout notes',
       icon: StickyNote,
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-500/10',
       onClick: onOpenNotes,
     },
     {
@@ -73,8 +67,6 @@ export function SessionActionTiles({
       title: 'AI Feedback',
       description: 'Get coaching insights',
       icon: Sparkles,
-      color: 'text-purple-400',
-      bgColor: 'bg-purple-500/10',
       onClick: onOpenFeedback,
     },
     {
@@ -82,8 +74,6 @@ export function SessionActionTiles({
       title: 'Record Video',
       description: 'Capture your form',
       icon: Video,
-      color: 'text-green-400',
-      bgColor: 'bg-green-500/10',
       onClick: onOpenVideo,
     },
     {
@@ -91,8 +81,6 @@ export function SessionActionTiles({
       title: 'View Progress',
       description: 'Track your gains',
       icon: BarChart3,
-      color: 'text-orange-400',
-      bgColor: 'bg-orange-500/10',
       onClick: onOpenProgress,
     },
   ];
@@ -122,13 +110,13 @@ export function SessionActionTiles({
             transition={{ delay: index * 0.05 }}
           >
             <Card
-              className="p-4 border border-border bg-card hover:border-primary/50 cursor-pointer transition-all group"
+              className="p-4 border border-border bg-card hover:border-primary/50 hover:neon-border-subtle cursor-pointer transition-all group"
               onClick={tile.onClick}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-lg ${tile.bgColor} flex items-center justify-center`}>
-                    <Icon className={`w-5 h-5 ${tile.color}`} />
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center neon-border-subtle">
+                    <Icon className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <h4 className="font-display text-foreground tracking-wide">
@@ -141,7 +129,7 @@ export function SessionActionTiles({
                 </div>
                 <div className="flex items-center gap-2">
                   {indicator && (
-                    <span className={`text-sm font-medium ${tile.color}`}>
+                    <span className="text-sm font-medium text-primary neon-glow-subtle">
                       {indicator}
                     </span>
                   )}

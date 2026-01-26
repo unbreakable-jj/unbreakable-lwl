@@ -195,9 +195,9 @@ export function ActiveWorkoutModal({
                 EXERCISES ({Object.keys(exerciseGroups).length})
               </span>
               {showExercises ? (
-                <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                <ChevronUp className="w-5 h-5 text-primary" />
               ) : (
-                <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                <ChevronDown className="w-5 h-5 text-primary" />
               )}
             </button>
             
@@ -218,7 +218,7 @@ export function ActiveWorkoutModal({
                       >
                         <div className="flex items-center gap-2">
                           {exercise.completed === exercise.sets && (
-                            <Check className="w-4 h-4 text-green-500" />
+                            <Check className="w-4 h-4 text-primary" />
                           )}
                           <span className="text-sm text-foreground">{exercise.name}</span>
                         </div>
@@ -263,8 +263,8 @@ export function ActiveWorkoutModal({
               onClick={() => setActiveTool('logging')}
             >
               <div className="flex flex-col items-center text-center gap-2">
-                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-                  <ClipboardList className="w-6 h-6 text-muted-foreground" />
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <ClipboardList className="w-6 h-6 text-primary" />
                 </div>
                 <div>
                   <h4 className="font-display text-foreground">MANUAL</h4>
