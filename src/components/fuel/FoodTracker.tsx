@@ -7,7 +7,10 @@ import { Progress } from '@/components/ui/progress';
 import { useFoodLogs } from '@/hooks/useFoodLogs';
 import { useNutritionGoals } from '@/hooks/useNutritionGoals';
 import { useSavedFoods } from '@/hooks/useSavedFoods';
+import { useNutritionFeedback } from '@/hooks/useNutritionFeedback';
 import { MealType, mealTypeLabels, FoodItem } from '@/lib/fuelTypes';
+import { NutritionCoachCTA } from './NutritionCoachCTA';
+import { BarcodeScanner } from './BarcodeScanner';
 import { 
   Plus, 
   Trash2, 
@@ -20,7 +23,9 @@ import {
   Clock,
   Barcode,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  MessageSquare,
+  Loader2
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -345,6 +350,7 @@ function FoodSearchModal({ mealType, onClose }: FoodSearchModalProps) {
 export function FoodTracker() {
   const { dailySummary, deleteFoodLog, isLoading } = useFoodLogs();
   const { goals } = useNutritionGoals();
+  const { analyzeDailySummary, isAnalyzing } = useNutritionFeedback();
   const [expandedMeals, setExpandedMeals] = useState<Record<MealType, boolean>>({
     breakfast: true,
     lunch: true,
@@ -352,6 +358,7 @@ export function FoodTracker() {
     snack: true,
   });
   const [addingToMeal, setAddingToMeal] = useState<MealType | null>(null);
+  const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
 
   const toggleMeal = (meal: MealType) => {
     setExpandedMeals((prev) => ({ ...prev, [meal]: !prev[meal] }));
@@ -426,8 +433,40 @@ export function FoodTracker() {
               )}
             </div>
           </div>
+
+          {/* Quick Actions */}
+          <div className="flex gap-2 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1"
+              onClick={() => setShowBarcodeScanner(true)}
+            >
+              <Barcode className="w-4 h-4" />
+              Scan Barcode
+            </Button>
+            <NutritionCoachCTA 
+              variant="inline" 
+              label="Get Feedback"
+              context={{
+                type: 'daily_summary',
+                data: {
+                  calories: dailySummary.totalCalories,
+                  protein: dailySummary.totalProtein,
+                  carbs: dailySummary.totalCarbs,
+                  fat: dailySummary.totalFat,
+                }
+              }}
+            />
+          </div>
         </CardContent>
       </Card>
+
+      {/* Barcode Scanner Modal */}
+      <BarcodeScanner 
+        isOpen={showBarcodeScanner} 
+        onClose={() => setShowBarcodeScanner(false)} 
+      />
 
       {/* Meal Sections */}
       {(['breakfast', 'lunch', 'dinner', 'snack'] as MealType[]).map((mealType) => {

@@ -20,3 +20,9 @@ verify_jwt = false
 
 [functions.generate-ai-programme]
 verify_jwt = false
+
+[functions.generate-meal-plan]
+verify_jwt = false
+
+[functions.analyze-nutrition]
+verify_jwt = false
