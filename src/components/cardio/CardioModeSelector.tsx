@@ -1,13 +1,13 @@
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
-import { Sparkles, ArrowRight, Wrench, Dumbbell, MessageCircle } from 'lucide-react';
+import { Sparkles, ArrowRight, Timer, Footprints, Zap, Bike, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface BuilderModeSelectorProps {
+interface CardioModeSelectorProps {
   onSelectMode: (mode: 'auto' | 'manual') => void;
 }
 
-export function BuilderModeSelector({ onSelectMode }: BuilderModeSelectorProps) {
+export function CardioModeSelector({ onSelectMode }: CardioModeSelectorProps) {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="grid md:grid-cols-2 gap-6">
@@ -34,28 +34,38 @@ export function BuilderModeSelector({ onSelectMode }: BuilderModeSelectorProps) 
               </div>
               
               <h3 className="font-display text-2xl text-foreground mb-2">
-                AUTO <span className="text-primary neon-glow-subtle">BUILDER</span>
+                AUTO <span className="text-primary neon-glow-subtle">PROGRAMME</span>
               </h3>
               
               <p className="text-muted-foreground text-sm mb-4">
-                Answer a few questions about your goals, schedule, and experience. 
-                Let the system build a personalised 12-week programme tailored to you.
+                Build a personalised 12-week cardio plan. Choose your activity, 
+                set goals, and get a structured programme with progressive training.
               </p>
 
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
-                <MessageCircle className="w-4 h-4 text-primary" />
-                <span>Includes AI coaching & feedback</span>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex -space-x-2">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border-2 border-background">
+                    <Footprints className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border-2 border-background">
+                    <Zap className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border-2 border-background">
+                    <Bike className="w-4 h-4 text-primary" />
+                  </div>
+                </div>
+                <span className="text-xs text-muted-foreground">Walk • Run • Cycle</span>
               </div>
               
               <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-display tracking-wide text-sm">
-                START AUTO BUILD
+                BUILD PROGRAMME
                 <ArrowRight className="w-4 h-4" />
               </div>
             </div>
           </Card>
         </motion.div>
 
-        {/* Manual Builder Card */}
+        {/* Manual Tracking Card */}
         <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -73,25 +83,25 @@ export function BuilderModeSelector({ onSelectMode }: BuilderModeSelectorProps) 
             
             <div className="relative z-10">
               <div className="w-16 h-16 rounded-xl bg-muted/40 flex items-center justify-center mb-4">
-                <Wrench className="w-8 h-8 text-muted-foreground" />
+                <Timer className="w-8 h-8 text-muted-foreground" />
               </div>
               
               <h3 className="font-display text-2xl text-foreground mb-2">
-                MANUAL <span className="text-muted-foreground">BUILDER</span>
+                QUICK <span className="text-muted-foreground">TRACK</span>
               </h3>
               
               <p className="text-muted-foreground text-sm mb-4">
-                Full control over your programme. Pick exercises from our comprehensive library, 
-                set your own sets, reps, and progression. Perfect for experienced lifters.
+                Start a cardio session immediately. Track time, distance, and pace 
+                with GPS or log manually. Perfect for spontaneous workouts.
               </p>
 
               <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
-                <Dumbbell className="w-4 h-4 text-primary" />
-                <span>150+ exercises with coaching tips</span>
+                <MessageCircle className="w-4 h-4 text-primary" />
+                <span>Live tracking with AI feedback</span>
               </div>
               
               <div className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-lg font-display tracking-wide text-sm">
-                BUILD MANUALLY
+                START TRACKING
                 <ArrowRight className="w-4 h-4" />
               </div>
             </div>

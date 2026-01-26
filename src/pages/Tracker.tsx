@@ -8,6 +8,7 @@ import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { CardioProgramDisplay } from '@/components/cardio/CardioProgramDisplay';
 import { SavedCardioPrograms } from '@/components/cardio/SavedCardioPrograms';
+import { CardioModeSelector } from '@/components/cardio/CardioModeSelector';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -29,7 +30,8 @@ import {
   Sparkles,
   Heart,
   Flame,
-  Loader2
+  Loader2,
+  Home
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -46,14 +48,14 @@ import {
 } from '@/lib/cardioTypes';
 
 type ActivityType = 'walk' | 'run' | 'cycle' | null;
-type ViewState = 'wizard' | 'program' | 'track';
+type ViewState = 'select' | 'wizard' | 'program' | 'track';
 
 const Tracker = () => {
   const { user, loading } = useAuth();
   const { saveProgram: saveProgramMutation } = useCardioPrograms();
   const { toast } = useToast();
   
-  const [view, setView] = useState<ViewState>('wizard');
+  const [view, setView] = useState<ViewState>('select');
   const [showCardioModal, setShowCardioModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<ActivityType>(null);
@@ -177,7 +179,7 @@ const Tracker = () => {
   const handleReset = () => {
     setGeneratedProgram(null);
     setCurrentStep(1);
-    setView('wizard');
+    setView('select');
     setFormData({
       activityType: 'run',
       goal: 'fitness',
@@ -185,6 +187,24 @@ const Tracker = () => {
       sessionsPerWeek: 3,
       sessionLength: 30,
     });
+  };
+
+  const handleModeSelect = (mode: 'auto' | 'manual') => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+    if (mode === 'auto') {
+      setView('wizard');
+    } else {
+      // Manual mode - go straight to quick track
+      setView('track');
+    }
+  };
+
+  const handleBackToSelect = () => {
+    setView('select');
+    setCurrentStep(1);
   };
 
   const getStepLabel = () => {
@@ -240,7 +260,160 @@ const Tracker = () => {
     );
   }
 
-  // Main wizard view
+  // Mode selection view
+  if (view === 'select') {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <Link to="/" className="flex items-center gap-3">
+                <img src={logo} alt="Unbreakable" className="h-10 object-contain" />
+                <div className="hidden sm:block">
+                  <span className="font-display text-lg tracking-wide text-foreground">
+                    UNBREAKABLE
+                  </span>
+                  <span className="font-display text-sm tracking-wide text-primary ml-2">
+                    CARDIO
+                  </span>
+                </div>
+              </Link>
+              <div className="flex items-center gap-3">
+                {!user && (
+                  <Button
+                    className="font-display tracking-wide"
+                    onClick={() => setShowAuthModal(true)}
+                  >
+                    SIGN IN
+                  </Button>
+                )}
+                <NavigationDrawer variant="minimal" />
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Hero */}
+        <section className="py-12 md:py-16 border-b border-border">
+          <div className="container mx-auto px-4 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <h1 className="font-display text-5xl sm:text-6xl md:text-8xl tracking-wide leading-none mb-2">
+                <span className="text-foreground">BECOME </span>
+                <span className="text-primary neon-glow-subtle">UNBREAKABLE</span>
+              </h1>
+              <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">
+                LIVE WITHOUT LIMITS
+              </p>
+              <p className="text-muted-foreground text-base md:text-lg mt-4 max-w-2xl mx-auto">
+                Choose how you want to train. Build a personalised 12-week programme or 
+                start a quick tracking session for Walk, Run, or Cycle activities.
+              </p>
+              <p className="text-primary font-display text-lg mt-3 neon-glow-subtle">KEEP SHOWING UP.</p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Mode Selector */}
+        <main className="container mx-auto px-4 py-8 md:py-12">
+          <CardioModeSelector onSelectMode={handleModeSelect} />
+        </main>
+
+        {/* Saved Programmes Section */}
+        {user && (
+          <section className="container mx-auto px-4 py-8 border-t border-border">
+            <div className="max-w-3xl mx-auto">
+              <h2 className="font-display text-2xl text-foreground mb-6 flex items-center gap-2">
+                <Timer className="w-6 h-6 text-primary" />
+                MY CARDIO PROGRAMMES
+              </h2>
+              <SavedCardioPrograms onViewProgram={handleViewSavedProgram} />
+            </div>
+          </section>
+        )}
+
+        <UnifiedFooter className="mt-auto" />
+        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      </div>
+    );
+  }
+
+  // Quick track view
+  if (view === 'track') {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <Link to="/" className="flex items-center gap-3">
+                <img src={logo} alt="Unbreakable" className="h-10 object-contain" />
+                <div className="hidden sm:block">
+                  <span className="font-display text-lg tracking-wide text-foreground">
+                    UNBREAKABLE
+                  </span>
+                  <span className="font-display text-sm tracking-wide text-primary ml-2">
+                    CARDIO
+                  </span>
+                </div>
+              </Link>
+              <NavigationDrawer variant="minimal" />
+            </div>
+          </div>
+        </header>
+
+        <main className="container mx-auto px-4 py-8 md:py-12">
+          <Button variant="ghost" onClick={handleBackToSelect} className="mb-6 gap-2">
+            <Home className="w-4 h-4" />
+            Back to Selection
+          </Button>
+
+          <h2 className="font-display text-3xl text-center mb-8 tracking-wide">
+            QUICK <span className="text-primary neon-glow-subtle">TRACK</span>
+          </h2>
+          <p className="text-muted-foreground text-center mb-8 max-w-lg mx-auto">
+            Start a cardio session immediately. Choose your activity to begin tracking with GPS or log manually.
+          </p>
+
+          <div className="max-w-2xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-6">
+              {activityOptions.map((option) => (
+                <Card
+                  key={option.value}
+                  className="cursor-pointer transition-all border-2 border-border hover:border-primary/50 hover:bg-primary/5"
+                  onClick={() => handleActivitySelect(option.value)}
+                >
+                  <CardContent className="p-8 text-center">
+                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                      <div className="text-primary">{option.icon}</div>
+                    </div>
+                    <h3 className="font-display text-2xl tracking-wide mb-2">{option.label}</h3>
+                    <p className="text-sm text-muted-foreground">{option.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </main>
+
+        <UnifiedFooter className="mt-auto" />
+        <CardioTrackerModal
+          isOpen={showCardioModal}
+          onClose={() => {
+            setShowCardioModal(false);
+            setSelectedActivity(null);
+          }}
+          initialActivity={selectedActivity || undefined}
+        />
+      </div>
+    );
+  }
+
+  // Main wizard view (auto programme builder)
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -258,47 +431,36 @@ const Tracker = () => {
                 </span>
               </div>
             </Link>
-            <div className="flex items-center gap-3">
-              {!user && (
-                <Button
-                  className="font-display tracking-wide"
-                  onClick={() => setShowAuthModal(true)}
-                >
-                  SIGN IN
-                </Button>
-              )}
-              <NavigationDrawer variant="minimal" />
-            </div>
+            <NavigationDrawer variant="minimal" />
           </div>
         </div>
       </header>
 
       {/* Hero */}
-      <section className="py-12 md:py-16 border-b border-border">
+      <section className="py-8 md:py-12 border-b border-border">
         <div className="container mx-auto px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="font-display text-5xl sm:text-6xl md:text-8xl tracking-wide leading-none mb-2">
-              <span className="text-foreground">BECOME </span>
-              <span className="text-primary neon-glow-subtle">UNBREAKABLE</span>
+            <h1 className="font-display text-4xl sm:text-5xl tracking-wide leading-none mb-2">
+              BUILD YOUR <span className="text-primary neon-glow-subtle">PROGRAMME</span>
             </h1>
-            <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">
-              LIVE WITHOUT LIMITS
+            <p className="text-muted-foreground mt-4">
+              Answer a few questions to get a personalised 12-week cardio plan.
             </p>
-            <p className="text-muted-foreground text-base md:text-lg mt-4 max-w-2xl mx-auto">
-              Choose how you want to create a personalised cardio plan. Select{' '}
-              <span className="text-foreground font-medium">Walk</span>,{' '}
-              <span className="text-foreground font-medium">Run</span>, or{' '}
-              <span className="text-foreground font-medium">Cycle</span> to build a 12-week programme tailored to your goals.
-              Once created, programmes are ready to track, log, and receive optional guidance.
-            </p>
-            <p className="text-primary font-display text-lg mt-3 neon-glow-subtle">KEEP SHOWING UP.</p>
           </motion.div>
         </div>
       </section>
+
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-6">
+        <Button variant="ghost" onClick={handleBackToSelect} className="gap-2">
+          <Home className="w-4 h-4" />
+          Back to Selection
+        </Button>
+      </div>
 
       {/* Progress Bar */}
       <div className="bg-card border-b border-border py-4">
@@ -582,48 +744,6 @@ const Tracker = () => {
           </div>
         </div>
       </main>
-
-      {/* Saved Programmes & Quick Track Section */}
-      {user && (
-        <section className="container mx-auto px-4 py-8 border-t border-border">
-          <div className="max-w-3xl mx-auto space-y-8">
-            {/* Saved Programmes */}
-            <div>
-              <h2 className="font-display text-2xl text-foreground mb-6 flex items-center gap-2">
-                <Timer className="w-6 h-6 text-primary" />
-                MY PROGRAMMES
-              </h2>
-              <SavedCardioPrograms onViewProgram={handleViewSavedProgram} />
-            </div>
-
-            {/* Quick Track */}
-            <div>
-              <h2 className="font-display text-2xl text-foreground mb-6 flex items-center gap-2">
-                <Zap className="w-6 h-6 text-primary" />
-                QUICK TRACK
-              </h2>
-              <Card className="bg-card border-2 border-primary/30 neon-border-subtle">
-                <CardContent className="p-6">
-                  <p className="text-muted-foreground mb-4">Start a session without a programme:</p>
-                  <div className="grid grid-cols-3 gap-4">
-                    {activityOptions.map((option) => (
-                      <Button
-                        key={option.value}
-                        variant="outline"
-                        className="flex flex-col items-center gap-2 h-auto py-4"
-                        onClick={() => handleActivitySelect(option.value)}
-                      >
-                        <div className="text-primary">{option.icon}</div>
-                        <span className="font-display text-sm">{option.label}</span>
-                      </Button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Hashtag */}
       <section className="container mx-auto px-4 py-8 text-center">
