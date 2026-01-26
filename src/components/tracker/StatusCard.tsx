@@ -161,14 +161,15 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onViewPr
 
         {/* Video */}
         {post.video_url && (
-          <div className="px-4 pb-3 relative group">
+          <div className="px-4 pb-3 relative group flex justify-center">
             <video
               ref={videoRef}
               src={post.video_url}
-              className="rounded-lg w-full max-h-[500px] object-cover"
+              className="rounded-lg max-w-full max-h-[600px]"
               loop
               muted={isMuted}
               playsInline
+              preload="auto"
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
             />
