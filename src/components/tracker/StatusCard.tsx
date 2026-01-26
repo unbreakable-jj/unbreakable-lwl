@@ -287,7 +287,11 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdate
               {post.comments_count || 0}
             </span>
           </Button>
-          <ShareMenu post={post} />
+          <ShareMenu 
+            post={post} 
+            hasMedia={!!(post.image_url || post.video_url)}
+            onShareToStory={handleShareToStory}
+          />
         </div>
 
         {/* Comments Section */}

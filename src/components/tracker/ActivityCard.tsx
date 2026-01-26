@@ -276,7 +276,11 @@ export function ActivityCard({ run, onKudos, onDelete, onToggleComments, onUpdat
               {run.comments_count || 0}
             </span>
           </Button>
-          <ShareMenu run={run} />
+          <ShareMenu 
+            run={run} 
+            hasMedia={!!run.map_snapshot_url}
+            onShareToStory={handleShareToStory}
+          />
         </div>
 
         {/* Comments Section */}

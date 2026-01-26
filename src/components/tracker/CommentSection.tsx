@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Trash2, Send, ChevronDown, Loader2 } from 'lucide-react';
 import { Comment, useComments } from '@/hooks/useComments';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
+import { MentionTextarea } from '@/components/ui/mention-textarea';
 
 interface CommentSectionProps {
   runId: string;
@@ -143,11 +143,13 @@ export function CommentSection({
           {/* Comment Input */}
           {commentsEnabled && user ? (
             <div className="flex gap-2">
-              <Textarea
-                placeholder="Write a comment..."
+              <MentionTextarea
                 value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                className="min-h-[40px] max-h-[120px] resize-none"
+                onChange={setNewComment}
+                placeholder="Write a comment..."
+                className="min-h-[40px] max-h-[120px]"
+                enableHashtags={true}
+                enableMentions={true}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();

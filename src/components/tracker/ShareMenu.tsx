@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Share2, Facebook, Copy, Check, ExternalLink } from 'lucide-react';
+import { Share2, Facebook, Copy, Check, ExternalLink, BookImage } from 'lucide-react';
 import { toast } from 'sonner';
 import { RunWithProfile } from '@/hooks/useRuns';
 import { PostWithProfile } from '@/hooks/usePosts';
@@ -41,9 +41,11 @@ interface ShareMenuProps {
   run?: RunWithProfile;
   post?: PostWithProfile;
   workout?: WorkoutShare;
+  hasMedia?: boolean;
+  onShareToStory?: () => void;
 }
 
-export function ShareMenu({ run, post, workout }: ShareMenuProps) {
+export function ShareMenu({ run, post, workout, hasMedia, onShareToStory }: ShareMenuProps) {
   const [copied, setCopied] = useState(false);
 
   const formatRunStats = () => {
@@ -183,6 +185,16 @@ export function ShareMenu({ run, post, workout }: ShareMenuProps) {
             <DropdownMenuItem onClick={handleNativeShare}>
               <ExternalLink className="w-4 h-4 mr-2" />
               Share...
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
+
+        {hasMedia && onShareToStory && (
+          <>
+            <DropdownMenuItem onClick={onShareToStory}>
+              <BookImage className="w-4 h-4 mr-2" />
+              Share to Story
             </DropdownMenuItem>
             <DropdownMenuSeparator />
           </>
