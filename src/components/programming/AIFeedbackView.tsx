@@ -4,6 +4,7 @@ import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { AskCoachCTA } from '@/components/coaching/AskCoachCTA';
 import { Sparkles, TrendingUp, AlertCircle, Lightbulb, Loader2, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -99,13 +100,24 @@ export function AIFeedbackView({ sessionId, onClose }: AIFeedbackViewProps) {
               disabled={generateFeedback.isPending}
               className="w-full gap-2"
             >
-              {generateFeedback.isPending ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <RefreshCw className="w-4 h-4" />
-              )}
-              Generate New Feedback
-            </Button>
+            {generateFeedback.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4" />
+            )}
+            Generate New Feedback
+          </Button>
+
+          {/* Ask Coach about specific feedback */}
+          <AskCoachCTA 
+            context={{
+              type: 'session',
+              id: sessionId,
+              name: 'workout feedback',
+            }}
+            label="Discuss with Coach"
+            variant="card"
+          />
           </>
         ) : (
           <Card className="p-8 text-center border-border bg-card">

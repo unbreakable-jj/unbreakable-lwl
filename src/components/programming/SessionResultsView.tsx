@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { WorkoutSession, ExerciseLog } from '@/hooks/useWorkoutSessions';
 import { useWorkoutFeedback } from '@/hooks/useWorkoutFeedback';
+import { AskCoachCTA } from '@/components/coaching/AskCoachCTA';
 import { format } from 'date-fns';
 import {
   Trophy,
@@ -131,7 +132,7 @@ export function SessionResultsView({ session, onClose, onViewFeedback }: Session
             </Card>
           </div>
 
-          {/* AI Feedback CTA */}
+          {/* AI Feedback CTA - Using new component */}
           {onViewFeedback && (
             <Card 
               className="p-4 border-primary/30 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors"
@@ -139,11 +140,11 @@ export function SessionResultsView({ session, onClose, onViewFeedback }: Session
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center neon-border-subtle">
                     <Sparkles className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h4 className="font-display text-foreground">COACHING FEEDBACK</h4>
+                    <h4 className="font-display text-foreground">GET FEEDBACK</h4>
                     <p className="text-xs text-muted-foreground">
                       {sessionFeedback 
                         ? `Rating: ${sessionFeedback.performance_rating?.replace('_', ' ')}`
@@ -156,6 +157,17 @@ export function SessionResultsView({ session, onClose, onViewFeedback }: Session
               </div>
             </Card>
           )}
+
+          {/* Ask Coach CTA */}
+          <AskCoachCTA 
+            context={{
+              type: 'session',
+              id: session.id,
+              name: session.day_name || session.session_type,
+            }}
+            label="Ask Coach About Session"
+            variant="card"
+          />
 
           {/* Exercise Breakdown */}
           <div className="space-y-3">

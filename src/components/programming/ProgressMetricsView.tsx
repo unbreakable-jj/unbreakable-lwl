@@ -2,6 +2,7 @@ import { FullScreenToolView } from './FullScreenToolView';
 import { useProgressionHistory, ProgressionEntry } from '@/hooks/useProgressionHistory';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { AskCoachCTA } from '@/components/coaching/AskCoachCTA';
 import { TrendingUp, TrendingDown, Minus, Loader2, BarChart3 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -110,11 +111,20 @@ export function ProgressMetricsView({ onClose }: ProgressMetricsViewProps) {
           <Card className="p-8 text-center border-border bg-card">
             <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="font-display text-lg text-foreground mb-2">No Progress Data</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground mb-4">
               Complete workouts to start tracking your progression.
             </p>
           </Card>
         )}
+
+        {/* Ask Coach CTA at bottom */}
+        <div className="pt-4">
+          <AskCoachCTA 
+            context={{ type: 'progress' }}
+            label="Analyse Progress"
+            variant="card"
+          />
+        </div>
       </div>
     </FullScreenToolView>
   );
