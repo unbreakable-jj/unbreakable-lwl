@@ -158,12 +158,12 @@ export default function Programming() {
               <Link to="/" className="flex items-center gap-3">
                 <ThemedLogo />
                 <div className="hidden sm:block">
-                  <span className="font-display text-lg tracking-wide text-foreground">
-                    UNBREAKABLE
-                  </span>
-                  <span className="font-display text-sm tracking-wide text-primary ml-2">
-                    PROGRAMMING
-                  </span>
+                <span className="font-display text-lg tracking-wide text-foreground">
+                  UNBREAKABLE
+                </span>
+                <span className="font-display text-sm tracking-wide text-primary ml-2">
+                  POWER
+                </span>
                 </div>
               </Link>
               <NavigationDrawer />
@@ -189,12 +189,12 @@ export default function Programming() {
             <Link to="/" className="flex items-center gap-3">
               <ThemedLogo />
               <div className="hidden sm:block">
-                <span className="font-display text-lg tracking-wide text-foreground">
-                  UNBREAKABLE
-                </span>
-                <span className="font-display text-sm tracking-wide text-primary ml-2">
-                  PROGRAMMING
-                </span>
+              <span className="font-display text-lg tracking-wide text-foreground">
+                UNBREAKABLE
+              </span>
+              <span className="font-display text-sm tracking-wide text-primary ml-2">
+                POWER
+              </span>
               </div>
             </Link>
             <NavigationDrawer />

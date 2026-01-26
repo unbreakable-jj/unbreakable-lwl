@@ -10,6 +10,7 @@ import Calculators from "./pages/Calculators";
 import Tracker from "./pages/Tracker";
 import Mindset from "./pages/Mindset";
 import Programming from "./pages/Programming";
+import Fuel from "./pages/Fuel";
 import Help from "./pages/Help";
 import Inbox from "./pages/Inbox";
 import NotFound from "./pages/NotFound";
@@ -34,6 +35,9 @@ const App = () => (
               } />
               <Route path="/tracker" element={
                 <ProtectedRoute><Tracker /></ProtectedRoute>
+              } />
+              <Route path="/fuel" element={
+                <ProtectedRoute><Fuel /></ProtectedRoute>
               } />
               <Route path="/mindset" element={
                 <ProtectedRoute><Mindset /></ProtectedRoute>
