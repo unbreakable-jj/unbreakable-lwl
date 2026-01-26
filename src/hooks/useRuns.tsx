@@ -120,6 +120,27 @@ export function useRuns() {
     return { error };
   };
 
+  const updateRun = async (runId: string, updates: { title?: string; description?: string; visibility?: string }) => {
+    if (!user) return { error: new Error('Not authenticated') };
+
+    const { error } = await supabase
+      .from('runs')
+      .update(updates)
+      .eq('id', runId)
+      .eq('user_id', user.id);
+
+    if (!error) {
+      // Update local state
+      setRuns((prev) =>
+        prev.map((r) =>
+          r.id === runId ? { ...r, ...updates } as RunWithProfile : r
+        )
+      );
+    }
+
+    return { error };
+  };
+
   const toggleKudos = async (runId: string) => {
     if (!user) return;
 
@@ -161,7 +182,7 @@ export function useRuns() {
     return { error };
   };
 
-  return { runs, loading, refetch: fetchRuns, createRun, deleteRun, toggleKudos, toggleCommentsEnabled };
+  return { runs, loading, refetch: fetchRuns, createRun, deleteRun, updateRun, toggleKudos, toggleCommentsEnabled };
 }
 
 export function useUserRuns(userId?: string) {

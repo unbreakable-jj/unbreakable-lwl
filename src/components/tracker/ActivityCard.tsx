@@ -6,24 +6,30 @@ import { Card } from '@/components/ui/card';
 import { Heart, MessageCircle, MapPin, Clock, Zap, TrendingUp, Globe, Users, Lock } from 'lucide-react';
 import { RunWithProfile } from '@/hooks/useRuns';
 import { useAuth } from '@/hooks/useAuth';
+import { useStories } from '@/hooks/useStories';
 import { motion } from 'framer-motion';
 import { RunMap, geoJSONToPositions } from './RunMap';
 import { CommentSection } from './CommentSection';
 import { PostMenu } from './PostMenu';
 import { ShareMenu } from './ShareMenu';
+import { EditRunModal } from './EditRunModal';
+import { toast } from 'sonner';
 
 interface ActivityCardProps {
   run: RunWithProfile;
   onKudos: (runId: string) => void;
   onDelete: (runId: string) => void;
   onToggleComments: (runId: string) => void;
+  onUpdateRun?: (runId: string, updates: { title?: string; description?: string; visibility?: string }) => Promise<{ error: Error | null }>;
   onViewProfile?: (userId: string) => void;
 }
 
-export function ActivityCard({ run, onKudos, onDelete, onToggleComments, onViewProfile }: ActivityCardProps) {
+export function ActivityCard({ run, onKudos, onDelete, onToggleComments, onUpdateRun, onViewProfile }: ActivityCardProps) {
   const { user } = useAuth();
+  const { createStory } = useStories();
   const [isLiking, setIsLiking] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const isOwner = user?.id === run.user_id;
 
@@ -50,6 +56,36 @@ export function ActivityCard({ run, onKudos, onDelete, onToggleComments, onViewP
     setIsLiking(true);
     await onKudos(run.id);
     setIsLiking(false);
+  };
+
+  const handleEdit = async (data: { title: string; description: string; visibility: string }) => {
+    if (onUpdateRun) {
+      const { error } = await onUpdateRun(run.id, data);
+      if (error) {
+        toast.error('Failed to update run');
+      } else {
+        toast.success('Run updated');
+      }
+    }
+  };
+
+  const handleShareToStory = async () => {
+    // Share run map snapshot if available
+    const storyData: { image_url?: string; content?: string; visibility: string } = {
+      visibility: 'public',
+      content: `🏃 ${run.title || 'Run'} - ${run.distance_km.toFixed(2)}km in ${formatDuration(run.duration_seconds)}`,
+    };
+
+    if (run.map_snapshot_url) {
+      storyData.image_url = run.map_snapshot_url;
+    }
+
+    const { error } = await createStory(storyData);
+    if (error) {
+      toast.error('Failed to share to story');
+    } else {
+      toast.success('Shared to your story!');
+    }
   };
 
   const getInitials = () => {
@@ -133,11 +169,12 @@ export function ActivityCard({ run, onKudos, onDelete, onToggleComments, onViewP
             <PostMenu
               isOwner={isOwner}
               commentsEnabled={run.comments_enabled}
-              hasMedia={false}
+              hasMedia={!!run.map_snapshot_url}
               onDelete={() => onDelete(run.id)}
               onToggleComments={() => onToggleComments(run.id)}
-              onEdit={() => {}}
-              onShareToStory={() => {}}
+              onEdit={() => setShowEditModal(true)}
+              onShareToStory={handleShareToStory}
+              itemType="run"
             />
           </div>
         </div>
@@ -250,6 +287,16 @@ export function ActivityCard({ run, onKudos, onDelete, onToggleComments, onViewP
           onToggle={() => setShowComments(!showComments)}
         />
       </Card>
+
+      {/* Edit Run Modal */}
+      <EditRunModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSave={handleEdit}
+        initialTitle={run.title}
+        initialDescription={run.description}
+        initialVisibility={run.visibility}
+      />
     </motion.div>
   );
 }

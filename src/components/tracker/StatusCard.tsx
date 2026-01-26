@@ -3,7 +3,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Heart, MessageCircle, Globe, Users, Lock, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { Heart, MessageCircle, Globe, Users, Lock, Play, Pause, Volume2, VolumeX, Maximize } from 'lucide-react';
 import { PostWithProfile } from '@/hooks/usePosts';
 import { useAuth } from '@/hooks/useAuth';
 import { useStories } from '@/hooks/useStories';
@@ -12,7 +12,8 @@ import { PostMenu } from './PostMenu';
 import { PostCommentSection } from './PostCommentSection';
 import { ShareMenu } from './ShareMenu';
 import { EditPostModal } from './EditPostModal';
-import { VideoQualitySelector, VideoQuality, useVideoQuality } from '@/components/video/VideoQualitySelector';
+import { FullscreenVideoViewer } from '@/components/video/FullscreenVideoViewer';
+import { VideoQualitySelector, useVideoQuality } from '@/components/video/VideoQualitySelector';
 import { toast } from 'sonner';
 
 interface StatusCardProps {
@@ -30,6 +31,7 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdate
   const [isLiking, setIsLiking] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showFullscreen, setShowFullscreen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -181,6 +183,7 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdate
             onToggleComments={() => onToggleComments(post.id)}
             onEdit={() => setShowEditModal(true)}
             onShareToStory={handleShareToStory}
+            itemType="post"
           />
         </div>
 
@@ -208,27 +211,36 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdate
             <video
               ref={videoRef}
               src={post.video_url}
-              className="rounded-lg max-w-full max-h-[600px]"
+              className="rounded-lg max-w-full max-h-[600px] cursor-pointer"
               loop
               muted={isMuted}
               playsInline
               preload="auto"
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
+              onClick={togglePlayPause}
             />
             {/* Video Controls Overlay */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
               <Button
                 variant="secondary"
                 size="icon"
-                className="bg-black/50 hover:bg-black/70 text-white h-14 w-14 rounded-full"
+                className="bg-black/50 hover:bg-black/70 text-white h-14 w-14 rounded-full pointer-events-auto"
                 onClick={togglePlayPause}
               >
                 {isPlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-1" />}
               </Button>
             </div>
-            {/* Mute Button */}
+            {/* Bottom Controls */}
             <div className="absolute bottom-4 right-4 flex items-center gap-2">
+              <Button
+                variant="secondary"
+                size="icon"
+                className="bg-black/50 hover:bg-black/70 text-white h-8 w-8"
+                onClick={() => setShowFullscreen(true)}
+              >
+                <Maximize className="w-4 h-4" />
+              </Button>
               <VideoQualitySelector
                 currentQuality={quality}
                 onQualityChange={setQuality}
@@ -295,6 +307,15 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdate
         initialContent={post.content}
         initialVisibility={post.visibility}
       />
+
+      {/* Fullscreen Video Viewer */}
+      {post.video_url && (
+        <FullscreenVideoViewer
+          isOpen={showFullscreen}
+          onClose={() => setShowFullscreen(false)}
+          videoUrl={post.video_url}
+        />
+      )}
     </motion.div>
   );
 }

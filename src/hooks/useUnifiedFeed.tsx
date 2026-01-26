@@ -438,6 +438,46 @@ export function useUnifiedFeed() {
     return { error };
   };
 
+  const updateRun = async (runId: string, updates: { title?: string; description?: string; visibility?: string }) => {
+    if (!user) return { error: new Error('Not authenticated') };
+    const run = runs.find((r) => r.id === runId);
+    if (!run || run.user_id !== user.id) return { error: new Error('Not authorized') };
+    const { error } = await supabase
+      .from('runs')
+      .update(updates)
+      .eq('id', runId);
+    if (!error) {
+      setRuns((prev) =>
+        prev.map((r) =>
+          r.id === runId
+            ? { ...r, ...updates, visibility: (updates.visibility ?? r.visibility) as 'public' | 'friends' | 'private' }
+            : r
+        )
+      );
+    }
+    return { error };
+  };
+
+  const updateWorkout = async (workoutId: string, updates: { notes?: string; visibility?: string }) => {
+    if (!user) return { error: new Error('Not authenticated') };
+    const workout = workouts.find((w) => w.id === workoutId);
+    if (!workout || workout.user_id !== user.id) return { error: new Error('Not authorized') };
+    const { error } = await supabase
+      .from('workout_sessions')
+      .update(updates)
+      .eq('id', workoutId);
+    if (!error) {
+      setWorkouts((prev) =>
+        prev.map((w) =>
+          w.id === workoutId
+            ? { ...w, ...updates, visibility: (updates.visibility ?? w.visibility) as 'public' | 'friends' | 'private' }
+            : w
+        )
+      );
+    }
+    return { error };
+  };
+
   const toggleWorkoutComments = async (workoutId: string) => {
     if (!user) return { error: new Error('Not authenticated') };
     const workout = workouts.find((w) => w.id === workoutId);
@@ -489,6 +529,8 @@ export function useUnifiedFeed() {
     togglePostComments,
     toggleWorkoutComments,
     updatePost,
+    updateRun,
+    updateWorkout,
     shareMilestone,
     unshareMilestone,
   };

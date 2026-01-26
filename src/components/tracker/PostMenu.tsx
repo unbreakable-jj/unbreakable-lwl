@@ -18,6 +18,7 @@ interface PostMenuProps {
   onToggleComments: () => void;
   onEdit: () => void;
   onShareToStory: () => void;
+  itemType?: 'post' | 'run' | 'workout';
 }
 
 export function PostMenu({
@@ -28,10 +29,44 @@ export function PostMenu({
   onToggleComments,
   onEdit,
   onShareToStory,
+  itemType = 'post',
 }: PostMenuProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   if (!isOwner) return null;
+
+  const getEditLabel = () => {
+    switch (itemType) {
+      case 'run':
+        return 'Edit Run';
+      case 'workout':
+        return 'Edit Workout';
+      default:
+        return 'Edit Post';
+    }
+  };
+
+  const getDeleteLabel = () => {
+    switch (itemType) {
+      case 'run':
+        return 'Delete Run';
+      case 'workout':
+        return 'Delete Workout';
+      default:
+        return 'Delete Post';
+    }
+  };
+
+  const getDeleteDescription = () => {
+    switch (itemType) {
+      case 'run':
+        return 'Are you sure you want to delete this run? All kudos and comments will also be removed. This action cannot be undone.';
+      case 'workout':
+        return 'Are you sure you want to delete this workout? All kudos and comments will also be removed. This action cannot be undone.';
+      default:
+        return 'Are you sure you want to delete this post? All likes and comments will also be removed. This action cannot be undone.';
+    }
+  };
 
   return (
     <>
@@ -41,10 +76,10 @@ export function PostMenu({
             <MoreHorizontal className="w-4 h-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" className="bg-popover border-border z-50">
           <DropdownMenuItem onClick={onEdit}>
             <Pencil className="w-4 h-4 mr-2" />
-            Edit Post
+            {getEditLabel()}
           </DropdownMenuItem>
           {hasMedia && (
             <DropdownMenuItem onClick={onShareToStory}>
@@ -71,7 +106,7 @@ export function PostMenu({
             className="text-destructive focus:text-destructive"
           >
             <Trash2 className="w-4 h-4 mr-2" />
-            Delete Post
+            {getDeleteLabel()}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -83,8 +118,8 @@ export function PostMenu({
           onDelete();
           setShowDeleteModal(false);
         }}
-        title="Delete Post"
-        description="Are you sure you want to delete this post? All likes and comments will also be removed. This action cannot be undone."
+        title={getDeleteLabel()}
+        description={getDeleteDescription()}
       />
     </>
   );

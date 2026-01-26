@@ -40,6 +40,8 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
     togglePostComments,
     toggleWorkoutComments,
     updatePost,
+    updateRun,
+    updateWorkout,
     shareMilestone,
     unshareMilestone,
   } = useUnifiedFeed();
@@ -83,6 +85,14 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
 
   const handleUpdatePost = async (postId: string, updates: { content?: string; visibility?: string }) => {
     return await updatePost(postId, updates);
+  };
+
+  const handleUpdateRun = async (runId: string, updates: { title?: string; description?: string; visibility?: string }) => {
+    return await updateRun(runId, updates);
+  };
+
+  const handleUpdateWorkout = async (workoutId: string, updates: { notes?: string; visibility?: string }) => {
+    return await updateWorkout(workoutId, updates);
   };
 
   const handleToggleWorkoutComments = async (workoutId: string) => {
@@ -132,7 +142,7 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
       {user && <StoriesSection />}
 
       {/* Create Post Box */}
-      {user && <CreatePostBox />}
+      {user && <CreatePostBox onPostCreated={refetch} />}
 
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -194,6 +204,7 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
                   onKudos={toggleRunKudos}
                   onDelete={handleDeleteRun}
                   onToggleComments={handleToggleRunComments}
+                  onUpdateRun={handleUpdateRun}
                   onViewProfile={handleViewProfile}
                 />
               )}
@@ -217,6 +228,7 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
                   onKudos={toggleWorkoutKudos}
                   onDelete={handleDeleteWorkout}
                   onToggleComments={handleToggleWorkoutComments}
+                  onUpdateWorkout={handleUpdateWorkout}
                   onViewProfile={handleViewProfile}
                 />
               )}
