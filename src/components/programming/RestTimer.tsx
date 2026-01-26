@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { 
   Play, 
   Pause, 
@@ -12,7 +11,6 @@ import {
   Minus,
   Timer
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface RestTimerProps {
   suggestedTime?: number; // in seconds
@@ -110,82 +108,81 @@ export function RestTimer({ suggestedTime, exerciseType = 'strength', onComplete
   const isComplete = timeLeft === 0;
 
   return (
-    <Card className={`p-3 border transition-colors ${
-      isComplete ? 'border-green-500 bg-green-500/10' :
-      isWarning ? 'border-yellow-500 bg-yellow-500/10' :
-      'border-border bg-card'
+    <Card className={`p-4 border-2 transition-all ${
+      isComplete ? 'border-green-500 bg-green-500/10 neon-border' :
+      isWarning ? 'border-primary bg-primary/10 neon-border' :
+      'border-primary/50 bg-card neon-border-subtle'
     }`}>
       {/* Header Row */}
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Timer className="w-4 h-4 text-primary" />
-          <span className="font-display text-xs text-foreground">REST TIMER</span>
+          <Timer className="w-5 h-5 text-primary neon-glow-subtle" />
+          <span className="font-display text-sm text-primary tracking-wider neon-glow-subtle">REST TIMER</span>
         </div>
-        <div className="flex items-center gap-1">
-          <Badge variant="outline" className="text-xs px-2 py-0">
-            {exerciseType}
-          </Badge>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            onClick={() => setSoundEnabled(!soundEnabled)}
-          >
-            {soundEnabled ? (
-              <Volume2 className="w-3 h-3" />
-            ) : (
-              <VolumeX className="w-3 h-3 text-muted-foreground" />
-            )}
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => setSoundEnabled(!soundEnabled)}
+        >
+          {soundEnabled ? (
+            <Volume2 className="w-4 h-4 text-primary" />
+          ) : (
+            <VolumeX className="w-4 h-4 text-muted-foreground" />
+          )}
+        </Button>
       </div>
 
       {/* Main Timer Row - Compact Layout */}
       <div className="flex items-center gap-3">
         {/* Progress Ring + Time */}
         <div className="relative flex items-center justify-center flex-shrink-0">
-          <svg className="w-20 h-20" viewBox="0 0 100 100">
+          <svg className="w-24 h-24" viewBox="0 0 100 100">
+            {/* Outer glow ring */}
             <circle
               cx="50"
               cy="50"
-              r="45"
+              r="46"
               fill="none"
-              stroke="currentColor"
-              strokeWidth="5"
-              className="text-muted/30"
+              stroke="hsl(var(--primary))"
+              strokeWidth="1"
+              opacity="0.3"
+              className={isWarning || isComplete ? 'neon-pulse' : ''}
             />
+            {/* Background track */}
             <circle
               cx="50"
               cy="50"
-              r="45"
+              r="42"
               fill="none"
               stroke="currentColor"
-              strokeWidth="5"
-              strokeDasharray={`${(progress / 100) * 283} 283`}
+              strokeWidth="6"
+              className="text-muted/20"
+            />
+            {/* Progress ring */}
+            <circle
+              cx="50"
+              cy="50"
+              r="42"
+              fill="none"
+              stroke="hsl(var(--primary))"
+              strokeWidth="6"
+              strokeDasharray={`${(progress / 100) * 264} 264`}
               strokeLinecap="round"
               transform="rotate(-90 50 50)"
-              className={`transition-all duration-1000 ${
-                isComplete ? 'text-green-500' :
-                isWarning ? 'text-yellow-500' :
-                'text-primary'
-              }`}
+              className="transition-all duration-1000"
+              style={{
+                filter: isWarning ? 'drop-shadow(0 0 8px hsl(var(--primary)))' : 'none'
+              }}
             />
           </svg>
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={timeLeft}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 1.2, opacity: 0 }}
-              className={`absolute font-display text-2xl ${
-                isComplete ? 'text-green-500' :
-                isWarning ? 'text-yellow-500' :
-                'text-foreground'
-              }`}
-            >
-              {isComplete ? 'GO!' : formatTime(timeLeft)}
-            </motion.span>
-          </AnimatePresence>
+          <div className={`absolute font-display text-3xl ${
+            isComplete ? 'text-green-500 neon-glow' :
+            isWarning ? 'text-primary neon-glow' :
+            'text-foreground'
+          }`}>
+            {isComplete ? 'GO!' : formatTime(timeLeft)}
+          </div>
         </div>
 
         {/* Controls Column */}
@@ -252,9 +249,13 @@ export function RestTimer({ suggestedTime, exerciseType = 'strength', onComplete
             {[60, 90, 120, 180].map((preset) => (
               <Button
                 key={preset}
-                variant={initialTime === preset ? 'default' : 'ghost'}
+                variant={initialTime === preset ? 'default' : 'outline'}
                 size="sm"
-                className="text-xs h-6 px-2"
+                className={`text-xs h-7 px-3 ${
+                  initialTime === preset 
+                    ? 'bg-primary text-primary-foreground neon-border-subtle' 
+                    : 'border-primary/30 text-muted-foreground hover:text-primary hover:border-primary/50'
+                }`}
                 onClick={() => {
                   setInitialTime(preset);
                   if (!isRunning) setTimeLeft(preset);
