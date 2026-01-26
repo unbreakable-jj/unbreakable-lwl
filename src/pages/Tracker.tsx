@@ -239,7 +239,7 @@ const Tracker = () => {
                     UNBREAKABLE
                   </span>
                   <span className="font-display text-sm tracking-wide text-primary ml-2">
-                    CARDIO
+                    MOVEMENT
                   </span>
                 </div>
               </Link>
@@ -275,7 +275,7 @@ const Tracker = () => {
                     UNBREAKABLE
                   </span>
                   <span className="font-display text-sm tracking-wide text-primary ml-2">
-                    CARDIO
+                    MOVEMENT
                   </span>
                 </div>
               </Link>
@@ -357,7 +357,7 @@ const Tracker = () => {
                     UNBREAKABLE
                   </span>
                   <span className="font-display text-sm tracking-wide text-primary ml-2">
-                    CARDIO
+                    MOVEMENT
                   </span>
                 </div>
               </Link>
@@ -427,7 +427,7 @@ const Tracker = () => {
                   UNBREAKABLE
                 </span>
                 <span className="font-display text-sm tracking-wide text-primary ml-2">
-                  CARDIO
+                  MOVEMENT
                 </span>
               </div>
             </Link>
