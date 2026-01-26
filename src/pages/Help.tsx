@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Send, MessageSquarePlus, History, Trash2, ChevronDown, ChevronUp, Loader2, Flame, Dumbbell, Sparkles, Video } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Send, MessageSquarePlus, History, Trash2, ChevronDown, ChevronUp, Loader2, Flame, Dumbbell, Sparkles, Video, UtensilsCrossed } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,15 +16,16 @@ import { ThemedLogo } from '@/components/ThemedLogo';
 import { VoiceSettingsSheet } from '@/components/coaching/VoiceSettingsSheet';
 import { ChatMediaUpload, ChatMedia } from '@/components/coaching/ChatMediaUpload';
 import { useAIProgramme } from '@/hooks/useAIProgramme';
+import { useAIMealPlan } from '@/hooks/useAIMealPlan';
 import { toast } from '@/hooks/use-toast';
 
 const SAMPLE_QUESTIONS = [
   "Build me a 4-day strength programme",
+  "Create a meal plan for muscle gain",
   "I want to lose fat and build muscle — help me!",
   "Create a home workout plan with minimal equipment",
   "I'm stuck on my squat progression — what should I do?",
   "Design a programme for a beginner lifter",
-  "My recovery is slow — what adjustments should I make?",
 ];
 
 interface MessageWithMedia extends Message {
@@ -91,12 +92,14 @@ function MessageBubble({ message }: { message: MessageWithMedia }) {
 
 export default function Help() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [input, setInput] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<ChatMedia | null>(null);
   const [messagesWithMedia, setMessagesWithMedia] = useState<Map<string, ChatMedia>>(new Map());
   const [programmeGenerating, setProgrammeGenerating] = useState(false);
+  const [mealPlanGenerating, setMealPlanGenerating] = useState(false);
   const { user } = useAuth();
   
   const {
@@ -112,9 +115,20 @@ export default function Help() {
   } = useHelpChat();
 
   const { generateProgramme, detectProgrammeRequest, isGenerating } = useAIProgramme();
+  const { generateMealPlan, detectMealPlanRequest, isGenerating: isMealPlanGenerating } = useAIMealPlan();
 
-  // Check for context from other screens
+  // Check for context from URL params or sessionStorage
   useEffect(() => {
+    // First check URL params (from AI Build Banners)
+    const contextParam = searchParams.get('context');
+    if (contextParam) {
+      setInput(contextParam);
+      // Clear the param from URL
+      setSearchParams({});
+      return;
+    }
+
+    // Then check sessionStorage (from in-app CTAs)
     const storedContext = sessionStorage.getItem('coach_context');
     if (storedContext) {
       try {
@@ -131,11 +145,17 @@ export default function Help() {
           case 'programme_request':
             prompt = `Build me a bespoke training programme. `;
             break;
+          case 'meal_plan_request':
+            prompt = `Create a meal plan for me. `;
+            break;
           case 'exercise':
             prompt = `Can you review my technique for ${context.name || 'this exercise'}?`;
             break;
           case 'progress':
             prompt = `I'd like you to analyse my training progress and suggest improvements.`;
+            break;
+          case 'food_log':
+            prompt = `Can you give me feedback on my nutrition today?`;
             break;
         }
         if (prompt) {
@@ -147,7 +167,7 @@ export default function Help() {
         sessionStorage.removeItem('coach_context');
       }
     }
-  }, []);
+  }, [searchParams, setSearchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

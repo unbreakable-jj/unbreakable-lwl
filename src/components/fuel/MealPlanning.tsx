@@ -9,6 +9,7 @@ import { useMealPlans } from '@/hooks/useMealPlans';
 import { MealType, mealTypeLabels, dayLabels } from '@/lib/fuelTypes';
 import { MealPlanCTA } from './NutritionCoachCTA';
 import { MealPlanExecutionView } from './MealPlanExecutionView';
+import { AIBuildBanner } from '@/components/ai/AIBuildBanner';
 import { 
   Plus, 
   Calendar,
@@ -21,7 +22,8 @@ import {
   Play,
   Pause,
   AlertCircle,
-  Flame
+  Flame,
+  Sparkles
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -106,17 +108,20 @@ export function MealPlanning() {
 
   return (
     <div className="space-y-6">
+      {/* AI Build Banner */}
+      <AIBuildBanner type="meal_plan" />
+
       {/* Active Plans Limit Indicator */}
-      <Card className="border border-border">
+      <Card className="border-2 border-primary/20 neon-border-subtle">
         <CardContent className="py-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <Flame className="w-5 h-5 text-primary" />
               <span className="font-display tracking-wide">ACTIVE PLANS</span>
             </div>
-            <span className="text-sm text-muted-foreground">
-              {activePlansCount} / 3 slots used
-            </span>
+            <Badge variant={canActivateMore ? 'secondary' : 'destructive'}>
+              {activePlansCount} / 3 slots
+            </Badge>
           </div>
           <Progress value={(activePlansCount / 3) * 100} className="h-2" />
           {!canActivateMore && (
@@ -255,18 +260,20 @@ export function MealPlanning() {
       {/* No plans message */}
       {(!mealPlans || mealPlans.length === 0) && (
         <div className="space-y-4">
-          <MealPlanCTA variant="banner" />
-          
-          <Card className="p-8 text-center">
-            <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+          <Card className="p-8 text-center border-2 border-primary/20 neon-border-subtle">
+            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 neon-glow">
+              <Calendar className="w-8 h-8 text-primary" />
+            </div>
             <h3 className="font-display text-xl tracking-wide mb-2">NO MEAL PLANS YET</h3>
-            <p className="text-muted-foreground mb-4">
+            <p className="text-muted-foreground mb-6">
               Create your first meal plan manually or ask your coach to build one for you.
             </p>
-            <Button onClick={() => setShowCreateModal(true)} className="font-display tracking-wide">
-              <Plus className="w-4 h-4 mr-2" />
-              CREATE MANUALLY
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button onClick={() => setShowCreateModal(true)} variant="outline" className="font-display tracking-wide">
+                <Plus className="w-4 h-4 mr-2" />
+                CREATE MANUALLY
+              </Button>
+            </div>
           </Card>
         </div>
       )}
