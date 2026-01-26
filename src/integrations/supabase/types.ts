@@ -49,6 +49,62 @@ export type Database = {
           },
         ]
       }
+      conversation_participants: {
+        Row: {
+          conversation_id: string
+          id: string
+          is_deleted: boolean
+          joined_at: string
+          last_read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          id?: string
+          is_deleted?: boolean
+          joined_at?: string
+          last_read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          id?: string
+          is_deleted?: boolean
+          joined_at?: string
+          last_read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       exercise_logs: {
         Row: {
           actual_reps: number | null
@@ -323,6 +379,50 @@ export type Database = {
           },
         ]
       }
+      messages: {
+        Row: {
+          content: string | null
+          conversation_id: string
+          created_at: string
+          id: string
+          image_url: string | null
+          is_deleted: boolean
+          sender_id: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          content?: string | null
+          conversation_id: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_deleted?: boolean
+          sender_id: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          content?: string | null
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_deleted?: boolean
+          sender_id?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       milestones: {
         Row: {
           achieved_at: string
@@ -362,6 +462,39 @@ export type Database = {
           user_id?: string
           value?: number | null
           visibility?: string | null
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          data: Json | null
+          id: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          data?: Json | null
+          id?: string
+          read?: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          data?: Json | null
+          id?: string
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -854,20 +987,41 @@ export type Database = {
         }
         Relationships: []
       }
+      user_presence: {
+        Row: {
+          is_online: boolean
+          last_seen: string
+          user_id: string
+        }
+        Insert: {
+          is_online?: boolean
+          last_seen?: string
+          user_id: string
+        }
+        Update: {
+          is_online?: boolean
+          last_seen?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_settings: {
         Row: {
           ai_feedback_enabled: boolean | null
           allow_comments_default: boolean | null
           allow_friend_requests: boolean | null
+          allow_messages: string | null
           created_at: string
           id: string
           notify_achievements: boolean | null
           notify_comments: boolean | null
           notify_friend_requests: boolean | null
           notify_likes: boolean | null
+          notify_messages: boolean | null
           profile_visibility: string | null
           show_achievements_in_feed: boolean | null
           show_community_posts: boolean | null
+          show_online_status: boolean | null
           show_stats_publicly: boolean | null
           theme: string | null
           updated_at: string
@@ -877,15 +1031,18 @@ export type Database = {
           ai_feedback_enabled?: boolean | null
           allow_comments_default?: boolean | null
           allow_friend_requests?: boolean | null
+          allow_messages?: string | null
           created_at?: string
           id?: string
           notify_achievements?: boolean | null
           notify_comments?: boolean | null
           notify_friend_requests?: boolean | null
           notify_likes?: boolean | null
+          notify_messages?: boolean | null
           profile_visibility?: string | null
           show_achievements_in_feed?: boolean | null
           show_community_posts?: boolean | null
+          show_online_status?: boolean | null
           show_stats_publicly?: boolean | null
           theme?: string | null
           updated_at?: string
@@ -895,15 +1052,18 @@ export type Database = {
           ai_feedback_enabled?: boolean | null
           allow_comments_default?: boolean | null
           allow_friend_requests?: boolean | null
+          allow_messages?: string | null
           created_at?: string
           id?: string
           notify_achievements?: boolean | null
           notify_comments?: boolean | null
           notify_friend_requests?: boolean | null
           notify_likes?: boolean | null
+          notify_messages?: boolean | null
           profile_visibility?: string | null
           show_achievements_in_feed?: boolean | null
           show_community_posts?: boolean | null
+          show_online_status?: boolean | null
           show_stats_publicly?: boolean | null
           theme?: string | null
           updated_at?: string
@@ -1043,6 +1203,14 @@ export type Database = {
     }
     Functions: {
       are_friends: { Args: { user1: string; user2: string }; Returns: boolean }
+      can_message_user: {
+        Args: { recipient_id: string; sender_id: string }
+        Returns: boolean
+      }
+      is_conversation_participant: {
+        Args: { conv_id: string; user_uuid: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

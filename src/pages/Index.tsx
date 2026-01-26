@@ -14,46 +14,28 @@ import { FriendsWidget } from '@/components/tracker/FriendsWidget';
 import { UserSearchModal } from '@/components/tracker/UserSearchModal';
 import { FriendRequestsModal } from '@/components/tracker/FriendRequestsModal';
 import { FriendsListModal } from '@/components/tracker/FriendsListModal';
-import { ThemeToggle } from '@/components/hub/ThemeToggle';
-import { useFriends } from '@/hooks/useFriends';
-import { Badge } from '@/components/ui/badge';
+import { SocialHeader } from '@/components/hub/SocialHeader';
+import { usePresence } from '@/hooks/usePresence';
 import {
   Dumbbell,
   Flame,
   Timer,
   Target,
   Heart,
-  Zap,
   Brain,
   Sparkles,
+  Zap,
   Home,
   User,
   Plus,
-  UserPlus,
-  Users,
+  MessageCircle,
   Bell,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-type Tab = 'feed' | 'workout' | 'profile';
+type Tab = 'feed' | 'messages' | 'notifications' | 'profile';
 
-function FriendRequestBadge({ onClick }: { onClick: () => void }) {
-  const { pendingRequests } = useFriends();
-  const receivedCount = pendingRequests.filter((r) => r.type === 'received').length;
-
-  return (
-    <Button variant="ghost" size="sm" className="relative" onClick={onClick}>
-      <Bell className="w-5 h-5" />
-      {receivedCount > 0 && (
-        <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
-          {receivedCount}
-        </Badge>
-      )}
-    </Button>
-  );
-}
-
-// Unified Hub - Simplified navigation: Feed, Workout, Profile
+// Unified Hub - Facebook-style social application
 const Index = () => {
   const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('feed');
@@ -64,6 +46,9 @@ const Index = () => {
   const [showFriendRequests, setShowFriendRequests] = useState(false);
   const [showFriendsList, setShowFriendsList] = useState(false);
 
+  // Initialize presence tracking
+  usePresence();
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -72,91 +57,21 @@ const Index = () => {
     );
   }
 
-  const handleWorkoutTab = () => {
-    // Open the action menu to choose between Track Run or Track Workout
-    setShowActionMenu(true);
-  };
-
   // If logged in, show the unified hub
   if (user) {
     return (
       <div className="min-h-screen bg-background pb-20 md:pb-8">
-        {/* Header */}
-        <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
-          <div className="container mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-3">
-                <ThemedLogo />
-                <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
-                  UNBREAKABLE
-                </span>
-              </Link>
+        {/* Facebook-style Header */}
+        <SocialHeader
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onShowUserSearch={() => setShowUserSearch(true)}
+          onShowFriendRequests={() => setShowFriendRequests(true)}
+          onShowFriendsList={() => setShowFriendsList(true)}
+          onShowActionMenu={() => setShowActionMenu(true)}
+        />
 
-              <div className="flex items-center gap-2">
-                <ThemeToggle />
-                <Button variant="ghost" size="sm" onClick={() => setShowUserSearch(true)}>
-                  <UserPlus className="w-5 h-5" />
-                </Button>
-                <FriendRequestBadge onClick={() => setShowFriendRequests(true)} />
-                <Button variant="ghost" size="sm" onClick={() => setShowFriendsList(true)}>
-                  <Users className="w-5 h-5" />
-                </Button>
-                <Button
-                  size="sm"
-                  className="font-display tracking-wide"
-                  onClick={() => setShowActionMenu(true)}
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  <span className="hidden sm:inline">TRACK</span>
-                </Button>
-                <NavigationDrawer variant="minimal" />
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Desktop Tab Navigation - Simplified: Feed, Workout, Profile */}
-        <div className="hidden md:block container mx-auto px-6 py-6">
-          <div className="flex justify-center">
-            <div className="inline-flex bg-card border border-border rounded-lg p-1 gap-1">
-              <button
-                onClick={() => setActiveTab('feed')}
-                className={`flex items-center gap-2 px-6 py-3 rounded-md font-display tracking-wide transition-all ${
-                  activeTab === 'feed'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Home className="w-4 h-4" />
-                FEED
-              </button>
-              <button
-                onClick={handleWorkoutTab}
-                className={`flex items-center gap-2 px-6 py-3 rounded-md font-display tracking-wide transition-all ${
-                  activeTab === 'workout'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Dumbbell className="w-4 h-4" />
-                WORKOUT
-              </button>
-              <button
-                onClick={() => setActiveTab('profile')}
-                className={`flex items-center gap-2 px-6 py-3 rounded-md font-display tracking-wide transition-all ${
-                  activeTab === 'profile'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <User className="w-4 h-4" />
-                PROFILE
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <main className="container mx-auto px-6 py-6">
+        <main className="container mx-auto px-4 sm:px-6 py-6">
           <div className="flex gap-6 max-w-5xl mx-auto">
             {/* Main Content */}
             <div className="flex-1 max-w-2xl">
@@ -171,7 +86,7 @@ const Index = () => {
           </div>
         </main>
 
-        {/* Mobile Bottom Navigation - Simplified: Feed, + Workout, Profile */}
+        {/* Mobile Bottom Navigation */}
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50">
           <div className="flex items-center justify-around py-2">
             <button

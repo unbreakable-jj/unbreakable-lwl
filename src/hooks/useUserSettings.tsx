@@ -14,9 +14,12 @@ export interface UserSettings {
   notify_comments: boolean;
   notify_friend_requests: boolean;
   notify_achievements: boolean;
+  notify_messages: boolean;
   show_community_posts: boolean;
   show_achievements_in_feed: boolean;
   ai_feedback_enabled: boolean;
+  allow_messages: 'everyone' | 'friends' | 'none';
+  show_online_status: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -31,9 +34,12 @@ const defaultSettings: Omit<UserSettings, 'id' | 'user_id' | 'created_at' | 'upd
   notify_comments: true,
   notify_friend_requests: true,
   notify_achievements: true,
+  notify_messages: true,
   show_community_posts: true,
   show_achievements_in_feed: true,
   ai_feedback_enabled: true,
+  allow_messages: 'friends',
+  show_online_status: true,
 };
 
 export function useUserSettings() {

@@ -203,6 +203,67 @@ export function SettingsPanel() {
               onCheckedChange={(checked) => handleUpdate({ allow_friend_requests: checked })}
             />
           </div>
+
+          <Separator />
+
+          {/* Messaging Settings */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-foreground font-medium flex items-center gap-2">
+                <MessageSquare className="w-4 h-4" />
+                Who Can Message Me
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Control who can send you direct messages
+              </p>
+            </div>
+            <Select
+              value={(settings as any).allow_messages || 'friends'}
+              onValueChange={(value: 'everyone' | 'friends' | 'none') => 
+                handleUpdate({ allow_messages: value } as any)
+              }
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="everyone">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4" />
+                    Everyone
+                  </div>
+                </SelectItem>
+                <SelectItem value="friends">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    Friends Only
+                  </div>
+                </SelectItem>
+                <SelectItem value="none">
+                  <div className="flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    No One
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-foreground font-medium flex items-center gap-2">
+                <Eye className="w-4 h-4" />
+                Show Online Status
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Let friends see when you're online
+              </p>
+            </div>
+            <Switch
+              checked={(settings as any).show_online_status ?? true}
+              onCheckedChange={(checked) => handleUpdate({ show_online_status: checked } as any)}
+            />
+          </div>
         </CardContent>
       </Card>
 
@@ -429,6 +490,22 @@ export function SettingsPanel() {
             <Switch
               checked={settings.notify_achievements}
               onCheckedChange={(checked) => handleUpdate({ notify_achievements: checked })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-foreground font-medium flex items-center gap-2">
+                <MessageSquare className="w-4 h-4" />
+                Messages
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                When you receive a new message
+              </p>
+            </div>
+            <Switch
+              checked={(settings as any).notify_messages ?? true}
+              onCheckedChange={(checked) => handleUpdate({ notify_messages: checked } as any)}
             />
           </div>
         </CardContent>
