@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Edit3,
   ExternalLink,
@@ -15,6 +15,7 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { PlanContentRenderer } from './PlanContentRenderer';
 import { GeneratedProgram, WorkoutDay } from '@/lib/programTypes';
 
 type PlanType = 'programme' | 'meal_plan';
@@ -36,7 +37,7 @@ export function PlanDisplayCard({
   onEdit,
   onViewInHub,
 }: PlanDisplayCardProps) {
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, setShowDetails] = useState(true); // Default open
   const isProgramme = planType === 'programme';
   const Icon = isProgramme ? Dumbbell : UtensilsCrossed;
   const hubLabel = isProgramme ? 'My Programmes' : 'My Meal Plans';
@@ -69,87 +70,60 @@ export function PlanDisplayCard({
   const summary = getSummary();
 
   return (
-    <Card className="border-2 border-primary/40 bg-gradient-to-br from-primary/10 to-primary/5 neon-border-subtle">
-      <CardContent className="p-4 space-y-4">
+    <Card className="border-2 border-primary/40 bg-gradient-to-br from-primary/10 to-primary/5 neon-border-subtle max-w-full overflow-hidden">
+      <CardContent className="p-4 space-y-3">
         {/* Header */}
         <div className="flex items-start gap-3">
-          <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center neon-glow shrink-0">
-            <Icon className="w-6 h-6 text-primary" />
+          <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center neon-glow shrink-0">
+            <Icon className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <Flame className="w-4 h-4 text-primary" />
+            <div className="flex items-center gap-2 mb-0.5">
+              <Flame className="w-3.5 h-3.5 text-primary" />
               <span className="text-xs font-display tracking-wide text-primary">
                 YOUR {isProgramme ? 'PROGRAMME' : 'MEAL PLAN'} IS READY
               </span>
             </div>
-            <h3 className="font-display text-lg tracking-wide text-foreground truncate">
+            <h3 className="font-display text-base tracking-wide text-foreground truncate">
               {planName}
             </h3>
           </div>
           {savedToHub && (
-            <Badge variant="outline" className="shrink-0 border-primary/50 text-primary">
+            <Badge variant="outline" className="shrink-0 border-primary/50 text-primary text-xs">
               <Check className="w-3 h-3 mr-1" />
               Saved
             </Badge>
           )}
         </div>
 
-        {/* Overview */}
-        <p className="text-sm text-muted-foreground line-clamp-2">
-          {overview}
-        </p>
+        {/* Overview - Truncated */}
+        {overview && (
+          <p className="text-xs text-muted-foreground line-clamp-2">
+            {overview}
+          </p>
+        )}
 
         {/* Summary Stats */}
-        <div className="flex items-center gap-4 text-sm">
+        <div className="flex items-center gap-3 text-xs">
           <div className="flex items-center gap-1.5">
-            <Calendar className="w-4 h-4 text-primary" />
+            <Calendar className="w-3.5 h-3.5 text-primary" />
             <span>{summary.primary}</span>
           </div>
           <span className="text-muted-foreground">•</span>
           <span className="text-muted-foreground">{summary.secondary}</span>
         </div>
 
-        {/* Expandable Details */}
+        {/* Expandable Full Plan Details */}
         <Collapsible open={showDetails} onOpenChange={setShowDetails}>
           <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="w-full justify-between text-muted-foreground">
-              <span>{showDetails ? 'Hide Details' : 'Show Details'}</span>
+            <Button variant="ghost" size="sm" className="w-full justify-between text-muted-foreground h-8">
+              <span className="text-xs">{showDetails ? 'Hide Full Plan' : 'Show Full Plan'}</span>
               {showDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-2">
-            <div className="space-y-2 text-sm bg-muted/30 rounded-lg p-3">
-              {isProgramme && planData.templateWeek?.days && (
-                <>
-                  <p className="font-medium text-foreground mb-2">Weekly Structure:</p>
-                  {planData.templateWeek.days.map((day: WorkoutDay, idx: number) => (
-                    <div key={idx} className="flex items-center justify-between py-1 border-b border-border/50 last:border-0">
-                      <span className="text-primary font-medium">{day.day}</span>
-                      <span className="text-muted-foreground">{day.sessionType}</span>
-                    </div>
-                  ))}
-                </>
-              )}
-              {!isProgramme && planData.days && (
-                <>
-                  <p className="font-medium text-foreground mb-2">Daily Overview:</p>
-                  {planData.days.slice(0, 3).map((day: any, idx: number) => (
-                    <div key={idx} className="flex items-center justify-between py-1 border-b border-border/50 last:border-0">
-                      <span className="text-primary font-medium">{day.dayName}</span>
-                      <span className="text-muted-foreground">
-                        {day.totalCalories} kcal • {day.totalProtein}g protein
-                      </span>
-                    </div>
-                  ))}
-                  {planData.days.length > 3 && (
-                    <p className="text-muted-foreground text-center text-xs pt-1">
-                      + {planData.days.length - 3} more days
-                    </p>
-                  )}
-                </>
-              )}
-            </div>
+            {/* Clean Rendered Plan Content */}
+            <PlanContentRenderer planType={planType} planData={planData} />
           </CollapsibleContent>
         </Collapsible>
 
@@ -157,23 +131,25 @@ export function PlanDisplayCard({
         <div className="flex gap-2 pt-2">
           <Button
             variant="outline"
-            className="flex-1 gap-2 border-primary/40 hover:border-primary"
+            size="sm"
+            className="flex-1 gap-1.5 border-primary/40 hover:border-primary text-xs h-9"
             onClick={onEdit}
           >
-            <Edit3 className="w-4 h-4" />
+            <Edit3 className="w-3.5 h-3.5" />
             EDIT PLAN
           </Button>
           <Button
-            className="flex-1 gap-2"
+            size="sm"
+            className="flex-1 gap-1.5 text-xs h-9"
             onClick={onViewInHub}
           >
-            <ExternalLink className="w-4 h-4" />
+            <ExternalLink className="w-3.5 h-3.5" />
             VIEW IN {navLabel}
           </Button>
         </div>
 
         {/* Hub Link Note */}
-        <p className="text-xs text-muted-foreground text-center">
+        <p className="text-[10px] text-muted-foreground text-center">
           Your plan is saved to <strong>{hubLabel}</strong> with status "Not Started"
         </p>
       </CardContent>

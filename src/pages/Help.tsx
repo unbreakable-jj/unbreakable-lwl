@@ -222,7 +222,7 @@ export default function Help() {
       setProgrammeGenerating(false);
       
       if (result?.savedToHub && result.programId) {
-        // Store the generated plan for display
+        // Store the generated plan for display as a clean card
         const planInfo: GeneratedPlanInfo = {
           type: 'programme',
           planData: result.program,
@@ -231,23 +231,10 @@ export default function Help() {
         };
         setGeneratedPlans(prev => [...prev, planInfo]);
         
-        // Add assistant response about the programme
+        // Add brief assistant acknowledgment (plan details shown in card)
         setTimeout(() => {
-          const programmeResponse = `🎉 **Your bespoke programme is ready!**
-
-I've created **"${result.program.programName}"** just for you.
-
-${result.program.overview}
-
-**What's included:**
-• ${result.program.templateWeek?.days?.length || 0} training days per week
-• ${result.program.phases?.length || 3} periodized phases over 12 weeks
-• Detailed coaching notes for every exercise
-
-Use the buttons below to **edit your plan** or **view it in your hub**. The programme won't auto-start — you're in control! 💪`;
-          
-          sendMessage(programmeResponse);
-        }, 500);
+          sendMessage(`🎉 **"${result.program.programName}"** is ready! Check out the full details below.`);
+        }, 300);
         
         toast({
           title: 'Programme Created & Saved!',
@@ -275,7 +262,7 @@ Use the buttons below to **edit your plan** or **view it in your hub**. The prog
       setMealPlanGenerating(false);
       
       if (result?.savedToHub && result.plan && result.planId) {
-        // Store the generated plan for display
+        // Store the generated plan for display as a clean card
         const planInfo: GeneratedPlanInfo = {
           type: 'meal_plan',
           planData: result.plan,
@@ -284,26 +271,10 @@ Use the buttons below to **edit your plan** or **view it in your hub**. The prog
         };
         setGeneratedPlans(prev => [...prev, planInfo]);
         
-        // Add assistant response about the meal plan
+        // Add brief assistant acknowledgment (plan details shown in card)
         setTimeout(() => {
-          const mealPlanResponse = `🍽️ **Your bespoke meal plan is ready!**
-
-I've created **"${result.plan.planName}"** tailored to your goals.
-
-${result.plan.overview}
-
-**Weekly Totals:**
-• ~${result.plan.weeklyCalories?.toLocaleString() || 0} calories
-• ~${result.plan.weeklyProtein || 0}g protein
-
-**What's included:**
-• ${result.plan.days?.length || 7} days of meals planned
-• Breakfast, lunch, dinner & snacks
-
-Use the buttons below to **edit your plan** or **view it in your hub**. The plan won't auto-activate — you're in control! 🔥`;
-          
-          sendMessage(mealPlanResponse);
-        }, 500);
+          sendMessage(`🍽️ **"${result.plan.planName}"** is ready! Check out the full details below.`);
+        }, 300);
         
         toast({
           title: 'Meal Plan Created & Saved!',
