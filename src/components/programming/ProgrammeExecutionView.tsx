@@ -1,15 +1,15 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useSessionPlanners, SessionPlanner } from '@/hooks/useSessionPlanners';
-import { useWorkoutSessions, WorkoutSession } from '@/hooks/useWorkoutSessions';
+import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import { TrainingProgram } from '@/hooks/useTrainingPrograms';
 import { ActiveWorkoutModal } from './ActiveWorkoutModal';
-import { format, parseISO, isToday, isPast, isFuture, addDays, startOfWeek } from 'date-fns';
+import { format, parseISO, isToday, isPast, addDays, startOfWeek } from 'date-fns';
 import {
   Calendar,
   ChevronLeft,
@@ -17,14 +17,11 @@ import {
   Play,
   Check,
   X,
-  Clock,
   Dumbbell,
   Loader2,
   Target,
-  Flame,
-  CheckCircle2,
-  Circle,
-  ArrowRight,
+  ChevronDown,
+  ArrowLeft,
 } from 'lucide-react';
 
 interface ProgrammeExecutionViewProps {
@@ -45,6 +42,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
   const [currentWeekStart, setCurrentWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [showWorkoutModal, setShowWorkoutModal] = useState(false);
   const [isStartingSession, setIsStartingSession] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   // Find next pending session
   const nextSession = useMemo(() => {
@@ -121,14 +119,12 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
   const handleCompleteWorkout = (notes?: string, visibility?: 'public' | 'friends' | 'private') => {
     if (!activeSession) return;
     
-    // Complete the workout session
     completeSession.mutate({
       sessionId: activeSession.id,
       notes,
       visibility,
     });
     
-    // Also mark the planner session as completed
     if (nextSession) {
       markComplete.mutate(nextSession.id);
     }
@@ -142,7 +138,6 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
     setShowWorkoutModal(false);
   };
 
-  // Open modal if there's an active session on mount
   const hasActiveSession = !!activeSession && activeSession.program_id === program.id;
 
   if (plannersLoading) {
@@ -166,50 +161,57 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
   }
 
   return (
-    <div className="space-y-6 md:space-y-8">
-      {/* Header with Progress */}
-      <Card className="p-5 md:p-6 border border-primary/50 bg-gradient-to-br from-primary/10 to-transparent">
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
-          <div>
-            <h2 className="font-display text-xl md:text-2xl text-foreground mb-1">{program.name}</h2>
-            <p className="text-sm text-muted-foreground">
-              Week {program.current_week} • Day {program.current_day}
-            </p>
-          </div>
-          <Button variant="outline" size="sm" onClick={onClose} className="self-start shrink-0">
-            <X className="w-4 h-4 mr-1" />
-            Close
-          </Button>
+    <div className="space-y-6">
+      {/* Header with Back Button */}
+      <div className="flex items-center justify-between">
+        <Button variant="outline" onClick={onClose} className="gap-2 font-display tracking-wide">
+          <ArrowLeft className="w-4 h-4" />
+          BACK
+        </Button>
+        <Badge variant="outline" className="font-display">
+          Week {program.current_week} • Day {program.current_day}
+        </Badge>
+      </div>
+
+      {/* Programme Title */}
+      <div className="text-center">
+        <h2 className="font-display text-2xl md:text-3xl text-foreground tracking-wide mb-2">
+          {program.name}
+        </h2>
+        <p className="text-muted-foreground">{program.overview}</p>
+      </div>
+
+      {/* Progress Card */}
+      <Card className="p-5 border border-primary/50 bg-gradient-to-br from-primary/10 to-transparent">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm text-muted-foreground">Programme Progress</span>
+          <span className="font-display text-lg text-foreground">
+            {progress.completed}/{progress.total} sessions
+          </span>
         </div>
-        
-        <div className="space-y-3">
-          <div className="flex items-center justify-between text-sm gap-4">
-            <span className="text-muted-foreground">Programme Progress</span>
-            <span className="text-foreground font-medium whitespace-nowrap">
-              {progress.completed} / {progress.total} sessions ({progress.percentage}%)
-            </span>
-          </div>
-          <Progress value={progress.percentage} className="h-2.5" />
-        </div>
+        <Progress value={progress.percentage} className="h-2" />
+        <p className="text-xs text-muted-foreground mt-2 text-right">
+          {progress.percentage}% complete
+        </p>
       </Card>
 
-      {/* Next Session CTA */}
+      {/* Next Session CTA - Clean & Focused */}
       {nextSession && (
-        <Card className="p-5 md:p-6 border border-primary bg-card">
+        <Card className="p-6 border-2 border-primary bg-card">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                <Dumbbell className="w-6 h-6 md:w-7 md:h-7 text-primary" />
+              <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                <Dumbbell className="w-7 h-7 text-primary" />
               </div>
               <div>
-                <h3 className="font-display text-lg md:text-xl text-foreground">
-                  {hasActiveSession ? 'Continue Workout' : 'Next Session'}
-                </h3>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  {nextSession.session_type} • Week {nextSession.week_number}, Day {nextSession.day_number}
+                <p className="text-sm text-muted-foreground">
+                  {hasActiveSession ? 'Continue Your Workout' : 'Next Session'}
                 </p>
-                <p className="text-xs text-primary mt-1">
-                  {nextSession.planned_exercises.length} exercises
+                <h3 className="font-display text-xl text-foreground">
+                  {nextSession.session_type}
+                </h3>
+                <p className="text-sm text-primary">
+                  Week {nextSession.week_number}, Day {nextSession.day_number} • {nextSession.planned_exercises.length} exercises
                 </p>
               </div>
             </div>
@@ -218,134 +220,91 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
               size="lg" 
               onClick={() => hasActiveSession ? setShowWorkoutModal(true) : handleStartSession(nextSession)}
               disabled={isStartingSession || startSession.isPending}
-              className="gap-2 w-full sm:w-auto shrink-0"
+              className="gap-2 w-full sm:w-auto font-display tracking-wide"
             >
               {isStartingSession || startSession.isPending ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <Play className="w-5 h-5" />
               )}
-              {hasActiveSession ? 'Continue' : 'Start Workout'}
+              {hasActiveSession ? 'CONTINUE' : 'START WORKOUT'}
             </Button>
           </div>
         </Card>
       )}
 
-      {/* Week Calendar View */}
-      <Card className="border border-border bg-card">
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <Button variant="ghost" size="icon" onClick={() => setCurrentWeekStart(addDays(currentWeekStart, -7))}>
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-            
+      {/* Week Calendar - Collapsible */}
+      <Collapsible open={showCalendar} onOpenChange={setShowCalendar}>
+        <Card className="border border-border bg-card">
+          <CollapsibleTrigger className="w-full p-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-primary" />
-              <span className="font-display text-lg text-foreground">
-                {format(currentWeekStart, 'MMM d')} - {format(addDays(currentWeekStart, 6), 'MMM d, yyyy')}
+              <span className="font-display text-foreground tracking-wide">
+                WEEK SCHEDULE
               </span>
             </div>
-            
-            <Button variant="ghost" size="icon" onClick={() => setCurrentWeekStart(addDays(currentWeekStart, 7))}>
-              <ChevronRight className="w-5 h-5" />
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-7 gap-2">
-            {weekDays.map((day) => {
-              const planner = getPlannerForDay(day);
-              const isCurrentDay = isToday(day);
-              const isPastDay = isPast(day) && !isCurrentDay;
-
-              return (
-                <div key={day.toISOString()} className="space-y-1">
-                  <div className={`text-center text-xs font-medium py-1 rounded ${
-                    isCurrentDay ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
-                  }`}>
-                    {format(day, 'EEE')}
-                    <div className="text-sm font-bold">{format(day, 'd')}</div>
-                  </div>
-                  
-                  {planner ? (
-                    <SessionDayCard
-                      planner={planner}
-                      isToday={isCurrentDay}
-                      isPast={isPastDay}
-                      onStart={() => handleStartSession(planner)}
-                      onComplete={() => markComplete.mutate(planner.id)}
-                      onSkip={() => markSkipped.mutate(planner.id)}
-                      isStarting={isStartingSession}
-                    />
-                  ) : (
-                    <Card className="p-2 border border-dashed border-border bg-card/50 min-h-[80px] flex items-center justify-center">
-                      <span className="text-xs text-muted-foreground">Rest</span>
-                    </Card>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Upcoming Sessions List */}
-      <Card className="border border-border bg-card">
-        <CardHeader>
-          <CardTitle className="font-display text-lg tracking-wide flex items-center gap-2">
-            <Clock className="w-5 h-5 text-primary" />
-            UPCOMING SESSIONS
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[250px]">
-            <div className="space-y-2">
-              {planners
-                .filter(p => p.status === 'pending')
-                .slice(0, 10)
-                .map((planner, index) => (
-                  <div 
-                    key={planner.id}
-                    className={`flex items-center justify-between p-3 rounded-lg border ${
-                      index === 0 ? 'border-primary bg-primary/5' : 'border-border bg-card'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      {index === 0 ? (
-                        <Flame className="w-5 h-5 text-primary" />
-                      ) : (
-                        <Circle className="w-5 h-5 text-muted-foreground" />
-                      )}
-                      <div>
-                        <p className="font-medium text-foreground text-sm">{planner.session_type}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Week {planner.week_number}, Day {planner.day_number}
-                          {planner.scheduled_date && ` • ${format(parseISO(planner.scheduled_date), 'MMM d')}`}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {index === 0 && (
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => handleStartSession(planner)}
-                        disabled={isStartingSession}
-                        className="gap-1"
-                      >
-                        {isStartingSession ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <ArrowRight className="w-4 h-4" />
-                        )}
-                      </Button>
-                    )}
-                  </div>
-                ))}
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-xs">
+                {weekPlanners.filter(p => p.status === 'completed').length}/{weekPlanners.length} done
+              </Badge>
+              <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showCalendar ? 'rotate-180' : ''}`} />
             </div>
-          </ScrollArea>
-        </CardContent>
-      </Card>
+          </CollapsibleTrigger>
+
+          <CollapsibleContent>
+            <CardContent className="pt-0 pb-4">
+              {/* Week Navigation */}
+              <div className="flex items-center justify-between mb-4">
+                <Button variant="ghost" size="icon" onClick={() => setCurrentWeekStart(addDays(currentWeekStart, -7))}>
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+                <span className="text-sm text-muted-foreground">
+                  {format(currentWeekStart, 'MMM d')} - {format(addDays(currentWeekStart, 6), 'MMM d, yyyy')}
+                </span>
+                <Button variant="ghost" size="icon" onClick={() => setCurrentWeekStart(addDays(currentWeekStart, 7))}>
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
+              </div>
+
+              {/* Day Grid */}
+              <div className="grid grid-cols-7 gap-2">
+                {weekDays.map((day) => {
+                  const planner = getPlannerForDay(day);
+                  const isCurrentDay = isToday(day);
+                  const isPastDay = isPast(day) && !isCurrentDay;
+
+                  return (
+                    <div key={day.toISOString()} className="space-y-1">
+                      <div className={`text-center text-xs font-medium py-1 rounded ${
+                        isCurrentDay ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+                      }`}>
+                        {format(day, 'EEE')}
+                        <div className="text-sm font-bold">{format(day, 'd')}</div>
+                      </div>
+                      
+                      {planner ? (
+                        <SessionDayCard
+                          planner={planner}
+                          isToday={isCurrentDay}
+                          isPast={isPastDay}
+                          onStart={() => handleStartSession(planner)}
+                          onComplete={() => markComplete.mutate(planner.id)}
+                          onSkip={() => markSkipped.mutate(planner.id)}
+                          isStarting={isStartingSession}
+                        />
+                      ) : (
+                        <Card className="p-2 border border-dashed border-border bg-card/50 min-h-[60px] flex items-center justify-center">
+                          <span className="text-xs text-muted-foreground">Rest</span>
+                        </Card>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* Active Workout Modal */}
       {activeSession && (
@@ -386,7 +345,7 @@ function SessionDayCard({
   };
 
   return (
-    <Card className={`p-2 border ${statusColors[planner.status]} min-h-[80px]`}>
+    <Card className={`p-2 border ${statusColors[planner.status]} min-h-[60px]`}>
       <div className="space-y-1">
         <div className="flex items-center justify-between">
           <Badge 
@@ -407,11 +366,7 @@ function SessionDayCard({
           {planner.session_type}
         </p>
         
-        <p className="text-[9px] text-muted-foreground">
-          {planner.planned_exercises.length} exercises
-        </p>
-        
-        {planner.status === 'pending' && (
+        {planner.status === 'pending' && (isToday || isPast) && (
           <div className="flex gap-0.5 pt-0.5">
             <Button
               variant="default"
