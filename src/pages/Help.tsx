@@ -17,12 +17,26 @@ import { VoiceSettingsSheet } from '@/components/coaching/VoiceSettingsSheet';
 import { ChatMediaUpload, ChatMedia } from '@/components/coaching/ChatMediaUpload';
 import { ExampleQuestions } from '@/components/coaching/ExampleQuestions';
 import { ProfileButton } from '@/components/coaching/ProfileButton';
+import { PlanDisplayCard } from '@/components/coaching/PlanDisplayCard';
+import { AIPlanReviewModal } from '@/components/ai/AIPlanReviewModal';
 import { useAIProgramme } from '@/hooks/useAIProgramme';
 import { useAIMealPlan } from '@/hooks/useAIMealPlan';
+import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
+import { useMealPlans } from '@/hooks/useMealPlans';
 import { toast } from '@/hooks/use-toast';
+import { GeneratedProgram } from '@/lib/programTypes';
 
 interface MessageWithMedia extends Message {
   media?: ChatMedia;
+}
+
+// Store generated plans for display
+interface GeneratedPlanInfo {
+  type: 'programme' | 'meal_plan';
+  planData: any;
+  planId: string;
+  savedToHub: boolean;
+  messageId?: string;
 }
 
 function MessageBubble({ message }: { message: MessageWithMedia }) {
@@ -93,6 +107,12 @@ export default function Help() {
   const [messagesWithMedia, setMessagesWithMedia] = useState<Map<string, ChatMedia>>(new Map());
   const [programmeGenerating, setProgrammeGenerating] = useState(false);
   const [mealPlanGenerating, setMealPlanGenerating] = useState(false);
+  
+  // Plan editing state
+  const [generatedPlans, setGeneratedPlans] = useState<GeneratedPlanInfo[]>([]);
+  const [editingPlan, setEditingPlan] = useState<GeneratedPlanInfo | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  
   const { user } = useAuth();
   
   const {
@@ -109,6 +129,8 @@ export default function Help() {
 
   const { generateProgramme, detectProgrammeRequest, isGenerating } = useAIProgramme();
   const { generateMealPlan, detectMealPlanRequest, isGenerating: isMealPlanGenerating } = useAIMealPlan();
+  const { updateProgram } = useTrainingPrograms();
+  const { updateMealPlan } = useMealPlans();
 
   // Check for context from URL params or sessionStorage
   useEffect(() => {
@@ -199,41 +221,37 @@ export default function Help() {
       
       setProgrammeGenerating(false);
       
-      if (result?.savedToHub) {
+      if (result?.savedToHub && result.programId) {
+        // Store the generated plan for display
+        const planInfo: GeneratedPlanInfo = {
+          type: 'programme',
+          planData: result.program,
+          planId: result.programId,
+          savedToHub: true,
+        };
+        setGeneratedPlans(prev => [...prev, planInfo]);
+        
         // Add assistant response about the programme
         setTimeout(() => {
           const programmeResponse = `🎉 **Your bespoke programme is ready!**
 
-I've created **"${result.program.programName}"** just for you. Here's what I built:
+I've created **"${result.program.programName}"** just for you.
 
 ${result.program.overview}
 
 **What's included:**
-- ${result.program.templateWeek?.days?.length || 0} training days per week
-- ${result.program.phases?.length || 3} periodized phases over 12 weeks
-- Detailed coaching notes for every exercise
-- Progression rules tailored to your goals
+• ${result.program.templateWeek?.days?.length || 0} training days per week
+• ${result.program.phases?.length || 3} periodized phases over 12 weeks
+• Detailed coaching notes for every exercise
 
-**Your programme is now in your My Programmes hub** (Power → My Programmes). From there you can:
-1. Preview the full programme
-2. Make any edits you want
-3. Start it when you're ready
-
-The programme won't auto-start — you're in control. When you're ready, hit "Start" and I'll generate your 12-week training schedule.
-
-Got questions about the programme? Just ask! 💪`;
+Use the buttons below to **edit your plan** or **view it in your hub**. The programme won't auto-start — you're in control! 💪`;
           
           sendMessage(programmeResponse);
         }, 500);
         
         toast({
-          title: 'Programme Created!',
-          description: 'View it in Power → My Programmes',
-          action: (
-            <Button variant="outline" size="sm" onClick={() => navigate('/programming')}>
-              View Programme
-            </Button>
-          ),
+          title: 'Programme Created & Saved!',
+          description: 'Edit it below or view in Power → My Programmes',
         });
       }
       return;
@@ -256,45 +274,40 @@ Got questions about the programme? Just ask! 💪`;
       
       setMealPlanGenerating(false);
       
-      if (result?.savedToHub && result.plan) {
+      if (result?.savedToHub && result.plan && result.planId) {
+        // Store the generated plan for display
+        const planInfo: GeneratedPlanInfo = {
+          type: 'meal_plan',
+          planData: result.plan,
+          planId: result.planId,
+          savedToHub: true,
+        };
+        setGeneratedPlans(prev => [...prev, planInfo]);
+        
         // Add assistant response about the meal plan
         setTimeout(() => {
           const mealPlanResponse = `🍽️ **Your bespoke meal plan is ready!**
 
-I've created **"${result.plan.planName}"** tailored to your goals. Here's the overview:
+I've created **"${result.plan.planName}"** tailored to your goals.
 
 ${result.plan.overview}
 
 **Weekly Totals:**
-- ~${result.plan.weeklyCalories.toLocaleString()} calories
-- ~${result.plan.weeklyProtein}g protein
+• ~${result.plan.weeklyCalories?.toLocaleString() || 0} calories
+• ~${result.plan.weeklyProtein || 0}g protein
 
 **What's included:**
-- ${result.plan.days?.length || 7} days of meals planned
-- Breakfast, lunch, dinner & snacks
-- Shopping list and meal prep tips
-- Coach notes for your success
+• ${result.plan.days?.length || 7} days of meals planned
+• Breakfast, lunch, dinner & snacks
 
-**Your meal plan is now in your Fuel hub** (Fuel → Plan). From there you can:
-1. Preview the full plan
-2. Make any swaps or edits
-3. Activate it when you're ready
-
-The plan won't auto-activate — you're in control. When you're ready, hit "Activate" and start tracking your nutrition!
-
-Questions about the plan or want to make changes? Just ask! 🔥`;
+Use the buttons below to **edit your plan** or **view it in your hub**. The plan won't auto-activate — you're in control! 🔥`;
           
           sendMessage(mealPlanResponse);
         }, 500);
         
         toast({
-          title: 'Meal Plan Created!',
-          description: 'View it in Fuel → Plan',
-          action: (
-            <Button variant="outline" size="sm" onClick={() => navigate('/fuel')}>
-              View Meal Plan
-            </Button>
-          ),
+          title: 'Meal Plan Created & Saved!',
+          description: 'Edit it below or view in Fuel → My Meal Plans',
         });
       }
       return;
@@ -317,6 +330,62 @@ Questions about the plan or want to make changes? Just ask! 🔥`;
       return;
     }
     setInput(question);
+  };
+
+  // Handle edit plan
+  const handleEditPlan = (plan: GeneratedPlanInfo) => {
+    setEditingPlan(plan);
+    setShowEditModal(true);
+  };
+
+  // Handle save edited plan
+  const handleSaveEditedPlan = async (editedPlanData: any) => {
+    if (!editingPlan) return;
+    
+    try {
+      if (editingPlan.type === 'programme') {
+        await updateProgram.mutateAsync({
+          programId: editingPlan.planId,
+          programData: editedPlanData as GeneratedProgram,
+        });
+      } else {
+        await updateMealPlan.mutateAsync({
+          id: editingPlan.planId,
+          name: editedPlanData.planName,
+          description: editedPlanData.overview,
+        });
+      }
+      
+      // Update local state
+      setGeneratedPlans(prev => prev.map(p => 
+        p.planId === editingPlan.planId 
+          ? { ...p, planData: editedPlanData }
+          : p
+      ));
+      
+      setShowEditModal(false);
+      setEditingPlan(null);
+      
+      toast({
+        title: 'Plan Updated!',
+        description: 'Your changes have been saved.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to save changes. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Handle view in hub
+  const handleViewInHub = (plan: GeneratedPlanInfo) => {
+    if (plan.type === 'programme') {
+      navigate('/programming');
+    } else {
+      navigate('/fuel');
+    }
   };
 
   const isAnyGenerating = isGenerating || isMealPlanGenerating;
@@ -487,12 +556,46 @@ Questions about the plan or want to make changes? Just ask! 🔥`;
                       </Card>
                     </div>
                   )}
+                  {/* Generated Plan Display Cards */}
+                  {generatedPlans.length > 0 && (
+                    <div className="space-y-4 mt-4 pt-4 border-t border-border/50">
+                      {generatedPlans.map((plan) => (
+                        <PlanDisplayCard
+                          key={plan.planId}
+                          planType={plan.type}
+                          planData={plan.planData}
+                          planId={plan.planId}
+                          savedToHub={plan.savedToHub}
+                          onEdit={() => handleEditPlan(plan)}
+                          onViewInHub={() => handleViewInHub(plan)}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </ScrollArea>
               </CardContent>
             </Card>
           )}
 
-          {/* Input Section - Text only, no voice reply controls */}
+          {/* Standalone Plan Display - shown when plans exist but no messages */}
+          {generatedPlans.length > 0 && enrichedMessages.length === 0 && (
+            <div className="mb-6 space-y-4">
+              <h3 className="font-display text-lg tracking-wide text-center text-muted-foreground">
+                YOUR GENERATED PLANS
+              </h3>
+              {generatedPlans.map((plan) => (
+                <PlanDisplayCard
+                  key={plan.planId}
+                  planType={plan.type}
+                  planData={plan.planData}
+                  planId={plan.planId}
+                  savedToHub={plan.savedToHub}
+                  onEdit={() => handleEditPlan(plan)}
+                  onViewInHub={() => handleViewInHub(plan)}
+                />
+              ))}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Media preview */}
             {selectedMedia && (
@@ -594,6 +697,21 @@ Questions about the plan or want to make changes? Just ask! 🔥`;
 
         <UnifiedFooter />
         <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+        
+        {/* Plan Edit Modal */}
+        {editingPlan && (
+          <AIPlanReviewModal
+            isOpen={showEditModal}
+            onClose={() => {
+              setShowEditModal(false);
+              setEditingPlan(null);
+            }}
+            planType={editingPlan.type}
+            planData={editingPlan.planData}
+            onSave={handleSaveEditedPlan}
+            isSaving={updateProgram.isPending || updateMealPlan.isPending}
+          />
+        )}
       </div>
     </SwipeNavigationWrapper>
   );
