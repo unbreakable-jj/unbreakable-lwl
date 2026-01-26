@@ -1,6 +1,7 @@
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
-import { Sparkles, ArrowRight, Wrench, Dumbbell, MessageCircle } from 'lucide-react';
+import { Sparkles, ArrowRight, Wrench, Dumbbell, Flame, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface BuilderModeSelectorProps {
@@ -9,7 +10,29 @@ interface BuilderModeSelectorProps {
 
 export function BuilderModeSelector({ onSelectMode }: BuilderModeSelectorProps) {
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto space-y-8">
+      {/* Coaching Link Banner */}
+      <Link to="/help" className="block">
+        <Card className="border-2 border-primary/40 bg-primary/5 p-4 hover:bg-primary/10 transition-all neon-border-subtle">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                <Flame className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-display text-lg tracking-wide text-foreground">
+                  NEED HELP? <span className="text-primary">ASK YOUR COACH</span>
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Get personalised guidance on exercises, form, programming, and more
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="w-5 h-5 text-primary" />
+          </div>
+        </Card>
+      </Link>
+
       <div className="grid md:grid-cols-2 gap-6">
         {/* Auto Builder Card */}
         <motion.div
@@ -39,12 +62,12 @@ export function BuilderModeSelector({ onSelectMode }: BuilderModeSelectorProps) 
               
               <p className="text-muted-foreground text-sm mb-4">
                 Answer a few questions about your goals, schedule, and experience. 
-                Let the system build a personalised 12-week programme tailored to you.
+                Let us build a personalised 12-week programme tailored to you.
               </p>
 
               <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
                 <MessageCircle className="w-4 h-4 text-primary" />
-                <span>Includes AI coaching & feedback</span>
+                <span>Includes coaching support & feedback</span>
               </div>
               
               <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-display tracking-wide text-sm">

@@ -408,7 +408,7 @@ export function SettingsPanel() {
             <div className="space-y-0.5">
               <Label className="text-foreground font-medium flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-primary" />
-                Workout Feedback
+                Coaching Feedback
               </Label>
               <p className="text-sm text-muted-foreground">
                 Get personalised feedback on form, progression, and recovery

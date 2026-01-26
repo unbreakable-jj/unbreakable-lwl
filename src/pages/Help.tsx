@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Send, MessageSquarePlus, History, Trash2, ChevronDown, ChevronUp, Loader2, HelpCircle } from 'lucide-react';
+import { Send, MessageSquarePlus, History, Trash2, ChevronDown, ChevronUp, Loader2, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,10 +15,11 @@ import { ThemedLogo } from '@/components/ThemedLogo';
 
 const SAMPLE_QUESTIONS = [
   "I'm stuck on my squat progression — what should I do?",
-  "How can I add mobility work into my programme?",
+  "Rate my workout playlist: heavy metal or hip hop for leg day?",
+  "How can I stay motivated when progress feels slow?",
+  "What's a good pre-workout meal for early morning sessions?",
+  "Help me pick a pump-up song for my next PR attempt!",
   "My recovery is slow — what adjustments should I make?",
-  "How should I progress my pull-ups this week?",
-  "What's the best way to warm up before strength training?",
 ];
 
 function MessageBubble({ message }: { message: Message }) {
@@ -119,16 +120,20 @@ export default function Help() {
         {/* Hero Section */}
         <section className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-4">
-            <HelpCircle className="w-8 h-8 text-primary" />
+            <Flame className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-wider mb-4">
-            YOUR TRAINING <span className="text-primary neon-glow-subtle">SUPPORT HUB</span>
+          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-wider mb-2">
+            UNBREAKABLE <span className="text-primary neon-glow-subtle">COACHING</span>
           </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Have a question about your programme, exercises, or progress? Type it below to get 
-            step-by-step guidance, personalised tips, and support so you can train smarter, 
-            stay on track, and reach your goals.
+          <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-4 neon-glow-subtle">
+            LIVE WITHOUT LIMITS
           </p>
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg mt-4">
+            Your personal coach for everything training, nutrition, mindset, and beyond. 
+            Ask about your programme, get form tips, debate workout playlists, or just need 
+            a pep talk — I've got you. Let's build something <span className="text-primary font-semibold">UNBREAKABLE</span>.
+          </p>
+          <p className="text-primary font-display text-lg mt-3 neon-glow-subtle">KEEP SHOWING UP.</p>
         </section>
 
         <div className="max-w-4xl mx-auto">
@@ -209,7 +214,7 @@ export default function Help() {
                       <Card className="bg-card/80 border-primary/20 neon-border-subtle">
                         <CardContent className="p-4 flex items-center gap-2">
                           <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                          <span className="text-sm text-muted-foreground">Thinking...</span>
+                          <span className="text-sm text-muted-foreground">Coach is typing...</span>
                         </CardContent>
                       </Card>
                     </div>
@@ -222,7 +227,7 @@ export default function Help() {
           {/* Sample Questions Carousel */}
           {messages.length === 0 && (
             <div className="mb-6">
-              <p className="text-sm text-muted-foreground mb-3 text-center">Try asking:</p>
+              <p className="text-sm text-muted-foreground mb-3 text-center">Try asking your coach:</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {SAMPLE_QUESTIONS.map((question, i) => (
                   <Button
@@ -244,7 +249,7 @@ export default function Help() {
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Enter your question about your programme, exercises, or progress…"
+              placeholder="Ask your coach anything — training, nutrition, motivation, music..."
               className="flex-1"
               disabled={isLoading}
             />
@@ -254,7 +259,7 @@ export default function Help() {
               ) : (
                 <>
                   <Send className="w-4 h-4 mr-2" />
-                  Get Help
+                  Ask Coach
                 </>
               )}
             </Button>
