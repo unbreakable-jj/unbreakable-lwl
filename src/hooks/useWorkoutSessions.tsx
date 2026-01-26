@@ -185,9 +185,51 @@ export function useWorkoutSessions() {
         .eq('id', logId);
       
       if (error) throw error;
+      
+      return { logId, updates };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['active-session'] });
+    // Use optimistic updates to prevent re-renders during input
+    onMutate: async ({ logId, actualReps, weightKg, rpe, completed, notes }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['active-session', user?.id] });
+      
+      // Snapshot the previous value
+      const previousSession = queryClient.getQueryData<WorkoutSession | null>(['active-session', user?.id]);
+      
+      // Optimistically update the cache
+      if (previousSession?.exercise_logs) {
+        const updatedLogs = previousSession.exercise_logs.map((log) => {
+          if (log.id === logId) {
+            return {
+              ...log,
+              ...(actualReps !== undefined && { actual_reps: actualReps }),
+              ...(weightKg !== undefined && { weight_kg: weightKg }),
+              ...(rpe !== undefined && { rpe }),
+              ...(completed !== undefined && { completed }),
+              ...(notes !== undefined && { notes }),
+            };
+          }
+          return log;
+        });
+        
+        queryClient.setQueryData(['active-session', user?.id], {
+          ...previousSession,
+          exercise_logs: updatedLogs,
+        });
+      }
+      
+      return { previousSession };
+    },
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousSession) {
+        queryClient.setQueryData(['active-session', user?.id], context.previousSession);
+      }
+      toast({ title: 'Error saving', description: 'Failed to save changes', variant: 'destructive' });
+    },
+    // Don't invalidate queries on success - we already updated optimistically
+    onSettled: () => {
+      // Only invalidate workout-sessions list (not active-session) for background sync
       queryClient.invalidateQueries({ queryKey: ['workout-sessions'] });
     },
   });
