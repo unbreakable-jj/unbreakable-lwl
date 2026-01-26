@@ -22,6 +22,7 @@ export function CreatePostBox() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
+  const [videoAspect, setVideoAspect] = useState<'landscape' | 'portrait' | 'square'>('landscape');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -93,6 +94,7 @@ export function CreatePostBox() {
     setImageFile(null);
     setImagePreview(null);
     setVideoFile(null);
+    setVideoAspect('landscape');
     if (videoPreview) {
       URL.revokeObjectURL(videoPreview);
     }
@@ -102,6 +104,18 @@ export function CreatePostBox() {
     }
     if (videoInputRef.current) {
       videoInputRef.current.value = '';
+    }
+  };
+
+  const handleVideoMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget;
+    const { videoWidth, videoHeight } = video;
+    if (videoHeight > videoWidth * 1.2) {
+      setVideoAspect('portrait');
+    } else if (videoWidth > videoHeight * 1.2) {
+      setVideoAspect('landscape');
+    } else {
+      setVideoAspect('square');
     }
   };
 
@@ -233,11 +247,15 @@ export function CreatePostBox() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="relative w-full aspect-video bg-black rounded-lg overflow-hidden"
+                className={`relative w-full bg-black rounded-lg overflow-hidden ${
+                  videoAspect === 'portrait' ? 'aspect-[9/16] max-h-[400px]' : 
+                  videoAspect === 'square' ? 'aspect-square' : 'aspect-video'
+                }`}
               >
                 <video
                   src={videoPreview}
                   controls
+                  onLoadedMetadata={handleVideoMetadata}
                   className="w-full h-full object-contain"
                 />
                 <Button
