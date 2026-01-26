@@ -247,16 +247,16 @@ export function CreatePostBox() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className={`relative w-full bg-black rounded-lg overflow-hidden ${
-                  videoAspect === 'portrait' ? 'aspect-[9/16] max-h-[400px]' : 
-                  videoAspect === 'square' ? 'aspect-square' : 'aspect-video'
-                }`}
+                className="relative w-full rounded-lg overflow-hidden"
               >
                 <video
                   src={videoPreview}
                   controls
                   onLoadedMetadata={handleVideoMetadata}
-                  className="w-full h-full object-contain"
+                  className={`w-full rounded-lg ${
+                    videoAspect === 'portrait' ? 'max-h-[400px]' : 'max-h-[300px]'
+                  }`}
+                  style={{ display: 'block' }}
                 />
                 <Button
                   variant="destructive"
