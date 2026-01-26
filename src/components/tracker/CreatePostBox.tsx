@@ -66,10 +66,18 @@ export function CreatePostBox() {
   const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 50 * 1024 * 1024) {
-        toast.error('Video must be less than 50MB');
+      // Allow up to 500MB - compression will reduce to target size
+      if (file.size > 500 * 1024 * 1024) {
+        toast.error('Video must be less than 500MB');
         return;
       }
+      
+      // Warn user if video is large and will be compressed
+      const sizeMB = file.size / (1024 * 1024);
+      if (sizeMB > 20) {
+        toast.info(`Video is ${sizeMB.toFixed(0)}MB - will be compressed during upload`);
+      }
+      
       // Clear image if selecting video
       setImageFile(null);
       setImagePreview(null);
