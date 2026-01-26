@@ -1,17 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useStories, Story } from '@/hooks/useStories';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Globe, Users, Lock, Image, Video, X, ChevronLeft, ChevronRight, Trash2, MoreVertical, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { Plus, Globe, Users, Lock, Image, Video, X, ChevronLeft, ChevronRight, Trash2, MoreVertical, Play, Pause, Volume2, VolumeX, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
+import { compressVideo, generateVideoThumbnail } from '@/lib/videoUtils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +35,7 @@ export function StoriesSection() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
@@ -76,9 +78,16 @@ export function StoriesSection() {
     const file = e.target.files?.[0];
     if (!file) return;
     
-    if (file.size > 50 * 1024 * 1024) {
-      toast.error('Video must be under 50MB');
+    // Allow up to 500MB - compression will reduce to target size
+    if (file.size > 500 * 1024 * 1024) {
+      toast.error('Video must be under 500MB');
       return;
+    }
+
+    // Warn user if video is large and will be compressed
+    const sizeMB = file.size / (1024 * 1024);
+    if (sizeMB > 20) {
+      toast.info(`Video is ${sizeMB.toFixed(0)}MB - will be compressed during upload`);
     }
 
     setImageFile(null);
@@ -128,22 +137,38 @@ export function StoriesSection() {
     }
 
     if (videoFile) {
-      const ext = videoFile.name.split('.').pop();
-      const path = `${user!.id}/${Date.now()}.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from('post-videos')
-        .upload(path, videoFile);
+      try {
+        // Stage 1: Compress video if needed
+        setUploadProgress('Compressing video...');
+        const compressedFile = await compressVideo(videoFile, 10, 1080);
+        
+        // Stage 2: Upload video
+        setUploadProgress('Uploading video...');
+        const ext = compressedFile.name.split('.').pop() || 'webm';
+        const path = `stories/${user!.id}/${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from('post-videos')
+          .upload(path, compressedFile);
 
-      if (uploadError) {
-        toast.error('Failed to upload video');
+        if (uploadError) {
+          toast.error('Failed to upload video');
+          setUploading(false);
+          setUploadProgress(null);
+          return;
+        }
+
+        const { data: urlData } = supabase.storage
+          .from('post-videos')
+          .getPublicUrl(path);
+        videoUrl = urlData.publicUrl;
+        setUploadProgress(null);
+      } catch (error) {
+        console.error('Video processing error:', error);
+        toast.error('Failed to process video');
         setUploading(false);
+        setUploadProgress(null);
         return;
       }
-
-      const { data: urlData } = supabase.storage
-        .from('post-videos')
-        .getPublicUrl(path);
-      videoUrl = urlData.publicUrl;
     }
 
     const { error } = await createStory({
@@ -289,6 +314,9 @@ export function StoriesSection() {
             <DialogTitle className="font-display text-xl tracking-wide text-center neon-glow-subtle">
               ADD TO STORY
             </DialogTitle>
+            <DialogDescription className="text-center text-muted-foreground text-sm">
+              Share a moment that lasts 24 hours
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <Textarea
@@ -402,7 +430,15 @@ export function StoriesSection() {
               onClick={handleCreate}
               disabled={uploading || (!content.trim() && !imageFile && !videoFile)}
             >
-              {uploading ? 'Posting...' : 'SHARE STORY'}
+              {uploading && uploadProgress ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  <span className="text-xs">{uploadProgress}</span>
+                </>
+              ) : uploading ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : null}
+              {uploading ? '' : 'SHARE STORY'}
             </Button>
           </div>
         </DialogContent>
