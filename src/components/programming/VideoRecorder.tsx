@@ -1,24 +1,17 @@
-import { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useExerciseVideos, ExerciseVideo } from '@/hooks/useExerciseVideos';
+import { Card } from '@/components/ui/card';
+import { useExerciseVideos } from '@/hooks/useExerciseVideos';
 import { useAIPreferences } from '@/hooks/useAIPreferences';
-import { format } from 'date-fns';
 import {
   Video,
   Upload,
-  Trash2,
-  Play,
-  Sparkles,
-  AlertCircle,
-  CheckCircle,
-  Clock,
   Loader2,
   Camera,
   X,
+  AlertCircle,
+  RefreshCw,
 } from 'lucide-react';
 
 interface VideoRecorderProps {
@@ -27,6 +20,8 @@ interface VideoRecorderProps {
   exerciseName: string;
   onVideoRecorded?: (videoId: string) => void;
 }
+
+type PermissionState = 'prompt' | 'granted' | 'denied' | 'error' | 'checking';
 
 export function VideoRecorder({
   sessionId,
@@ -43,6 +38,50 @@ export function VideoRecorder({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  
+  // Camera permission and error states
+  const [permissionState, setPermissionState] = useState<PermissionState>('prompt');
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [isInitializing, setIsInitializing] = useState(false);
+
+  // Check camera permission on mount
+  useEffect(() => {
+    checkCameraPermission();
+  }, []);
+
+  const checkCameraPermission = async () => {
+    setPermissionState('checking');
+    setCameraError(null);
+    
+    try {
+      // Check if mediaDevices API is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setCameraError('Camera API not available. Please use a modern browser with HTTPS.');
+        setPermissionState('error');
+        return;
+      }
+
+      // Check permission status if available
+      if (navigator.permissions) {
+        try {
+          const result = await navigator.permissions.query({ name: 'camera' as PermissionName });
+          setPermissionState(result.state as PermissionState);
+          
+          result.onchange = () => {
+            setPermissionState(result.state as PermissionState);
+          };
+        } catch {
+          // Permission query not supported, we'll check on first use
+          setPermissionState('prompt');
+        }
+      } else {
+        setPermissionState('prompt');
+      }
+    } catch (err) {
+      console.error('Permission check error:', err);
+      setPermissionState('prompt');
+    }
+  };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -63,20 +102,47 @@ export function VideoRecorder({
   };
 
   const startRecording = async () => {
+    setIsInitializing(true);
+    setCameraError(null);
+    
     try {
+      // Request camera access
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
+        video: { 
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
         audio: false,
       });
 
+      setPermissionState('granted');
       streamRef.current = stream;
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
+        // Wait for video to be ready
+        await new Promise<void>((resolve, reject) => {
+          if (!videoRef.current) return reject('No video element');
+          videoRef.current.onloadedmetadata = () => {
+            videoRef.current?.play()
+              .then(resolve)
+              .catch(reject);
+          };
+          videoRef.current.onerror = reject;
+        });
       }
 
-      const mediaRecorder = new MediaRecorder(stream);
+      // Check MediaRecorder support
+      if (!window.MediaRecorder) {
+        throw new Error('MediaRecorder not supported in this browser');
+      }
+
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported('video/webm;codecs=vp9') 
+          ? 'video/webm;codecs=vp9'
+          : 'video/webm',
+      });
       mediaRecorderRef.current = mediaRecorder;
 
       const chunks: Blob[] = [];
@@ -95,8 +161,44 @@ export function VideoRecorder({
 
       mediaRecorder.start();
       setIsRecording(true);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to start recording:', err);
+      
+      // Handle specific error types
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setPermissionState('denied');
+        setCameraError('Camera access denied. Please allow camera access in your browser settings and refresh.');
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        setCameraError('No camera found. Please connect a camera and try again.');
+        setPermissionState('error');
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+        setCameraError('Camera is in use by another application. Please close other apps using the camera.');
+        setPermissionState('error');
+      } else if (err.name === 'OverconstrainedError') {
+        setCameraError('Camera does not meet requirements. Trying with default settings...');
+        // Retry with basic constraints
+        try {
+          const fallbackStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+          streamRef.current = fallbackStream;
+          if (videoRef.current) {
+            videoRef.current.srcObject = fallbackStream;
+            await videoRef.current.play();
+          }
+          setPermissionState('granted');
+          setCameraError(null);
+        } catch (fallbackErr) {
+          setCameraError('Camera initialization failed. Please try again.');
+          setPermissionState('error');
+        }
+      } else if (err.name === 'SecurityError') {
+        setCameraError('Camera access requires HTTPS. Please ensure you are on a secure connection.');
+        setPermissionState('error');
+      } else {
+        setCameraError(err.message || 'Failed to access camera. Please try again.');
+        setPermissionState('error');
+      }
+    } finally {
+      setIsInitializing(false);
     }
   };
 
@@ -140,6 +242,57 @@ export function VideoRecorder({
     setIsRecording(false);
   };
 
+  // Render error state
+  if (cameraError || permissionState === 'denied') {
+    return (
+      <div className="space-y-3">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="video/*"
+          capture="environment"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+        
+        <Card className="p-6 border-destructive/30 bg-destructive/5">
+          <div className="flex flex-col items-center text-center space-y-3">
+            <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+              <AlertCircle className="w-6 h-6 text-destructive" />
+            </div>
+            <div>
+              <h4 className="font-display text-foreground mb-1">Camera Access Issue</h4>
+              <p className="text-sm text-muted-foreground">
+                {cameraError || 'Camera permission was denied'}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setCameraError(null);
+                  checkCameraPermission();
+                }}
+                className="gap-2"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Retry
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                className="gap-2"
+              >
+                <Upload className="w-4 h-4" />
+                Upload Instead
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       <input
@@ -152,24 +305,39 @@ export function VideoRecorder({
       />
 
       {!isRecording && !previewUrl ? (
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploadVideo.isPending}
-            className="flex-1 gap-2"
-          >
-            <Upload className="w-4 h-4" />
-            Upload Video
-          </Button>
-          <Button
-            variant="outline"
-            onClick={startRecording}
-            className="flex-1 gap-2"
-          >
-            <Camera className="w-4 h-4" />
-            Record
-          </Button>
+        <div className="space-y-3">
+          {/* Permission status indicator */}
+          {permissionState === 'checking' && (
+            <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-muted">
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+              <span className="text-sm text-muted-foreground">Checking camera access...</span>
+            </div>
+          )}
+          
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadVideo.isPending}
+              className="flex-1 gap-2"
+            >
+              <Upload className="w-4 h-4" />
+              Upload Video
+            </Button>
+            <Button
+              variant="outline"
+              onClick={startRecording}
+              disabled={isInitializing || permissionState === 'checking'}
+              className="flex-1 gap-2"
+            >
+              {isInitializing ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Camera className="w-4 h-4" />
+              )}
+              {isInitializing ? 'Starting...' : 'Record'}
+            </Button>
+          </div>
         </div>
       ) : isRecording ? (
         <div className="space-y-3">
@@ -230,131 +398,5 @@ export function VideoRecorder({
         </div>
       ) : null}
     </div>
-  );
-}
-
-interface VideoGalleryProps {
-  sessionId?: string;
-}
-
-export function VideoGallery({ sessionId }: VideoGalleryProps) {
-  const { videos, isLoading, requestAnalysis, deleteVideo } = useExerciseVideos(sessionId);
-  const { preferences } = useAIPreferences();
-  const [playingVideo, setPlayingVideo] = useState<string | null>(null);
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case 'processing':
-        return <Loader2 className="w-4 h-4 animate-spin text-primary" />;
-      case 'failed':
-        return <AlertCircle className="w-4 h-4 text-destructive" />;
-      default:
-        return <Clock className="w-4 h-4 text-muted-foreground" />;
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!videos || videos.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <Video className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-        <p className="text-sm text-muted-foreground">No videos recorded yet</p>
-      </div>
-    );
-  }
-
-  return (
-    <ScrollArea className="h-[400px]">
-      <div className="grid grid-cols-2 gap-3">
-        {videos.map((video) => (
-          <Card key={video.id} className="overflow-hidden border border-border bg-card">
-            <div className="relative aspect-video bg-black">
-              {playingVideo === video.id ? (
-                <video
-                  src={video.video_url}
-                  controls
-                  autoPlay
-                  className="w-full h-full object-cover"
-                  onEnded={() => setPlayingVideo(null)}
-                />
-              ) : (
-                <>
-                  {video.thumbnail_url ? (
-                    <img
-                      src={video.thumbnail_url}
-                      alt={video.exercise_name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Video className="w-8 h-8 text-muted-foreground" />
-                    </div>
-                  )}
-                  <button
-                    onClick={() => setPlayingVideo(video.id)}
-                    className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/50 transition-colors"
-                  >
-                    <Play className="w-10 h-10 text-white" />
-                  </button>
-                </>
-              )}
-            </div>
-            
-            <div className="p-2 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-foreground truncate">
-                  {video.exercise_name}
-                </span>
-                {getStatusIcon(video.analysis_status)}
-              </div>
-              
-              <p className="text-[10px] text-muted-foreground">
-                {format(new Date(video.created_at), 'MMM d, h:mm a')}
-              </p>
-
-              {video.analysis_result && (
-                <div className="p-2 rounded bg-surface text-[10px] text-muted-foreground">
-                  {typeof video.analysis_result === 'object' && 'feedback' in video.analysis_result
-                    ? (video.analysis_result as any).feedback
-                    : 'Analysis complete'}
-                </div>
-              )}
-
-              <div className="flex gap-1">
-                {video.analysis_status === 'pending' && preferences?.movement_analysis_enabled && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => requestAnalysis.mutate(video.id)}
-                    disabled={requestAnalysis.isPending}
-                    className="flex-1 h-7 text-[10px] gap-1"
-                  >
-                    <Sparkles className="w-3 h-3" />
-                    Analyze
-                  </Button>
-                )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => deleteVideo.mutate(video.id)}
-                  className="h-7 text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </Button>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
-    </ScrollArea>
   );
 }
