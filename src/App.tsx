@@ -11,6 +11,7 @@ import Tracker from "./pages/Tracker";
 import Mindset from "./pages/Mindset";
 import Programming from "./pages/Programming";
 import Help from "./pages/Help";
+import Inbox from "./pages/Inbox";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,9 @@ const App = () => (
               } />
               <Route path="/help" element={
                 <ProtectedRoute><Help /></ProtectedRoute>
+              } />
+              <Route path="/inbox" element={
+                <ProtectedRoute><Inbox /></ProtectedRoute>
               } />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

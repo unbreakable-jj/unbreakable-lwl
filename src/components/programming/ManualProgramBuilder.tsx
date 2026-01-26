@@ -19,6 +19,7 @@ import {
   MessageCircle,
   Loader2,
   Link as LinkIcon,
+  Link2,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -38,10 +39,17 @@ interface ProgramExercise {
   supersetGroupId?: string;
 }
 
+interface Superset {
+  id: string;
+  exercises: ProgramExercise[];
+  restSeconds: number;
+}
+
 interface ProgramDay {
   id: string;
   name: string;
   exercises: ProgramExercise[];
+  supersets: Superset[];
 }
 
 interface ManualProgramBuilderProps {
@@ -62,6 +70,7 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
   const [showLibrary, setShowLibrary] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [expandedExercises, setExpandedExercises] = useState<Set<string>>(new Set());
+  const [selectedForSuperset, setSelectedForSuperset] = useState<string[]>([]);
 
   // Initialize days when selection changes
   const handleDayToggle = (day: string) => {
@@ -78,6 +87,7 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
             id: `day-${dayName.toLowerCase()}`,
             name: dayName,
             exercises: [],
+            supersets: [],
           }
         );
       });
@@ -134,6 +144,65 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
     setDays(prev => prev.map(day =>
       day.name === dayName ? { ...day, exercises: newOrder } : day
     ));
+  };
+
+  // Superset functions
+  const toggleSelectForSuperset = (exerciseId: string) => {
+    setSelectedForSuperset(prev =>
+      prev.includes(exerciseId) ? prev.filter(id => id !== exerciseId) : [...prev, exerciseId]
+    );
+  };
+
+  const createSuperset = (dayName: string) => {
+    if (selectedForSuperset.length < 2) return;
+
+    setDays(prev => prev.map(day => {
+      if (day.name !== dayName) return day;
+
+      const exercisesToGroup = day.exercises.filter(e => selectedForSuperset.includes(e.id));
+      const remainingExercises = day.exercises.filter(e => !selectedForSuperset.includes(e.id));
+
+      const newSuperset: Superset = {
+        id: `ss-${Date.now()}`,
+        exercises: exercisesToGroup,
+        restSeconds: 60,
+      };
+
+      return {
+        ...day,
+        exercises: remainingExercises,
+        supersets: [...day.supersets, newSuperset],
+      };
+    }));
+
+    setSelectedForSuperset([]);
+  };
+
+  const ungroupSuperset = (dayName: string, supersetId: string) => {
+    setDays(prev => prev.map(day => {
+      if (day.name !== dayName) return day;
+
+      const superset = day.supersets.find(s => s.id === supersetId);
+      if (!superset) return day;
+
+      return {
+        ...day,
+        exercises: [...day.exercises, ...superset.exercises],
+        supersets: day.supersets.filter(s => s.id !== supersetId),
+      };
+    }));
+  };
+
+  const updateSupersetRest = (dayName: string, supersetId: string, restSeconds: number) => {
+    setDays(prev => prev.map(day => {
+      if (day.name !== dayName) return day;
+      return {
+        ...day,
+        supersets: day.supersets.map(s =>
+          s.id === supersetId ? { ...s, restSeconds } : s
+        ),
+      };
+    }));
   };
 
   const handleSaveProgram = async () => {
