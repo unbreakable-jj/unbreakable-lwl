@@ -233,17 +233,17 @@ export function CreatePostBox() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="relative"
+                className="relative w-full aspect-video bg-black rounded-lg overflow-hidden"
               >
                 <video
                   src={videoPreview}
                   controls
-                  className="max-h-64 rounded-lg w-full"
+                  className="w-full h-full object-contain"
                 />
                 <Button
                   variant="destructive"
                   size="sm"
-                  className="absolute top-2 right-2 h-8 w-8 p-0"
+                  className="absolute top-2 right-2 h-8 w-8 p-0 z-10"
                   onClick={removeMedia}
                 >
                   <X className="w-4 h-4" />
