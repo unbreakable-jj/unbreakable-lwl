@@ -5,6 +5,7 @@ import { ThemedLogo } from '@/components/ThemedLogo';
 import { Button } from '@/components/ui/button';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
+import { PageNavigation, SwipeNavigationWrapper } from '@/components/PageNavigation';
 import { ProgramFormStep1 } from '@/components/programming/ProgramFormStep1';
 import { ProgramFormStep2 } from '@/components/programming/ProgramFormStep2';
 import { ProgramFormStep3 } from '@/components/programming/ProgramFormStep3';
@@ -181,28 +182,30 @@ export default function Programming() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-3">
-              <ThemedLogo />
-              <div className="hidden sm:block">
-              <span className="font-display text-lg tracking-wide text-foreground">
-                UNBREAKABLE
-              </span>
-              <span className="font-display text-sm tracking-wide text-primary ml-2">
-                POWER
-              </span>
-              </div>
-            </Link>
-            <NavigationDrawer />
+    <SwipeNavigationWrapper>
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <Link to="/" className="flex items-center gap-3">
+                <ThemedLogo />
+                <div className="hidden sm:block">
+                <span className="font-display text-lg tracking-wide text-foreground">
+                  UNBREAKABLE
+                </span>
+                <span className="font-display text-sm tracking-wide text-primary ml-2">
+                  POWER
+                </span>
+                </div>
+              </Link>
+              <NavigationDrawer />
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Hero */}
+        {/* Page Navigation */}
+        <PageNavigation />
       <section className="py-16 md:py-20 lg:py-24 border-b border-border">
         <div className="container mx-auto px-4 text-center max-w-4xl">
           <motion.div
@@ -413,7 +416,8 @@ export default function Programming() {
         </section>
       )}
 
-      <UnifiedFooter className="mt-auto" />
-    </div>
+        <UnifiedFooter className="mt-auto" />
+      </div>
+    </SwipeNavigationWrapper>
   );
 }

@@ -5,6 +5,7 @@ import { ThemedLogo } from '@/components/ThemedLogo';
 import { Button } from '@/components/ui/button';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
+import { PageNavigation, SwipeNavigationWrapper } from '@/components/PageNavigation';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FoodTracker } from '@/components/fuel/FoodTracker';
@@ -38,41 +39,45 @@ export default function Fuel() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-3">
-              <ThemedLogo />
-              <div className="hidden sm:block">
-                <span className="font-display text-lg tracking-wide text-foreground">
-                  UNBREAKABLE
-                </span>
-                <span className="font-display text-sm tracking-wide text-primary ml-2">
-                  FUEL
-                </span>
+    <SwipeNavigationWrapper>
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <Link to="/" className="flex items-center gap-3">
+                <ThemedLogo />
+                <div className="hidden sm:block">
+                  <span className="font-display text-lg tracking-wide text-foreground">
+                    UNBREAKABLE
+                  </span>
+                  <span className="font-display text-sm tracking-wide text-primary ml-2">
+                    FUEL
+                  </span>
+                </div>
+              </Link>
+              <div className="flex items-center gap-3">
+                {!user && (
+                  <Button
+                    className="font-display tracking-wide"
+                    onClick={() => setShowAuthModal(true)}
+                  >
+                    SIGN IN
+                  </Button>
+                )}
+                <NavigationDrawer />
               </div>
-            </Link>
-            <div className="flex items-center gap-3">
-              {!user && (
-                <Button
-                  className="font-display tracking-wide"
-                  onClick={() => setShowAuthModal(true)}
-                >
-                  SIGN IN
-                </Button>
-              )}
-              <NavigationDrawer />
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Hero */}
-      <section className="py-12 md:py-16 border-b border-border">
-        <div className="container mx-auto px-4 text-center">
-          <motion.div
+        {/* Page Navigation */}
+        <PageNavigation />
+
+        {/* Hero */}
+        <section className="py-12 md:py-16 border-b border-border">
+          <div className="container mx-auto px-4 text-center">
+            <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -215,8 +220,9 @@ export default function Fuel() {
         )}
       </main>
 
-      <UnifiedFooter className="mt-auto" />
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
-    </div>
+        <UnifiedFooter className="mt-auto" />
+        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      </div>
+    </SwipeNavigationWrapper>
   );
 }

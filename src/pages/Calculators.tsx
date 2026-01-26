@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
+import { PageNavigation, SwipeNavigationWrapper } from '@/components/PageNavigation';
 import { Dumbbell, Flame, Timer, ArrowRight } from 'lucide-react';
 
 import { StrengthForm } from '@/components/StrengthForm';
@@ -165,24 +166,30 @@ const Calculators = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Minimal Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-3">
-              <ThemedLogo />
-              <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
-                UNBREAKABLE
-              </span>
-            </Link>
-            <NavigationDrawer />
+    <SwipeNavigationWrapper>
+      <div className="min-h-screen bg-background">
+        {/* Minimal Header */}
+        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <Link to="/" className="flex items-center gap-3">
+                <ThemedLogo />
+                <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
+                  UNBREAKABLE
+                </span>
+              </Link>
+              <NavigationDrawer />
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Hero Section - Calculator Title */}
-      <section className="pt-32 pb-12 text-center px-6">
+        {/* Page Navigation */}
+        <div className="pt-[72px]">
+          <PageNavigation />
+        </div>
+
+        {/* Hero Section - Calculator Title */}
+        <section className="pt-12 pb-12 text-center px-6">
         <div className="max-w-4xl mx-auto">
           <ThemedLogo className="h-32 md:h-40 object-contain mx-auto mb-6" />
           <h1 className="font-display text-6xl md:text-8xl text-foreground tracking-wide leading-none mb-2">
@@ -317,8 +324,9 @@ const Calculators = () => {
         </div>
       </main>
 
-      <UnifiedFooter className="mt-16" />
-    </div>
+        <UnifiedFooter className="mt-16" />
+      </div>
+    </SwipeNavigationWrapper>
   );
 };
 
