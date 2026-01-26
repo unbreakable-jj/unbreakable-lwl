@@ -55,9 +55,11 @@ export function FullScreenToolView({
         </Button>
       </header>
 
-      {/* Content */}
-      <main className="flex-1 overflow-y-auto p-4">
-        {children}
+      {/* Content - scrollable area */}
+      <main className="flex-1 overflow-y-auto overscroll-contain p-4">
+        <div className="min-h-full">
+          {children}
+        </div>
       </main>
 
       {/* Footer */}
