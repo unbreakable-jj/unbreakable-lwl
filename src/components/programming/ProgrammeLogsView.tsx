@@ -21,6 +21,8 @@ import {
 } from '@/components/ui/collapsible';
 import { useWorkoutSessions, WorkoutSession, ExerciseLog } from '@/hooks/useWorkoutSessions';
 import { useAuth } from '@/hooks/useAuth';
+import { SessionResultsView } from './SessionResultsView';
+import { AIFeedbackView } from './AIFeedbackView';
 import {
   Calendar,
   Clock,
@@ -35,6 +37,7 @@ import {
   History,
   Loader2,
   FolderOpen,
+  Sparkles,
 } from 'lucide-react';
 import { format, formatDistanceToNow, startOfWeek, endOfWeek, isWithinInterval, subWeeks } from 'date-fns';
 
@@ -47,10 +50,13 @@ interface ExerciseStats {
   sessionCount: number;
 }
 
+type ViewState = 'list' | { type: 'results'; session: WorkoutSession } | { type: 'feedback'; sessionId: string };
+
 export function ProgrammeLogsView() {
   const { user } = useAuth();
   const { sessions, isLoading } = useWorkoutSessions();
   const [expandedSession, setExpandedSession] = useState<string | null>(null);
+  const [viewState, setViewState] = useState<ViewState>('list');
 
   // Filter completed sessions only
   const completedSessions = useMemo(() => 
@@ -175,6 +181,27 @@ export function ProgrammeLogsView() {
 
   const weeklyProgress = (weeklyStats.thisWeek.sessions / weeklyStats.weeklyGoal) * 100;
 
+  // Render full-screen views
+  if (viewState !== 'list') {
+    if (viewState.type === 'results') {
+      return (
+        <SessionResultsView
+          session={viewState.session}
+          onClose={() => setViewState('list')}
+          onViewFeedback={() => setViewState({ type: 'feedback', sessionId: viewState.session.id })}
+        />
+      );
+    }
+    if (viewState.type === 'feedback') {
+      return (
+        <AIFeedbackView
+          sessionId={viewState.sessionId}
+          onClose={() => setViewState('list')}
+        />
+      );
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
@@ -279,6 +306,8 @@ export function ProgrammeLogsView() {
                   onToggle={() => setExpandedSession(
                     expandedSession === session.id ? null : session.id
                   )}
+                  onViewResults={() => setViewState({ type: 'results', session })}
+                  onViewFeedback={() => setViewState({ type: 'feedback', sessionId: session.id })}
                   formatDuration={formatDuration}
                 />
               ))}
@@ -327,11 +356,15 @@ function SessionCard({
   session,
   isExpanded,
   onToggle,
+  onViewResults,
+  onViewFeedback,
   formatDuration,
 }: {
   session: WorkoutSession;
   isExpanded: boolean;
   onToggle: () => void;
+  onViewResults: () => void;
+  onViewFeedback: () => void;
   formatDuration: (seconds: number) => string;
 }) {
   const logs = session.exercise_logs || [];
@@ -438,6 +471,28 @@ function SessionCard({
                 </p>
               </div>
             )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-2 pt-3 border-t border-border">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => { e.stopPropagation(); onViewResults(); }}
+                className="flex-1 gap-1"
+              >
+                <Trophy className="w-3 h-3" />
+                View Results
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => { e.stopPropagation(); onViewFeedback(); }}
+                className="flex-1 gap-1"
+              >
+                <Sparkles className="w-3 h-3" />
+                AI Feedback
+              </Button>
+            </div>
           </div>
         </CollapsibleContent>
       </Card>

@@ -7,7 +7,9 @@ import { Progress } from '@/components/ui/progress';
 import { WorkoutSession } from '@/hooks/useWorkoutSessions';
 import { SessionActionTiles } from './SessionActionTiles';
 import { SessionLoggingView } from './SessionLoggingView';
+import { GuidedSessionView } from './GuidedSessionView';
 import { SessionNotesView } from './SessionNotesView';
+import { SessionResultsView } from './SessionResultsView';
 import { AIFeedbackView } from './AIFeedbackView';
 import { VideoToolView } from './VideoToolView';
 import { ProgressMetricsView } from './ProgressMetricsView';
@@ -18,7 +20,9 @@ import {
   Dumbbell,
   ChevronDown,
   ChevronUp,
-  Check
+  Check,
+  Target,
+  ClipboardList
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -37,7 +41,7 @@ interface ActiveWorkoutModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type ActiveTool = 'none' | 'logging' | 'notes' | 'feedback' | 'video' | 'progress';
+type ActiveTool = 'none' | 'logging' | 'guided' | 'notes' | 'feedback' | 'video' | 'progress' | 'results';
 
 export function ActiveWorkoutModal({
   session,
@@ -58,6 +62,7 @@ export function ActiveWorkoutModal({
   const completedSets = exerciseLogs.filter((l) => l.completed).length;
   const totalSets = exerciseLogs.length;
   const progressPercent = totalSets > 0 ? (completedSets / totalSets) * 100 : 0;
+  const isCompleted = session.status === 'completed';
 
   // Group exercises for display
   const exerciseGroups = exerciseLogs.reduce((acc, log) => {
@@ -95,12 +100,27 @@ export function ActiveWorkoutModal({
             onClose={() => setActiveTool('none')}
           />
         )}
+        {activeTool === 'guided' && (
+          <GuidedSessionView
+            exerciseLogs={exerciseLogs}
+            onUpdateLog={onUpdateLog}
+            onStartRest={handleStartRest}
+            onClose={() => setActiveTool('none')}
+          />
+        )}
         {activeTool === 'notes' && (
           <SessionNotesView
             initialNotes={sessionNotes}
             initialVisibility={visibility}
             onSave={handleSaveNotes}
             onClose={() => setActiveTool('none')}
+          />
+        )}
+        {activeTool === 'results' && (
+          <SessionResultsView
+            session={session}
+            onClose={() => setActiveTool('none')}
+            onViewFeedback={() => setActiveTool('feedback')}
           />
         )}
         {activeTool === 'feedback' && (
@@ -221,6 +241,39 @@ export function ActiveWorkoutModal({
             />
           )}
 
+          {/* Tracking Mode Selection */}
+          <div className="grid grid-cols-2 gap-3">
+            <Card
+              className="p-4 border-primary/30 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors"
+              onClick={() => setActiveTool('guided')}
+            >
+              <div className="flex flex-col items-center text-center gap-2">
+                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Target className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h4 className="font-display text-foreground">GUIDED</h4>
+                  <p className="text-xs text-muted-foreground">Step-by-step tracking</p>
+                </div>
+              </div>
+            </Card>
+            
+            <Card
+              className="p-4 border-border bg-card cursor-pointer hover:bg-muted/50 transition-colors"
+              onClick={() => setActiveTool('logging')}
+            >
+              <div className="flex flex-col items-center text-center gap-2">
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                  <ClipboardList className="w-6 h-6 text-muted-foreground" />
+                </div>
+                <div>
+                  <h4 className="font-display text-foreground">MANUAL</h4>
+                  <p className="text-xs text-muted-foreground">Log all sets at once</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+
           {/* Action Tiles */}
           <SessionActionTiles
             onOpenLogging={() => setActiveTool('logging')}
@@ -228,9 +281,11 @@ export function ActiveWorkoutModal({
             onOpenFeedback={() => setActiveTool('feedback')}
             onOpenVideo={() => setActiveTool('video')}
             onOpenProgress={() => setActiveTool('progress')}
+            onOpenResults={isCompleted ? () => setActiveTool('results') : undefined}
             completedSets={completedSets}
             totalSets={totalSets}
             hasNotes={!!sessionNotes}
+            isCompleted={isCompleted}
           />
 
           {/* Action Buttons */}

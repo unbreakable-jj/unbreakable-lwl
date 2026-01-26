@@ -5,7 +5,8 @@ import {
   Sparkles, 
   Video, 
   BarChart3,
-  ChevronRight 
+  ChevronRight,
+  Trophy
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -15,60 +16,14 @@ interface SessionActionTilesProps {
   onOpenFeedback: () => void;
   onOpenVideo: () => void;
   onOpenProgress: () => void;
+  onOpenResults?: () => void;
   completedSets: number;
   totalSets: number;
   hasNotes?: boolean;
   hasFeedback?: boolean;
   hasVideo?: boolean;
+  isCompleted?: boolean;
 }
-
-const tiles = [
-  {
-    id: 'logging',
-    title: 'Log Session',
-    description: 'Record sets, reps & weight',
-    icon: ClipboardList,
-    color: 'text-primary',
-    bgColor: 'bg-primary/10',
-    action: 'onOpenLogging',
-  },
-  {
-    id: 'notes',
-    title: 'Session Notes',
-    description: 'Add workout notes',
-    icon: StickyNote,
-    color: 'text-blue-400',
-    bgColor: 'bg-blue-500/10',
-    action: 'onOpenNotes',
-  },
-  {
-    id: 'feedback',
-    title: 'AI Feedback',
-    description: 'Get coaching insights',
-    icon: Sparkles,
-    color: 'text-purple-400',
-    bgColor: 'bg-purple-500/10',
-    action: 'onOpenFeedback',
-  },
-  {
-    id: 'video',
-    title: 'Record Video',
-    description: 'Capture your form',
-    icon: Video,
-    color: 'text-green-400',
-    bgColor: 'bg-green-500/10',
-    action: 'onOpenVideo',
-  },
-  {
-    id: 'progress',
-    title: 'View Progress',
-    description: 'Track your gains',
-    icon: BarChart3,
-    color: 'text-orange-400',
-    bgColor: 'bg-orange-500/10',
-    action: 'onOpenProgress',
-  },
-] as const;
 
 export function SessionActionTiles({
   onOpenLogging,
@@ -76,24 +31,77 @@ export function SessionActionTiles({
   onOpenFeedback,
   onOpenVideo,
   onOpenProgress,
+  onOpenResults,
   completedSets,
   totalSets,
   hasNotes,
   hasFeedback,
   hasVideo,
+  isCompleted,
 }: SessionActionTilesProps) {
-  const actions: Record<string, () => void> = {
-    onOpenLogging,
-    onOpenNotes,
-    onOpenFeedback,
-    onOpenVideo,
-    onOpenProgress,
-  };
+  const tiles = [
+    // Show Results tile first if session is completed
+    ...(isCompleted && onOpenResults ? [{
+      id: 'results',
+      title: 'View Results',
+      description: 'Session summary & stats',
+      icon: Trophy,
+      color: 'text-primary',
+      bgColor: 'bg-primary/10',
+      onClick: onOpenResults,
+    }] : []),
+    {
+      id: 'logging',
+      title: 'Log Session',
+      description: 'Record sets, reps & weight',
+      icon: ClipboardList,
+      color: 'text-primary',
+      bgColor: 'bg-primary/10',
+      onClick: onOpenLogging,
+    },
+    {
+      id: 'notes',
+      title: 'Session Notes',
+      description: 'Add workout notes',
+      icon: StickyNote,
+      color: 'text-blue-400',
+      bgColor: 'bg-blue-500/10',
+      onClick: onOpenNotes,
+    },
+    {
+      id: 'feedback',
+      title: 'AI Feedback',
+      description: 'Get coaching insights',
+      icon: Sparkles,
+      color: 'text-purple-400',
+      bgColor: 'bg-purple-500/10',
+      onClick: onOpenFeedback,
+    },
+    {
+      id: 'video',
+      title: 'Record Video',
+      description: 'Capture your form',
+      icon: Video,
+      color: 'text-green-400',
+      bgColor: 'bg-green-500/10',
+      onClick: onOpenVideo,
+    },
+    {
+      id: 'progress',
+      title: 'View Progress',
+      description: 'Track your gains',
+      icon: BarChart3,
+      color: 'text-orange-400',
+      bgColor: 'bg-orange-500/10',
+      onClick: onOpenProgress,
+    },
+  ];
 
   const getIndicator = (id: string) => {
     if (id === 'logging') {
       return `${completedSets}/${totalSets}`;
     }
+    if (id === 'results' && isCompleted) return '✓';
     if (id === 'notes' && hasNotes) return '✓';
     if (id === 'feedback' && hasFeedback) return '✓';
     if (id === 'video' && hasVideo) return '✓';
@@ -115,7 +123,7 @@ export function SessionActionTiles({
           >
             <Card
               className="p-4 border border-border bg-card hover:border-primary/50 cursor-pointer transition-all group"
-              onClick={actions[tile.action]}
+              onClick={tile.onClick}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
