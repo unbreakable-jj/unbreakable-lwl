@@ -16,6 +16,7 @@ import { ProgrammeBuilder } from '@/components/programming/ProgrammeBuilder';
 import { BuilderModeSelector } from '@/components/programming/BuilderModeSelector';
 import { ManualProgramBuilder } from '@/components/programming/ManualProgramBuilder';
 import { ProgrammeLogsView } from '@/components/programming/ProgrammeLogsView';
+import { AIBuildBanner } from '@/components/ai/AIBuildBanner';
 import { useAuth } from '@/hooks/useAuth';
 import { 
   Goal, 
@@ -32,7 +33,8 @@ import {
   Sparkles,
   Dumbbell,
   Home,
-  History
+  History,
+  Flame
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -233,6 +235,13 @@ export default function Programming() {
       </section>
 
       <main className="container mx-auto px-4 py-12 md:py-16 lg:py-20">
+        {/* AI Build Banner - Only show when in select mode */}
+        {builderMode === 'select' && (
+          <div className="max-w-4xl mx-auto mb-8">
+            <AIBuildBanner type="programme" />
+          </div>
+        )}
+
         <AnimatePresence mode="wait">
           {/* Mode Selection */}
           {builderMode === 'select' && (

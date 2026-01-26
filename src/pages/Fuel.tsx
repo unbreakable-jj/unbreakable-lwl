@@ -77,28 +77,31 @@ export default function Fuel() {
         <PageNavigation />
 
         {/* Hero */}
-        <section className="py-12 md:py-16 border-b border-border">
-          <div className="container mx-auto px-4 text-center">
+        <section className="py-16 md:py-20 lg:py-24 border-b border-border">
+          <div className="container mx-auto px-4 text-center max-w-4xl">
             <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="font-display text-5xl sm:text-6xl md:text-8xl tracking-wide leading-none mb-2">
-              <span className="text-foreground">FUEL YOUR </span>
-              <span className="text-primary neon-glow-subtle">UNBREAKABLE</span>
-              <span className="text-foreground"> BODY</span>
-            </h1>
-            <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">
-              LIVE WITHOUT LIMITS
-            </p>
-            <p className="text-muted-foreground text-base md:text-lg mt-4 max-w-2xl mx-auto">
-              Plan meals, track food, explore recipes, and stay consistent with nutrition that supports your training, recovery, and lifestyle.
-            </p>
-            <p className="text-primary font-display text-lg mt-3 neon-glow-subtle">KEEP SHOWING UP.</p>
-          </motion.div>
-        </div>
-      </section>
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="space-y-6"
+            >
+              <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wide leading-none">
+                <span className="text-foreground">BECOME </span>
+                <span className="text-primary neon-glow-subtle">UNBREAKABLE</span>
+              </h1>
+              <p className="text-primary font-display text-xl md:text-2xl tracking-wide neon-glow-subtle">
+                LIVE WITHOUT LIMITS
+              </p>
+              <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+                Plan meals, track food, explore recipes, and stay consistent with nutrition 
+                that supports your training, recovery, and lifestyle. Choose{' '}
+                <span className="text-foreground font-medium">Manual</span> for full control or{' '}
+                <span className="text-foreground font-medium">Auto</span> to let your coach build a plan for you.
+              </p>
+              <p className="text-primary font-display text-lg neon-glow-subtle">KEEP SHOWING UP.</p>
+            </motion.div>
+          </div>
+        </section>
 
       {/* Coach Banner */}
       <div className="container mx-auto px-4 py-6">
