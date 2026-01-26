@@ -33,11 +33,16 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         onClose();
       }
     } else {
+      if (!fullName.trim()) {
+        toast.error('Please enter your full name');
+        setLoading(false);
+        return;
+      }
       const { error } = await signUp(email, password, fullName);
       if (error) {
         toast.error(error.message);
       } else {
-        toast.success('Account created! Welcome to the tracker.');
+        toast.success('Account created! Welcome to the movement.');
         onClose();
       }
     }
