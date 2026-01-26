@@ -111,6 +111,35 @@ export function usePosts() {
     return { error };
   };
 
+  const updatePost = async (postId: string, updates: { content?: string; visibility?: string }) => {
+    if (!user) return { error: new Error('Not authenticated') };
+
+    const post = posts.find((p) => p.id === postId);
+    if (!post) return { error: new Error('Post not found') };
+    if (post.user_id !== user.id) return { error: new Error('Not authorized') };
+
+    const { error } = await supabase
+      .from('posts')
+      .update({
+        content: updates.content,
+        visibility: updates.visibility,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', postId);
+
+    if (!error) {
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === postId
+            ? { ...p, content: updates.content ?? p.content, visibility: (updates.visibility ?? p.visibility) as 'public' | 'friends' | 'private' }
+            : p
+        )
+      );
+    }
+
+    return { error };
+  };
+
   const toggleKudos = async (postId: string) => {
     if (!user) return;
 
@@ -227,6 +256,7 @@ export function usePosts() {
     refetch: fetchPosts,
     createPost,
     deletePost,
+    updatePost,
     toggleKudos,
     toggleCommentsEnabled,
     uploadImage,

@@ -7,21 +7,27 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Trash2, MessageSquareOff, MessageSquare } from 'lucide-react';
+import { MoreHorizontal, Trash2, MessageSquareOff, MessageSquare, Pencil, BookImage } from 'lucide-react';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
 
 interface PostMenuProps {
   isOwner: boolean;
   commentsEnabled: boolean;
+  hasMedia: boolean;
   onDelete: () => void;
   onToggleComments: () => void;
+  onEdit: () => void;
+  onShareToStory: () => void;
 }
 
 export function PostMenu({
   isOwner,
   commentsEnabled,
+  hasMedia,
   onDelete,
   onToggleComments,
+  onEdit,
+  onShareToStory,
 }: PostMenuProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -36,6 +42,16 @@ export function PostMenu({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={onEdit}>
+            <Pencil className="w-4 h-4 mr-2" />
+            Edit Post
+          </DropdownMenuItem>
+          {hasMedia && (
+            <DropdownMenuItem onClick={onShareToStory}>
+              <BookImage className="w-4 h-4 mr-2" />
+              Share to Story
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={onToggleComments}>
             {commentsEnabled ? (
               <>

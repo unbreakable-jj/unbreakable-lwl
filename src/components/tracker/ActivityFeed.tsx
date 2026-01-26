@@ -22,7 +22,7 @@ type FeedItem =
 export function ActivityFeed({ onSignIn }: ActivityFeedProps) {
   const { user } = useAuth();
   const { runs, loading: runsLoading, refetch: refetchRuns, toggleKudos: toggleRunKudos, deleteRun, toggleCommentsEnabled: toggleRunComments } = useRuns();
-  const { posts, loading: postsLoading, refetch: refetchPosts, toggleKudos: togglePostKudos, deletePost, toggleCommentsEnabled: togglePostComments } = usePosts();
+  const { posts, loading: postsLoading, refetch: refetchPosts, toggleKudos: togglePostKudos, deletePost, updatePost, toggleCommentsEnabled: togglePostComments } = usePosts();
 
   const loading = runsLoading || postsLoading;
 
@@ -79,6 +79,10 @@ export function ActivityFeed({ onSignIn }: ActivityFeedProps) {
     if (error) {
       toast.error('Failed to update comments setting');
     }
+  };
+
+  const handleUpdatePost = async (postId: string, updates: { content?: string; visibility?: string }) => {
+    return await updatePost(postId, updates);
   };
 
   if (loading) {
@@ -154,6 +158,7 @@ export function ActivityFeed({ onSignIn }: ActivityFeedProps) {
                 onKudos={togglePostKudos}
                 onDelete={handleDeletePost}
                 onToggleComments={handleTogglePostComments}
+                onUpdatePost={handleUpdatePost}
               />
             )}
           </motion.div>

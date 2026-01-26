@@ -6,24 +6,30 @@ import { Card } from '@/components/ui/card';
 import { Heart, MessageCircle, Globe, Users, Lock, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { PostWithProfile } from '@/hooks/usePosts';
 import { useAuth } from '@/hooks/useAuth';
+import { useStories } from '@/hooks/useStories';
 import { motion } from 'framer-motion';
 import { PostMenu } from './PostMenu';
 import { PostCommentSection } from './PostCommentSection';
 import { ShareMenu } from './ShareMenu';
+import { EditPostModal } from './EditPostModal';
 import { VideoQualitySelector, VideoQuality, useVideoQuality } from '@/components/video/VideoQualitySelector';
+import { toast } from 'sonner';
 
 interface StatusCardProps {
   post: PostWithProfile;
   onKudos: (postId: string) => void;
   onDelete: (postId: string) => void;
   onToggleComments: (postId: string) => void;
+  onUpdatePost?: (postId: string, updates: { content?: string; visibility?: string }) => Promise<{ error: Error | null }>;
   onViewProfile?: (userId: string) => void;
 }
 
-export function StatusCard({ post, onKudos, onDelete, onToggleComments, onViewProfile }: StatusCardProps) {
+export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdatePost, onViewProfile }: StatusCardProps) {
   const { user } = useAuth();
+  const { createStory } = useStories();
   const [isLiking, setIsLiking] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -86,6 +92,40 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onViewPr
     }
   };
 
+  const handleEdit = async (data: { content: string; visibility: string }) => {
+    if (onUpdatePost) {
+      const { error } = await onUpdatePost(post.id, data);
+      if (error) {
+        toast.error('Failed to update post');
+      } else {
+        toast.success('Post updated');
+      }
+    }
+  };
+
+  const handleShareToStory = async () => {
+    const storyData: { image_url?: string; video_url?: string; content?: string; visibility: string } = {
+      visibility: 'public',
+    };
+
+    if (post.image_url) {
+      storyData.image_url = post.image_url;
+    }
+    if (post.video_url) {
+      storyData.video_url = post.video_url;
+    }
+    if (post.content) {
+      storyData.content = post.content;
+    }
+
+    const { error } = await createStory(storyData);
+    if (error) {
+      toast.error('Failed to share to story');
+    } else {
+      toast.success('Shared to your story!');
+    }
+  };
+
   const getVisibilityLabel = () => {
     switch (post.visibility) {
       case 'friends':
@@ -136,8 +176,11 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onViewPr
           <PostMenu
             isOwner={isOwner}
             commentsEnabled={post.comments_enabled}
+            hasMedia={!!(post.image_url || post.video_url)}
             onDelete={() => onDelete(post.id)}
             onToggleComments={() => onToggleComments(post.id)}
+            onEdit={() => setShowEditModal(true)}
+            onShareToStory={handleShareToStory}
           />
         </div>
 
@@ -243,6 +286,15 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onViewPr
           onToggle={() => setShowComments(!showComments)}
         />
       </Card>
+
+      {/* Edit Post Modal */}
+      <EditPostModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSave={handleEdit}
+        initialContent={post.content}
+        initialVisibility={post.visibility}
+      />
     </motion.div>
   );
 }

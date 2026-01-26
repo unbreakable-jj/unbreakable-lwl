@@ -133,8 +133,11 @@ export function ActivityCard({ run, onKudos, onDelete, onToggleComments, onViewP
             <PostMenu
               isOwner={isOwner}
               commentsEnabled={run.comments_enabled}
+              hasMedia={false}
               onDelete={() => onDelete(run.id)}
               onToggleComments={() => onToggleComments(run.id)}
+              onEdit={() => {}}
+              onShareToStory={() => {}}
             />
           </div>
         </div>
