@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { ThemedLogo } from '@/components/ThemedLogo';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
-import { Dumbbell, Flame, Timer } from 'lucide-react';
+import { Dumbbell, Flame, Timer, ArrowRight } from 'lucide-react';
 
 import { StrengthForm } from '@/components/StrengthForm';
 import { StrengthResults } from '@/components/StrengthResults';
@@ -221,6 +222,28 @@ const Calculators = () => {
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
         <div className="max-w-6xl mx-auto">
+          {/* Coaching Link Banner */}
+          <Link to="/help" className="block mb-8 max-w-4xl mx-auto">
+            <Card className="border-2 border-primary/40 bg-primary/5 p-4 hover:bg-primary/10 transition-all neon-border-subtle">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                    <Flame className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-display text-lg tracking-wide text-foreground">
+                      QUESTIONS? <span className="text-primary">ASK YOUR COACH</span>
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Get help understanding your results and what to do next
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="w-5 h-5 text-primary" />
+              </div>
+            </Card>
+          </Link>
+
           {/* Description Card */}
           <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8 md:p-10 mb-10 text-center max-w-4xl mx-auto">
             <p className="text-muted-foreground leading-relaxed mb-4">

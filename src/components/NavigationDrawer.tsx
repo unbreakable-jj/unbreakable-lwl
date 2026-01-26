@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Home, Calculator, Activity, User, LogOut, Settings, Brain, Sparkles, HelpCircle } from 'lucide-react';
+import { Menu, X, Home, Calculator, Activity, User, LogOut, Settings, Brain, Sparkles, Flame } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -38,7 +38,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
     { to: '/programming', label: 'PROGRAMMING', icon: Sparkles },
     { to: '/tracker', label: 'CARDIO CENTRAL', icon: Activity },
     { to: '/mindset', label: 'MINDSET', icon: Brain },
-    { to: '/help', label: 'HELP', icon: HelpCircle },
+    { to: '/help', label: 'COACHING', icon: Flame, highlight: true },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -115,7 +115,9 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg font-display tracking-wide transition-all ${
                     isActive(link.to)
                       ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      : (link as any).highlight
+                        ? 'text-primary hover:text-primary-foreground hover:bg-primary/80 border border-primary/30'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
                   <link.icon className="w-5 h-5" />

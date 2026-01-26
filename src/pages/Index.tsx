@@ -30,8 +30,10 @@ import {
   Plus,
   MessageCircle,
   Bell,
+  ArrowRight,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Card } from '@/components/ui/card';
 
 type Tab = 'feed' | 'messages' | 'notifications' | 'profile';
 
@@ -300,6 +302,28 @@ const Index = () => {
       {/* Features Section */}
       <section className="py-24 md:py-32 bg-card/50">
         <div className="container mx-auto px-6">
+          {/* Coaching Banner */}
+          <Link to="/help" className="block max-w-3xl mx-auto mb-16">
+            <Card className="border-2 border-primary/40 bg-primary/5 p-6 hover:bg-primary/10 transition-all neon-border-subtle">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center neon-glow">
+                    <Flame className="w-7 h-7 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-display text-2xl tracking-wide text-foreground">
+                      UNBREAKABLE <span className="text-primary neon-glow-subtle">COACHING</span>
+                    </p>
+                    <p className="text-muted-foreground mt-1">
+                      Your personal coach for training, nutrition, mindset, and beyond. Ask anything!
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="w-6 h-6 text-primary hidden sm:block" />
+              </div>
+            </Card>
+          </Link>
+
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8">
               <Target className="w-12 h-12 text-primary mb-6" />
@@ -315,10 +339,10 @@ const Index = () => {
             <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8">
               <Heart className="w-12 h-12 text-primary mb-6" />
               <h3 className="font-display text-xl text-primary mb-3 tracking-wide neon-glow-subtle">
-                CONTEXT-AWARE CALCULATIONS
+                PERSONALISED PROGRAMMING
               </h3>
               <p className="text-muted-foreground">
-                No more generic formulas. Get personalized results based on your body, your goals, and your
+                No more generic formulas. Get personalised results based on your body, your goals, and your
                 lifestyle.
               </p>
             </div>
