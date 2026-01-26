@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Send, MessageSquarePlus, History, Trash2, ChevronDown, ChevronUp, Loader2, Flame } from 'lucide-react';
+import { Send, MessageSquarePlus, History, Trash2, ChevronDown, ChevronUp, Loader2, Flame, Image as ImageIcon, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,6 +13,8 @@ import { AuthModal } from '@/components/tracker/AuthModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useHelpChat, Message } from '@/hooks/useHelpChat';
 import { ThemedLogo } from '@/components/ThemedLogo';
+import { VoiceSettingsSheet } from '@/components/coaching/VoiceSettingsSheet';
+import { ChatMediaUpload, ChatMedia } from '@/components/coaching/ChatMediaUpload';
 
 const SAMPLE_QUESTIONS = [
   "I'm stuck on my squat progression — what should I do?",
@@ -23,7 +25,11 @@ const SAMPLE_QUESTIONS = [
   "My recovery is slow — what adjustments should I make?",
 ];
 
-function MessageBubble({ message }: { message: Message }) {
+interface MessageWithMedia extends Message {
+  media?: ChatMedia;
+}
+
+function MessageBubble({ message }: { message: MessageWithMedia }) {
   const isUser = message.role === 'user';
   
   // Simple markdown parsing for bold and numbered lists
@@ -50,6 +56,24 @@ function MessageBubble({ message }: { message: Message }) {
           : 'bg-card/80 border-primary/20 neon-border-subtle'}`}
         >
           <CardContent className="p-4">
+            {/* Media preview if attached */}
+            {message.media && (
+              <div className="mb-3">
+                {message.media.type === 'image' ? (
+                  <img 
+                    src={message.media.url} 
+                    alt="Attached" 
+                    className="rounded-lg max-h-48 object-cover"
+                  />
+                ) : (
+                  <video 
+                    src={message.media.url} 
+                    controls 
+                    className="rounded-lg max-h-48 w-full"
+                  />
+                )}
+              </div>
+            )}
             <div className={`text-sm ${isUser ? 'text-foreground' : 'text-foreground/90'}`}>
               {isUser ? message.content : formatContent(message.content)}
             </div>
@@ -67,6 +91,8 @@ export default function Help() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [input, setInput] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [selectedMedia, setSelectedMedia] = useState<ChatMedia | null>(null);
+  const [messagesWithMedia, setMessagesWithMedia] = useState<Map<string, ChatMedia>>(new Map());
   const { user } = useAuth();
   
   const {
@@ -81,17 +107,68 @@ export default function Help() {
     startNewConversation,
   } = useHelpChat();
 
+  // Check for context from other screens
+  useEffect(() => {
+    const storedContext = sessionStorage.getItem('coach_context');
+    if (storedContext) {
+      try {
+        const context = JSON.parse(storedContext);
+        // Pre-fill input with context-aware prompt
+        let prompt = '';
+        switch (context.type) {
+          case 'session':
+            prompt = `I just finished a workout session${context.name ? ` (${context.name})` : ''}. Can you give me feedback on my performance?`;
+            break;
+          case 'programme':
+            prompt = `I'd like to discuss my training programme${context.name ? ` "${context.name}"` : ''}. `;
+            break;
+          case 'exercise':
+            prompt = `Can you review my technique for ${context.name || 'this exercise'}?`;
+            break;
+          case 'progress':
+            prompt = `I'd like you to analyse my training progress and suggest improvements.`;
+            break;
+        }
+        if (prompt) {
+          setInput(prompt);
+        }
+      } catch (e) {
+        console.error('Failed to parse coach context:', e);
+      } finally {
+        sessionStorage.removeItem('coach_context');
+      }
+    }
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if ((!input.trim() && !selectedMedia) || isLoading) return;
     
     if (!user) {
       setShowAuthModal(true);
       return;
     }
     
-    sendMessage(input);
+    // Build message content with media context
+    let messageContent = input;
+    if (selectedMedia) {
+      const mediaContext = selectedMedia.type === 'video' 
+        ? `[Attached video: ${selectedMedia.name}]` 
+        : `[Attached image: ${selectedMedia.name}]`;
+      messageContent = messageContent 
+        ? `${messageContent}\n\n${mediaContext}` 
+        : `Please review this ${selectedMedia.type}: ${selectedMedia.name}`;
+    }
+    
+    // Store media reference for the message we're about to send
+    if (selectedMedia) {
+      const tempId = `temp_${Date.now()}`;
+      setMessagesWithMedia(prev => new Map(prev).set(tempId, selectedMedia));
+    }
+    
+    sendMessage(messageContent);
     setInput('');
+    setSelectedMedia(null);
   };
 
   const handleSampleQuestion = (question: string) => {
@@ -101,6 +178,18 @@ export default function Help() {
     }
     setInput(question);
   };
+
+  // Merge messages with their media
+  const enrichedMessages: MessageWithMedia[] = messages.map((msg, idx) => {
+    // Try to find media for this message (simplified - in production you'd store this properly)
+    const mediaEntry = Array.from(messagesWithMedia.entries()).find(
+      ([key]) => key.includes(msg.id) || (msg.role === 'user' && idx === messages.length - 2)
+    );
+    return {
+      ...msg,
+      media: mediaEntry?.[1],
+    };
+  });
 
   return (
     <SwipeNavigationWrapper>
@@ -114,7 +203,11 @@ export default function Help() {
                 UNBREAKABLE
               </span>
             </Link>
-            <NavigationDrawer />
+            <div className="flex items-center gap-2">
+              {/* Voice Settings Icon */}
+              <VoiceSettingsSheet />
+              <NavigationDrawer />
+            </div>
           </div>
         </header>
 
@@ -209,14 +302,14 @@ export default function Help() {
           )}
 
           {/* Chat Messages */}
-          {messages.length > 0 && (
+          {enrichedMessages.length > 0 && (
             <Card className="mb-6 border-primary/20 neon-border-subtle bg-card/50">
               <CardContent className="p-4">
                 <ScrollArea className="h-[400px] pr-4">
-                  {messages.map((msg) => (
+                  {enrichedMessages.map((msg) => (
                     <MessageBubble key={msg.id} message={msg} />
                   ))}
-                  {isLoading && messages[messages.length - 1]?.role === 'user' && (
+                  {isLoading && enrichedMessages[enrichedMessages.length - 1]?.role === 'user' && (
                     <div className="flex justify-start mb-4">
                       <Card className="bg-card/80 border-primary/20 neon-border-subtle">
                         <CardContent className="p-4 flex items-center gap-2">
@@ -232,7 +325,7 @@ export default function Help() {
           )}
 
           {/* Sample Questions Carousel */}
-          {messages.length === 0 && (
+          {enrichedMessages.length === 0 && (
             <div className="mb-6">
               <p className="text-sm text-muted-foreground mb-3 text-center">Try asking your coach:</p>
               <div className="flex flex-wrap gap-2 justify-center">
@@ -251,29 +344,72 @@ export default function Help() {
             </div>
           )}
 
-          {/* Input Section */}
-          <form onSubmit={handleSubmit} className="flex gap-3">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask your coach anything — training, nutrition, motivation, music..."
-              className="flex-1"
-              disabled={isLoading}
-            />
-            <Button type="submit" disabled={isLoading || !input.trim()}>
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <>
-                  <Send className="w-4 h-4 mr-2" />
-                  Ask Coach
-                </>
-              )}
-            </Button>
+          {/* Input Section - Text only, no voice reply controls */}
+          <form onSubmit={handleSubmit} className="space-y-2">
+            {/* Media preview */}
+            {selectedMedia && (
+              <div className="p-3 bg-muted/30 rounded-lg border border-border">
+                <div className="flex items-center gap-3">
+                  {selectedMedia.type === 'image' ? (
+                    <img 
+                      src={selectedMedia.url} 
+                      alt="Preview" 
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center">
+                      <Video className="w-6 h-6 text-primary" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{selectedMedia.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {selectedMedia.type === 'video' ? 'Video attached' : 'Image attached'}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedMedia(null)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            )}
+            
+            <div className="flex gap-2 items-center">
+              {/* Media upload buttons */}
+              <ChatMediaUpload
+                onMediaSelect={setSelectedMedia}
+                selectedMedia={selectedMedia}
+                onClearMedia={() => setSelectedMedia(null)}
+                disabled={isLoading}
+              />
+              
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask your coach anything — training, nutrition, motivation..."
+                className="flex-1"
+                disabled={isLoading}
+              />
+              <Button type="submit" disabled={isLoading || (!input.trim() && !selectedMedia)}>
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Ask Coach
+                  </>
+                )}
+              </Button>
+            </div>
           </form>
 
           {/* Ask Another Question hint */}
-          {messages.length > 0 && !isLoading && (
+          {enrichedMessages.length > 0 && !isLoading && (
             <p className="text-center text-sm text-muted-foreground mt-4">
               Type another question above or{' '}
               <button 

@@ -5,6 +5,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Select,
   SelectContent,
@@ -33,13 +34,17 @@ import {
   ExternalLink,
   Video,
   Radio,
+  Volume2,
+  Brain,
 } from 'lucide-react';
 import { useUserSettings, UserSettings } from '@/hooks/useUserSettings';
+import { useAIPreferences } from '@/hooks/useAIPreferences';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
 export function SettingsPanel() {
   const { settings, loading, updateSettings, toggleTheme } = useUserSettings();
+  const { preferences: aiPreferences, isLoading: aiLoading, updatePreferences } = useAIPreferences();
   const { signOut } = useAuth();
   const [saving, setSaving] = useState(false);
 
@@ -417,6 +422,103 @@ export function SettingsPanel() {
             <Switch
               checked={settings.ai_feedback_enabled}
               onCheckedChange={(checked) => handleUpdate({ ai_feedback_enabled: checked })}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* AI Coaching Settings */}
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="font-display text-xl tracking-wide flex items-center gap-2">
+            <Brain className="w-5 h-5" />
+            AI COACHING
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <p className="text-sm text-muted-foreground mb-2">
+            Configure your AI coaching and voice feedback preferences
+          </p>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-foreground font-medium flex items-center gap-2">
+                <Volume2 className="w-4 h-4" />
+                Voice Feedback
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Enable audio responses from your coach
+              </p>
+            </div>
+            <Switch
+              checked={aiPreferences?.voice_feedback_enabled ?? false}
+              onCheckedChange={(checked) => updatePreferences.mutate({ voice_feedback_enabled: checked })}
+              disabled={aiLoading}
+            />
+          </div>
+
+          {aiPreferences?.voice_feedback_enabled && (
+            <>
+              <Separator />
+              <div className="space-y-3">
+                <Label className="text-foreground font-medium">Voice Type</Label>
+                <RadioGroup
+                  value={aiPreferences?.voice_gender || 'female'}
+                  onValueChange={(value) => updatePreferences.mutate({ voice_gender: value as 'male' | 'female' })}
+                  className="space-y-2"
+                >
+                  <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30 border border-border">
+                    <RadioGroupItem value="female" id="female-settings" />
+                    <Label htmlFor="female-settings" className="flex-1 cursor-pointer">
+                      <span className="font-medium">Female Voice</span>
+                      <p className="text-xs text-muted-foreground">Clear and encouraging tone</p>
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30 border border-border">
+                    <RadioGroupItem value="male" id="male-settings" />
+                    <Label htmlFor="male-settings" className="flex-1 cursor-pointer">
+                      <span className="font-medium">Male Voice</span>
+                      <p className="text-xs text-muted-foreground">Strong and motivating tone</p>
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            </>
+          )}
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-foreground font-medium flex items-center gap-2">
+                <Video className="w-4 h-4" />
+                Movement Analysis
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Analyse technique from uploaded videos
+              </p>
+            </div>
+            <Switch
+              checked={aiPreferences?.movement_analysis_enabled ?? false}
+              onCheckedChange={(checked) => updatePreferences.mutate({ movement_analysis_enabled: checked })}
+              disabled={aiLoading}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-foreground font-medium flex items-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                Auto Progression
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Automatically suggest weight/rep increases
+              </p>
+            </div>
+            <Switch
+              checked={aiPreferences?.auto_progression_enabled ?? true}
+              onCheckedChange={(checked) => updatePreferences.mutate({ auto_progression_enabled: checked })}
+              disabled={aiLoading}
             />
           </div>
         </CardContent>

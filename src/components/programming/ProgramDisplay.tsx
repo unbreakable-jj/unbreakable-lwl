@@ -9,6 +9,7 @@ import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import { useAuth } from '@/hooks/useAuth';
 import { ActiveWorkoutModal } from './ActiveWorkoutModal';
+import { AskCoachCTA } from '@/components/coaching/AskCoachCTA';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -20,7 +21,8 @@ import {
   Loader2,
   ChevronDown,
   TrendingUp,
-  Utensils
+  Utensils,
+  Sparkles
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -130,6 +132,13 @@ export function ProgramDisplay({ program, onReset, savedProgramId }: ProgramDisp
           <RefreshCw className="w-4 h-4" />
           NEW PROGRAMME
         </Button>
+        <AskCoachCTA 
+          context={{
+            type: 'programme',
+            name: program.programName,
+          }}
+          label="Ask Coach"
+        />
       </div>
 
       {/* Phases Overview - Cardio Style */}
