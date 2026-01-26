@@ -12,7 +12,6 @@ import { ProgramFormStep4 } from '@/components/programming/ProgramFormStep4';
 import { ProgramDisplay } from '@/components/programming/ProgramDisplay';
 import { MyProgramsSection } from '@/components/programming/MyProgramsSection';
 import { ProgrammeBuilder } from '@/components/programming/ProgrammeBuilder';
-import { ManualWorkoutBuilder } from '@/components/programming/ManualWorkoutBuilder';
 import { BuilderModeSelector } from '@/components/programming/BuilderModeSelector';
 import { ProgrammeLogsView } from '@/components/programming/ProgrammeLogsView';
 import { useAuth } from '@/hooks/useAuth';
@@ -38,7 +37,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function Programming() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [builderMode, setBuilderMode] = useState<'select' | 'auto' | 'manual'>('select');
+  const [builderMode, setBuilderMode] = useState<'select' | 'auto'>('select');
   const [currentStep, setCurrentStep] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedProgram, setGeneratedProgram] = useState<GeneratedProgram | null>(null);
@@ -366,33 +365,6 @@ export default function Programming() {
                   )}
                 </Button>
               </div>
-            </motion.div>
-          )}
-
-          {/* Manual Programme Builder */}
-          {builderMode === 'manual' && (
-            <motion.div
-              key="manual"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="max-w-4xl mx-auto space-y-8"
-            >
-              {/* Back button */}
-              <Button
-                variant="ghost"
-                onClick={handleBackToSelect}
-                className="gap-2"
-              >
-                <Home className="w-4 h-4" />
-                Back to Selection
-              </Button>
-
-              {/* Programme Builder */}
-              <ProgrammeBuilder />
-              
-              {/* Manual Workout Builder for quick sessions */}
-              {user && <ManualWorkoutBuilder />}
             </motion.div>
           )}
         </AnimatePresence>
