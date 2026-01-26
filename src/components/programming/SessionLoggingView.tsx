@@ -152,7 +152,9 @@ export function SessionLoggingView({
     onUpdateLog(log.id, updates);
     
     if (completed) {
-      onStartRest(log.equipment);
+      // Pass exercise type based on equipment for rest timer presets
+      const exerciseType = ['barbell', 'dumbbell'].includes(log.equipment) ? 'strength' : 'bodyweight';
+      onStartRest(exerciseType);
     }
   }, [localInputs, onUpdateLog, onStartRest]);
 
