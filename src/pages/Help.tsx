@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Send, MessageSquarePlus, History, Trash2, ChevronDown, ChevronUp, Loader2, Flame, Dumbbell, Sparkles, Video, UtensilsCrossed } from 'lucide-react';
+import { Send, MessageSquarePlus, History, Trash2, ChevronDown, ChevronUp, Loader2, Flame, Sparkles, Video, UtensilsCrossed } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,18 +15,11 @@ import { useHelpChat, Message } from '@/hooks/useHelpChat';
 import { ThemedLogo } from '@/components/ThemedLogo';
 import { VoiceSettingsSheet } from '@/components/coaching/VoiceSettingsSheet';
 import { ChatMediaUpload, ChatMedia } from '@/components/coaching/ChatMediaUpload';
+import { ExampleQuestions } from '@/components/coaching/ExampleQuestions';
+import { ProfileButton } from '@/components/coaching/ProfileButton';
 import { useAIProgramme } from '@/hooks/useAIProgramme';
 import { useAIMealPlan } from '@/hooks/useAIMealPlan';
 import { toast } from '@/hooks/use-toast';
-
-const SAMPLE_QUESTIONS = [
-  "Build me a 4-day strength programme",
-  "Create a meal plan for muscle gain",
-  "I want to lose fat and build muscle — help me!",
-  "Create a home workout plan with minimal equipment",
-  "I'm stuck on my squat progression — what should I do?",
-  "Design a programme for a beginner lifter",
-];
 
 interface MessageWithMedia extends Message {
   media?: ChatMedia;
@@ -171,7 +164,7 @@ export default function Help() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if ((!input.trim() && !selectedMedia) || isLoading || isGenerating) return;
+    if ((!input.trim() && !selectedMedia) || isLoading || isGenerating || isMealPlanGenerating) return;
     
     if (!user) {
       setShowAuthModal(true);
@@ -245,6 +238,67 @@ Got questions about the programme? Just ask! 💪`;
       }
       return;
     }
+
+    // Check if this is a meal plan request
+    if (detectMealPlanRequest(messageContent)) {
+      setMealPlanGenerating(true);
+      
+      // Add user message to chat first
+      const userMsg = messageContent;
+      sendMessage(userMsg);
+      setInput('');
+      setSelectedMedia(null);
+      
+      // Generate meal plan
+      const result = await generateMealPlan(userMsg, 'full_plan', {
+        chatContext: messages.slice(-5).map(m => `${m.role}: ${m.content}`).join('\n'),
+      });
+      
+      setMealPlanGenerating(false);
+      
+      if (result?.savedToHub && result.plan) {
+        // Add assistant response about the meal plan
+        setTimeout(() => {
+          const mealPlanResponse = `🍽️ **Your bespoke meal plan is ready!**
+
+I've created **"${result.plan.planName}"** tailored to your goals. Here's the overview:
+
+${result.plan.overview}
+
+**Weekly Totals:**
+- ~${result.plan.weeklyCalories.toLocaleString()} calories
+- ~${result.plan.weeklyProtein}g protein
+
+**What's included:**
+- ${result.plan.days?.length || 7} days of meals planned
+- Breakfast, lunch, dinner & snacks
+- Shopping list and meal prep tips
+- Coach notes for your success
+
+**Your meal plan is now in your Fuel hub** (Fuel → Plan). From there you can:
+1. Preview the full plan
+2. Make any swaps or edits
+3. Activate it when you're ready
+
+The plan won't auto-activate — you're in control. When you're ready, hit "Activate" and start tracking your nutrition!
+
+Questions about the plan or want to make changes? Just ask! 🔥`;
+          
+          sendMessage(mealPlanResponse);
+        }, 500);
+        
+        toast({
+          title: 'Meal Plan Created!',
+          description: 'View it in Fuel → Plan',
+          action: (
+            <Button variant="outline" size="sm" onClick={() => navigate('/fuel')}>
+              View Meal Plan
+            </Button>
+          ),
+        });
+      }
+      return;
+    }
     
     // Store media reference for the message we're about to send
     if (selectedMedia) {
@@ -257,13 +311,15 @@ Got questions about the programme? Just ask! 💪`;
     setSelectedMedia(null);
   };
 
-  const handleSampleQuestion = (question: string) => {
+  const handleExampleQuestion = (question: string) => {
     if (!user) {
       setShowAuthModal(true);
       return;
     }
     setInput(question);
   };
+
+  const isAnyGenerating = isGenerating || isMealPlanGenerating;
 
   // Merge messages with their media
   const enrichedMessages: MessageWithMedia[] = messages.map((msg, idx) => {
@@ -418,33 +474,26 @@ Got questions about the programme? Just ask! 💪`;
                       </Card>
                     </div>
                   )}
+                  {isMealPlanGenerating && (
+                    <div className="flex justify-start mb-4">
+                      <Card className="bg-primary/10 border-primary/30 neon-border-subtle">
+                        <CardContent className="p-4 flex items-center gap-3">
+                          <UtensilsCrossed className="w-5 h-5 text-primary animate-pulse" />
+                          <div>
+                            <span className="text-sm font-medium text-primary">Building your bespoke meal plan...</span>
+                            <p className="text-xs text-muted-foreground mt-1">This takes about 15-20 seconds</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  )}
                 </ScrollArea>
               </CardContent>
             </Card>
           )}
 
-          {/* Sample Questions Carousel */}
-          {enrichedMessages.length === 0 && (
-            <div className="mb-6">
-              <p className="text-sm text-muted-foreground mb-3 text-center">Try asking your coach:</p>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {SAMPLE_QUESTIONS.map((question, i) => (
-                  <Button
-                    key={i}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs border-primary/30 hover:border-primary hover:bg-primary/10"
-                    onClick={() => handleSampleQuestion(question)}
-                  >
-                    {question}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Input Section - Text only, no voice reply controls */}
-          <form onSubmit={handleSubmit} className="space-y-2">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Media preview */}
             {selectedMedia && (
               <div className="p-3 bg-muted/30 rounded-lg border border-border">
@@ -484,7 +533,7 @@ Got questions about the programme? Just ask! 💪`;
                 onMediaSelect={setSelectedMedia}
                 selectedMedia={selectedMedia}
                 onClearMedia={() => setSelectedMedia(null)}
-                disabled={isLoading}
+                disabled={isLoading || isAnyGenerating}
               />
               
               <Input
@@ -492,10 +541,10 @@ Got questions about the programme? Just ask! 💪`;
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask your coach anything — training, nutrition, motivation..."
                 className="flex-1"
-                disabled={isLoading || isGenerating}
+                disabled={isLoading || isAnyGenerating}
               />
-              <Button type="submit" disabled={isLoading || isGenerating || (!input.trim() && !selectedMedia)}>
-                {isLoading ? (
+              <Button type="submit" disabled={isLoading || isAnyGenerating || (!input.trim() && !selectedMedia)}>
+                {isLoading || isAnyGenerating ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <>
@@ -505,19 +554,40 @@ Got questions about the programme? Just ask! 💪`;
                 )}
               </Button>
             </div>
+
+            {/* Example Questions - Always visible below input */}
+            <div className="pt-2">
+              <p className="text-sm text-muted-foreground mb-3 text-center">
+                {enrichedMessages.length === 0 ? 'Try asking your coach:' : 'Quick prompts:'}
+              </p>
+              <ExampleQuestions 
+                onQuestionClick={handleExampleQuestion}
+                disabled={isLoading || isAnyGenerating}
+              />
+            </div>
           </form>
 
-          {/* Ask Another Question hint */}
+          {/* Ask Another Question hint + Profile Button */}
           {enrichedMessages.length > 0 && !isLoading && (
-            <p className="text-center text-sm text-muted-foreground mt-4">
-              Type another question above or{' '}
-              <button 
-                className="text-primary hover:underline"
-                onClick={startNewConversation}
-              >
-                start a new conversation
-              </button>
-            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t border-border">
+              <p className="text-sm text-muted-foreground">
+                Type another question above or{' '}
+                <button 
+                  className="text-primary hover:underline"
+                  onClick={startNewConversation}
+                >
+                  start a new conversation
+                </button>
+              </p>
+              <ProfileButton />
+            </div>
+          )}
+
+          {/* Profile Button when no messages */}
+          {enrichedMessages.length === 0 && user && (
+            <div className="flex justify-center mt-6 pt-4 border-t border-border">
+              <ProfileButton />
+            </div>
           )}
         </div>
       </main>
