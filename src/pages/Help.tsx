@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Send, MessageSquarePlus, History, Trash2, ChevronDown, ChevronUp, Loader2, Flame, Image as ImageIcon, Video } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Send, MessageSquarePlus, History, Trash2, ChevronDown, ChevronUp, Loader2, Flame, Dumbbell, Sparkles, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,13 +15,15 @@ import { useHelpChat, Message } from '@/hooks/useHelpChat';
 import { ThemedLogo } from '@/components/ThemedLogo';
 import { VoiceSettingsSheet } from '@/components/coaching/VoiceSettingsSheet';
 import { ChatMediaUpload, ChatMedia } from '@/components/coaching/ChatMediaUpload';
+import { useAIProgramme } from '@/hooks/useAIProgramme';
+import { toast } from '@/hooks/use-toast';
 
 const SAMPLE_QUESTIONS = [
+  "Build me a 4-day strength programme",
+  "I want to lose fat and build muscle — help me!",
+  "Create a home workout plan with minimal equipment",
   "I'm stuck on my squat progression — what should I do?",
-  "Rate my workout playlist: heavy metal or hip hop for leg day?",
-  "How can I stay motivated when progress feels slow?",
-  "What's a good pre-workout meal for early morning sessions?",
-  "Help me pick a pump-up song for my next PR attempt!",
+  "Design a programme for a beginner lifter",
   "My recovery is slow — what adjustments should I make?",
 ];
 
@@ -88,11 +90,13 @@ function MessageBubble({ message }: { message: MessageWithMedia }) {
 }
 
 export default function Help() {
+  const navigate = useNavigate();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [input, setInput] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<ChatMedia | null>(null);
   const [messagesWithMedia, setMessagesWithMedia] = useState<Map<string, ChatMedia>>(new Map());
+  const [programmeGenerating, setProgrammeGenerating] = useState(false);
   const { user } = useAuth();
   
   const {
@@ -106,6 +110,8 @@ export default function Help() {
     deleteConversation,
     startNewConversation,
   } = useHelpChat();
+
+  const { generateProgramme, detectProgrammeRequest, isGenerating } = useAIProgramme();
 
   // Check for context from other screens
   useEffect(() => {
@@ -121,6 +127,9 @@ export default function Help() {
             break;
           case 'programme':
             prompt = `I'd like to discuss my training programme${context.name ? ` "${context.name}"` : ''}. `;
+            break;
+          case 'programme_request':
+            prompt = `Build me a bespoke training programme. `;
             break;
           case 'exercise':
             prompt = `Can you review my technique for ${context.name || 'this exercise'}?`;
@@ -140,9 +149,9 @@ export default function Help() {
     }
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if ((!input.trim() && !selectedMedia) || isLoading) return;
+    if ((!input.trim() && !selectedMedia) || isLoading || isGenerating) return;
     
     if (!user) {
       setShowAuthModal(true);
@@ -158,6 +167,63 @@ export default function Help() {
       messageContent = messageContent 
         ? `${messageContent}\n\n${mediaContext}` 
         : `Please review this ${selectedMedia.type}: ${selectedMedia.name}`;
+    }
+    
+    // Check if this is a programme request
+    if (detectProgrammeRequest(messageContent)) {
+      setProgrammeGenerating(true);
+      
+      // Add user message to chat first
+      const userMsg = messageContent;
+      sendMessage(userMsg);
+      setInput('');
+      setSelectedMedia(null);
+      
+      // Generate programme
+      const result = await generateProgramme(userMsg, {
+        chatContext: messages.slice(-5).map(m => `${m.role}: ${m.content}`).join('\n'),
+      });
+      
+      setProgrammeGenerating(false);
+      
+      if (result?.savedToHub) {
+        // Add assistant response about the programme
+        setTimeout(() => {
+          const programmeResponse = `🎉 **Your bespoke programme is ready!**
+
+I've created **"${result.program.programName}"** just for you. Here's what I built:
+
+${result.program.overview}
+
+**What's included:**
+- ${result.program.templateWeek?.days?.length || 0} training days per week
+- ${result.program.phases?.length || 3} periodized phases over 12 weeks
+- Detailed coaching notes for every exercise
+- Progression rules tailored to your goals
+
+**Your programme is now in your My Programmes hub** (Power → My Programmes). From there you can:
+1. Preview the full programme
+2. Make any edits you want
+3. Start it when you're ready
+
+The programme won't auto-start — you're in control. When you're ready, hit "Start" and I'll generate your 12-week training schedule.
+
+Got questions about the programme? Just ask! 💪`;
+          
+          sendMessage(programmeResponse);
+        }, 500);
+        
+        toast({
+          title: 'Programme Created!',
+          description: 'View it in Power → My Programmes',
+          action: (
+            <Button variant="outline" size="sm" onClick={() => navigate('/programming')}>
+              View Programme
+            </Button>
+          ),
+        });
+      }
+      return;
     }
     
     // Store media reference for the message we're about to send
@@ -309,12 +375,25 @@ export default function Help() {
                   {enrichedMessages.map((msg) => (
                     <MessageBubble key={msg.id} message={msg} />
                   ))}
-                  {isLoading && enrichedMessages[enrichedMessages.length - 1]?.role === 'user' && (
+                  {isLoading && enrichedMessages[enrichedMessages.length - 1]?.role === 'user' && !isGenerating && (
                     <div className="flex justify-start mb-4">
                       <Card className="bg-card/80 border-primary/20 neon-border-subtle">
                         <CardContent className="p-4 flex items-center gap-2">
                           <Loader2 className="w-4 h-4 animate-spin text-primary" />
                           <span className="text-sm text-muted-foreground">Coach is typing...</span>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  )}
+                  {isGenerating && (
+                    <div className="flex justify-start mb-4">
+                      <Card className="bg-primary/10 border-primary/30 neon-border-subtle">
+                        <CardContent className="p-4 flex items-center gap-3">
+                          <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+                          <div>
+                            <span className="text-sm font-medium text-primary">Building your bespoke programme...</span>
+                            <p className="text-xs text-muted-foreground mt-1">This takes about 15-20 seconds</p>
+                          </div>
                         </CardContent>
                       </Card>
                     </div>
@@ -393,9 +472,9 @@ export default function Help() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask your coach anything — training, nutrition, motivation..."
                 className="flex-1"
-                disabled={isLoading}
+                disabled={isLoading || isGenerating}
               />
-              <Button type="submit" disabled={isLoading || (!input.trim() && !selectedMedia)}>
+              <Button type="submit" disabled={isLoading || isGenerating || (!input.trim() && !selectedMedia)}>
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (

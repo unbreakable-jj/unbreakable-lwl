@@ -7,6 +7,7 @@ import { useTrainingPrograms, TrainingProgram, ProgramStatus } from '@/hooks/use
 import { useAuth } from '@/hooks/useAuth';
 import { ProgramDisplay } from './ProgramDisplay';
 import { ProgrammeExecutionView } from './ProgrammeExecutionView';
+import { ProgrammeCTA } from '@/components/coaching/ProgrammeCTA';
 import { 
   Calendar, 
   Play, 
@@ -19,7 +20,7 @@ import {
   FolderOpen,
   AlertCircle,
   Target,
-  X
+  Sparkles,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
@@ -77,9 +78,10 @@ export function MyProgramsSection() {
       <Card className="p-6 border border-border bg-card text-center">
         <Dumbbell className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
         <h3 className="font-display text-lg text-foreground mb-2">No saved programmes</h3>
-        <p className="text-sm text-muted-foreground">
-          Generate and save a programme above to start tracking your workouts.
+        <p className="text-sm text-muted-foreground mb-4">
+          Generate a bespoke programme with AI or build one manually above.
         </p>
+        <ProgrammeCTA variant="default" className="mx-auto" />
       </Card>
     );
   }
@@ -137,19 +139,25 @@ export function MyProgramsSection() {
 
   return (
     <div className="space-y-4">
-      {/* Active Programs Counter */}
-      <div className="flex items-center justify-between p-4 bg-surface rounded-lg border border-border">
+      {/* Header with AI CTA */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-surface rounded-lg border border-border">
         <div className="flex items-center gap-3">
           <AlertCircle className="w-5 h-5 text-primary shrink-0" />
           <span className="text-sm md:text-base text-muted-foreground">
-            Active Programmes: <span className="text-foreground font-medium">{activeProgramCount}</span> / {maxActivePrograms}
+            Active: <span className="text-foreground font-medium">{activeProgramCount}</span> / {maxActivePrograms}
           </span>
+          {!canActivateMore && (
+            <Badge variant="outline" className="border-yellow-500/50 text-yellow-400 shrink-0">
+              Max Reached
+            </Badge>
+          )}
         </div>
-        {!canActivateMore && (
-          <Badge variant="outline" className="border-yellow-500/50 text-yellow-400 shrink-0">
-            Max Reached
-          </Badge>
-        )}
+        <ProgrammeCTA 
+          variant="outline" 
+          size="sm" 
+          label="Create with AI"
+          className="shrink-0"
+        />
       </div>
 
       {programs.map((program) => (

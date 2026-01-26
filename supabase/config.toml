@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.generate-cardio-program]
 verify_jwt = false
+
+[functions.generate-ai-programme]
+verify_jwt = false
