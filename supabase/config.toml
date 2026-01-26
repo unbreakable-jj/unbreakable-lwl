@@ -8,3 +8,12 @@ verify_jwt = false
 
 [functions.help-chat]
 verify_jwt = false
+
+[functions.generate-workout-feedback]
+verify_jwt = false
+
+[functions.analyze-movement]
+verify_jwt = false
+
+[functions.generate-cardio-program]
+verify_jwt = false
