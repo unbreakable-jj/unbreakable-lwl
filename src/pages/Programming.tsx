@@ -13,6 +13,7 @@ import { ProgramDisplay } from '@/components/programming/ProgramDisplay';
 import { MyProgramsSection } from '@/components/programming/MyProgramsSection';
 import { ProgrammeBuilder } from '@/components/programming/ProgrammeBuilder';
 import { BuilderModeSelector } from '@/components/programming/BuilderModeSelector';
+import { ManualProgramBuilder } from '@/components/programming/ManualProgramBuilder';
 import { ProgrammeLogsView } from '@/components/programming/ProgrammeLogsView';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -37,7 +38,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function Programming() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [builderMode, setBuilderMode] = useState<'select' | 'auto'>('select');
+  const [builderMode, setBuilderMode] = useState<'select' | 'auto' | 'manual'>('select');
   const [currentStep, setCurrentStep] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedProgram, setGeneratedProgram] = useState<GeneratedProgram | null>(null);
@@ -238,7 +239,7 @@ export default function Programming() {
               exit={{ opacity: 0, y: -20 }}
               className="mb-12"
             >
-              <BuilderModeSelector onSelectMode={(mode) => setBuilderMode(mode)} />
+              <BuilderModeSelector onSelectMode={(mode) => setBuilderMode(mode as 'auto' | 'manual')} />
             </motion.div>
           )}
 
@@ -365,6 +366,18 @@ export default function Programming() {
                   )}
                 </Button>
               </div>
+            </motion.div>
+          )}
+
+          {/* Manual Programme Builder */}
+          {builderMode === 'manual' && (
+            <motion.div
+              key="manual"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+            >
+              <ManualProgramBuilder onBack={handleBackToSelect} />
             </motion.div>
           )}
         </AnimatePresence>
