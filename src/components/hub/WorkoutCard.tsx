@@ -6,9 +6,12 @@ import { Heart, MessageCircle, Dumbbell, Clock, Globe, Users, Lock } from 'lucid
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import { useStories } from '@/hooks/useStories';
 import { PostMenu } from '@/components/tracker/PostMenu';
 import { ShareMenu } from '@/components/tracker/ShareMenu';
 import { WorkoutCommentSection } from './WorkoutCommentSection';
+import { EditWorkoutModal } from '@/components/tracker/EditWorkoutModal';
+import { toast } from 'sonner';
 import type { FeedWorkout, FeedItemBase } from '@/hooks/useUnifiedFeed';
 
 interface WorkoutCardProps {
@@ -16,13 +19,16 @@ interface WorkoutCardProps {
   onKudos: (workoutId: string) => void;
   onDelete: (workoutId: string) => void;
   onToggleComments: (workoutId: string) => void;
+  onUpdateWorkout?: (workoutId: string, updates: { notes?: string; visibility?: string }) => Promise<{ error: Error | null }>;
   onViewProfile?: (userId: string) => void;
 }
 
-export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onViewProfile }: WorkoutCardProps) {
+export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onUpdateWorkout, onViewProfile }: WorkoutCardProps) {
   const { user } = useAuth();
+  const { createStory } = useStories();
   const [isLiking, setIsLiking] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const isOwner = user?.id === workout.user_id;
 
@@ -40,6 +46,31 @@ export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onVi
     const secs = seconds % 60;
     if (hrs > 0) return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleEdit = async (data: { notes: string; visibility: string }) => {
+    if (onUpdateWorkout) {
+      const { error } = await onUpdateWorkout(workout.id, data);
+      if (error) {
+        toast.error('Failed to update workout');
+      } else {
+        toast.success('Workout updated');
+      }
+    }
+  };
+
+  const handleShareToStory = async () => {
+    const storyData = {
+      visibility: 'public',
+      content: `💪 ${workout.day_name} - ${workout.session_type} • Week ${workout.week_number}\n⏱️ ${formatDuration(workout.duration_seconds)} • ${workout.sets_completed || 0} sets`,
+    };
+
+    const { error } = await createStory(storyData);
+    if (error) {
+      toast.error('Failed to share to story');
+    } else {
+      toast.success('Shared to your story!');
+    }
   };
 
   const getInitials = () => {
@@ -105,17 +136,16 @@ export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onVi
             </div>
           </div>
 
-          {isOwner && (
-            <PostMenu
-              isOwner={isOwner}
-              onDelete={() => onDelete(workout.id)}
-              onToggleComments={() => onToggleComments(workout.id)}
-              commentsEnabled={workout.comments_enabled}
-              hasMedia={false}
-              onEdit={() => {}}
-              onShareToStory={() => {}}
-            />
-          )}
+          <PostMenu
+            isOwner={isOwner}
+            onDelete={() => onDelete(workout.id)}
+            onToggleComments={() => onToggleComments(workout.id)}
+            commentsEnabled={workout.comments_enabled}
+            hasMedia={false}
+            onEdit={() => setShowEditModal(true)}
+            onShareToStory={handleShareToStory}
+            itemType="workout"
+          />
         </div>
 
         {/* Workout Content */}
@@ -200,6 +230,15 @@ export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onVi
           onToggle={() => setShowComments(!showComments)}
         />
       </Card>
+
+      {/* Edit Workout Modal */}
+      <EditWorkoutModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSave={handleEdit}
+        initialNotes={workout.notes}
+        initialVisibility={workout.visibility}
+      />
     </motion.div>
   );
 }

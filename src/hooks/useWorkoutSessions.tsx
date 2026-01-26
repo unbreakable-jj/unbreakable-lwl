@@ -242,6 +242,33 @@ export function useWorkoutSessions() {
     },
   });
 
+  const updateSession = useMutation({
+    mutationFn: async ({
+      sessionId,
+      notes,
+      visibility,
+    }: {
+      sessionId: string;
+      notes?: string;
+      visibility?: string;
+    }) => {
+      const updates: Record<string, unknown> = {};
+      if (notes !== undefined) updates.notes = notes;
+      if (visibility !== undefined) updates.visibility = visibility;
+      
+      const { error } = await supabase
+        .from('workout_sessions')
+        .update(updates)
+        .eq('id', sessionId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workout-sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['unified-feed'] });
+    },
+  });
+
   return {
     sessions,
     activeSession,
@@ -250,5 +277,6 @@ export function useWorkoutSessions() {
     updateExerciseLog,
     completeSession,
     cancelSession,
+    updateSession,
   };
 }
