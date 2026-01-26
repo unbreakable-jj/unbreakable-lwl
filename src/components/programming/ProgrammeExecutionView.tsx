@@ -116,17 +116,30 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
     }
   };
 
+  // Find the planner that corresponds to the current active session
+  const currentPlanner = useMemo(() => {
+    if (!activeSession || !planners) return null;
+    return planners.find(p => 
+      p.week_number === activeSession.week_number && 
+      p.day_number === parseInt(activeSession.day_name.replace('Day ', '')) &&
+      p.status === 'pending'
+    );
+  }, [activeSession, planners]);
+
   const handleCompleteWorkout = (notes?: string, visibility?: 'public' | 'friends' | 'private') => {
     if (!activeSession) return;
     
+    // Complete the workout session
     completeSession.mutate({
       sessionId: activeSession.id,
       notes,
       visibility,
     });
     
-    if (nextSession) {
-      markComplete.mutate(nextSession.id);
+    // Mark the CURRENT planner (not next) as complete
+    // This ensures we mark the session we just finished, not the next one
+    if (currentPlanner) {
+      markComplete.mutate(currentPlanner.id);
     }
     
     setShowWorkoutModal(false);
