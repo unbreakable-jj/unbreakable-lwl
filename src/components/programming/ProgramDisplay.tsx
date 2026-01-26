@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { GeneratedProgram, Exercise, WorkoutDay } from '@/lib/programTypes';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import { useAuth } from '@/hooks/useAuth';
@@ -12,28 +13,22 @@ import {
   ChevronLeft, 
   ChevronRight, 
   Calendar, 
-  Dumbbell, 
-  Footprints, 
-  Battery,
+  Dumbbell,
   RefreshCw,
   Save,
-  Utensils,
   Play,
-  Loader2
+  Loader2,
+  ChevronDown,
+  TrendingUp,
+  Utensils
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface ProgramDisplayProps {
   program: GeneratedProgram;
   onReset: () => void;
   savedProgramId?: string;
 }
-
-const equipmentIcons: Record<string, React.ReactNode> = {
-  barbell: <Dumbbell className="w-4 h-4" />,
-  dumbbell: <Dumbbell className="w-4 h-4" />,
-  bodyweight: <Battery className="w-4 h-4" />,
-  running: <Footprints className="w-4 h-4" />,
-};
 
 const equipmentColors: Record<string, string> = {
   barbell: 'bg-primary/20 text-primary border-primary/30',
@@ -52,7 +47,7 @@ export function ProgramDisplay({ program, onReset, savedProgramId }: ProgramDisp
   const { activeSession, startSession, updateExerciseLog, completeSession, cancelSession } = useWorkoutSessions();
   const sessionForModal = activeSession ?? (startSession.data ?? null);
 
-  // Support both template-based and full weeks structure with defensive checks
+  // Support both template-based and full weeks structure
   const templateDays = program?.templateWeek?.days || program?.weeks?.[0]?.days || [];
   const phases = program?.phases || [];
   const currentPhase = phases.find(p => {
@@ -63,8 +58,6 @@ export function ProgramDisplay({ program, onReset, savedProgramId }: ProgramDisp
     }
     return false;
   });
-
-  const isDeloadWeek = selectedWeek === 4 || selectedWeek === 8 || selectedWeek === 12;
 
   const handlePrevWeek = () => setSelectedWeek(Math.max(1, selectedWeek - 1));
   const handleNextWeek = () => setSelectedWeek(Math.min(12, selectedWeek + 1));
@@ -102,203 +95,170 @@ export function ProgramDisplay({ program, onReset, savedProgramId }: ProgramDisp
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h2 className="font-display text-2xl md:text-3xl text-foreground tracking-wide">
-            {program.programName}
-          </h2>
-          <p className="text-muted-foreground mt-1">{program.overview}</p>
-        </div>
-        <div className="flex gap-2">
-          {user && !savedProgramId && (
-            <Button 
-              variant="default" 
-              onClick={handleSaveProgram} 
-              className="gap-2"
-              disabled={saveProgram.isPending}
-            >
-              {saveProgram.isPending ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4" />
-              )}
-              Save Program
-            </Button>
-          )}
-          <Button variant="outline" onClick={onReset} className="gap-2">
-            <RefreshCw className="w-4 h-4" />
-            New Program
-          </Button>
-        </div>
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Header - Matches Cardio Style */}
+      <div className="text-center mb-8">
+        <div className="text-5xl mb-4">💪</div>
+        <h1 className="font-display text-3xl md:text-4xl text-foreground tracking-wide mb-2">
+          {program.programName}
+        </h1>
+        <p className="text-muted-foreground max-w-2xl mx-auto">
+          {program.overview}
+        </p>
+        <Badge className="mt-4 font-display tracking-wide">
+          STRENGTH • 12 WEEKS
+        </Badge>
       </div>
 
-      {/* Phase Overview */}
-      {phases.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {phases.map((phase, idx) => (
-            <Card 
-              key={idx} 
-              className={`p-4 border ${
-                phase === currentPhase 
-                  ? 'border-primary bg-primary/5' 
-                  : 'border-border bg-card'
-              }`}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-display text-sm text-primary">Weeks {phase.weeks}</span>
-                {phase === currentPhase && (
-                  <Badge variant="default" className="bg-primary">Current</Badge>
-                )}
-              </div>
-              <h3 className="font-display text-lg text-foreground mb-1">{phase.name}</h3>
-              <p className="text-sm text-muted-foreground">{phase.focus}</p>
-              {phase.notes && (
-                <p className="text-xs text-muted-foreground/70 mt-2 italic">{phase.notes}</p>
-              )}
-            </Card>
-          ))}
-        </div>
-      )}
+      {/* Action Buttons */}
+      <div className="flex justify-center gap-2">
+        {user && !savedProgramId && (
+          <Button 
+            onClick={handleSaveProgram} 
+            className="gap-2 font-display tracking-wide"
+            disabled={saveProgram.isPending}
+          >
+            {saveProgram.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            SAVE PROGRAMME
+          </Button>
+        )}
+        <Button variant="outline" onClick={onReset} className="gap-2 font-display tracking-wide">
+          <RefreshCw className="w-4 h-4" />
+          NEW PROGRAMME
+        </Button>
+      </div>
 
-      {/* Phase Progressions */}
-      {program.phaseProgressions && program.phaseProgressions.length > 0 && (
-        <Card className="p-4 border border-border bg-card">
-          <h3 className="font-display text-lg text-foreground mb-3">PHASE ADJUSTMENTS</h3>
-          <div className="space-y-2">
-            {program.phaseProgressions.map((prog, idx) => (
-              <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2">
-                <Badge variant="outline" className="shrink-0 border-primary text-primary">
-                  {prog.phase}
-                </Badge>
-                <p className="text-sm text-muted-foreground">{prog.adjustments}</p>
-              </div>
-            ))}
-          </div>
+      {/* Phases Overview - Cardio Style */}
+      {phases.length > 0 && (
+        <Card className="bg-card border-border">
+          <CardContent className="p-6">
+            <h3 className="font-display text-lg text-muted-foreground mb-4 tracking-wide">
+              PROGRAMME PHASES
+            </h3>
+            <div className="grid md:grid-cols-3 gap-4">
+              {phases.map((phase, idx) => (
+                <div
+                  key={idx}
+                  className={`bg-muted/30 rounded-lg p-4 border-l-4 ${
+                    phase === currentPhase ? 'border-l-primary' : 'border-l-border'
+                  }`}
+                >
+                  <p className="font-display text-primary tracking-wide text-sm">
+                    {phase.weeks}
+                  </p>
+                  <p className="font-display text-foreground tracking-wide">
+                    {phase.name}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {phase.focus}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
         </Card>
       )}
 
-      {/* Week Navigator */}
-      <div className="flex items-center justify-between bg-card border border-border rounded-lg p-4">
-        <Button 
-          variant="ghost" 
-          size="icon" 
+      {/* Week Navigation - Cardio Style */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="outline"
+          size="sm"
           onClick={handlePrevWeek}
           disabled={selectedWeek === 1}
+          className="font-display tracking-wide"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-4 h-4 mr-1" />
+          PREV
         </Button>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <Calendar className="w-5 h-5 text-primary" />
-          <span className="font-display text-xl text-foreground">
+          <span className="font-display text-xl tracking-wide">
             WEEK {selectedWeek}
           </span>
-          {isDeloadWeek && (
-            <Badge variant="secondary" className="bg-accent/20 text-accent-foreground">
-              Deload
+          {currentPhase && (
+            <Badge variant="outline" className="ml-2">
+              {currentPhase.name}
             </Badge>
           )}
         </div>
         
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="outline"
+          size="sm"
           onClick={handleNextWeek}
           disabled={selectedWeek === 12}
+          className="font-display tracking-wide"
         >
-          <ChevronRight className="w-5 h-5" />
+          NEXT
+          <ChevronRight className="w-4 h-4 ml-1" />
         </Button>
       </div>
 
-      {/* Week Progress Bar */}
-      <div className="flex gap-1">
-        {Array.from({ length: 12 }, (_, i) => (
-          <button
-            key={i}
-            onClick={() => setSelectedWeek(i + 1)}
-            className={`flex-1 h-2 rounded-full transition-all ${
-              i + 1 === selectedWeek 
-                ? 'bg-primary' 
-                : i + 1 < selectedWeek 
-                  ? 'bg-primary/40' 
-                  : 'bg-border'
-            }`}
+      {/* Daily Workouts - Cardio Style with Collapsed Sessions */}
+      <motion.div
+        key={selectedWeek}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+        className="space-y-4"
+      >
+        {templateDays.map((day, idx) => (
+          <DayCard
+            key={idx}
+            day={day}
+            onStart={() => handleStartWorkout(day)}
+            isStarting={startSession.isPending}
+            isLoggedIn={!!user}
           />
         ))}
+      </motion.div>
+
+      {/* Tips - Cardio Style */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {program.progressionRules && program.progressionRules.length > 0 && (
+          <Card className="bg-card border-border">
+            <CardContent className="p-6">
+              <h4 className="font-display text-lg text-primary tracking-wide mb-4 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                PROGRESSION
+              </h4>
+              <ul className="space-y-2">
+                {program.progressionRules.map((rule, idx) => (
+                  <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                    <span className="text-primary">•</span>
+                    {rule}
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+
+        {program.nutritionTips && program.nutritionTips.length > 0 && (
+          <Card className="bg-card border-border">
+            <CardContent className="p-6">
+              <h4 className="font-display text-lg text-primary tracking-wide mb-4 flex items-center gap-2">
+                <Utensils className="w-5 h-5" />
+                NUTRITION
+              </h4>
+              <ul className="space-y-2">
+                {program.nutritionTips.map((tip, idx) => (
+                  <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                    <span className="text-primary">•</span>
+                    {tip}
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
       </div>
-
-      {/* Daily Workouts */}
-      {templateDays.length > 0 && (
-        <Tabs defaultValue={templateDays[0]?.day} className="space-y-4">
-          <TabsList className="w-full flex flex-wrap h-auto gap-1 bg-card p-1">
-            {templateDays.map((day) => (
-              <TabsTrigger 
-                key={day.day} 
-                value={day.day}
-                className="flex-1 min-w-[80px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                <span className="hidden md:inline">{day.day}</span>
-                <span className="md:hidden">{day.day.slice(0, 3)}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          {templateDays.map((day) => (
-            <TabsContent key={day.day} value={day.day} className="space-y-4">
-              <Card className="p-4 border border-border bg-card">
-                <div className="flex flex-wrap items-center gap-3 mb-4">
-                  <h3 className="font-display text-xl text-foreground">{day.sessionType}</h3>
-                  <Badge variant="outline" className="border-primary text-primary">
-                    {day.duration}
-                  </Badge>
-                  {isDeloadWeek && (
-                    <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-400">
-                      Reduce volume 40%
-                    </Badge>
-                  )}
-                </div>
-                
-                {/* Warmup */}
-                <div className="mb-4 p-3 rounded-lg bg-surface border border-border">
-                  <span className="text-sm text-muted-foreground">Warmup:</span>
-                  <p className="text-foreground">{day.warmup}</p>
-                </div>
-
-                {/* Exercises */}
-                <div className="space-y-3">
-                  {day.exercises.map((exercise, idx) => (
-                    <ExerciseCard key={idx} exercise={exercise} index={idx + 1} />
-                  ))}
-                </div>
-
-                {/* Cooldown */}
-                <div className="mt-4 p-3 rounded-lg bg-surface border border-border">
-                  <span className="text-sm text-muted-foreground">Cooldown:</span>
-                  <p className="text-foreground">{day.cooldown}</p>
-                </div>
-
-                {/* Start Workout Button */}
-                {user && (
-                  <Button 
-                    onClick={() => handleStartWorkout(day)} 
-                    className="w-full mt-4 gap-2"
-                    disabled={startSession.isPending}
-                  >
-                    {startSession.isPending ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Play className="w-4 h-4" />
-                    )}
-                    Start Workout
-                  </Button>
-                )}
-              </Card>
-            </TabsContent>
-          ))}
-        </Tabs>
-      )}
 
       {/* Active Workout Modal */}
       {sessionForModal && (
@@ -317,81 +277,111 @@ export function ProgramDisplay({ program, onReset, savedProgramId }: ProgramDisp
           }}
         />
       )}
-
-      {/* Progression & Nutrition */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-4 border border-border bg-card">
-          <h3 className="font-display text-lg text-foreground mb-3 flex items-center gap-2">
-            <Dumbbell className="w-5 h-5 text-primary" />
-            PROGRESSION RULES
-          </h3>
-          <ul className="space-y-2">
-            {program.progressionRules.map((rule, idx) => (
-              <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
-                <span className="text-primary">•</span>
-                {rule}
-              </li>
-            ))}
-          </ul>
-        </Card>
-
-        <Card className="p-4 border border-border bg-card">
-          <h3 className="font-display text-lg text-foreground mb-3 flex items-center gap-2">
-            <Utensils className="w-5 h-5 text-primary" />
-            NUTRITION TIPS
-          </h3>
-          <ul className="space-y-2">
-            {program.nutritionTips.map((tip, idx) => (
-              <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
-                <span className="text-primary">•</span>
-                {tip}
-              </li>
-            ))}
-          </ul>
-        </Card>
-      </div>
     </div>
   );
 }
 
-function ExerciseCard({ exercise, index }: { exercise: Exercise; index: number }) {
+// Collapsed Day Card Component - Matches Cardio Session Cards
+function DayCard({ 
+  day, 
+  onStart, 
+  isStarting,
+  isLoggedIn 
+}: { 
+  day: WorkoutDay; 
+  onStart: () => void;
+  isStarting: boolean;
+  isLoggedIn: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <div className="flex items-start gap-4 p-4 rounded-lg bg-surface border border-border">
-      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-        <span className="font-display text-primary">{index}</span>
+    <Card className="bg-card border-border border-l-4 border-l-primary">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <CollapsibleTrigger className="w-full">
+          <CardContent className="p-6">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="font-display text-primary tracking-wide text-sm text-left">
+                  {day.day}
+                </p>
+                <h4 className="font-display text-xl text-foreground tracking-wide text-left">
+                  {day.sessionType}
+                </h4>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge variant="outline" className="flex items-center gap-1">
+                  <Dumbbell className="w-3 h-3" />
+                  {day.exercises.length} exercises
+                </Badge>
+                <Badge variant="outline">
+                  {day.duration}
+                </Badge>
+                <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+              </div>
+            </div>
+          </CardContent>
+        </CollapsibleTrigger>
+
+        <CollapsibleContent>
+          <CardContent className="pt-0 pb-6 px-6 space-y-4">
+            {/* Warmup */}
+            <div className="p-3 rounded-lg bg-muted/30">
+              <p className="text-xs text-muted-foreground font-display tracking-wide mb-1">WARMUP</p>
+              <p className="text-sm text-foreground">{day.warmup}</p>
+            </div>
+
+            {/* Exercises */}
+            <div className="space-y-2">
+              {day.exercises.map((exercise, idx) => (
+                <ExerciseRow key={idx} exercise={exercise} index={idx + 1} />
+              ))}
+            </div>
+
+            {/* Cooldown */}
+            <div className="p-3 rounded-lg bg-muted/30">
+              <p className="text-xs text-muted-foreground font-display tracking-wide mb-1">COOLDOWN</p>
+              <p className="text-sm text-foreground">{day.cooldown}</p>
+            </div>
+
+            {/* Start Button */}
+            {isLoggedIn && (
+              <Button 
+                onClick={(e) => { e.stopPropagation(); onStart(); }}
+                className="w-full gap-2 font-display tracking-wide"
+                disabled={isStarting}
+              >
+                {isStarting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Play className="w-4 h-4" />
+                )}
+                START WORKOUT
+              </Button>
+            )}
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
+    </Card>
+  );
+}
+
+// Compact Exercise Row
+function ExerciseRow({ exercise, index }: { exercise: Exercise; index: number }) {
+  return (
+    <div className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
+      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs text-primary font-display">
+        {index}
       </div>
-      
       <div className="flex-1 min-w-0">
-        <div className="flex flex-wrap items-center gap-2 mb-2">
-          <h4 className="font-display text-foreground">{exercise.name}</h4>
-          <Badge 
-            variant="outline" 
-            className={`${equipmentColors[exercise.equipment] || ''} gap-1`}
-          >
-            {equipmentIcons[exercise.equipment]}
-            {exercise.equipment}
-          </Badge>
-        </div>
-        
-        <div className="flex flex-wrap gap-4 text-sm">
-          <span className="text-muted-foreground">
-            <span className="text-foreground font-medium">{exercise.sets}</span> sets
-          </span>
-          <span className="text-muted-foreground">
-            <span className="text-foreground font-medium">{exercise.reps}</span> reps
-          </span>
-          <span className="text-muted-foreground">
-            @ <span className="text-primary font-medium">{exercise.intensity}</span>
-          </span>
-          <span className="text-muted-foreground">
-            Rest: <span className="text-foreground">{exercise.rest}</span>
-          </span>
-        </div>
-        
-        {exercise.notes && (
-          <p className="mt-2 text-xs text-muted-foreground italic">{exercise.notes}</p>
-        )}
+        <p className="text-foreground font-medium truncate">{exercise.name}</p>
+        <p className="text-sm text-muted-foreground">
+          {exercise.sets} × {exercise.reps} @ {exercise.intensity}
+        </p>
       </div>
+      <Badge variant="outline" className={`text-xs ${equipmentColors[exercise.equipment] || ''}`}>
+        {exercise.equipment}
+      </Badge>
     </div>
   );
 }
