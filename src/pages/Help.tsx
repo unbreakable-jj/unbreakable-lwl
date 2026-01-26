@@ -8,6 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
+import { PageNavigation, SwipeNavigationWrapper } from '@/components/PageNavigation';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useHelpChat, Message } from '@/hooks/useHelpChat';
@@ -102,21 +103,27 @@ export default function Help() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <ThemedLogo />
-            <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
-              UNBREAKABLE
-            </span>
-          </Link>
-          <NavigationDrawer />
-        </div>
-      </header>
+    <SwipeNavigationWrapper>
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-3">
+              <ThemedLogo />
+              <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
+                UNBREAKABLE
+              </span>
+            </Link>
+            <NavigationDrawer />
+          </div>
+        </header>
 
-      <main className="container mx-auto px-4 pt-24 pb-8">
+        {/* Page Navigation */}
+        <div className="pt-[72px]">
+          <PageNavigation />
+        </div>
+
+        <main className="container mx-auto px-4 pt-4 pb-8">
         {/* Hero Section */}
         <section className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-4">
@@ -280,8 +287,9 @@ export default function Help() {
         </div>
       </main>
 
-      <UnifiedFooter />
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
-    </div>
+        <UnifiedFooter />
+        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      </div>
+    </SwipeNavigationWrapper>
   );
 }

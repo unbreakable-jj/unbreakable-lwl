@@ -4,6 +4,7 @@ import logo from '@/assets/logo.png';
 import { useAuth } from '@/hooks/useAuth';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
+import { PageNavigation, SwipeNavigationWrapper } from '@/components/PageNavigation';
 import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { CardioProgramDisplay } from '@/components/cardio/CardioProgramDisplay';
@@ -263,40 +264,44 @@ const Tracker = () => {
   // Mode selection view
   if (view === 'select') {
     return (
-      <div className="min-h-screen bg-background">
-        {/* Header */}
-        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-3">
-                <img src={logo} alt="Unbreakable" className="h-10 object-contain" />
-                <div className="hidden sm:block">
-                  <span className="font-display text-lg tracking-wide text-foreground">
-                    UNBREAKABLE
-                  </span>
-                  <span className="font-display text-sm tracking-wide text-primary ml-2">
-                    MOVEMENT
-                  </span>
+      <SwipeNavigationWrapper>
+        <div className="min-h-screen bg-background">
+          {/* Header */}
+          <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+            <div className="container mx-auto px-4 py-4">
+              <div className="flex items-center justify-between">
+                <Link to="/" className="flex items-center gap-3">
+                  <img src={logo} alt="Unbreakable" className="h-10 object-contain" />
+                  <div className="hidden sm:block">
+                    <span className="font-display text-lg tracking-wide text-foreground">
+                      UNBREAKABLE
+                    </span>
+                    <span className="font-display text-sm tracking-wide text-primary ml-2">
+                      MOVEMENT
+                    </span>
+                  </div>
+                </Link>
+                <div className="flex items-center gap-3">
+                  {!user && (
+                    <Button
+                      className="font-display tracking-wide"
+                      onClick={() => setShowAuthModal(true)}
+                    >
+                      SIGN IN
+                    </Button>
+                  )}
+                  <NavigationDrawer variant="minimal" />
                 </div>
-              </Link>
-              <div className="flex items-center gap-3">
-                {!user && (
-                  <Button
-                    className="font-display tracking-wide"
-                    onClick={() => setShowAuthModal(true)}
-                  >
-                    SIGN IN
-                  </Button>
-                )}
-                <NavigationDrawer variant="minimal" />
               </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        {/* Hero */}
-        <section className="py-12 md:py-16 border-b border-border">
-          <div className="container mx-auto px-4 text-center">
+          {/* Page Navigation */}
+          <PageNavigation />
+
+          {/* Hero */}
+          <section className="py-12 md:py-16 border-b border-border">
+            <div className="container mx-auto px-4 text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -336,9 +341,10 @@ const Tracker = () => {
           </section>
         )}
 
-        <UnifiedFooter className="mt-auto" />
-        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
-      </div>
+          <UnifiedFooter className="mt-auto" />
+          <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+        </div>
+      </SwipeNavigationWrapper>
     );
   }
 
