@@ -41,7 +41,7 @@ function toTrainingProgram(row: {
   if (row.is_active) {
     status = 'active';
   } else if (row.started_at) {
-    status = 'completed'; // Was started but no longer active
+    status = 'paused'; // Was started but no longer active = paused
   }
   
   return {
@@ -131,11 +131,12 @@ export function useTrainingPrograms() {
     },
   });
 
-  const activateProgram = useMutation({
+  // START PROGRAMME EXECUTION - The key action that wires everything
+  const startProgrammeExecution = useMutation({
     mutationFn: async (programId: string) => {
       if (!user) throw new Error('Must be logged in');
       
-      // Check current active count
+      // 1. Check current active count
       const { data: currentActive, error: countError } = await supabase
         .from('training_programs')
         .select('id')
@@ -144,30 +145,112 @@ export function useTrainingPrograms() {
       
       if (countError) throw countError;
       
-      // Check if this program is already active
       const isAlreadyActive = currentActive?.some(p => p.id === programId);
       
       if (!isAlreadyActive && (currentActive?.length ?? 0) >= MAX_ACTIVE_PROGRAMS) {
-        throw new Error(`Maximum ${MAX_ACTIVE_PROGRAMS} active programmes allowed. Please deactivate one first.`);
+        throw new Error(`Maximum ${MAX_ACTIVE_PROGRAMS} active programmes allowed. Please pause one first.`);
       }
+
+      // 2. Get the program data
+      const { data: programRow, error: programError } = await supabase
+        .from('training_programs')
+        .select('*')
+        .eq('id', programId)
+        .single();
       
-      // Activate the selected program
-      const { error } = await supabase
+      if (programError) throw programError;
+
+      // 3. Check if session planners already exist for this program
+      const { data: existingPlanners } = await supabase
+        .from('session_planners')
+        .select('id')
+        .eq('program_id', programId)
+        .limit(1);
+      
+      // 4. Activate the program
+      const { error: activateError } = await supabase
         .from('training_programs')
         .update({ 
           is_active: true, 
-          started_at: new Date().toISOString(),
-          current_week: 1,
-          current_day: 1,
+          started_at: programRow.started_at || new Date().toISOString(),
+          current_week: programRow.current_week || 1,
+          current_day: programRow.current_day || 1,
         })
         .eq('id', programId);
       
-      if (error) throw error;
+      if (activateError) throw activateError;
+
+      // 5. Generate session planners if they don't exist
+      if (!existingPlanners || existingPlanners.length === 0) {
+        const programData = programRow.program_data as any;
+        const templateDays = programData.templateWeek?.days || programData.weeks?.[0]?.days || [];
+        const startDate = new Date();
+        
+        if (templateDays.length > 0) {
+          const plannerEntries: any[] = [];
+          
+          // Generate 12 weeks of planners
+          for (let week = 1; week <= 12; week++) {
+            templateDays.forEach((day: any, dayIndex: number) => {
+              const scheduledDate = new Date(startDate);
+              scheduledDate.setDate(scheduledDate.getDate() + ((week - 1) * 7) + dayIndex);
+              
+              plannerEntries.push({
+                user_id: user.id,
+                program_id: programId,
+                week_number: week,
+                day_number: dayIndex + 1,
+                scheduled_date: scheduledDate.toISOString().split('T')[0],
+                session_type: day.sessionType || day.day || `Day ${dayIndex + 1}`,
+                planned_exercises: (day.exercises || []).map((ex: any) => ({
+                  name: ex.name,
+                  equipment: ex.equipment || 'barbell',
+                  sets: typeof ex.sets === 'number' ? ex.sets : parseInt(String(ex.sets)) || 3,
+                  reps: ex.reps || '8-12',
+                  intensity: ex.intensity || 'moderate',
+                  rest: ex.rest || '90s',
+                  notes: ex.notes,
+                })),
+                warmup: day.warmup || null,
+                cooldown: day.cooldown || null,
+                status: 'pending',
+              });
+            });
+          }
+          
+          if (plannerEntries.length > 0) {
+            const { error: plannerError } = await supabase
+              .from('session_planners')
+              .insert(plannerEntries);
+            
+            if (plannerError) throw plannerError;
+          }
+        }
+      }
+
+      return { programId, programData: programRow.program_data };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['training-programs'] });
       queryClient.invalidateQueries({ queryKey: ['active-programs'] });
-      toast({ title: 'Programme Activated', description: 'This programme is now active and ready for tracking.' });
+      queryClient.invalidateQueries({ queryKey: ['session-planners'] });
+      toast({ 
+        title: 'Programme Started!', 
+        description: 'Your session schedule is ready. Start your first workout!' 
+      });
+    },
+    onError: (error) => {
+      toast({ title: 'Cannot Start Programme', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const activateProgram = useMutation({
+    mutationFn: async (programId: string) => {
+      // Delegate to startProgrammeExecution for full wiring
+      return startProgrammeExecution.mutateAsync(programId);
+    },
+    onSuccess: () => {
+      // Handled by startProgrammeExecution
     },
     onError: (error) => {
       toast({ title: 'Cannot Activate', description: error.message, variant: 'destructive' });
@@ -188,7 +271,7 @@ export function useTrainingPrograms() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['training-programs'] });
       queryClient.invalidateQueries({ queryKey: ['active-programs'] });
-      toast({ title: 'Programme Paused', description: 'Programme has been deactivated.' });
+      toast({ title: 'Programme Paused', description: 'Programme has been paused. Resume anytime.' });
     },
   });
 
@@ -209,6 +292,13 @@ export function useTrainingPrograms() {
 
   const deleteProgram = useMutation({
     mutationFn: async (programId: string) => {
+      // First delete associated session planners
+      await supabase
+        .from('session_planners')
+        .delete()
+        .eq('program_id', programId);
+      
+      // Then delete the program
       const { error } = await supabase
         .from('training_programs')
         .delete()
@@ -219,6 +309,7 @@ export function useTrainingPrograms() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['training-programs'] });
       queryClient.invalidateQueries({ queryKey: ['active-programs'] });
+      queryClient.invalidateQueries({ queryKey: ['session-planners'] });
       toast({ title: 'Programme Deleted' });
     },
   });
@@ -232,6 +323,7 @@ export function useTrainingPrograms() {
     maxActivePrograms: MAX_ACTIVE_PROGRAMS,
     isLoading,
     saveProgram,
+    startProgrammeExecution,
     activateProgram,
     deactivateProgram,
     updateProgress,

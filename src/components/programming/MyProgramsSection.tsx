@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useTrainingPrograms, TrainingProgram, ProgramStatus } from '@/hooks/useTrainingPrograms';
 import { useAuth } from '@/hooks/useAuth';
 import { ProgramDisplay } from './ProgramDisplay';
+import { ProgrammeExecutionView } from './ProgrammeExecutionView';
 import { 
   Calendar, 
   Play, 
@@ -16,7 +17,9 @@ import {
   Clock,
   Loader2,
   FolderOpen,
-  AlertCircle
+  AlertCircle,
+  Target,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
@@ -36,11 +39,15 @@ export function MyProgramsSection() {
     activeProgramCount,
     canActivateMore,
     maxActivePrograms,
-    activateProgram, 
+    startProgrammeExecution,
     deactivateProgram,
     deleteProgram 
   } = useTrainingPrograms();
   const [expandedProgramId, setExpandedProgramId] = useState<string | null>(null);
+  const [executingProgramId, setExecutingProgramId] = useState<string | null>(null);
+
+  // Find the program being executed
+  const executingProgram = programs?.find(p => p.id === executingProgramId);
 
   if (!user) {
     return (
@@ -78,12 +85,26 @@ export function MyProgramsSection() {
   }
 
   const handleExpandProgram = (programId: string) => {
+    if (executingProgramId) return; // Don't expand while executing
     setExpandedProgramId(expandedProgramId === programId ? null : programId);
   };
 
-  const handleActivate = (programId: string, e: React.MouseEvent) => {
+  const handleStartProgramme = async (programId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    activateProgram.mutate(programId);
+    try {
+      await startProgrammeExecution.mutateAsync(programId);
+      // Open execution view after successful start
+      setExecutingProgramId(programId);
+      setExpandedProgramId(null);
+    } catch (error) {
+      // Error handled by mutation
+    }
+  };
+
+  const handleResumeProgramme = (programId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExecutingProgramId(programId);
+    setExpandedProgramId(null);
   };
 
   const handleDeactivate = (programId: string, e: React.MouseEvent) => {
@@ -93,13 +114,26 @@ export function MyProgramsSection() {
 
   const handleDelete = (programId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm('Are you sure you want to delete this programme?')) {
+    if (confirm('Are you sure you want to delete this programme? This will also delete all scheduled sessions.')) {
       deleteProgram.mutate(programId);
       if (expandedProgramId === programId) {
         setExpandedProgramId(null);
       }
+      if (executingProgramId === programId) {
+        setExecutingProgramId(null);
+      }
     }
   };
+
+  // Show execution view if a program is being executed
+  if (executingProgram) {
+    return (
+      <ProgrammeExecutionView
+        program={executingProgram}
+        onClose={() => setExecutingProgramId(null)}
+      />
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -158,30 +192,42 @@ export function MyProgramsSection() {
               
               <div className="flex items-center gap-2 ml-4">
                 {program.is_active ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => handleDeactivate(program.id, e)}
-                    disabled={deactivateProgram.isPending}
-                    className="gap-1"
-                  >
-                    {deactivateProgram.isPending ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Pause className="w-4 h-4" />
-                    )}
-                    Pause
-                  </Button>
+                  <>
+                    {/* Resume button for active programs */}
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={(e) => handleResumeProgramme(program.id, e)}
+                      className="gap-1"
+                    >
+                      <Target className="w-4 h-4" />
+                      Track
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => handleDeactivate(program.id, e)}
+                      disabled={deactivateProgram.isPending}
+                      className="gap-1"
+                    >
+                      {deactivateProgram.isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Pause className="w-4 h-4" />
+                      )}
+                      Pause
+                    </Button>
+                  </>
                 ) : (
                   <Button
-                    variant="outline"
+                    variant="default"
                     size="sm"
-                    onClick={(e) => handleActivate(program.id, e)}
-                    disabled={activateProgram.isPending || !canActivateMore}
+                    onClick={(e) => handleStartProgramme(program.id, e)}
+                    disabled={startProgrammeExecution.isPending || !canActivateMore}
                     className="gap-1"
                     title={!canActivateMore ? `Maximum ${maxActivePrograms} active programmes` : undefined}
                   >
-                    {activateProgram.isPending ? (
+                    {startProgrammeExecution.isPending ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                       <Play className="w-4 h-4" />
