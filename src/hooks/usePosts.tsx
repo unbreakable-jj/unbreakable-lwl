@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { generateVideoThumbnail, compressVideo } from '@/lib/videoUtils';
 
 export interface Post {
   id: string;
@@ -167,22 +168,57 @@ export function usePosts() {
     return { url: data.publicUrl, error: null };
   };
 
-  const uploadVideo = async (file: File): Promise<{ url: string | null; error: Error | null }> => {
-    if (!user) return { url: null, error: new Error('Not authenticated') };
+  const uploadVideo = async (
+    file: File,
+    onProgress?: (stage: string) => void
+  ): Promise<{ url: string | null; thumbnailUrl: string | null; error: Error | null }> => {
+    if (!user) return { url: null, thumbnailUrl: null, error: new Error('Not authenticated') };
 
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+    try {
+      // Stage 1: Compress video if needed
+      onProgress?.('Compressing video...');
+      const compressedFile = await compressVideo(file, 15, 1280);
 
-    const { error: uploadError } = await supabase.storage
-      .from('post-videos')
-      .upload(fileName, file);
+      // Stage 2: Generate thumbnail
+      onProgress?.('Generating thumbnail...');
+      const thumbnail = await generateVideoThumbnail(compressedFile);
 
-    if (uploadError) {
-      return { url: null, error: uploadError };
+      // Stage 3: Upload video
+      onProgress?.('Uploading video...');
+      const timestamp = Date.now();
+      const videoExt = compressedFile.name.split('.').pop() || 'webm';
+      const videoFileName = `${user.id}/${timestamp}.${videoExt}`;
+
+      const { error: videoUploadError } = await supabase.storage
+        .from('post-videos')
+        .upload(videoFileName, compressedFile);
+
+      if (videoUploadError) {
+        return { url: null, thumbnailUrl: null, error: videoUploadError };
+      }
+
+      const { data: videoData } = supabase.storage.from('post-videos').getPublicUrl(videoFileName);
+
+      // Stage 4: Upload thumbnail if generated
+      let thumbnailUrl: string | null = null;
+      if (thumbnail) {
+        onProgress?.('Uploading thumbnail...');
+        const thumbFileName = `${user.id}/${timestamp}_thumb.jpg`;
+
+        const { error: thumbUploadError } = await supabase.storage
+          .from('post-images')
+          .upload(thumbFileName, thumbnail);
+
+        if (!thumbUploadError) {
+          const { data: thumbData } = supabase.storage.from('post-images').getPublicUrl(thumbFileName);
+          thumbnailUrl = thumbData.publicUrl;
+        }
+      }
+
+      return { url: videoData.publicUrl, thumbnailUrl, error: null };
+    } catch (error) {
+      return { url: null, thumbnailUrl: null, error: error as Error };
     }
-
-    const { data } = supabase.storage.from('post-videos').getPublicUrl(fileName);
-    return { url: data.publicUrl, error: null };
   };
 
   return {

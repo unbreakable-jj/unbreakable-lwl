@@ -16,9 +16,10 @@ interface StatusCardProps {
   onKudos: (postId: string) => void;
   onDelete: (postId: string) => void;
   onToggleComments: (postId: string) => void;
+  onViewProfile?: (userId: string) => void;
 }
 
-export function StatusCard({ post, onKudos, onDelete, onToggleComments }: StatusCardProps) {
+export function StatusCard({ post, onKudos, onDelete, onToggleComments, onViewProfile }: StatusCardProps) {
   const { user } = useAuth();
   const [isLiking, setIsLiking] = useState(false);
   const [showComments, setShowComments] = useState(false);
@@ -96,16 +97,24 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments }: Status
       <Card className="bg-card border-border overflow-hidden">
         {/* Header */}
         <div className="p-4 flex items-start gap-3">
-          <Avatar className="h-12 w-12">
-            <AvatarImage src={post.profiles?.avatar_url || undefined} />
-            <AvatarFallback className="bg-primary text-primary-foreground font-display">
-              {getInitials()}
-            </AvatarFallback>
-          </Avatar>
+          <button
+            onClick={() => onViewProfile?.(post.user_id)}
+            className="focus:outline-none focus:ring-2 focus:ring-primary rounded-full transition-transform hover:scale-105"
+          >
+            <Avatar className="h-12 w-12 cursor-pointer">
+              <AvatarImage src={post.profiles?.avatar_url || undefined} />
+              <AvatarFallback className="bg-primary text-primary-foreground font-display">
+                {getInitials()}
+              </AvatarFallback>
+            </Avatar>
+          </button>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-foreground truncate">
+            <button
+              onClick={() => onViewProfile?.(post.user_id)}
+              className="font-semibold text-foreground truncate hover:underline focus:outline-none text-left"
+            >
               {post.profiles?.display_name || 'User'}
-            </p>
+            </button>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span>{formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</span>
               <span>·</span>

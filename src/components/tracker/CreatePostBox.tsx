@@ -23,6 +23,7 @@ export function CreatePostBox() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -118,14 +119,23 @@ export function CreatePostBox() {
     }
 
     if (videoFile) {
-      const { url, error: uploadError } = await uploadVideo(videoFile);
+      const { url, thumbnailUrl, error: uploadError } = await uploadVideo(
+        videoFile,
+        (stage) => setUploadProgress(stage)
+      );
       if (uploadError) {
         toast.error('Failed to upload video');
         setIsSubmitting(false);
+        setUploadProgress(null);
         return;
       }
       videoUrl = url;
+      // If we got a thumbnail, we could use it but for now video_url handles display
+      if (thumbnailUrl) {
+        console.log('Video thumbnail generated:', thumbnailUrl);
+      }
     }
+    setUploadProgress(null);
 
     const { error } = await createPost({
       content: content.trim() || undefined,
@@ -314,7 +324,12 @@ export function CreatePostBox() {
                   disabled={isSubmitting || (!content.trim() && !imageFile && !videoFile)}
                   className="font-display tracking-wide"
                 >
-                  {isSubmitting ? (
+                  {isSubmitting && uploadProgress ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      <span className="text-xs">{uploadProgress}</span>
+                    </>
+                  ) : isSubmitting ? (
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   ) : (
                     <Send className="w-4 h-4 mr-2" />

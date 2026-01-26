@@ -16,9 +16,10 @@ interface WorkoutCardProps {
   onKudos: (workoutId: string) => void;
   onDelete: (workoutId: string) => void;
   onToggleComments: (workoutId: string) => void;
+  onViewProfile?: (userId: string) => void;
 }
 
-export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments }: WorkoutCardProps) {
+export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onViewProfile }: WorkoutCardProps) {
   const { user } = useAuth();
   const [isLiking, setIsLiking] = useState(false);
   const [showComments, setShowComments] = useState(false);
@@ -76,16 +77,24 @@ export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments }: Wo
         {/* Header */}
         <div className="p-4 flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <Avatar className="w-12 h-12">
-              <AvatarImage src={workout.profiles?.avatar_url || ''} />
-              <AvatarFallback className="bg-primary/10 text-primary font-display">
-                {getInitials()}
-              </AvatarFallback>
-            </Avatar>
+            <button
+              onClick={() => onViewProfile?.(workout.user_id)}
+              className="focus:outline-none focus:ring-2 focus:ring-primary rounded-full transition-transform hover:scale-105"
+            >
+              <Avatar className="w-12 h-12 cursor-pointer">
+                <AvatarImage src={workout.profiles?.avatar_url || ''} />
+                <AvatarFallback className="bg-primary/10 text-primary font-display">
+                  {getInitials()}
+                </AvatarFallback>
+              </Avatar>
+            </button>
             <div>
-              <p className="font-display text-foreground tracking-wide">
+              <button
+                onClick={() => onViewProfile?.(workout.user_id)}
+                className="font-display text-foreground tracking-wide hover:underline focus:outline-none text-left"
+              >
                 {workout.profiles?.display_name || 'Athlete'}
-              </p>
+              </button>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span>{formatDistanceToNow(workout.timestamp, { addSuffix: true })}</span>
                 <span className="flex items-center gap-1">
