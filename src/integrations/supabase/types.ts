@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      coaching_profiles: {
+        Row: {
+          age_years: number | null
+          created_at: string
+          height_cm: number | null
+          id: string
+          preferred_height_unit: string
+          preferred_weight_unit: string
+          updated_at: string
+          user_id: string
+          weight_kg: number | null
+        }
+        Insert: {
+          age_years?: number | null
+          created_at?: string
+          height_cm?: number | null
+          id?: string
+          preferred_height_unit?: string
+          preferred_weight_unit?: string
+          updated_at?: string
+          user_id: string
+          weight_kg?: number | null
+        }
+        Update: {
+          age_years?: number | null
+          created_at?: string
+          height_cm?: number | null
+          id?: string
+          preferred_height_unit?: string
+          preferred_weight_unit?: string
+          updated_at?: string
+          user_id?: string
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           content: string
