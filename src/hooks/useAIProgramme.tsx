@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
+import { useCoachingProfile } from '@/hooks/useCoachingProfile';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
 import { GeneratedProgram } from '@/lib/programTypes';
@@ -12,6 +13,8 @@ interface UserContext {
     displayName?: string;
     age?: number;
     gender?: string;
+    heightCm?: number;
+    weightKg?: number;
   };
   goals?: string;
   experience?: string;
@@ -74,6 +77,7 @@ const PROGRAMME_KEYWORDS = [
 export function useAIProgramme() {
   const { user } = useAuth();
   const { profile } = useProfile();
+  const { profile: coachingProfile } = useCoachingProfile();
   const queryClient = useQueryClient();
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -94,17 +98,21 @@ export function useAIProgramme() {
     setIsGenerating(true);
 
     try {
-      // Build user context from profile and any additional data
+      // Build user context from profile, coaching profile, and any additional data
       const userContext: UserContext = {
         userId: user.id,
         profile: {
           displayName: profile?.display_name || undefined,
+          heightCm: coachingProfile?.height_cm ? Number(coachingProfile.height_cm) : undefined,
+          weightKg: coachingProfile?.weight_kg ? Number(coachingProfile.weight_kg) : undefined,
         },
         ...additionalContext,
       };
 
-      // Calculate age from DOB if available
-      if (profile?.date_of_birth) {
+      // Calculate age from coaching profile or DOB
+      if (coachingProfile?.age_years) {
+        userContext.profile = { ...userContext.profile, age: coachingProfile.age_years };
+      } else if (profile?.date_of_birth) {
         const dob = new Date(profile.date_of_birth);
         const today = new Date();
         const age = today.getFullYear() - dob.getFullYear();
@@ -157,7 +165,7 @@ export function useAIProgramme() {
     } finally {
       setIsGenerating(false);
     }
-  }, [user, profile, queryClient]);
+  }, [user, profile, coachingProfile, queryClient]);
 
   return {
     generateProgramme,
