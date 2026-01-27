@@ -12,6 +12,8 @@ interface UserContext {
     displayName?: string;
     age?: number;
     gender?: string;
+    heightCm?: number;
+    weightKg?: number;
   };
   goals?: string;
   experience?: string;
@@ -116,6 +118,12 @@ serve(async (req) => {
     }
     if (userContext.profile?.gender) {
       contextString += `Gender: ${userContext.profile.gender}\n`;
+    }
+    if (userContext.profile?.heightCm) {
+      contextString += `Height: ${userContext.profile.heightCm}cm\n`;
+    }
+    if (userContext.profile?.weightKg) {
+      contextString += `Weight: ${userContext.profile.weightKg}kg\n`;
     }
     if (userContext.goals) {
       contextString += `Goals: ${userContext.goals}\n`;

@@ -41,6 +41,7 @@ import { useUserSettings, UserSettings } from '@/hooks/useUserSettings';
 import { useAIPreferences } from '@/hooks/useAIPreferences';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { CoachingBioForm } from './CoachingBioForm';
 
 export function SettingsPanel() {
   const { settings, loading, updateSettings, toggleTheme } = useUserSettings();
@@ -426,6 +427,9 @@ export function SettingsPanel() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Coaching Bio - Age/Height/Weight for personalisation */}
+      <CoachingBioForm />
 
       {/* AI Coaching Settings */}
       <Card className="bg-card border-border">

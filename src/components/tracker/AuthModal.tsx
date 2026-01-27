@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
-import { Mail, Lock, User, Chrome } from 'lucide-react';
+import { Mail, Lock, User } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface AuthModalProps {
@@ -13,7 +13,7 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
-  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const { signIn, signUp } = useAuth();
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -50,15 +50,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setLoading(false);
   };
 
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    const { error } = await signInWithGoogle();
-    if (error) {
-      toast.error(error.message);
-    }
-    setLoading(false);
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md bg-card border-border">
@@ -69,25 +60,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          <Button
-            variant="outline"
-            className="w-full font-display tracking-wide"
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-          >
-            <Chrome className="w-5 h-5 mr-2" />
-            Continue with Google
-          </Button>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
-            </div>
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
               <div className="space-y-2">
