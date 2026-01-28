@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '@/assets/logo.png';
+import { ThemedLogo } from '@/components/ThemedLogo';
+import { ThemeToggle } from '@/components/hub/ThemeToggle';
 import { useAuth } from '@/hooks/useAuth';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
@@ -233,17 +235,20 @@ const Tracker = () => {
         <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-3">
-                <img src={logo} alt="Unbreakable" className="h-10 object-contain" />
-                <div className="hidden sm:block">
-                  <span className="font-display text-lg tracking-wide text-foreground">
-                    UNBREAKABLE
-                  </span>
-                  <span className="font-display text-sm tracking-wide text-primary ml-2">
-                    MOVEMENT
-                  </span>
-                </div>
-              </Link>
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                <Link to="/" className="flex items-center gap-3">
+                  <ThemedLogo className="h-10 w-10" />
+                  <div className="hidden sm:block">
+                    <span className="font-display text-lg tracking-wide text-foreground">
+                      UNBREAKABLE
+                    </span>
+                    <span className="font-display text-sm tracking-wide text-primary ml-2">
+                      MOVEMENT
+                    </span>
+                  </div>
+                </Link>
+              </div>
               <NavigationDrawer variant="minimal" />
             </div>
           </div>
@@ -266,21 +271,24 @@ const Tracker = () => {
     return (
       <SwipeNavigationWrapper>
         <div className="min-h-screen bg-background">
-          {/* Header */}
+          {/* Header with Theme Toggle */}
           <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
             <div className="container mx-auto px-4 py-4">
               <div className="flex items-center justify-between">
-                <Link to="/" className="flex items-center gap-3">
-                  <img src={logo} alt="Unbreakable" className="h-10 object-contain" />
-                  <div className="hidden sm:block">
-                    <span className="font-display text-lg tracking-wide text-foreground">
-                      UNBREAKABLE
-                    </span>
-                    <span className="font-display text-sm tracking-wide text-primary ml-2">
-                      MOVEMENT
-                    </span>
-                  </div>
-                </Link>
+                <div className="flex items-center gap-3">
+                  <ThemeToggle />
+                  <Link to="/" className="flex items-center gap-3">
+                    <ThemedLogo className="h-10 w-10" />
+                    <div className="hidden sm:block">
+                      <span className="font-display text-lg tracking-wide text-foreground">
+                        UNBREAKABLE
+                      </span>
+                      <span className="font-display text-sm tracking-wide text-primary ml-2">
+                        MOVEMENT
+                      </span>
+                    </div>
+                  </Link>
+                </div>
                 <div className="flex items-center gap-3">
                   {!user && (
                     <Button
@@ -352,21 +360,24 @@ const Tracker = () => {
   if (view === 'track') {
     return (
       <div className="min-h-screen bg-background">
-        {/* Header */}
+        {/* Header with Theme Toggle */}
         <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-3">
-                <img src={logo} alt="Unbreakable" className="h-10 object-contain" />
-                <div className="hidden sm:block">
-                  <span className="font-display text-lg tracking-wide text-foreground">
-                    UNBREAKABLE
-                  </span>
-                  <span className="font-display text-sm tracking-wide text-primary ml-2">
-                    MOVEMENT
-                  </span>
-                </div>
-              </Link>
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                <Link to="/" className="flex items-center gap-3">
+                  <ThemedLogo className="h-10 w-10" />
+                  <div className="hidden sm:block">
+                    <span className="font-display text-lg tracking-wide text-foreground">
+                      UNBREAKABLE
+                    </span>
+                    <span className="font-display text-sm tracking-wide text-primary ml-2">
+                      MOVEMENT
+                    </span>
+                  </div>
+                </Link>
+              </div>
               <NavigationDrawer variant="minimal" />
             </div>
           </div>
@@ -422,21 +433,24 @@ const Tracker = () => {
   // Main wizard view (auto programme builder)
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {/* Header with Theme Toggle */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-3">
-              <img src={logo} alt="Unbreakable" className="h-10 object-contain" />
-              <div className="hidden sm:block">
-                <span className="font-display text-lg tracking-wide text-foreground">
-                  UNBREAKABLE
-                </span>
-                <span className="font-display text-sm tracking-wide text-primary ml-2">
-                  MOVEMENT
-                </span>
-              </div>
-            </Link>
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <Link to="/" className="flex items-center gap-3">
+                <ThemedLogo className="h-10 w-10" />
+                <div className="hidden sm:block">
+                  <span className="font-display text-lg tracking-wide text-foreground">
+                    UNBREAKABLE
+                  </span>
+                  <span className="font-display text-sm tracking-wide text-primary ml-2">
+                    MOVEMENT
+                  </span>
+                </div>
+              </Link>
+            </div>
             <NavigationDrawer variant="minimal" />
           </div>
         </div>

@@ -9,6 +9,7 @@ import { Play, Pause, RotateCcw, Share2, Brain, ChevronLeft, Zap, Target, Heart,
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemedLogo } from "@/components/ThemedLogo";
 import { NavigationDrawer } from "@/components/NavigationDrawer";
+import { ThemeToggle } from "@/components/hub/ThemeToggle";
 import { UnifiedFooter } from "@/components/UnifiedFooter";
 import { CountdownOverlay } from "@/components/CountdownOverlay";
 import { BREATHING_EXERCISES, BreathingExercise } from "@/lib/breathingExercises";
@@ -386,16 +387,19 @@ const Mindset = () => {
   if (view === "selection") {
     return (
       <div className="min-h-screen bg-background">
-        {/* Minimal Header - matches Calculators */}
-        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm">
+        {/* Header with Theme Toggle */}
+        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
           <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-3">
-                <ThemedLogo />
-                <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
-                  UNBREAKABLE
-                </span>
-              </Link>
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                <Link to="/" className="flex items-center gap-3">
+                  <ThemedLogo />
+                  <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
+                    UNBREAKABLE
+                  </span>
+                </Link>
+              </div>
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
