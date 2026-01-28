@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ThemedLogo } from '@/components/ThemedLogo';
 import { Button } from '@/components/ui/button';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
+import { ThemeToggle } from '@/components/hub/ThemeToggle';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
 import { PageNavigation, SwipeNavigationWrapper } from '@/components/PageNavigation';
 import { ProgramFormStep1 } from '@/components/programming/ProgramFormStep1';
@@ -154,21 +155,24 @@ export default function Programming() {
   if (generatedProgram) {
     return (
       <div className="min-h-screen bg-background">
-        {/* Header */}
+        {/* Header with Theme Toggle */}
         <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-3">
-                <ThemedLogo />
-                <div className="hidden sm:block">
-                <span className="font-display text-lg tracking-wide text-foreground">
-                  UNBREAKABLE
-                </span>
-                <span className="font-display text-sm tracking-wide text-primary ml-2">
-                  POWER
-                </span>
-                </div>
-              </Link>
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                <Link to="/" className="flex items-center gap-3">
+                  <ThemedLogo />
+                  <div className="hidden sm:block">
+                    <span className="font-display text-lg tracking-wide text-foreground">
+                      UNBREAKABLE
+                    </span>
+                    <span className="font-display text-sm tracking-wide text-primary ml-2">
+                      POWER
+                    </span>
+                  </div>
+                </Link>
+              </div>
               <NavigationDrawer />
             </div>
           </div>
@@ -186,21 +190,24 @@ export default function Programming() {
   return (
     <SwipeNavigationWrapper>
       <div className="min-h-screen bg-background">
-        {/* Header */}
+        {/* Header with Theme Toggle */}
         <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-3">
-                <ThemedLogo />
-                <div className="hidden sm:block">
-                <span className="font-display text-lg tracking-wide text-foreground">
-                  UNBREAKABLE
-                </span>
-                <span className="font-display text-sm tracking-wide text-primary ml-2">
-                  POWER
-                </span>
-                </div>
-              </Link>
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                <Link to="/" className="flex items-center gap-3">
+                  <ThemedLogo />
+                  <div className="hidden sm:block">
+                    <span className="font-display text-lg tracking-wide text-foreground">
+                      UNBREAKABLE
+                    </span>
+                    <span className="font-display text-sm tracking-wide text-primary ml-2">
+                      POWER
+                    </span>
+                  </div>
+                </Link>
+              </div>
               <NavigationDrawer />
             </div>
           </div>

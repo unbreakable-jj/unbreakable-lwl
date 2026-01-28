@@ -24,30 +24,52 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     e.preventDefault();
     setLoading(true);
 
-    if (mode === 'signin') {
-      const { error } = await signIn(email, password);
-      if (error) {
-        toast.error(error.message);
+    try {
+      if (mode === 'signin') {
+        const { error } = await signIn(email, password);
+        if (error) {
+          console.error('Sign in error:', error);
+          toast.error(error.message || 'Failed to sign in. Please try again.');
+        } else {
+          toast.success('Welcome back!');
+          onClose();
+        }
       } else {
-        toast.success('Welcome back!');
-        onClose();
+        if (!fullName.trim()) {
+          toast.error('Please enter your full name');
+          setLoading(false);
+          return;
+        }
+        
+        // Validate password length
+        if (password.length < 6) {
+          toast.error('Password must be at least 6 characters');
+          setLoading(false);
+          return;
+        }
+        
+        const { error } = await signUp(email, password, fullName);
+        if (error) {
+          console.error('Sign up error:', error);
+          // Provide more helpful error messages
+          if (error.message?.includes('already registered')) {
+            toast.error('This email is already registered. Try signing in instead.');
+          } else if (error.message?.includes('password')) {
+            toast.error('Password issue: ' + error.message);
+          } else {
+            toast.error(error.message || 'Failed to create account. Please try again.');
+          }
+        } else {
+          toast.success('Account created! Welcome to the movement.');
+          onClose();
+        }
       }
-    } else {
-      if (!fullName.trim()) {
-        toast.error('Please enter your full name');
-        setLoading(false);
-        return;
-      }
-      const { error } = await signUp(email, password, fullName);
-      if (error) {
-        toast.error(error.message);
-      } else {
-        toast.success('Account created! Welcome to the movement.');
-        onClose();
-      }
+    } catch (err) {
+      console.error('Auth error:', err);
+      toast.error('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
