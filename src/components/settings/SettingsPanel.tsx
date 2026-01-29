@@ -431,17 +431,17 @@ export function SettingsPanel() {
       {/* Coaching Bio - Age/Height/Weight for personalisation */}
       <CoachingBioForm />
 
-      {/* AI Coaching Settings */}
+      {/* Coaching Settings */}
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="font-display text-xl tracking-wide flex items-center gap-2">
             <Brain className="w-5 h-5" />
-            AI COACHING
+            UNBREAKABLE COACHING
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-sm text-muted-foreground mb-2">
-            Configure your AI coaching and voice feedback preferences
+            Configure your coaching and voice feedback preferences — built on 10+ years of coaching experience
           </p>
 
           <div className="flex items-center justify-between">

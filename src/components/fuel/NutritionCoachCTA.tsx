@@ -105,7 +105,7 @@ export function MealPlanCTA({ variant = 'button' }: { variant?: 'button' | 'bann
             </div>
             <div>
               <p className="font-display text-lg tracking-wide text-foreground">
-                CREATE WITH AI
+                BUILD WITH YOUR COACH
               </p>
               <p className="text-sm text-muted-foreground">
                 Ask your coach to build a bespoke meal plan
@@ -124,7 +124,7 @@ export function MealPlanCTA({ variant = 'button' }: { variant?: 'button' | 'bann
       className="gap-2 font-display tracking-wide"
     >
       <Sparkles className="w-4 h-4" />
-      CREATE WITH AI
+      BUILD WITH COACH
     </Button>
   );
 }

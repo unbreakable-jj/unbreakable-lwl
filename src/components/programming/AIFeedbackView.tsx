@@ -28,8 +28,8 @@ export function AIFeedbackView({ sessionId, onClose }: AIFeedbackViewProps) {
 
   return (
     <FullScreenToolView
-      title="AI FEEDBACK"
-      subtitle="Coaching insights for your session"
+      title="COACH FEEDBACK"
+      subtitle="Expert insights for your session"
       icon={<Sparkles className="w-5 h-5" />}
       onClose={onClose}
     >
@@ -124,7 +124,7 @@ export function AIFeedbackView({ sessionId, onClose }: AIFeedbackViewProps) {
             <Sparkles className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="font-display text-lg text-foreground mb-2">No Feedback Yet</h3>
             <p className="text-sm text-muted-foreground mb-6">
-              Generate AI-powered coaching insights based on your workout performance.
+              Generate expert coaching insights based on your workout performance.
             </p>
             <Button
               onClick={handleGenerateFeedback}

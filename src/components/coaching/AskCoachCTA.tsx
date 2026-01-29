@@ -64,7 +64,7 @@ export function AskCoachCTA({
             <div>
               <h4 className="font-display text-foreground">{label || getDefaultLabel()}</h4>
               <p className="text-xs text-muted-foreground">
-                {context?.name ? `About: ${context.name}` : 'Get AI-powered coaching insights'}
+                {context?.name ? `About: ${context.name}` : 'Get expert coaching insights'}
               </p>
             </div>
           </div>

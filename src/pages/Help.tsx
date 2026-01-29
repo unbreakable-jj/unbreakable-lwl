@@ -415,9 +415,9 @@ export default function Help() {
             LIVE WITHOUT LIMITS
           </p>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg mt-4">
-            Your personal coach for everything training, nutrition, mindset, and beyond. 
-            Ask about your programme, get form tips, debate workout playlists, or just need 
-            a pep talk — I've got you. Let's build something <span className="text-primary font-semibold">UNBREAKABLE</span>.
+            Your personal coach for everything training, nutrition, mindset, and beyond — 
+            <span className="text-primary font-semibold"> built on over 10 years of coaching experience</span>.
+            Ask about your programme, get form tips, or just need a pep talk — I've got you.
           </p>
           <p className="text-primary font-display text-lg mt-3 neon-glow-subtle">KEEP SHOWING UP.</p>
         </section>
