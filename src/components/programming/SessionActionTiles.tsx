@@ -64,8 +64,8 @@ export function SessionActionTiles({
     },
     {
       id: 'feedback',
-      title: 'AI Feedback',
-      description: 'Get coaching insights',
+      title: 'Coach Feedback',
+      description: 'Get expert insights',
       icon: Sparkles,
       onClick: onOpenFeedback,
     },

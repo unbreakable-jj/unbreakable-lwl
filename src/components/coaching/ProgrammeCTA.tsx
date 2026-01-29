@@ -15,7 +15,7 @@ export function ProgrammeCTA({
   size = 'default',
   className = '',
   showIcon = true,
-  label = 'Create Programme with AI',
+  label = 'Create Programme with Coach',
 }: ProgrammeCTAProps) {
   const navigate = useNavigate();
 

@@ -22,16 +22,16 @@ const config = {
   programme: {
     icon: Dumbbell,
     title: 'BUILD YOUR UNBREAKABLE PROGRAMME',
-    subtitle: 'Let your coach create a bespoke training plan tailored to your goals',
-    cta: 'CREATE WITH AI',
+    subtitle: 'Your coach will create a bespoke training plan tailored to your goals — built on 10+ years of coaching experience',
+    cta: 'GET YOUR PLAN',
     link: '/help',
     context: 'Build me a strength training programme',
   },
   meal_plan: {
     icon: UtensilsCrossed,
     title: 'BUILD YOUR UNBREAKABLE MEAL PLAN',
-    subtitle: 'Get a personalised nutrition plan that fuels your training',
-    cta: 'CREATE WITH AI',
+    subtitle: 'Get expert nutrition guidance that fuels your training — personalised by your Unbreakable Coach',
+    cta: 'GET YOUR PLAN',
     link: '/help',
     context: 'Create a meal plan for me',
   },
@@ -115,7 +115,7 @@ export function AIBuildBanner({ type, variant = 'default', onBuildClick }: AIBui
             </div>
             <div className="text-center">
               <Sparkles className="w-5 h-5 text-primary mx-auto mb-1" />
-              <p className="text-xs text-muted-foreground">AI Coaching</p>
+              <p className="text-xs text-muted-foreground">Expert Coaching</p>
             </div>
             <div className="text-center">
               <ArrowRight className="w-5 h-5 text-primary mx-auto mb-1" />
