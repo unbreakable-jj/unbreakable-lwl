@@ -1,15 +1,14 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ThemedLogo } from '@/components/ThemedLogo';
 import { Button } from '@/components/ui/button';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
 import { PageNavigation, SwipeNavigationWrapper } from '@/components/PageNavigation';
-import { PageHeader } from '@/components/PageHeader';
+import { MainNavigation } from '@/components/MainNavigation';
 import { ThemeToggle } from '@/components/hub/ThemeToggle';
 import { useAuth } from '@/hooks/useAuth';
 import { UnifiedFeed } from '@/components/hub/UnifiedFeed';
-import { ProfileView } from '@/components/tracker/ProfileView';
 import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
 import { RecordActionMenu } from '@/components/hub/RecordActionMenu';
 import { AuthModal } from '@/components/tracker/AuthModal';
@@ -38,11 +37,12 @@ import {
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 
-type Tab = 'feed' | 'messages' | 'notifications' | 'profile';
+type Tab = 'feed' | 'messages' | 'notifications';
 
 // Unified Hub - Facebook-style social application
 const Index = () => {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>('feed');
   const [showActionMenu, setShowActionMenu] = useState(false);
   const [showRecordModal, setShowRecordModal] = useState(false);
@@ -86,7 +86,6 @@ const Index = () => {
                   onOpenMessages={() => setActiveTab('messages')}
                 />
               )}
-              {activeTab === 'profile' && <ProfileView />}
             </div>
 
             {/* Desktop Sidebar */}
@@ -117,10 +116,8 @@ const Index = () => {
               </div>
             </button>
             <button
-              onClick={() => setActiveTab('profile')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 ${
-                activeTab === 'profile' ? 'text-primary' : 'text-muted-foreground'
-              }`}
+              onClick={() => navigate('/profile')}
+              className="flex flex-col items-center gap-1 px-4 py-2 text-muted-foreground"
             >
               <User className="w-6 h-6" />
               <span className="text-xs font-display tracking-wide">PROFILE</span>
