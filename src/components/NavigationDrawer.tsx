@@ -40,6 +40,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
     { to: '/fuel', label: 'FUEL', icon: Apple },
     { to: '/mindset', label: 'MINDSET', icon: Brain },
     { to: '/help', label: 'COACHING', icon: Flame, highlight: true },
+    { to: '/profile', label: 'MY PROFILE', icon: User },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -132,14 +133,6 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
               <div className="mt-auto pt-6">
                 <Separator className="bg-border mb-6" />
                 <div className="space-y-2">
-                  <Link
-                    to="/tracker"
-                    onClick={handleNavClick}
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg font-display tracking-wide text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
-                  >
-                    <User className="w-5 h-5" />
-                    MY PROFILE
-                  </Link>
                   <button
                     onClick={handleSignOut}
                     className="flex items-center gap-3 px-4 py-3 rounded-lg font-display tracking-wide text-destructive hover:bg-destructive/10 transition-all w-full text-left"

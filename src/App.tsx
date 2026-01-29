@@ -15,6 +15,18 @@ import Help from "./pages/Help";
 import Inbox from "./pages/Inbox";
 import NotFound from "./pages/NotFound";
 
+// New modular sub-pages
+import Profile from "./pages/Profile";
+import ProgrammingLogs from "./pages/ProgrammingLogs";
+import ProgrammingMyProgrammes from "./pages/ProgrammingMyProgrammes";
+import FuelHistory from "./pages/FuelHistory";
+import FuelRecipes from "./pages/FuelRecipes";
+import FuelPlanning from "./pages/FuelPlanning";
+import FuelFoods from "./pages/FuelFoods";
+import FuelMyFuel from "./pages/FuelMyFuel";
+import TrackerQuickTrack from "./pages/TrackerQuickTrack";
+import TrackerMyProgrammes from "./pages/TrackerMyProgrammes";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -29,25 +41,69 @@ const App = () => (
               {/* Index handles both logged-in hub and logged-out landing */}
               <Route path="/" element={<Index />} />
               
-              {/* Protected Routes - require authentication */}
+              {/* Profile - dedicated page */}
+              <Route path="/profile" element={
+                <ProtectedRoute><Profile /></ProtectedRoute>
+              } />
+              
+              {/* Calculators */}
               <Route path="/calculators" element={
                 <ProtectedRoute><Calculators /></ProtectedRoute>
               } />
-              <Route path="/tracker" element={
-                <ProtectedRoute><Tracker /></ProtectedRoute>
-              } />
-              <Route path="/fuel" element={
-                <ProtectedRoute><Fuel /></ProtectedRoute>
-              } />
-              <Route path="/mindset" element={
-                <ProtectedRoute><Mindset /></ProtectedRoute>
-              } />
+              
+              {/* Programming (Power) routes */}
               <Route path="/programming" element={
                 <ProtectedRoute><Programming /></ProtectedRoute>
               } />
+              <Route path="/programming/my-programmes" element={
+                <ProtectedRoute><ProgrammingMyProgrammes /></ProtectedRoute>
+              } />
+              <Route path="/programming/logs" element={
+                <ProtectedRoute><ProgrammingLogs /></ProtectedRoute>
+              } />
+              
+              {/* Tracker (Movement) routes */}
+              <Route path="/tracker" element={
+                <ProtectedRoute><Tracker /></ProtectedRoute>
+              } />
+              <Route path="/tracker/quick-track" element={
+                <ProtectedRoute><TrackerQuickTrack /></ProtectedRoute>
+              } />
+              <Route path="/tracker/my-programmes" element={
+                <ProtectedRoute><TrackerMyProgrammes /></ProtectedRoute>
+              } />
+              
+              {/* Fuel routes */}
+              <Route path="/fuel" element={
+                <ProtectedRoute><Fuel /></ProtectedRoute>
+              } />
+              <Route path="/fuel/history" element={
+                <ProtectedRoute><FuelHistory /></ProtectedRoute>
+              } />
+              <Route path="/fuel/recipes" element={
+                <ProtectedRoute><FuelRecipes /></ProtectedRoute>
+              } />
+              <Route path="/fuel/planning" element={
+                <ProtectedRoute><FuelPlanning /></ProtectedRoute>
+              } />
+              <Route path="/fuel/foods" element={
+                <ProtectedRoute><FuelFoods /></ProtectedRoute>
+              } />
+              <Route path="/fuel/my-fuel" element={
+                <ProtectedRoute><FuelMyFuel /></ProtectedRoute>
+              } />
+              
+              {/* Mindset */}
+              <Route path="/mindset" element={
+                <ProtectedRoute><Mindset /></ProtectedRoute>
+              } />
+              
+              {/* Coaching (Help) */}
               <Route path="/help" element={
                 <ProtectedRoute><Help /></ProtectedRoute>
               } />
+              
+              {/* Inbox */}
               <Route path="/inbox" element={
                 <ProtectedRoute><Inbox /></ProtectedRoute>
               } />

@@ -21,8 +21,8 @@ import {
 } from 'lucide-react';
 
 interface SocialHeaderProps {
-  activeTab: 'feed' | 'messages' | 'notifications' | 'profile';
-  onTabChange: (tab: 'feed' | 'messages' | 'notifications' | 'profile') => void;
+  activeTab: 'feed' | 'messages' | 'notifications';
+  onTabChange: (tab: 'feed' | 'messages' | 'notifications') => void;
   onShowUserSearch: () => void;
   onShowFriendRequests: () => void;
   onShowFriendsList: () => void;
