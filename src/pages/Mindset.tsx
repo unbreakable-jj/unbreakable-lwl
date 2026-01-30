@@ -456,28 +456,6 @@ const Mindset = () => {
         {/* Main Content */}
         <main className="container mx-auto px-6 py-8">
           <div className="max-w-6xl mx-auto">
-            {/* Coaching Link Banner */}
-            <Link to="/help" className="block mb-8 max-w-4xl mx-auto">
-              <Card className="border-2 border-primary/40 bg-primary/5 p-4 hover:bg-primary/10 transition-all neon-border-subtle">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                      <Flame className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-display text-lg tracking-wide text-foreground">
-                        NEED MORE? <span className="text-primary">ASK YOUR COACH</span>
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Mindset tips, stress management, and mental performance coaching
-                      </p>
-                    </div>
-                  </div>
-                  <ArrowRight className="w-5 h-5 text-primary" />
-                </div>
-              </Card>
-            </Link>
-
             {/* Description Card - matches Calculator style */}
             <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8 md:p-10 mb-10 text-center max-w-4xl mx-auto">
               <p className="text-muted-foreground leading-relaxed mb-4">
@@ -548,6 +526,30 @@ const Mindset = () => {
             </div>
           </div>
         </main>
+
+        {/* Coach Banner - Bottom of page */}
+        <section className="container mx-auto px-6 py-12 border-t border-border">
+          <Link to="/help" className="block max-w-3xl mx-auto">
+            <Card className="border-2 border-primary/40 bg-primary/5 p-6 hover:bg-primary/10 transition-all neon-border-subtle">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center neon-glow">
+                    <Flame className="w-7 h-7 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-display text-xl tracking-wide text-foreground">
+                      NEED MORE? <span className="text-primary neon-glow-subtle">ASK YOUR COACH</span>
+                    </p>
+                    <p className="text-muted-foreground mt-1">
+                      Mindset tips, stress management, and mental performance coaching
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="w-6 h-6 text-primary hidden sm:block" />
+              </div>
+            </Card>
+          </Link>
+        </section>
 
         <UnifiedFooter className="mt-16" />
       </div>

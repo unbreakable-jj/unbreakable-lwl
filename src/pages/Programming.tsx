@@ -38,6 +38,7 @@ import {
   Flame
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Card } from '@/components/ui/card';
 
 export default function Programming() {
   const { user } = useAuth();
@@ -242,13 +243,6 @@ export default function Programming() {
       </section>
 
       <main className="container mx-auto px-4 py-12 md:py-16 lg:py-20">
-        {/* AI Build Banner - Only show when in select mode */}
-        {builderMode === 'select' && (
-          <div className="max-w-4xl mx-auto mb-8">
-            <AIBuildBanner type="programme" />
-          </div>
-        )}
-
         <AnimatePresence mode="wait">
           {/* Mode Selection */}
           {builderMode === 'select' && (
@@ -431,6 +425,30 @@ export default function Programming() {
           </div>
         </section>
       )}
+
+      {/* Coach Banner - Bottom of page */}
+      <section className="container mx-auto px-4 py-12 border-t border-border">
+        <Link to="/help" className="block max-w-3xl mx-auto">
+          <Card className="border-2 border-primary/40 bg-primary/5 p-6 hover:bg-primary/10 transition-all neon-border-subtle">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center neon-glow">
+                  <Flame className="w-7 h-7 text-primary" />
+                </div>
+                <div>
+                  <p className="font-display text-xl tracking-wide text-foreground">
+                    NEED HELP? <span className="text-primary neon-glow-subtle">ASK YOUR COACH</span>
+                  </p>
+                  <p className="text-muted-foreground mt-1">
+                    Get personalised guidance on programming, technique, and progression
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="w-6 h-6 text-primary hidden sm:block" />
+            </div>
+          </Card>
+        </Link>
+      </section>
 
         <UnifiedFooter className="mt-auto" />
       </div>
