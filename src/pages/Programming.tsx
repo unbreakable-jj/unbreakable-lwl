@@ -26,15 +26,16 @@ export default function Programming() {
             className="space-y-6"
           >
             <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wide leading-none">
-              <span className="text-foreground">BECOME </span>
-              <span className="text-primary neon-glow-subtle">UNBREAKABLE</span>
+              <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
+              <span className="text-foreground">POWER</span>
             </h1>
             <p className="text-primary font-display text-xl md:text-2xl tracking-wide neon-glow-subtle">
               LIVE WITHOUT LIMITS
             </p>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              Build bespoke training programmes tailored to your goals, or track and execute your saved plans.
-              Every session is designed with <span className="text-primary font-semibold">over 10 years of coaching expertise</span>.
+              Build bespoke training programmes tailored to your goals. Execute with precision.
+              Your body is your armour — train it to be{' '}
+              <span className="text-primary font-semibold">UNBREAKABLE</span>.
             </p>
             <p className="text-primary font-display text-lg neon-glow-subtle">KEEP SHOWING UP.</p>
           </motion.div>

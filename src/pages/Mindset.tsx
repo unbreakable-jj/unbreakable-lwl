@@ -31,17 +31,17 @@ const VOICE_OPTIONS = [
 ];
 
 const heroContent = {
-  title: "MINDSET",
-  titleAccent: "TRAINING",
+  title: "UNBREAKABLE",
+  titleAccent: "MINDSET",
   tagline: "LIVE WITHOUT LIMITS",
   intro: "Your mind is your ultimate weapon. This isn't meditation for relaxation — it's",
   emphasis: "MENTAL CONDITIONING",
   description: "Controlled breathing rewires your nervous system. Every session builds",
   descEmphasis: "RESILIENCE UNDER PRESSURE",
   descEnd: ".",
-  goal: "Develop a mind that stays calm in chaos — focused, present, and unshakeable.",
-  goalEmphasis: "KEEP SHOWING UP",
-  goalEnd: ".",
+  goal: "Develop a mind that stays calm in chaos — focused, present, and",
+  goalEmphasis: "UNBREAKABLE",
+  goalEnd: ". KEEP SHOWING UP.",
   hashtag: "#UNBREAKABLEMOVEMENT",
 };
 
@@ -424,10 +424,10 @@ const Mindset = () => {
         <section className="pt-32 pb-12 text-center px-6">
           <div className="max-w-4xl mx-auto">
             <ThemedLogo className="h-32 md:h-40 object-contain mx-auto mb-6" />
-            <h1 className="font-display text-6xl md:text-8xl text-foreground tracking-wide leading-none mb-2">
+            <h1 className="font-display text-6xl md:text-8xl text-primary tracking-wide leading-none mb-2 neon-glow-subtle">
               {heroContent.title}
             </h1>
-            <h1 className="font-display text-6xl md:text-8xl text-primary tracking-wide leading-none neon-glow-subtle">
+            <h1 className="font-display text-6xl md:text-8xl text-foreground tracking-wide leading-none">
               {heroContent.titleAccent}
             </h1>
             <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">

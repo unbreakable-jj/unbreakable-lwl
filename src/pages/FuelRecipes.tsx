@@ -39,16 +39,15 @@ export default function FuelRecipes() {
               <BookOpen className="w-10 h-10 text-primary" />
             </div>
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide leading-none">
-              <span className="text-foreground">RECIPE </span>
-              <span className="text-primary neon-glow-subtle">LIBRARY</span>
+              <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
+              <span className="text-foreground">RECIPES</span>
             </h1>
             <p className="text-primary font-display text-xl tracking-wide neon-glow-subtle">
               FUEL WITH PURPOSE
             </p>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              Discover and save recipes with full macro breakdowns. Each recipe is designed to support
-              your training, recovery, and long-term performance —{' '}
-              <span className="text-primary font-semibold">EAT TO PERFORM</span>.
+              Discover and save recipes with full macro breakdowns. Eat to perform, become{' '}
+              <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
             </p>
           </motion.div>
         </div>

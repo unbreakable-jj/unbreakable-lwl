@@ -83,9 +83,10 @@ export function useSessionPlanners(programId?: string) {
       const templateDays = programData.templateWeek?.days || programData.weeks?.[0]?.days || [];
       const start = startDate || new Date();
       
-      // Generate 12 weeks of planners
+      // Generate 12 weeks of planners using Day X format (not weekday names)
       for (let week = 1; week <= 12; week++) {
         templateDays.forEach((day: any, dayIndex: number) => {
+          // Calculate scheduled date based on start date and day offset
           const scheduledDate = new Date(start);
           scheduledDate.setDate(scheduledDate.getDate() + ((week - 1) * 7) + dayIndex);
           

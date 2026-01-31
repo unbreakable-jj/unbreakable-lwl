@@ -39,16 +39,15 @@ export default function FuelPlanning() {
               <Calendar className="w-10 h-10 text-primary" />
             </div>
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide leading-none">
-              <span className="text-foreground">MEAL </span>
-              <span className="text-primary neon-glow-subtle">PLANNING</span>
+              <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
+              <span className="text-foreground">PLANNING</span>
             </h1>
             <p className="text-primary font-display text-xl tracking-wide neon-glow-subtle">
               STRATEGIC NUTRITION
             </p>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              Build weekly meal plans to stay consistent and hit your nutrition targets.
-              Plan ahead, execute with precision —{' '}
-              <span className="text-primary font-semibold">WIN THE WEEK</span>.
+              Build weekly meal plans to stay consistent and hit your targets. Plan ahead, become{' '}
+              <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
             </p>
           </motion.div>
         </div>

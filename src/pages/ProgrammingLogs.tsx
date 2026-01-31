@@ -39,16 +39,16 @@ export default function ProgrammingLogs() {
               <History className="w-10 h-10 text-primary" />
             </div>
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide leading-none">
-              <span className="text-foreground">PROGRAMME </span>
-              <span className="text-primary neon-glow-subtle">LOGS</span>
+              <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
+              <span className="text-foreground">PROGRESS</span>
             </h1>
             <p className="text-primary font-display text-xl tracking-wide neon-glow-subtle">
-              TRACK YOUR PROGRESS
+              TRACK YOUR JOURNEY
             </p>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              Review your workout history, track completed sessions, and monitor your progress over time.
-              Built on over 10 years of coaching experience — every session brings you closer to becoming{' '}
-              <span className="text-primary font-semibold">UNBREAKABLE</span>.
+              Review your workout history, track completed sessions, and monitor your progress.
+              Every rep, every set — proof you're becoming{' '}
+              <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
             </p>
           </motion.div>
         </div>

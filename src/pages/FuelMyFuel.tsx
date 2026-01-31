@@ -39,16 +39,15 @@ export default function FuelMyFuel() {
               <BarChart3 className="w-10 h-10 text-primary" />
             </div>
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide leading-none">
-              <span className="text-foreground">MY </span>
-              <span className="text-primary neon-glow-subtle">FUEL</span>
+              <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
+              <span className="text-foreground">DASHBOARD</span>
             </h1>
             <p className="text-primary font-display text-xl tracking-wide neon-glow-subtle">
               GOALS & PROGRESS
             </p>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              Set your nutrition goals and track your progress. See how you're performing
-              against your targets —{' '}
-              <span className="text-primary font-semibold">MEASURE WHAT MATTERS</span>.
+              Set your nutrition goals and track your progress. Measure what matters, become{' '}
+              <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
             </p>
           </motion.div>
         </div>

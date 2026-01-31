@@ -465,15 +465,16 @@ export default function TrackerCreate() {
               <Wrench className="w-10 h-10 text-primary" />
             </div>
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide leading-none">
-              <span className="text-foreground">CREATE </span>
-              <span className="text-primary neon-glow-subtle">PROGRAMME</span>
+              <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
+              <span className="text-foreground">CARDIO</span>
             </h1>
             <p className="text-primary font-display text-xl tracking-wide neon-glow-subtle">
-              BUILD YOUR UNBREAKABLE CARDIO PLAN
+              BUILD YOUR MOVEMENT PROGRAMME
             </p>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
               Build a personalised 12-week cardio programme for Walk, Run, or Cycle.
-              Built with <span className="text-primary font-semibold">over 10 years of coaching expertise</span>.
+              Every step forward makes you{' '}
+              <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
             </p>
           </motion.div>
         </div>
