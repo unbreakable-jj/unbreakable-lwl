@@ -58,7 +58,6 @@ export function ActiveWorkoutModal({
   onOpenChange,
 }: ActiveWorkoutModalProps) {
   const [activeTool, setActiveTool] = useState<ActiveTool>('none');
-  const [showTimer, setShowTimer] = useState(false);
   const [timerExerciseType, setTimerExerciseType] = useState<string>('strength');
   const [sessionNotes, setSessionNotes] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'friends' | 'private'>('public');
@@ -83,7 +82,6 @@ export function ActiveWorkoutModal({
 
   const handleStartRest = (exerciseType: string) => {
     setTimerExerciseType(exerciseType);
-    setShowTimer(true);
   };
 
   const handleSaveNotes = (notes: string, vis: 'public' | 'friends' | 'private') => {
@@ -170,7 +168,7 @@ export function ActiveWorkoutModal({
           </div>
         </DialogHeader>
 
-        <div className={`p-4 space-y-4 ${showTimer ? 'pb-24' : ''}`}>
+        <div className="p-4 space-y-4">
           {/* Progress Card */}
           <Card className="p-4 border-primary/30 bg-primary/5">
             <div className="flex items-center justify-between mb-2">
@@ -304,23 +302,12 @@ export function ActiveWorkoutModal({
             </AnimatePresence>
           </Card>
 
-          {/* Manual Tracker Button - Goes directly to logging */}
-          <Card
-            className="p-4 border-primary/30 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors neon-border-subtle"
-            onClick={() => setActiveTool('logging')}
-          >
-            <div className="flex items-center justify-center text-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center neon-glow">
-                <Dumbbell className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h4 className="font-display text-foreground text-lg">
-                  <span className="text-primary neon-glow-subtle">LOG WORKOUT</span>
-                </h4>
-                <p className="text-sm text-muted-foreground">Track your sets, reps, weight & RPE</p>
-              </div>
-            </div>
-          </Card>
+          {/* Always-visible Rest Timer */}
+          <CompactRestTimer
+            exerciseType={timerExerciseType as 'strength' | 'hypertrophy'}
+            onComplete={() => {}}
+            onDismiss={() => {}}
+          />
 
           {/* Action Tiles */}
           <SessionActionTiles
@@ -356,14 +343,6 @@ export function ActiveWorkoutModal({
           </div>
         </div>
 
-        {/* Fixed Compact Rest Timer at Bottom */}
-        {showTimer && (
-          <CompactRestTimer
-            exerciseType={timerExerciseType as 'strength' | 'hypertrophy'}
-            onComplete={() => setShowTimer(false)}
-            onDismiss={() => setShowTimer(false)}
-          />
-        )}
       </DialogContent>
     </Dialog>
   );

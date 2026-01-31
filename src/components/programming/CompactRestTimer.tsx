@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { 
   Play, 
   Pause, 
   RotateCcw, 
-  Timer,
-  X
+  Timer
 } from 'lucide-react';
 
 interface CompactRestTimerProps {
@@ -25,10 +25,10 @@ const REST_PRESETS: Record<string, number> = {
 
 const QUICK_PRESETS = [60, 90, 120, 180];
 
-export function CompactRestTimer({ exerciseType = 'strength', onComplete, onDismiss }: CompactRestTimerProps) {
+export function CompactRestTimer({ exerciseType = 'strength', onComplete }: CompactRestTimerProps) {
   const defaultTime = REST_PRESETS[exerciseType] || 120;
   const [timeLeft, setTimeLeft] = useState(defaultTime);
-  const [isRunning, setIsRunning] = useState(true); // Auto-start
+  const [isRunning, setIsRunning] = useState(false); // Don't auto-start
   const [initialTime, setInitialTime] = useState(defaultTime);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -102,13 +102,13 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete, onDism
   const isComplete = timeLeft === 0;
 
   return (
-    <div className={`fixed bottom-0 left-0 right-0 z-50 border-t-2 transition-all ${
+    <Card className={`border-2 transition-all ${
       isComplete ? 'border-green-500 bg-green-500/10' :
       isWarning ? 'border-primary bg-primary/10' :
       'border-primary/50 bg-background/95'
-    } backdrop-blur-sm`}>
-      {/* Progress bar at top of footer */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-muted/20">
+    }`}>
+      {/* Progress bar at top */}
+      <div className="h-1 bg-muted/20 rounded-t-lg overflow-hidden">
         <div 
           className={`h-full transition-all duration-1000 ${
             isComplete ? 'bg-green-500' : 'bg-primary'
@@ -117,7 +117,7 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete, onDism
         />
       </div>
 
-      <div className="container mx-auto px-4 py-3">
+      <div className="p-4">
         <div className="flex items-center justify-between gap-4">
           {/* Timer Display */}
           <div className="flex items-center gap-3">
@@ -182,18 +182,28 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete, onDism
                 </>
               )}
             </Button>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9"
-              onClick={onDismiss}
-            >
-              <X className="w-4 h-4" />
-            </Button>
           </div>
         </div>
+
+        {/* Mobile Presets */}
+        <div className="flex sm:hidden items-center justify-center gap-1 mt-3">
+          {QUICK_PRESETS.map((preset) => (
+            <Button
+              key={preset}
+              variant={initialTime === preset ? 'default' : 'outline'}
+              size="sm"
+              className={`text-xs h-8 px-3 ${
+                initialTime === preset 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'border-primary/30 text-muted-foreground hover:text-primary'
+              }`}
+              onClick={() => handlePreset(preset)}
+            >
+              {preset >= 60 ? `${preset / 60}m` : `${preset}s`}
+            </Button>
+          ))}
+        </div>
       </div>
-    </div>
+    </Card>
   );
 }
