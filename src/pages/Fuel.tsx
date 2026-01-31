@@ -1,20 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ThemedLogo } from '@/components/ThemedLogo';
-import { Button } from '@/components/ui/button';
-import { NavigationDrawer } from '@/components/NavigationDrawer';
-import { ThemeToggle } from '@/components/hub/ThemeToggle';
+import { MainNavigation } from '@/components/MainNavigation';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
-import { PageNavigation, SwipeNavigationWrapper } from '@/components/PageNavigation';
 import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { FoodTracker } from '@/components/fuel/FoodTracker';
-import { RecipeLibrary } from '@/components/fuel/RecipeLibrary';
-import { MealPlanning } from '@/components/fuel/MealPlanning';
-import { FoodLibrary } from '@/components/fuel/FoodLibrary';
-import { MyFuel } from '@/components/fuel/MyFuel';
-import { NutritionHistoryView } from '@/components/fuel/NutritionHistoryView';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { 
@@ -30,7 +21,6 @@ import {
 
 export default function Fuel() {
   const { user, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState('track');
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   if (loading) {
@@ -42,134 +32,47 @@ export default function Fuel() {
   }
 
   return (
-    <SwipeNavigationWrapper>
-      <div className="min-h-screen bg-background">
-        {/* Header with Theme Toggle */}
-        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <ThemeToggle />
-                <Link to="/" className="flex items-center gap-3">
-                  <ThemedLogo />
-                  <div className="hidden sm:block">
-                    <span className="font-display text-lg tracking-wide text-foreground">
-                      UNBREAKABLE
-                    </span>
-                    <span className="font-display text-sm tracking-wide text-primary ml-2">
-                      FUEL
-                    </span>
-                  </div>
-                </Link>
-              </div>
-              <div className="flex items-center gap-3">
-                {!user && (
-                  <Button
-                    className="font-display tracking-wide"
-                    onClick={() => setShowAuthModal(true)}
-                  >
-                    SIGN IN
-                  </Button>
-                )}
-                <NavigationDrawer />
-              </div>
-            </div>
-          </div>
-        </header>
+    <div className="min-h-screen bg-background">
+      <MainNavigation />
 
-        {/* Page Navigation */}
-        <PageNavigation />
+      {/* Hero */}
+      <section className="pt-24 pb-12 md:pt-28 md:pb-16 border-b border-border">
+        <div className="container mx-auto px-4 text-center max-w-4xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="space-y-6"
+          >
+            <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wide leading-none">
+              <span className="text-foreground">BECOME </span>
+              <span className="text-primary neon-glow-subtle">UNBREAKABLE</span>
+            </h1>
+            <p className="text-primary font-display text-xl md:text-2xl tracking-wide neon-glow-subtle">
+              LIVE WITHOUT LIMITS
+            </p>
+            <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+              Track your daily nutrition, build meal plans, and stay consistent with food choices 
+              that support your training, recovery, and lifestyle. Built with{' '}
+              <span className="text-primary font-semibold">over 10 years of coaching expertise</span>.
+            </p>
+            <p className="text-primary font-display text-lg neon-glow-subtle">KEEP SHOWING UP.</p>
+          </motion.div>
+        </div>
+      </section>
 
-        {/* Hero */}
-        <section className="py-16 md:py-20 lg:py-24 border-b border-border">
-          <div className="container mx-auto px-4 text-center max-w-4xl">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="space-y-6"
-            >
-              <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wide leading-none">
-                <span className="text-foreground">BECOME </span>
-                <span className="text-primary neon-glow-subtle">UNBREAKABLE</span>
-              </h1>
-              <p className="text-primary font-display text-xl md:text-2xl tracking-wide neon-glow-subtle">
-                LIVE WITHOUT LIMITS
-              </p>
-              <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-                Plan meals, track food, explore recipes, and stay consistent with nutrition 
-                that supports your training, recovery, and lifestyle. Choose{' '}
-                <span className="text-foreground font-medium">Manual</span> for full control or{' '}
-                <span className="text-foreground font-medium">Auto</span> to let your coach build a plan for you.
-              </p>
-              <p className="text-primary font-display text-lg neon-glow-subtle">KEEP SHOWING UP.</p>
-            </motion.div>
-          </div>
-        </section>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">
+      {/* Main Content - Food Tracker */}
+      <main className="container mx-auto px-4 py-8 md:py-12">
         {user ? (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-6 w-full max-w-3xl mx-auto mb-8">
-              <TabsTrigger value="track" className="flex flex-col sm:flex-row items-center gap-1 text-xs sm:text-sm">
-                <UtensilsCrossed className="w-4 h-4" />
-                <span className="hidden sm:inline">Track</span>
-              </TabsTrigger>
-              <TabsTrigger value="history" className="flex flex-col sm:flex-row items-center gap-1 text-xs sm:text-sm">
-                <History className="w-4 h-4" />
-                <span className="hidden sm:inline">History</span>
-              </TabsTrigger>
-              <TabsTrigger value="recipes" className="flex flex-col sm:flex-row items-center gap-1 text-xs sm:text-sm">
-                <BookOpen className="w-4 h-4" />
-                <span className="hidden sm:inline">Recipes</span>
-              </TabsTrigger>
-              <TabsTrigger value="planning" className="flex flex-col sm:flex-row items-center gap-1 text-xs sm:text-sm">
-                <Calendar className="w-4 h-4" />
-                <span className="hidden sm:inline">Plan</span>
-              </TabsTrigger>
-              <TabsTrigger value="foods" className="flex flex-col sm:flex-row items-center gap-1 text-xs sm:text-sm">
-                <Apple className="w-4 h-4" />
-                <span className="hidden sm:inline">Foods</span>
-              </TabsTrigger>
-              <TabsTrigger value="myfuel" className="flex flex-col sm:flex-row items-center gap-1 text-xs sm:text-sm">
-                <BarChart3 className="w-4 h-4" />
-                <span className="hidden sm:inline">My Fuel</span>
-              </TabsTrigger>
-            </TabsList>
-
-            <div className="max-w-4xl mx-auto">
-              <TabsContent value="track">
-                <FoodTracker />
-              </TabsContent>
-
-              <TabsContent value="history">
-                <NutritionHistoryView />
-              </TabsContent>
-
-              <TabsContent value="recipes">
-                <RecipeLibrary />
-              </TabsContent>
-
-              <TabsContent value="planning">
-                <MealPlanning />
-              </TabsContent>
-
-              <TabsContent value="foods">
-                <FoodLibrary />
-              </TabsContent>
-
-              <TabsContent value="myfuel">
-                <MyFuel />
-              </TabsContent>
-            </div>
-          </Tabs>
+          <div className="max-w-4xl mx-auto">
+            <FoodTracker />
+          </div>
         ) : (
           <div className="max-w-4xl mx-auto">
             <Card className="p-8 text-center border-2 border-primary/30 neon-border-subtle">
               <Flame className="w-16 h-16 text-primary mx-auto mb-6" />
               <h2 className="font-display text-2xl tracking-wide mb-4">
-                SIGN IN TO ACCESS FUEL
+                SIGN IN TO TRACK FUEL
               </h2>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 Track your nutrition, build meal plans, save recipes, and monitor your progress toward your goals.
@@ -182,36 +85,55 @@ export default function Fuel() {
                 GET STARTED
               </Button>
             </Card>
-
-            {/* Feature Preview */}
-            <div className="grid md:grid-cols-3 gap-6 mt-12">
-              <Card className="p-6 text-center">
-                <UtensilsCrossed className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="font-display text-lg tracking-wide mb-2">FOOD TRACKING</h3>
-                <p className="text-sm text-muted-foreground">
-                  Log meals, track macros, and monitor daily nutrition with an easy-to-use interface.
-                </p>
-              </Card>
-              
-              <Card className="p-6 text-center">
-                <BookOpen className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="font-display text-lg tracking-wide mb-2">RECIPE LIBRARY</h3>
-                <p className="text-sm text-muted-foreground">
-                  Discover and save recipes with full macro breakdowns and cooking instructions.
-                </p>
-              </Card>
-              
-              <Card className="p-6 text-center">
-                <Calendar className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="font-display text-lg tracking-wide mb-2">MEAL PLANNING</h3>
-                <p className="text-sm text-muted-foreground">
-                  Build weekly meal plans to stay consistent and hit your nutrition targets.
-                </p>
-              </Card>
-            </div>
           </div>
         )}
       </main>
+
+      {/* Quick Links to Sub-pages */}
+      <section className="container mx-auto px-4 py-8 border-t border-border">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="font-display text-2xl text-foreground mb-6">
+            EXPLORE <span className="text-primary">FUEL</span>
+          </h2>
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <Link to="/fuel/history">
+              <Card className="p-5 hover:bg-primary/5 transition-colors border-2 border-border hover:border-primary/30">
+                <History className="w-8 h-8 text-primary mb-3" />
+                <h3 className="font-display text-lg tracking-wide mb-1">HISTORY</h3>
+                <p className="text-sm text-muted-foreground">View past nutrition logs</p>
+              </Card>
+            </Link>
+            <Link to="/fuel/recipes">
+              <Card className="p-5 hover:bg-primary/5 transition-colors border-2 border-border hover:border-primary/30">
+                <BookOpen className="w-8 h-8 text-primary mb-3" />
+                <h3 className="font-display text-lg tracking-wide mb-1">RECIPES</h3>
+                <p className="text-sm text-muted-foreground">Browse and save recipes</p>
+              </Card>
+            </Link>
+            <Link to="/fuel/planning">
+              <Card className="p-5 hover:bg-primary/5 transition-colors border-2 border-border hover:border-primary/30">
+                <Calendar className="w-8 h-8 text-primary mb-3" />
+                <h3 className="font-display text-lg tracking-wide mb-1">PLANNING</h3>
+                <p className="text-sm text-muted-foreground">Build weekly meal plans</p>
+              </Card>
+            </Link>
+            <Link to="/fuel/foods">
+              <Card className="p-5 hover:bg-primary/5 transition-colors border-2 border-border hover:border-primary/30">
+                <Apple className="w-8 h-8 text-primary mb-3" />
+                <h3 className="font-display text-lg tracking-wide mb-1">FOODS</h3>
+                <p className="text-sm text-muted-foreground">Manage saved foods</p>
+              </Card>
+            </Link>
+            <Link to="/fuel/my-fuel">
+              <Card className="p-5 hover:bg-primary/5 transition-colors border-2 border-border hover:border-primary/30">
+                <BarChart3 className="w-8 h-8 text-primary mb-3" />
+                <h3 className="font-display text-lg tracking-wide mb-1">MY FUEL</h3>
+                <p className="text-sm text-muted-foreground">Goals and progress overview</p>
+              </Card>
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* Coach Banner - Bottom of page */}
       <section className="container mx-auto px-4 py-12 border-t border-border">
@@ -227,7 +149,7 @@ export default function Fuel() {
                     NEED HELP? <span className="text-primary neon-glow-subtle">ASK YOUR COACH</span>
                   </p>
                   <p className="text-muted-foreground mt-1">
-                    Get personalised guidance on nutrition, meal timing, food choices, and more
+                    Get personalised guidance on nutrition, meal timing, and food choices
                   </p>
                 </div>
               </div>
@@ -237,9 +159,8 @@ export default function Fuel() {
         </Link>
       </section>
 
-        <UnifiedFooter className="mt-auto" />
-        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
-      </div>
-    </SwipeNavigationWrapper>
+      <UnifiedFooter className="mt-auto" />
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+    </div>
   );
 }
