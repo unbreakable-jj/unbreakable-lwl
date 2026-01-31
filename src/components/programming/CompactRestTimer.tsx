@@ -38,11 +38,44 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
   const [beepEnabled, setBeepEnabled] = useState(true);
   const [vibrateEnabled, setVibrateEnabled] = useState(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
 
-  // Initialize audio
+  // Play a proper beep tone using Web Audio API
+  const playBeepSound = useCallback(() => {
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      const ctx = audioContextRef.current;
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      oscillator.frequency.value = 880; // A5 note - classic timer beep
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+      
+      oscillator.start(ctx.currentTime);
+      oscillator.stop(ctx.currentTime + 0.3);
+    } catch (e) {
+      console.error('Audio playback failed:', e);
+    }
+  }, []);
+
+  // Play 3 beeps in sequence
+  const playBeepSequence = useCallback(() => {
+    if (!beepEnabled) return;
+    playBeepSound();
+    setTimeout(() => playBeepSound(), 400);
+    setTimeout(() => playBeepSound(), 800);
+  }, [beepEnabled, playBeepSound]);
+
+  // Cleanup
   useEffect(() => {
-    audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2AgHd0fIGDgoKCgYCAgH9/f4CAgIB/f39/f4CAgH9/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/');
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
@@ -55,18 +88,9 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
         setTimeLeft((prev) => {
           if (prev <= 1) {
             setIsRunning(false);
-            // Play beep if enabled
-            if (beepEnabled && audioRef.current) {
-              let count = 0;
-              const playBeep = () => {
-                if (count < 3 && audioRef.current) {
-                  audioRef.current.currentTime = 0;
-                  audioRef.current.play().catch(() => {});
-                  count++;
-                  setTimeout(playBeep, 300);
-                }
-              };
-              playBeep();
+            // Play beep sequence if enabled
+            if (beepEnabled) {
+              playBeepSequence();
             }
             // Vibrate if enabled
             if (vibrateEnabled && 'vibrate' in navigator) {
@@ -85,7 +109,7 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isRunning, timeLeft, onComplete, beepEnabled, vibrateEnabled]);
+  }, [isRunning, timeLeft, onComplete, beepEnabled, vibrateEnabled, playBeepSequence]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
