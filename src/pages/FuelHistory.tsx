@@ -39,16 +39,16 @@ export default function FuelHistory() {
               <History className="w-10 h-10 text-primary" />
             </div>
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide leading-none">
-              <span className="text-foreground">NUTRITION </span>
-              <span className="text-primary neon-glow-subtle">HISTORY</span>
+              <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
+              <span className="text-foreground">HISTORY</span>
             </h1>
             <p className="text-primary font-display text-xl tracking-wide neon-glow-subtle">
-              TRACK YOUR FUEL JOURNEY
+              YOUR NUTRITION JOURNEY
             </p>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
               Review your past nutrition logs and see how your eating habits have evolved.
-              Consistency is the key to lasting results —{' '}
-              <span className="text-primary font-semibold">KEEP SHOWING UP</span>.
+              Consistency makes you{' '}
+              <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
             </p>
           </motion.div>
         </div>

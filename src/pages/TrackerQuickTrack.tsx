@@ -58,16 +58,16 @@ export default function TrackerQuickTrack() {
               <Timer className="w-10 h-10 text-primary" />
             </div>
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide leading-none">
-              <span className="text-foreground">QUICK </span>
-              <span className="text-primary neon-glow-subtle">TRACK</span>
+              <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
+              <span className="text-foreground">SESSION</span>
             </h1>
             <p className="text-primary font-display text-xl tracking-wide neon-glow-subtle">
               START MOVING NOW
             </p>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              Start a cardio session immediately. Choose your activity to begin tracking with GPS
-              or log manually. No plan needed —{' '}
-              <span className="text-primary font-semibold">JUST MOVE</span>.
+              Start a cardio session immediately. Choose your activity and move.
+              No plan needed — just{' '}
+              <span className="text-primary font-semibold">KEEP SHOWING UP</span>.
             </p>
           </motion.div>
         </div>

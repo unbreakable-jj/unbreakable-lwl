@@ -189,17 +189,17 @@ export default function ProgrammingCreate() {
               <Wrench className="w-10 h-10 text-primary" />
             </div>
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide leading-none">
-              <span className="text-foreground">CREATE </span>
-              <span className="text-primary neon-glow-subtle">PROGRAMME</span>
+              <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
+              <span className="text-foreground">BUILDER</span>
             </h1>
             <p className="text-primary font-display text-xl tracking-wide neon-glow-subtle">
-              BUILD YOUR UNBREAKABLE TRAINING PLAN
+              CREATE YOUR TRAINING PROGRAMME
             </p>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              Choose how you want to create a personalised programme. Select{' '}
-              <span className="text-foreground font-medium">Manual</span> for full customisation or{' '}
-              <span className="text-foreground font-medium">Auto</span> to let your coach build a programme for you.
-              Built with <span className="text-primary font-semibold">over 10 years of coaching expertise</span>.
+              Choose <span className="text-foreground font-medium">Manual</span> for full customisation or{' '}
+              <span className="text-foreground font-medium">Auto</span> to let your coach build it for you.
+              Train with purpose, become{' '}
+              <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
             </p>
           </motion.div>
         </div>

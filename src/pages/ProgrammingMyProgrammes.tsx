@@ -39,16 +39,15 @@ export default function ProgrammingMyProgrammes() {
               <BookOpen className="w-10 h-10 text-primary" />
             </div>
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide leading-none">
-              <span className="text-foreground">MY </span>
-              <span className="text-primary neon-glow-subtle">PROGRAMMES</span>
+              <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
+              <span className="text-foreground">LIBRARY</span>
             </h1>
             <p className="text-primary font-display text-xl tracking-wide neon-glow-subtle">
-              YOUR TRAINING LIBRARY
+              YOUR TRAINING PROGRAMMES
             </p>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              View, edit, and execute your saved training programmes. Each programme is designed with{' '}
-              <span className="text-primary font-semibold">over 10 years of coaching expertise</span> — 
-              structured for results that last.
+              View, edit, and execute your saved training programmes. Every session brings you closer to becoming{' '}
+              <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
             </p>
           </motion.div>
         </div>

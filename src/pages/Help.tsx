@@ -409,17 +409,17 @@ export default function Help() {
             <Flame className="w-8 h-8 text-primary" />
           </div>
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-wider mb-2">
-            UNBREAKABLE <span className="text-primary neon-glow-subtle">COACHING</span>
+            <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
+            <span className="text-foreground">COACHING</span>
           </h1>
           <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-4 neon-glow-subtle">
             LIVE WITHOUT LIMITS
           </p>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg mt-4">
-            Your personal coach for everything training, nutrition, mindset, and beyond — 
-            <span className="text-primary font-semibold"> built on over 10 years of coaching experience</span>.
-            Ask about your programme, get form tips, or just need a pep talk — I've got you.
+            Your personal coach for training, nutrition, mindset, and beyond.
+            Ask anything — become{' '}
+            <span className="text-primary font-semibold">UNBREAKABLE</span>.
           </p>
-          <p className="text-primary font-display text-lg mt-3 neon-glow-subtle">KEEP SHOWING UP.</p>
         </section>
 
         <div className="max-w-4xl mx-auto">

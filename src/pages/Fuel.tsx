@@ -45,16 +45,16 @@ export default function Fuel() {
             className="space-y-6"
           >
             <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wide leading-none">
-              <span className="text-foreground">BECOME </span>
-              <span className="text-primary neon-glow-subtle">UNBREAKABLE</span>
+              <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
+              <span className="text-foreground">FUEL</span>
             </h1>
             <p className="text-primary font-display text-xl md:text-2xl tracking-wide neon-glow-subtle">
               LIVE WITHOUT LIMITS
             </p>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              Track your daily nutrition, build meal plans, and stay consistent with food choices 
-              that support your training, recovery, and lifestyle. Built with{' '}
-              <span className="text-primary font-semibold">over 10 years of coaching expertise</span>.
+              Food is not the enemy — it's the weapon. Track your nutrition, build meal plans, and fuel
+              a body built to last. Eat with purpose, become{' '}
+              <span className="text-primary font-semibold">UNBREAKABLE</span>.
             </p>
             <p className="text-primary font-display text-lg neon-glow-subtle">KEEP SHOWING UP.</p>
           </motion.div>

@@ -56,7 +56,7 @@ interface ManualProgramBuilderProps {
   onBack: () => void;
 }
 
-const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const TRAINING_DAYS = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6'];
 
 export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
   const { user } = useAuth();
@@ -64,7 +64,7 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
   const { toast } = useToast();
 
   const [programName, setProgramName] = useState('My Custom Programme');
-  const [selectedDays, setSelectedDays] = useState<string[]>(['Monday', 'Wednesday', 'Friday']);
+  const [selectedDays, setSelectedDays] = useState<string[]>(['Day 1', 'Day 2', 'Day 3']);
   const [days, setDays] = useState<ProgramDay[]>([]);
   const [activeDay, setActiveDay] = useState<string | null>(null);
   const [showLibrary, setShowLibrary] = useState(false);
@@ -77,7 +77,7 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
     setSelectedDays(prev => {
       const newSelection = prev.includes(day)
         ? prev.filter(d => d !== day)
-        : [...prev, day].sort((a, b) => DAYS_OF_WEEK.indexOf(a) - DAYS_OF_WEEK.indexOf(b));
+        : [...prev, day].sort((a, b) => TRAINING_DAYS.indexOf(a) - TRAINING_DAYS.indexOf(b));
       
       // Update days array
       setDays(currentDays => {
@@ -345,7 +345,7 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            {DAYS_OF_WEEK.map((day) => (
+            {TRAINING_DAYS.map((day) => (
               <Button
                 key={day}
                 variant={selectedDays.includes(day) ? 'default' : 'outline'}
@@ -356,7 +356,7 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
                   selectedDays.includes(day) && 'neon-border-subtle'
                 )}
               >
-                {day.slice(0, 3)}
+                {day}
               </Button>
             ))}
           </div>
