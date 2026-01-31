@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { UserMinus, Activity } from 'lucide-react';
+import { UserMinus, Activity, Ban, Loader2 } from 'lucide-react';
 import { useFriends } from '@/hooks/useFriends';
+import { useBlockedUsers } from '@/hooks/useBlockedUsers';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
 import { toast } from 'sonner';
 
@@ -13,9 +14,12 @@ interface FriendsListModalProps {
 }
 
 export function FriendsListModal({ isOpen, onClose }: FriendsListModalProps) {
-  const { friends, removeFriend } = useFriends();
+  const { friends, removeFriend, refetch: refetchFriends } = useFriends();
+  const { blockUser } = useBlockedUsers();
   const [friendToRemove, setFriendToRemove] = useState<{ id: string; name: string } | null>(null);
+  const [friendToBlock, setFriendToBlock] = useState<{ userId: string; name: string } | null>(null);
   const [removing, setRemoving] = useState(false);
+  const [blocking, setBlocking] = useState(false);
 
   const handleRemove = async () => {
     if (!friendToRemove) return;
@@ -29,6 +33,22 @@ export function FriendsListModal({ isOpen, onClose }: FriendsListModalProps) {
       toast.error('Failed to remove friend');
     } else {
       toast.success('Friend removed');
+    }
+  };
+
+  const handleBlock = async () => {
+    if (!friendToBlock) return;
+
+    setBlocking(true);
+    const { error } = await blockUser(friendToBlock.userId);
+    setBlocking(false);
+    setFriendToBlock(null);
+
+    if (error) {
+      toast.error('Failed to block user');
+    } else {
+      toast.success(`${friendToBlock.name} has been blocked`);
+      refetchFriends();
     }
   };
 
@@ -80,7 +100,7 @@ export function FriendsListModal({ isOpen, onClose }: FriendsListModalProps) {
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-1">
                   <Button
                     size="sm"
                     variant="ghost"
@@ -88,6 +108,18 @@ export function FriendsListModal({ isOpen, onClose }: FriendsListModalProps) {
                     title="View Activity"
                   >
                     <Activity className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => setFriendToBlock({ 
+                      userId: friend.user_id, 
+                      name: friend.display_name || 'this user' 
+                    })}
+                    title="Block User"
+                  >
+                    <Ban className="w-4 h-4" />
                   </Button>
                   <Button
                     size="sm"
@@ -116,6 +148,16 @@ export function FriendsListModal({ isOpen, onClose }: FriendsListModalProps) {
         description={`Are you sure you want to remove ${friendToRemove?.name}? They will no longer see your friends-only posts.`}
         confirmText="Remove"
         loading={removing}
+      />
+
+      <DeleteConfirmModal
+        isOpen={!!friendToBlock}
+        onClose={() => setFriendToBlock(null)}
+        onConfirm={handleBlock}
+        title="Block User"
+        description={`Are you sure you want to block ${friendToBlock?.name}? They won't be able to message you, send friend requests, or see your content. You can unblock them later from Settings.`}
+        confirmText="Block"
+        loading={blocking}
       />
     </>
   );

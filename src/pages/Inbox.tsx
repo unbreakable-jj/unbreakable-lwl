@@ -129,7 +129,9 @@ export default function Inbox() {
             <ArrowLeft className="w-5 h-5" />
             <ThemedLogo className="h-8" />
           </Link>
-          <h1 className="font-display text-lg tracking-wide flex-1">MESSAGES</h1>
+          <h1 className="font-display text-lg tracking-wide flex-1">
+            <span className="text-primary neon-glow-subtle">UNBREAKABLE</span> INBOX
+          </h1>
         </div>
       </header>
 

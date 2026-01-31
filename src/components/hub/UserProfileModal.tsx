@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFriends } from '@/hooks/useFriends';
 import { useConversations } from '@/hooks/useConversations';
 import { usePresence } from '@/hooks/usePresence';
+import { useBlockedUsers } from '@/hooks/useBlockedUsers';
 import { toast } from 'sonner';
 import { 
   MessageCircle, 
@@ -17,6 +18,7 @@ import {
   MapPin,
   Activity,
   Loader2,
+  Ban,
   X
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -40,9 +42,10 @@ interface UserProfile {
 
 export function UserProfileModal({ userId, onClose, onStartConversation }: UserProfileModalProps) {
   const { user } = useAuth();
-  const { sendFriendRequest, acceptFriendRequest, cancelFriendRequest, getFriendshipStatus } = useFriends();
+  const { sendFriendRequest, acceptFriendRequest, cancelFriendRequest, getFriendshipStatus, refetch: refetchFriends } = useFriends();
   const { startConversation } = useConversations();
   const { isUserOnline } = usePresence();
+  const { blockUser, isUserBlocked, refetch: refetchBlocked } = useBlockedUsers();
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -52,15 +55,21 @@ export function UserProfileModal({ userId, onClose, onStartConversation }: UserP
   }>({ status: 'none' });
   const [actionLoading, setActionLoading] = useState(false);
   const [messageLoading, setMessageLoading] = useState(false);
+  const [blockLoading, setBlockLoading] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
 
   useEffect(() => {
     if (!userId) {
       setProfile(null);
+      setIsBlocked(false);
       return;
     }
 
     const fetchProfile = async () => {
       setLoading(true);
+
+      // Check if user is blocked
+      setIsBlocked(isUserBlocked(userId));
 
       const { data, error } = await supabase
         .from('profiles')
@@ -82,7 +91,25 @@ export function UserProfileModal({ userId, onClose, onStartConversation }: UserP
     };
 
     fetchProfile();
-  }, [userId, getFriendshipStatus]);
+  }, [userId, getFriendshipStatus, isUserBlocked]);
+
+  const handleBlockUser = async () => {
+    if (!userId) return;
+    setBlockLoading(true);
+
+    const { error } = await blockUser(userId);
+    if (error) {
+      toast.error('Failed to block user');
+    } else {
+      toast.success(`${profile?.display_name || 'User'} has been blocked`);
+      setIsBlocked(true);
+      setFriendshipStatus({ status: 'none' });
+      refetchFriends();
+      onClose();
+    }
+
+    setBlockLoading(false);
+  };
 
   const handleSendFriendRequest = async () => {
     if (!userId) return;
@@ -229,77 +256,107 @@ export function UserProfileModal({ userId, onClose, onStartConversation }: UserP
             </div>
 
             {/* Action Buttons */}
-            {!isOwnProfile && (
-              <div className="flex gap-2 pt-2">
-                {/* Message Button */}
+            {!isOwnProfile && !isBlocked && (
+              <div className="space-y-2 pt-2">
+                <div className="flex gap-2">
+                  {/* Message Button */}
+                  <Button
+                    onClick={handleStartConversation}
+                    disabled={messageLoading}
+                    className="flex-1 font-display tracking-wide"
+                  >
+                    {messageLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                    )}
+                    Message
+                  </Button>
+
+                  {/* Friend Button */}
+                  {friendshipStatus.status === 'none' && (
+                    <Button
+                      variant="outline"
+                      onClick={handleSendFriendRequest}
+                      disabled={actionLoading}
+                      className="flex-1 font-display tracking-wide"
+                    >
+                      {actionLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <UserPlus className="w-4 h-4 mr-2" />
+                      )}
+                      Add Friend
+                    </Button>
+                  )}
+
+                  {friendshipStatus.status === 'pending_sent' && (
+                    <Button
+                      variant="outline"
+                      onClick={handleCancelRequest}
+                      disabled={actionLoading}
+                      className="flex-1 font-display tracking-wide"
+                    >
+                      {actionLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <Clock className="w-4 h-4 mr-2" />
+                      )}
+                      Pending
+                    </Button>
+                  )}
+
+                  {friendshipStatus.status === 'pending_received' && (
+                    <Button
+                      variant="outline"
+                      onClick={handleAcceptRequest}
+                      disabled={actionLoading}
+                      className="flex-1 font-display tracking-wide"
+                    >
+                      {actionLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <UserCheck className="w-4 h-4 mr-2" />
+                      )}
+                      Accept
+                    </Button>
+                  )}
+
+                  {friendshipStatus.status === 'friends' && (
+                    <Badge variant="secondary" className="flex-1 justify-center py-2">
+                      <UserCheck className="w-4 h-4 mr-2" />
+                      Friends
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Block Button */}
                 <Button
-                  onClick={handleStartConversation}
-                  disabled={messageLoading}
-                  className="flex-1 font-display tracking-wide"
+                  variant="ghost"
+                  onClick={handleBlockUser}
+                  disabled={blockLoading}
+                  className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
                 >
-                  {messageLoading ? (
+                  {blockLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   ) : (
-                    <MessageCircle className="w-4 h-4 mr-2" />
+                    <Ban className="w-4 h-4 mr-2" />
                   )}
-                  Message
+                  Block User
                 </Button>
+              </div>
+            )}
 
-                {/* Friend Button */}
-                {friendshipStatus.status === 'none' && (
-                  <Button
-                    variant="outline"
-                    onClick={handleSendFriendRequest}
-                    disabled={actionLoading}
-                    className="flex-1 font-display tracking-wide"
-                  >
-                    {actionLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : (
-                      <UserPlus className="w-4 h-4 mr-2" />
-                    )}
-                    Add Friend
-                  </Button>
-                )}
-
-                {friendshipStatus.status === 'pending_sent' && (
-                  <Button
-                    variant="outline"
-                    onClick={handleCancelRequest}
-                    disabled={actionLoading}
-                    className="flex-1 font-display tracking-wide"
-                  >
-                    {actionLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : (
-                      <Clock className="w-4 h-4 mr-2" />
-                    )}
-                    Pending
-                  </Button>
-                )}
-
-                {friendshipStatus.status === 'pending_received' && (
-                  <Button
-                    variant="outline"
-                    onClick={handleAcceptRequest}
-                    disabled={actionLoading}
-                    className="flex-1 font-display tracking-wide"
-                  >
-                    {actionLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : (
-                      <UserCheck className="w-4 h-4 mr-2" />
-                    )}
-                    Accept
-                  </Button>
-                )}
-
-                {friendshipStatus.status === 'friends' && (
-                  <Badge variant="secondary" className="flex-1 justify-center py-2">
-                    <UserCheck className="w-4 h-4 mr-2" />
-                    Friends
-                  </Badge>
-                )}
+            {/* Blocked State */}
+            {!isOwnProfile && isBlocked && (
+              <div className="pt-2">
+                <Badge variant="destructive" className="w-full justify-center py-2">
+                  <Ban className="w-4 h-4 mr-2" />
+                  User Blocked
+                </Badge>
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  Unblock from Settings → Blocked Users
+                </p>
               </div>
             )}
           </motion.div>

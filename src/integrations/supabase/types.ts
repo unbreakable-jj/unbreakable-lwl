@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      blocked_users: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       coaching_profiles: {
         Row: {
           age_years: number | null
@@ -1974,6 +1995,14 @@ export type Database = {
       are_friends: { Args: { user1: string; user2: string }; Returns: boolean }
       can_message_user: {
         Args: { recipient_id: string; sender_id: string }
+        Returns: boolean
+      }
+      has_block_between: {
+        Args: { user1: string; user2: string }
+        Returns: boolean
+      }
+      is_blocked: {
+        Args: { blocked: string; blocker: string }
         Returns: boolean
       }
       is_conversation_participant: {
