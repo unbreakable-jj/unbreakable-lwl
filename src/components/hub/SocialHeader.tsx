@@ -7,7 +7,7 @@ import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { ThemeToggle } from '@/components/hub/ThemeToggle';
 import { NotificationsPanel } from '@/components/hub/NotificationsPanel';
 import { MessagesPanel } from '@/components/hub/MessagesPanel';
-import { GoLiveButton } from '@/components/live/GoLiveButton';
+
 import { useNotifications } from '@/hooks/useNotifications';
 import { useConversations } from '@/hooks/useConversations';
 import {
@@ -157,7 +157,7 @@ export function SocialHeader({
                 )}
               </Button>
             </Link>
-            <GoLiveButton variant="outline" size="sm" className="hidden sm:flex" />
+            
             <Button
               size="sm"
               className="font-display tracking-wide"
