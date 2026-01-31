@@ -5,7 +5,12 @@ import {
   Play, 
   Pause, 
   RotateCcw, 
-  Timer
+  Timer,
+  Plus,
+  Minus,
+  Volume2,
+  VolumeX,
+  Vibrate
 } from 'lucide-react';
 
 interface CompactRestTimerProps {
@@ -28,8 +33,10 @@ const QUICK_PRESETS = [60, 90, 120, 180];
 export function CompactRestTimer({ exerciseType = 'strength', onComplete }: CompactRestTimerProps) {
   const defaultTime = REST_PRESETS[exerciseType] || 120;
   const [timeLeft, setTimeLeft] = useState(defaultTime);
-  const [isRunning, setIsRunning] = useState(false); // Don't auto-start
+  const [isRunning, setIsRunning] = useState(false);
   const [initialTime, setInitialTime] = useState(defaultTime);
+  const [beepEnabled, setBeepEnabled] = useState(true);
+  const [vibrateEnabled, setVibrateEnabled] = useState(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -48,7 +55,8 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
         setTimeLeft((prev) => {
           if (prev <= 1) {
             setIsRunning(false);
-            if (audioRef.current) {
+            // Play beep if enabled
+            if (beepEnabled && audioRef.current) {
               let count = 0;
               const playBeep = () => {
                 if (count < 3 && audioRef.current) {
@@ -60,7 +68,8 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
               };
               playBeep();
             }
-            if ('vibrate' in navigator) {
+            // Vibrate if enabled
+            if (vibrateEnabled && 'vibrate' in navigator) {
               navigator.vibrate([200, 100, 200, 100, 200]);
             }
             onComplete?.();
@@ -76,7 +85,7 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isRunning, timeLeft, onComplete]);
+  }, [isRunning, timeLeft, onComplete, beepEnabled, vibrateEnabled]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -97,7 +106,16 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
     setIsRunning(true);
   }, []);
 
-  const progress = (timeLeft / initialTime) * 100;
+  const handleAddTime = () => {
+    setTimeLeft((prev) => prev + 15);
+    setInitialTime((prev) => Math.max(prev, timeLeft + 15));
+  };
+
+  const handleSubtractTime = () => {
+    setTimeLeft((prev) => Math.max(0, prev - 15));
+  };
+
+  const progress = initialTime > 0 ? (timeLeft / initialTime) * 100 : 0;
   const isWarning = timeLeft <= 10 && timeLeft > 0;
   const isComplete = timeLeft === 0;
 
@@ -118,48 +136,71 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
       </div>
 
       <div className="p-4">
-        <div className="flex items-center justify-between gap-4">
-          {/* Timer Display */}
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between gap-2">
+          {/* Timer Display with +/- buttons */}
+          <div className="flex items-center gap-2">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
               isComplete ? 'bg-green-500/20' : 'bg-primary/20'
             }`}>
               <Timer className={`w-5 h-5 ${isComplete ? 'text-green-500' : 'text-primary'}`} />
             </div>
-            <div className={`font-display text-2xl ${
+            
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 border-primary/30"
+              onClick={handleSubtractTime}
+              disabled={timeLeft < 15}
+            >
+              <Minus className="w-3 h-3" />
+            </Button>
+            
+            <div className={`font-display text-2xl min-w-[70px] text-center ${
               isComplete ? 'text-green-500 neon-glow' :
               isWarning ? 'text-primary neon-glow' :
               'text-foreground'
             }`}>
               {isComplete ? 'GO!' : formatTime(timeLeft)}
             </div>
-          </div>
-
-          {/* Quick Presets */}
-          <div className="hidden sm:flex items-center gap-1">
-            {QUICK_PRESETS.map((preset) => (
-              <Button
-                key={preset}
-                variant={initialTime === preset ? 'default' : 'outline'}
-                size="sm"
-                className={`text-xs h-8 px-3 ${
-                  initialTime === preset 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'border-primary/30 text-muted-foreground hover:text-primary'
-                }`}
-                onClick={() => handlePreset(preset)}
-              >
-                {preset >= 60 ? `${preset / 60}m` : `${preset}s`}
-              </Button>
-            ))}
-          </div>
-
-          {/* Controls */}
-          <div className="flex items-center gap-2">
+            
             <Button
               variant="outline"
               size="icon"
-              className="h-9 w-9"
+              className="h-8 w-8 border-primary/30"
+              onClick={handleAddTime}
+            >
+              <Plus className="w-3 h-3" />
+            </Button>
+          </div>
+
+          {/* Controls */}
+          <div className="flex items-center gap-1">
+            {/* Beep Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`h-8 w-8 ${beepEnabled ? 'text-primary' : 'text-muted-foreground'}`}
+              onClick={() => setBeepEnabled(!beepEnabled)}
+              title={beepEnabled ? 'Sound On' : 'Sound Off'}
+            >
+              {beepEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            </Button>
+            
+            {/* Vibrate Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`h-8 w-8 ${vibrateEnabled ? 'text-primary' : 'text-muted-foreground'}`}
+              onClick={() => setVibrateEnabled(!vibrateEnabled)}
+              title={vibrateEnabled ? 'Vibrate On' : 'Vibrate Off'}
+            >
+              <Vibrate className="w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
               onClick={handleReset}
             >
               <RotateCcw className="w-4 h-4" />
@@ -168,7 +209,7 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
             <Button
               size="sm"
               onClick={isRunning ? handlePause : handleStart}
-              className="min-w-[80px] gap-1 h-9"
+              className="min-w-[70px] gap-1 h-8"
             >
               {isRunning ? (
                 <>
@@ -185,14 +226,14 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
           </div>
         </div>
 
-        {/* Mobile Presets */}
-        <div className="flex sm:hidden items-center justify-center gap-1 mt-3">
+        {/* Presets Row */}
+        <div className="flex items-center justify-center gap-1 mt-3">
           {QUICK_PRESETS.map((preset) => (
             <Button
               key={preset}
               variant={initialTime === preset ? 'default' : 'outline'}
               size="sm"
-              className={`text-xs h-8 px-3 ${
+              className={`text-xs h-7 px-3 ${
                 initialTime === preset 
                   ? 'bg-primary text-primary-foreground' 
                   : 'border-primary/30 text-muted-foreground hover:text-primary'
