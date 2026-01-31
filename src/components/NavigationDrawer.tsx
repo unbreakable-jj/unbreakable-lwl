@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Home, Calculator, Activity, User, LogOut, Settings, Brain, Sparkles, Flame, Dumbbell, Footprints, Apple } from 'lucide-react';
+import { Menu, X, Home, Calculator, Activity, User, LogOut, Settings, Brain, Sparkles, Flame, Dumbbell, Footprints, Apple, Shield } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
+import { useUserRole } from '@/hooks/useUserRole';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AuthModal } from '@/components/tracker/AuthModal';
 
@@ -18,6 +19,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
+  const { isAdminOrOwner } = useUserRole();
   const location = useLocation();
 
   const getInitials = () => {
@@ -41,6 +43,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
     { to: '/mindset', label: 'MINDSET', icon: Brain },
     { to: '/help', label: 'COACHING', icon: Flame, highlight: true },
     { to: '/profile', label: 'MY PROFILE', icon: User },
+    ...(isAdminOrOwner ? [{ to: '/admin', label: 'ADMIN', icon: Shield, admin: true }] : []),
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -117,9 +120,11 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg font-display tracking-wide transition-all ${
                     isActive(link.to)
                       ? 'bg-primary text-primary-foreground'
-                      : (link as any).highlight
-                        ? 'text-primary hover:text-primary-foreground hover:bg-primary/80 border border-primary/30'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      : (link as any).admin
+                        ? 'text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 border border-amber-500/30'
+                        : (link as any).highlight
+                          ? 'text-primary hover:text-primary-foreground hover:bg-primary/80 border border-primary/30'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
                   <link.icon className="w-5 h-5" />
