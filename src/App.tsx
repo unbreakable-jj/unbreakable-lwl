@@ -14,6 +14,7 @@ import Fuel from "./pages/Fuel";
 import Help from "./pages/Help";
 import Inbox from "./pages/Inbox";
 import NotFound from "./pages/NotFound";
+import Admin from "./pages/Admin";
 
 // New modular sub-pages
 import Profile from "./pages/Profile";
@@ -115,6 +116,9 @@ const App = () => (
               <Route path="/inbox" element={
                 <ProtectedRoute><Inbox /></ProtectedRoute>
               } />
+              
+              {/* Admin Dashboard - Hidden, role-protected */}
+              <Route path="/admin" element={<Admin />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
