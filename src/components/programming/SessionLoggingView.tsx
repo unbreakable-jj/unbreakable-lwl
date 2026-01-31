@@ -1,12 +1,13 @@
 import { useState, useMemo, useCallback } from 'react';
 import { FullScreenToolView } from './FullScreenToolView';
+import { CompactRestTimer } from './CompactRestTimer';
 import { ExerciseLog } from '@/hooks/useWorkoutSessions';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
 import { 
   ClipboardList, 
   Dumbbell, 
@@ -14,9 +15,12 @@ import {
   Footprints,
   Check,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Lightbulb,
+  Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { EXERCISE_LIBRARY, LibraryExercise } from '@/lib/exerciseLibrary';
 
 interface SessionLoggingViewProps {
   exerciseLogs: ExerciseLog[];
@@ -73,11 +77,19 @@ function groupByExercise(logs: ExerciseLog[]): Array<[string, ExerciseLog[]]> {
   return Array.from(groups.entries());
 }
 
+// Helper to find exercise details from library
+function getExerciseDetails(exerciseName: string): LibraryExercise | undefined {
+  return EXERCISE_LIBRARY.find(
+    (e) => e.name.toLowerCase() === exerciseName.toLowerCase()
+  );
+}
+
 // Local state manager for input values to prevent re-renders during typing
 interface LocalInputState {
   [logId: string]: {
     reps: string;
     weight: string;
+    rpe: string;
   };
 }
 
@@ -93,6 +105,9 @@ export function SessionLoggingView({
   const [expandedExercise, setExpandedExercise] = useState<string | null>(
     groupedExercises[0]?.[0] || null
   );
+  const [showTipsFor, setShowTipsFor] = useState<string | null>(null);
+  const [showTimer, setShowTimer] = useState(false);
+  const [timerExerciseType, setTimerExerciseType] = useState<string>('strength');
   
   // Local input state to prevent re-renders during typing
   const [localInputs, setLocalInputs] = useState<LocalInputState>(() => {
@@ -101,6 +116,7 @@ export function SessionLoggingView({
       initial[log.id] = {
         reps: log.actual_reps?.toString() || '',
         weight: log.weight_kg?.toString() || '',
+        rpe: log.rpe?.toString() || '',
       };
     });
     return initial;
@@ -111,7 +127,7 @@ export function SessionLoggingView({
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   // Handle local input change without triggering mutation
-  const handleLocalInputChange = useCallback((logId: string, field: 'reps' | 'weight', value: string) => {
+  const handleLocalInputChange = useCallback((logId: string, field: 'reps' | 'weight' | 'rpe', value: string) => {
     setLocalInputs((prev) => ({
       ...prev,
       [logId]: {
@@ -122,18 +138,19 @@ export function SessionLoggingView({
   }, []);
 
   // Persist to backend on blur
-  const handleInputBlur = useCallback((logId: string, field: 'reps' | 'weight') => {
+  const handleInputBlur = useCallback((logId: string, field: 'reps' | 'weight' | 'rpe') => {
     const localValue = localInputs[logId]?.[field];
     if (localValue === undefined) return;
     
-    const numValue = field === 'reps' 
-      ? parseInt(localValue) || undefined
-      : parseFloat(localValue) || undefined;
-    
     if (field === 'reps') {
+      const numValue = parseInt(localValue) || undefined;
       onUpdateLog(logId, { actualReps: numValue });
-    } else {
+    } else if (field === 'weight') {
+      const numValue = parseFloat(localValue) || undefined;
       onUpdateLog(logId, { weightKg: numValue });
+    } else if (field === 'rpe') {
+      const numValue = parseFloat(localValue) || undefined;
+      onUpdateLog(logId, { rpe: numValue });
     }
   }, [localInputs, onUpdateLog]);
 
@@ -148,18 +165,23 @@ export function SessionLoggingView({
     if (localValue?.weight) {
       updates.weightKg = parseFloat(localValue.weight) || undefined;
     }
+    if (localValue?.rpe) {
+      updates.rpe = parseFloat(localValue.rpe) || undefined;
+    }
     
     onUpdateLog(log.id, updates);
     
     if (completed) {
       // Pass exercise type based on equipment for rest timer presets
       const exerciseType = ['barbell', 'dumbbell'].includes(log.equipment) ? 'strength' : 'bodyweight';
+      setTimerExerciseType(exerciseType);
+      setShowTimer(true);
       onStartRest(exerciseType);
     }
   }, [localInputs, onUpdateLog, onStartRest]);
 
   // Get local input value or fall back to log value
-  const getInputValue = useCallback((logId: string, field: 'reps' | 'weight', logValue: number | null) => {
+  const getInputValue = useCallback((logId: string, field: 'reps' | 'weight' | 'rpe', logValue: number | null) => {
     if (localInputs[logId]?.[field] !== undefined) {
       return localInputs[logId][field];
     }
@@ -173,7 +195,7 @@ export function SessionLoggingView({
       icon={<ClipboardList className="w-5 h-5" />}
       onClose={onClose}
     >
-      <ScrollArea className="h-[calc(100vh-180px)]">
+      <ScrollArea className={`h-[calc(100vh-180px)] ${showTimer ? 'pb-24' : ''}`}>
         <div className="space-y-4 max-w-2xl mx-auto pb-8">
           {/* Progress Bar */}
           <div className="space-y-2">
@@ -190,6 +212,8 @@ export function SessionLoggingView({
             const exerciseComplete = logs.every((l) => l.completed);
             const setsComplete = logs.filter((l) => l.completed).length;
             const firstLog = logs[0];
+            const details = getExerciseDetails(exerciseName);
+            const showingTips = showTipsFor === exerciseName;
 
             return (
               <Card
@@ -198,6 +222,7 @@ export function SessionLoggingView({
                   exerciseComplete ? 'border-green-500/30 bg-green-500/5' : 'border-border bg-card'
                 }`}
               >
+                {/* Exercise Header */}
                 <button
                   onClick={() => setExpandedExercise(isExpanded ? null : exerciseName)}
                   className="w-full p-4 flex items-center justify-between"
@@ -231,12 +256,68 @@ export function SessionLoggingView({
                       className="overflow-hidden"
                     >
                       <div className="px-4 pb-4 space-y-3">
+                        {/* Tips Toggle Button */}
+                        {details && (
+                          <button
+                            onClick={() => setShowTipsFor(showingTips ? null : exerciseName)}
+                            className="flex items-center gap-2 text-xs text-primary hover:underline"
+                          >
+                            <Info className="w-3 h-3" />
+                            {showingTips ? 'Hide Tips & Alternatives' : 'View Tips & Alternatives'}
+                          </button>
+                        )}
+
+                        {/* Tips & Alternatives Panel */}
+                        <AnimatePresence>
+                          {showingTips && details && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="rounded-lg bg-muted/30 p-3 space-y-3 overflow-hidden"
+                            >
+                              {details.tips && details.tips.length > 0 && (
+                                <div>
+                                  <div className="flex items-center gap-1 mb-2">
+                                    <Lightbulb className="w-3 h-3 text-primary" />
+                                    <span className="text-xs font-display text-primary tracking-wide">TIPS</span>
+                                  </div>
+                                  <ul className="space-y-1">
+                                    {details.tips.map((tip, idx) => (
+                                      <li key={idx} className="text-xs text-muted-foreground flex gap-2">
+                                        <span className="text-primary">•</span>
+                                        {tip}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+
+                              {details.alternatives && details.alternatives.length > 0 && (
+                                <div>
+                                  <span className="text-xs font-display text-muted-foreground tracking-wide">
+                                    ALTERNATIVES:
+                                  </span>
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {details.alternatives.map((alt, idx) => (
+                                      <Badge key={idx} variant="outline" className="text-xs">
+                                        {alt}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+
                         {/* Header Row */}
                         <div className="grid grid-cols-12 gap-2 text-xs text-muted-foreground px-1">
                           <div className="col-span-1">Set</div>
-                          <div className="col-span-3">Target</div>
+                          <div className="col-span-2">Target</div>
                           <div className="col-span-3">Reps</div>
-                          <div className="col-span-3">Weight</div>
+                          <div className="col-span-2">Weight</div>
+                          <div className="col-span-2">RPE</div>
                           <div className="col-span-2 text-center">Done</div>
                         </div>
 
@@ -246,7 +327,7 @@ export function SessionLoggingView({
                             <div className="col-span-1">
                               <span className="font-display text-primary">{log.set_number}</span>
                             </div>
-                            <div className="col-span-3">
+                            <div className="col-span-2">
                               <span className="text-sm text-muted-foreground">{log.target_reps || '-'}</span>
                             </div>
                             <div className="col-span-3">
@@ -260,7 +341,7 @@ export function SessionLoggingView({
                                 className="h-10 text-center"
                               />
                             </div>
-                            <div className="col-span-3">
+                            <div className="col-span-2">
                               <Input
                                 type="number"
                                 inputMode="decimal"
@@ -269,6 +350,20 @@ export function SessionLoggingView({
                                 value={getInputValue(log.id, 'weight', log.weight_kg)}
                                 onChange={(e) => handleLocalInputChange(log.id, 'weight', e.target.value)}
                                 onBlur={() => handleInputBlur(log.id, 'weight')}
+                                className="h-10 text-center"
+                              />
+                            </div>
+                            <div className="col-span-2">
+                              <Input
+                                type="number"
+                                inputMode="decimal"
+                                placeholder="RPE"
+                                step="0.5"
+                                min="1"
+                                max="10"
+                                value={getInputValue(log.id, 'rpe', log.rpe)}
+                                onChange={(e) => handleLocalInputChange(log.id, 'rpe', e.target.value)}
+                                onBlur={() => handleInputBlur(log.id, 'rpe')}
                                 className="h-10 text-center"
                               />
                             </div>
@@ -290,6 +385,15 @@ export function SessionLoggingView({
           })}
         </div>
       </ScrollArea>
+
+      {/* Fixed Compact Rest Timer at Bottom */}
+      {showTimer && (
+        <CompactRestTimer
+          exerciseType={timerExerciseType as 'strength' | 'hypertrophy'}
+          onComplete={() => setShowTimer(false)}
+          onDismiss={() => setShowTimer(false)}
+        />
+      )}
     </FullScreenToolView>
   );
 }

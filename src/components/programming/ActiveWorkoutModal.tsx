@@ -7,13 +7,11 @@ import { Progress } from '@/components/ui/progress';
 import { WorkoutSession } from '@/hooks/useWorkoutSessions';
 import { SessionActionTiles } from './SessionActionTiles';
 import { SessionLoggingView } from './SessionLoggingView';
-import { GuidedSessionView } from './GuidedSessionView';
 import { SessionNotesView } from './SessionNotesView';
 import { SessionResultsView } from './SessionResultsView';
 import { AIFeedbackView } from './AIFeedbackView';
-import { VideoToolView } from './VideoToolView';
 import { ProgressMetricsView } from './ProgressMetricsView';
-import { RestTimer } from './RestTimer';
+import { CompactRestTimer } from './CompactRestTimer';
 import { 
   Square, 
   X,
@@ -21,10 +19,11 @@ import {
   ChevronDown,
   ChevronUp,
   Check,
-  Target,
-  ClipboardList
+  Info,
+  Lightbulb
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { EXERCISE_LIBRARY, LibraryExercise } from '@/lib/exerciseLibrary';
 
 interface ActiveWorkoutModalProps {
   session: WorkoutSession;
@@ -41,7 +40,14 @@ interface ActiveWorkoutModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type ActiveTool = 'none' | 'logging' | 'guided' | 'notes' | 'feedback' | 'video' | 'progress' | 'results';
+type ActiveTool = 'none' | 'logging' | 'notes' | 'feedback' | 'progress' | 'results';
+
+// Helper to find exercise details from library
+function getExerciseDetails(exerciseName: string): LibraryExercise | undefined {
+  return EXERCISE_LIBRARY.find(
+    (e) => e.name.toLowerCase() === exerciseName.toLowerCase()
+  );
+}
 
 export function ActiveWorkoutModal({
   session,
@@ -57,6 +63,7 @@ export function ActiveWorkoutModal({
   const [sessionNotes, setSessionNotes] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'friends' | 'private'>('public');
   const [showExercises, setShowExercises] = useState(false);
+  const [expandedExercise, setExpandedExercise] = useState<string | null>(null);
 
   const exerciseLogs = session.exercise_logs || [];
   const completedSets = exerciseLogs.filter((l) => l.completed).length;
@@ -88,20 +95,16 @@ export function ActiveWorkoutModal({
     onComplete(sessionNotes, visibility);
   };
 
+  const toggleExerciseDetails = (exerciseName: string) => {
+    setExpandedExercise(expandedExercise === exerciseName ? null : exerciseName);
+  };
+
   // Render full-screen tool views
   if (activeTool !== 'none') {
     return (
       <AnimatePresence mode="wait">
         {activeTool === 'logging' && (
           <SessionLoggingView
-            exerciseLogs={exerciseLogs}
-            onUpdateLog={onUpdateLog}
-            onStartRest={handleStartRest}
-            onClose={() => setActiveTool('none')}
-          />
-        )}
-        {activeTool === 'guided' && (
-          <GuidedSessionView
             exerciseLogs={exerciseLogs}
             onUpdateLog={onUpdateLog}
             onStartRest={handleStartRest}
@@ -125,12 +128,6 @@ export function ActiveWorkoutModal({
         )}
         {activeTool === 'feedback' && (
           <AIFeedbackView
-            sessionId={session.id}
-            onClose={() => setActiveTool('none')}
-          />
-        )}
-        {activeTool === 'video' && (
-          <VideoToolView
             sessionId={session.id}
             onClose={() => setActiveTool('none')}
           />
@@ -173,7 +170,7 @@ export function ActiveWorkoutModal({
           </div>
         </DialogHeader>
 
-        <div className="p-4 space-y-4">
+        <div className={`p-4 space-y-4 ${showTimer ? 'pb-24' : ''}`}>
           {/* Progress Card */}
           <Card className="p-4 border-primary/30 bg-primary/5">
             <div className="flex items-center justify-between mb-2">
@@ -185,7 +182,7 @@ export function ActiveWorkoutModal({
             <Progress value={progressPercent} className="h-2" />
           </Card>
 
-          {/* Exercise List (Collapsed by default) */}
+          {/* Exercise List with Tips/Alternatives Dropdown */}
           <Card className="border-border bg-card">
             <button
               onClick={() => setShowExercises(!showExercises)}
@@ -211,75 +208,125 @@ export function ActiveWorkoutModal({
                   className="overflow-hidden"
                 >
                   <div className="px-4 pb-4 space-y-2">
-                    {Object.values(exerciseGroups).map((exercise) => (
-                      <div
-                        key={exercise.name}
-                        className="flex items-center justify-between p-3 rounded-lg bg-surface border border-border"
-                      >
-                        <div className="flex items-center gap-2">
-                          {exercise.completed === exercise.sets && (
-                            <Check className="w-4 h-4 text-primary" />
+                    {Object.values(exerciseGroups).map((exercise) => {
+                      const details = getExerciseDetails(exercise.name);
+                      const isExpanded = expandedExercise === exercise.name;
+
+                      return (
+                        <div key={exercise.name} className="rounded-lg border border-border bg-surface overflow-hidden">
+                          {/* Exercise Header - Clickable */}
+                          <button
+                            onClick={() => toggleExerciseDetails(exercise.name)}
+                            className="w-full p-3 flex items-center justify-between hover:bg-muted/30 transition-colors"
+                          >
+                            <div className="flex items-center gap-2">
+                              {exercise.completed === exercise.sets && (
+                                <Check className="w-4 h-4 text-primary" />
+                              )}
+                              <span className="text-sm text-foreground">{exercise.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-xs">
+                                {exercise.completed}/{exercise.sets}
+                              </Badge>
+                              {details && (
+                                <Info className="w-4 h-4 text-muted-foreground" />
+                              )}
+                              {isExpanded ? (
+                                <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                              ) : (
+                                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                              )}
+                            </div>
+                          </button>
+
+                          {/* Tips & Alternatives Dropdown */}
+                          <AnimatePresence>
+                            {isExpanded && details && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden border-t border-border"
+                              >
+                                <div className="p-3 space-y-3 bg-muted/20">
+                                  {/* Tips */}
+                                  {details.tips && details.tips.length > 0 && (
+                                    <div>
+                                      <div className="flex items-center gap-1 mb-2">
+                                        <Lightbulb className="w-3 h-3 text-primary" />
+                                        <span className="text-xs font-display text-primary tracking-wide">TIPS</span>
+                                      </div>
+                                      <ul className="space-y-1">
+                                        {details.tips.map((tip, idx) => (
+                                          <li key={idx} className="text-xs text-muted-foreground flex gap-2">
+                                            <span className="text-primary">•</span>
+                                            {tip}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+
+                                  {/* Alternatives */}
+                                  {details.alternatives && details.alternatives.length > 0 && (
+                                    <div>
+                                      <span className="text-xs font-display text-muted-foreground tracking-wide">
+                                        ALTERNATIVES:
+                                      </span>
+                                      <div className="flex flex-wrap gap-1 mt-1">
+                                        {details.alternatives.map((alt, idx) => (
+                                          <Badge key={idx} variant="outline" className="text-xs">
+                                            {alt}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+
+                          {/* No details available message */}
+                          {isExpanded && !details && (
+                            <div className="p-3 text-xs text-muted-foreground border-t border-border bg-muted/20">
+                              No additional details available for this exercise.
+                            </div>
                           )}
-                          <span className="text-sm text-foreground">{exercise.name}</span>
                         </div>
-                        <Badge variant="outline" className="text-xs">
-                          {exercise.completed}/{exercise.sets}
-                        </Badge>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
           </Card>
 
-          {/* Rest Timer */}
-          {showTimer && (
-            <RestTimer
-              exerciseType={timerExerciseType as 'strength' | 'hypertrophy'}
-              onComplete={() => setShowTimer(false)}
-            />
-          )}
-
-          {/* Tracking Mode Selection */}
-          <div className="grid grid-cols-2 gap-3">
-            <Card
-              className="p-4 border-primary/30 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors"
-              onClick={() => setActiveTool('guided')}
-            >
-              <div className="flex flex-col items-center text-center gap-2">
-                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Target className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <h4 className="font-display text-foreground">GUIDED</h4>
-                  <p className="text-xs text-muted-foreground">Step-by-step tracking</p>
-                </div>
+          {/* Manual Tracker Button - Goes directly to logging */}
+          <Card
+            className="p-4 border-primary/30 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors neon-border-subtle"
+            onClick={() => setActiveTool('logging')}
+          >
+            <div className="flex items-center justify-center text-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center neon-glow">
+                <Dumbbell className="w-6 h-6 text-primary" />
               </div>
-            </Card>
-            
-            <Card
-              className="p-4 border-border bg-card cursor-pointer hover:bg-muted/50 transition-colors"
-              onClick={() => setActiveTool('logging')}
-            >
-              <div className="flex flex-col items-center text-center gap-2">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <ClipboardList className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <h4 className="font-display text-foreground">MANUAL</h4>
-                  <p className="text-xs text-muted-foreground">Log all sets at once</p>
-                </div>
+              <div>
+                <h4 className="font-display text-foreground text-lg">
+                  <span className="text-primary neon-glow-subtle">LOG WORKOUT</span>
+                </h4>
+                <p className="text-sm text-muted-foreground">Track your sets, reps, weight & RPE</p>
               </div>
-            </Card>
-          </div>
+            </div>
+          </Card>
 
           {/* Action Tiles */}
           <SessionActionTiles
             onOpenLogging={() => setActiveTool('logging')}
             onOpenNotes={() => setActiveTool('notes')}
             onOpenFeedback={() => setActiveTool('feedback')}
-            onOpenVideo={() => setActiveTool('video')}
             onOpenProgress={() => setActiveTool('progress')}
             onOpenResults={isCompleted ? () => setActiveTool('results') : undefined}
             completedSets={completedSets}
@@ -308,6 +355,15 @@ export function ActiveWorkoutModal({
             </Button>
           </div>
         </div>
+
+        {/* Fixed Compact Rest Timer at Bottom */}
+        {showTimer && (
+          <CompactRestTimer
+            exerciseType={timerExerciseType as 'strength' | 'hypertrophy'}
+            onComplete={() => setShowTimer(false)}
+            onDismiss={() => setShowTimer(false)}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

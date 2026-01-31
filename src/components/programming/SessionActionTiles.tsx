@@ -3,7 +3,6 @@ import {
   ClipboardList, 
   StickyNote, 
   Sparkles, 
-  Video, 
   BarChart3,
   ChevronRight,
   Trophy
@@ -14,14 +13,12 @@ interface SessionActionTilesProps {
   onOpenLogging: () => void;
   onOpenNotes: () => void;
   onOpenFeedback: () => void;
-  onOpenVideo: () => void;
   onOpenProgress: () => void;
   onOpenResults?: () => void;
   completedSets: number;
   totalSets: number;
   hasNotes?: boolean;
   hasFeedback?: boolean;
-  hasVideo?: boolean;
   isCompleted?: boolean;
 }
 
@@ -29,14 +26,12 @@ export function SessionActionTiles({
   onOpenLogging,
   onOpenNotes,
   onOpenFeedback,
-  onOpenVideo,
   onOpenProgress,
   onOpenResults,
   completedSets,
   totalSets,
   hasNotes,
   hasFeedback,
-  hasVideo,
   isCompleted,
 }: SessionActionTilesProps) {
   const tiles = [
@@ -70,13 +65,6 @@ export function SessionActionTiles({
       onClick: onOpenFeedback,
     },
     {
-      id: 'video',
-      title: 'Record Video',
-      description: 'Capture your form',
-      icon: Video,
-      onClick: onOpenVideo,
-    },
-    {
       id: 'progress',
       title: 'View Progress',
       description: 'Track your gains',
@@ -92,7 +80,6 @@ export function SessionActionTiles({
     if (id === 'results' && isCompleted) return '✓';
     if (id === 'notes' && hasNotes) return '✓';
     if (id === 'feedback' && hasFeedback) return '✓';
-    if (id === 'video' && hasVideo) return '✓';
     return null;
   };
 
