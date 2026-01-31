@@ -87,16 +87,16 @@ export default function Tracker() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <Card className="relative overflow-hidden p-6 h-full border-2 border-border hover:border-primary/50 bg-gradient-to-br from-muted/20 to-transparent transition-all duration-300 group">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-muted/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                <Card className="relative overflow-hidden p-6 h-full border-2 border-primary/30 hover:border-primary bg-gradient-to-br from-primary/5 to-transparent transition-all duration-300 neon-border-subtle group">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                   
                   <div className="relative z-10 space-y-3">
-                    <div className="w-14 h-14 rounded-xl bg-muted/40 flex items-center justify-center">
-                      <BookOpen className="w-7 h-7 text-muted-foreground" />
+                    <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center neon-glow">
+                      <BookOpen className="w-7 h-7 text-primary" />
                     </div>
                     
                     <h3 className="font-display text-xl text-foreground">
-                      LIBRARY
+                      <span className="text-primary neon-glow-subtle">LIBRARY</span>
                     </h3>
                     
                     <p className="text-muted-foreground text-sm leading-relaxed">
@@ -118,16 +118,16 @@ export default function Tracker() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <Card className="relative overflow-hidden p-6 h-full border-2 border-border hover:border-primary/50 bg-gradient-to-br from-muted/20 to-transparent transition-all duration-300 group">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-muted/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                <Card className="relative overflow-hidden p-6 h-full border-2 border-primary/30 hover:border-primary bg-gradient-to-br from-primary/5 to-transparent transition-all duration-300 neon-border-subtle group">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                   
                   <div className="relative z-10 space-y-3">
-                    <div className="w-14 h-14 rounded-xl bg-muted/40 flex items-center justify-center">
-                      <Timer className="w-7 h-7 text-muted-foreground" />
+                    <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center neon-glow">
+                      <Timer className="w-7 h-7 text-primary" />
                     </div>
                     
                     <h3 className="font-display text-xl text-foreground">
-                      QUICK TRACK
+                      <span className="text-primary neon-glow-subtle">QUICK TRACK</span>
                     </h3>
                     
                     <p className="text-muted-foreground text-sm leading-relaxed">
