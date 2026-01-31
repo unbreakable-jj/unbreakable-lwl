@@ -1,24 +1,20 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import logo from '@/assets/logo.png';
-import { ThemedLogo } from '@/components/ThemedLogo';
-import { ThemeToggle } from '@/components/hub/ThemeToggle';
-import { useAuth } from '@/hooks/useAuth';
-import { NavigationDrawer } from '@/components/NavigationDrawer';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MainNavigation } from '@/components/MainNavigation';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
-import { PageNavigation, SwipeNavigationWrapper } from '@/components/PageNavigation';
-import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
-import { AuthModal } from '@/components/tracker/AuthModal';
-import { CardioProgramDisplay } from '@/components/cardio/CardioProgramDisplay';
-import { SavedCardioPrograms } from '@/components/cardio/SavedCardioPrograms';
-import { CardioModeSelector } from '@/components/cardio/CardioModeSelector';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
+import { CardioProgramDisplay } from '@/components/cardio/CardioProgramDisplay';
+import { CardioModeSelector } from '@/components/cardio/CardioModeSelector';
+import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
+import { AuthModal } from '@/components/tracker/AuthModal';
 import { useCardioPrograms } from '@/hooks/useCardioPrograms';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -29,14 +25,12 @@ import {
   ArrowLeft,
   ArrowRight,
   TrendingUp,
-  Target,
-  Sparkles,
   Heart,
   Flame,
   Loader2,
-  Home
+  Home,
+  BookOpen
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   ActivityType as CardioActivityType,
   CardioGoal,
@@ -53,14 +47,14 @@ import {
 type ActivityType = 'walk' | 'run' | 'cycle' | null;
 type ViewState = 'select' | 'wizard' | 'program' | 'track';
 
-const Tracker = () => {
+export default function Tracker() {
   const { user, loading } = useAuth();
   const { saveProgram: saveProgramMutation } = useCardioPrograms();
   const { toast } = useToast();
+  const [showAuthModal, setShowAuthModal] = useState(false);
   
   const [view, setView] = useState<ViewState>('select');
   const [showCardioModal, setShowCardioModal] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<ActivityType>(null);
   const [generatedProgram, setGeneratedProgram] = useState<GeneratedCardioProgram | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -174,11 +168,6 @@ const Tracker = () => {
     }
   };
 
-  const handleViewSavedProgram = (program: GeneratedCardioProgram) => {
-    setGeneratedProgram(program);
-    setView('program');
-  };
-
   const handleReset = () => {
     setGeneratedProgram(null);
     setCurrentStep(1);
@@ -200,7 +189,6 @@ const Tracker = () => {
     if (mode === 'auto') {
       setView('wizard');
     } else {
-      // Manual mode - go straight to quick track
       setView('track');
     }
   };
@@ -232,29 +220,8 @@ const Tracker = () => {
   if (view === 'program' && generatedProgram) {
     return (
       <div className="min-h-screen bg-background">
-        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <ThemeToggle />
-                <Link to="/" className="flex items-center gap-3">
-                  <ThemedLogo className="h-10 w-10" />
-                  <div className="hidden sm:block">
-                    <span className="font-display text-lg tracking-wide text-foreground">
-                      UNBREAKABLE
-                    </span>
-                    <span className="font-display text-sm tracking-wide text-primary ml-2">
-                      MOVEMENT
-                    </span>
-                  </div>
-                </Link>
-              </div>
-              <NavigationDrawer variant="minimal" />
-            </div>
-          </div>
-        </header>
-
-        <main className="container mx-auto px-4 py-8">
+        <MainNavigation />
+        <main className="container mx-auto px-4 py-24 md:py-28">
           <CardioProgramDisplay
             program={generatedProgram}
             onSave={handleSaveProgram}
@@ -262,121 +229,8 @@ const Tracker = () => {
             isSaving={isSaving}
           />
         </main>
+        <UnifiedFooter className="mt-auto" />
       </div>
-    );
-  }
-
-  // Mode selection view
-  if (view === 'select') {
-    return (
-      <SwipeNavigationWrapper>
-        <div className="min-h-screen bg-background">
-          {/* Header with Theme Toggle */}
-          <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-            <div className="container mx-auto px-4 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <ThemeToggle />
-                  <Link to="/" className="flex items-center gap-3">
-                    <ThemedLogo className="h-10 w-10" />
-                    <div className="hidden sm:block">
-                      <span className="font-display text-lg tracking-wide text-foreground">
-                        UNBREAKABLE
-                      </span>
-                      <span className="font-display text-sm tracking-wide text-primary ml-2">
-                        MOVEMENT
-                      </span>
-                    </div>
-                  </Link>
-                </div>
-                <div className="flex items-center gap-3">
-                  {!user && (
-                    <Button
-                      className="font-display tracking-wide"
-                      onClick={() => setShowAuthModal(true)}
-                    >
-                      SIGN IN
-                    </Button>
-                  )}
-                  <NavigationDrawer variant="minimal" />
-                </div>
-              </div>
-            </div>
-          </header>
-
-          {/* Page Navigation */}
-          <PageNavigation />
-
-          {/* Hero */}
-          <section className="py-12 md:py-16 border-b border-border">
-            <div className="container mx-auto px-4 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <h1 className="font-display text-5xl sm:text-6xl md:text-8xl tracking-wide leading-none mb-2">
-                <span className="text-foreground">BECOME </span>
-                <span className="text-primary neon-glow-subtle">UNBREAKABLE</span>
-              </h1>
-              <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">
-                LIVE WITHOUT LIMITS
-              </p>
-              <p className="text-muted-foreground text-base md:text-lg mt-4 max-w-2xl mx-auto">
-                Choose how you want to train. Build a personalised 12-week programme or 
-                start a quick tracking session for Walk, Run, or Cycle activities.
-              </p>
-              <p className="text-primary font-display text-lg mt-3 neon-glow-subtle">KEEP SHOWING UP.</p>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Mode Selector */}
-        <main className="container mx-auto px-4 py-8 md:py-12">
-          <CardioModeSelector onSelectMode={handleModeSelect} />
-        </main>
-
-        {/* Saved Programmes Section */}
-        {user && (
-          <section className="container mx-auto px-4 py-8 border-t border-border">
-            <div className="max-w-3xl mx-auto">
-              <h2 className="font-display text-2xl text-foreground mb-6 flex items-center gap-2">
-                <Timer className="w-6 h-6 text-primary" />
-                MY CARDIO PROGRAMMES
-              </h2>
-              <SavedCardioPrograms onViewProgram={handleViewSavedProgram} />
-            </div>
-          </section>
-        )}
-
-        {/* Coach Banner - Bottom of page */}
-        <section className="container mx-auto px-4 py-12 border-t border-border">
-          <Link to="/help" className="block max-w-3xl mx-auto">
-            <Card className="border-2 border-primary/40 bg-primary/5 p-6 hover:bg-primary/10 transition-all neon-border-subtle">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center neon-glow">
-                    <Flame className="w-7 h-7 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-display text-xl tracking-wide text-foreground">
-                      NEED HELP? <span className="text-primary neon-glow-subtle">ASK YOUR COACH</span>
-                    </p>
-                    <p className="text-muted-foreground mt-1">
-                      Get personalised guidance on cardio programming, pacing, and endurance training
-                    </p>
-                  </div>
-                </div>
-                <ArrowRight className="w-6 h-6 text-primary hidden sm:block" />
-              </div>
-            </Card>
-          </Link>
-        </section>
-
-          <UnifiedFooter className="mt-auto" />
-          <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
-        </div>
-      </SwipeNavigationWrapper>
     );
   }
 
@@ -384,30 +238,8 @@ const Tracker = () => {
   if (view === 'track') {
     return (
       <div className="min-h-screen bg-background">
-        {/* Header with Theme Toggle */}
-        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <ThemeToggle />
-                <Link to="/" className="flex items-center gap-3">
-                  <ThemedLogo className="h-10 w-10" />
-                  <div className="hidden sm:block">
-                    <span className="font-display text-lg tracking-wide text-foreground">
-                      UNBREAKABLE
-                    </span>
-                    <span className="font-display text-sm tracking-wide text-primary ml-2">
-                      MOVEMENT
-                    </span>
-                  </div>
-                </Link>
-              </div>
-              <NavigationDrawer variant="minimal" />
-            </div>
-          </div>
-        </header>
-
-        <main className="container mx-auto px-4 py-8 md:py-12">
+        <MainNavigation />
+        <main className="container mx-auto px-4 py-24 md:py-28">
           <Button variant="ghost" onClick={handleBackToSelect} className="mb-6 gap-2">
             <Home className="w-4 h-4" />
             Back to Selection
@@ -454,362 +286,320 @@ const Tracker = () => {
     );
   }
 
-  // Main wizard view (auto programme builder)
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header with Theme Toggle */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <ThemeToggle />
-              <Link to="/" className="flex items-center gap-3">
-                <ThemedLogo className="h-10 w-10" />
-                <div className="hidden sm:block">
-                  <span className="font-display text-lg tracking-wide text-foreground">
-                    UNBREAKABLE
-                  </span>
-                  <span className="font-display text-sm tracking-wide text-primary ml-2">
-                    MOVEMENT
-                  </span>
-                </div>
-              </Link>
+  // Wizard view (auto programme builder)
+  if (view === 'wizard') {
+    return (
+      <div className="min-h-screen bg-background">
+        <MainNavigation />
+
+        <main className="container mx-auto px-4 py-24 md:py-28">
+          <Button variant="ghost" onClick={handleBackToSelect} className="mb-6 gap-2">
+            <Home className="w-4 h-4" />
+            Back to Selection
+          </Button>
+
+          <div className="max-w-3xl mx-auto">
+            {/* Progress Bar */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-muted-foreground">Step {currentStep} of {totalSteps}</span>
+                <span className="text-sm text-primary font-display">{getStepLabel()}</span>
+              </div>
+              <div className="h-2 bg-surface rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-primary"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
             </div>
-            <NavigationDrawer variant="minimal" />
-          </div>
-        </div>
-      </header>
 
-      {/* Hero */}
-      <section className="py-8 md:py-12 border-b border-border">
-        <div className="container mx-auto px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="font-display text-4xl sm:text-5xl tracking-wide leading-none mb-2">
-              BUILD YOUR <span className="text-primary neon-glow-subtle">PROGRAMME</span>
-            </h1>
-            <p className="text-muted-foreground mt-4">
-              Answer a few questions to get a personalised 12-week cardio plan.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Back Button */}
-      <div className="container mx-auto px-4 pt-6">
-        <Button variant="ghost" onClick={handleBackToSelect} className="gap-2">
-          <Home className="w-4 h-4" />
-          Back to Selection
-        </Button>
-      </div>
-
-      {/* Progress Bar */}
-      <div className="bg-card border-b border-border py-4">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Step {currentStep} of {totalSteps}</span>
-            <span className="text-sm text-primary font-display">{getStepLabel()}</span>
-          </div>
-          <div className="h-2 bg-surface rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-primary"
-              initial={{ width: 0 }}
-              animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
-              transition={{ duration: 0.3 }}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Form Steps */}
-      <main className="container mx-auto px-4 py-8 md:py-12">
-        <div className="max-w-3xl mx-auto">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
+            <AnimatePresence mode="wait">
               {/* Step 1: Activity Type */}
               {currentStep === 1 && (
-                <div>
-                  <h2 className="font-display text-2xl text-center mb-8 tracking-wide">
-                    SELECT YOUR <span className="text-primary neon-glow-subtle">ACTIVITY</span>
+                <motion.div
+                  key="step1"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <h2 className="font-display text-2xl text-center">
+                    CHOOSE YOUR <span className="text-primary">ACTIVITY</span>
                   </h2>
-                  <div className="grid md:grid-cols-3 gap-6">
+                  <div className="grid md:grid-cols-3 gap-4">
                     {activityOptions.map((option) => (
                       <Card
                         key={option.value}
-                        className={`cursor-pointer transition-all ${
+                        className={`cursor-pointer transition-all border-2 ${
                           formData.activityType === option.value
-                            ? 'border-primary bg-primary/10 neon-border-subtle'
+                            ? 'border-primary bg-primary/10'
                             : 'border-border hover:border-primary/50'
                         }`}
                         onClick={() => setFormData({ ...formData, activityType: option.value })}
                       >
-                        <CardContent className="p-8 text-center">
-                          <div className={`w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 ${
-                            formData.activityType === option.value ? 'neon-border-subtle' : ''
-                          }`}>
-                            <div className={formData.activityType === option.value ? 'text-primary' : 'text-muted-foreground'}>
-                              {option.icon}
-                            </div>
-                          </div>
-                          <h3 className="font-display text-2xl tracking-wide mb-2">{option.label}</h3>
-                          <p className="text-sm text-muted-foreground">{option.description}</p>
+                        <CardContent className="p-6 text-center">
+                          <div className="text-primary mx-auto mb-3">{option.icon}</div>
+                          <h3 className="font-display text-xl tracking-wide">{option.label}</h3>
+                          <p className="text-sm text-muted-foreground mt-1">{option.description}</p>
                         </CardContent>
                       </Card>
                     ))}
                   </div>
-                </div>
+                </motion.div>
               )}
 
               {/* Step 2: Goal */}
               {currentStep === 2 && (
-                <div>
-                  <h2 className="font-display text-2xl text-center mb-8 tracking-wide">
-                    WHAT'S YOUR <span className="text-primary neon-glow-subtle">GOAL</span>?
+                <motion.div
+                  key="step2"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <h2 className="font-display text-2xl text-center">
+                    SELECT YOUR <span className="text-primary">GOAL</span>
                   </h2>
-                  <div className="space-y-3">
+                  <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {goalOptions.map((option) => (
                       <Card
                         key={option.value}
-                        className={`cursor-pointer transition-all ${
+                        className={`cursor-pointer transition-all border-2 ${
                           formData.goal === option.value
-                            ? 'border-primary bg-primary/10 neon-border-subtle'
+                            ? 'border-primary bg-primary/10'
                             : 'border-border hover:border-primary/50'
                         }`}
                         onClick={() => setFormData({ ...formData, goal: option.value })}
                       >
-                        <CardContent className="p-4 flex items-center gap-4">
-                          <div className={`w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center ${
-                            formData.goal === option.value ? 'text-primary' : 'text-muted-foreground'
-                          }`}>
-                            {option.icon}
-                          </div>
-                          <div className="flex-1">
-                            <p className="font-display tracking-wide text-lg">{goalLabels[option.value]}</p>
-                            <p className="text-sm text-muted-foreground">{goalDescriptions[option.value]}</p>
-                          </div>
+                        <CardContent className="p-5 text-center">
+                          <div className="text-primary mx-auto mb-2">{option.icon}</div>
+                          <h3 className="font-display text-lg tracking-wide">{goalLabels[option.value]}</h3>
+                          <p className="text-xs text-muted-foreground mt-1">{goalDescriptions[option.value]}</p>
                         </CardContent>
                       </Card>
                     ))}
                   </div>
-                </div>
+                </motion.div>
               )}
 
-              {/* Step 3: Level & Schedule */}
+              {/* Step 3: Level */}
               {currentStep === 3 && (
-                <div>
-                  <h2 className="font-display text-2xl text-center mb-8 tracking-wide">
-                    YOUR <span className="text-primary neon-glow-subtle">LEVEL</span> & SCHEDULE
+                <motion.div
+                  key="step3"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <h2 className="font-display text-2xl text-center">
+                    YOUR CURRENT <span className="text-primary">LEVEL</span>
                   </h2>
-                  
-                  <div className="space-y-8">
-                    {/* Level */}
-                    <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-6">
-                      <Label className="font-display tracking-wide text-muted-foreground mb-4 block">
-                        EXPERIENCE LEVEL
-                      </Label>
-                      <RadioGroup
-                        value={formData.currentLevel}
-                        onValueChange={(v) => setFormData({ ...formData, currentLevel: v as CardioLevel })}
-                        className="grid md:grid-cols-3 gap-4"
-                      >
-                        {(['beginner', 'intermediate', 'advanced'] as CardioLevel[]).map((level) => (
-                          <Label
-                            key={level}
-                            className={`flex flex-col items-center p-6 rounded-lg border-2 cursor-pointer transition-all ${
-                              formData.currentLevel === level
-                                ? 'border-primary bg-primary/10 neon-border-subtle'
-                                : 'border-border hover:border-primary/50'
-                            }`}
-                          >
-                            <RadioGroupItem value={level} className="sr-only" />
-                            <span className="font-display text-lg tracking-wide">{levelLabels[level]}</span>
-                            <span className="text-xs text-muted-foreground mt-2 text-center">{levelDescriptions[level]}</span>
-                          </Label>
-                        ))}
-                      </RadioGroup>
-                    </div>
+                  <RadioGroup
+                    value={formData.currentLevel}
+                    onValueChange={(value) => setFormData({ ...formData, currentLevel: value as CardioLevel })}
+                    className="space-y-3"
+                  >
+                    {(Object.keys(levelLabels) as CardioLevel[]).map((level) => (
+                      <div key={level} className="flex items-start space-x-3">
+                        <RadioGroupItem value={level} id={level} className="mt-1" />
+                        <Label htmlFor={level} className="cursor-pointer flex-1">
+                          <span className="font-display text-lg">{levelLabels[level]}</span>
+                          <p className="text-sm text-muted-foreground">{levelDescriptions[level]}</p>
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </motion.div>
+              )}
 
-                    {/* Sessions per week */}
-                    <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-6">
-                      <Label className="font-display tracking-wide text-muted-foreground mb-4 block">
-                        SESSIONS PER WEEK: <span className="text-primary neon-glow-subtle">{formData.sessionsPerWeek}</span>
+              {/* Step 4: Schedule */}
+              {currentStep === 4 && (
+                <motion.div
+                  key="step4"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-8"
+                >
+                  <h2 className="font-display text-2xl text-center">
+                    SET YOUR <span className="text-primary">SCHEDULE</span>
+                  </h2>
+
+                  <div className="space-y-6">
+                    <div>
+                      <Label className="text-base mb-4 block">
+                        Sessions per week: <span className="text-primary font-display">{formData.sessionsPerWeek}</span>
                       </Label>
                       <Slider
                         value={[formData.sessionsPerWeek]}
-                        onValueChange={([v]) => setFormData({ ...formData, sessionsPerWeek: v })}
+                        onValueChange={([value]) => setFormData({ ...formData, sessionsPerWeek: value })}
                         min={2}
-                        max={6}
+                        max={7}
                         step={1}
-                        className="mb-2"
+                        className="mt-2"
                       />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>2 days</span>
-                        <span>6 days</span>
-                      </div>
                     </div>
 
-                    {/* Session length */}
-                    <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-6">
-                      <Label className="font-display tracking-wide text-muted-foreground mb-4 block">
-                        SESSION LENGTH: <span className="text-primary neon-glow-subtle">{formData.sessionLength} mins</span>
+                    <div>
+                      <Label className="text-base mb-4 block">
+                        Session length: <span className="text-primary font-display">{formData.sessionLength} min</span>
                       </Label>
                       <Slider
                         value={[formData.sessionLength]}
-                        onValueChange={([v]) => setFormData({ ...formData, sessionLength: v })}
-                        min={20}
+                        onValueChange={([value]) => setFormData({ ...formData, sessionLength: value })}
+                        min={15}
                         max={90}
                         step={5}
-                        className="mb-2"
+                        className="mt-2"
                       />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>20 min</span>
-                        <span>90 min</span>
-                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-base mb-2 block">Target distance (optional)</Label>
+                      <Input
+                        placeholder="e.g., 5K, 10K, Marathon"
+                        value={formData.targetDistance || ''}
+                        onChange={(e) => setFormData({ ...formData, targetDistance: e.target.value })}
+                      />
                     </div>
                   </div>
-                </div>
+                </motion.div>
               )}
+            </AnimatePresence>
 
-              {/* Step 4: Optional Details */}
-              {currentStep === 4 && (
-                <div>
-                  <h2 className="font-display text-2xl text-center mb-8 tracking-wide">
-                    OPTIONAL <span className="text-primary neon-glow-subtle">DETAILS</span>
-                  </h2>
-                  
-                  <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-6 space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <Label className="font-display tracking-wide text-muted-foreground mb-2 block text-sm">
-                          TARGET DISTANCE
-                        </Label>
-                        <Input
-                          placeholder="e.g., 5K, 10K, Half Marathon"
-                          value={formData.targetDistance || ''}
-                          onChange={(e) => setFormData({ ...formData, targetDistance: e.target.value })}
-                          className="border-primary/40 focus:border-primary"
-                        />
-                      </div>
-                      <div>
-                        <Label className="font-display tracking-wide text-muted-foreground mb-2 block text-sm">
-                          CURRENT PACE
-                        </Label>
-                        <Input
-                          placeholder="e.g., 6:30/km"
-                          value={formData.currentPace || ''}
-                          onChange={(e) => setFormData({ ...formData, currentPace: e.target.value })}
-                          className="border-primary/40 focus:border-primary"
-                        />
-                      </div>
-                    </div>
+            {/* Navigation Buttons */}
+            <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
+              <Button
+                variant="outline"
+                onClick={handleBack}
+                disabled={currentStep === 1}
+                className="gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </Button>
 
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <Label className="font-display tracking-wide text-muted-foreground mb-2 block text-sm">
-                          AGE
-                        </Label>
-                        <Input
-                          type="number"
-                          placeholder="Your age"
-                          value={formData.age || ''}
-                          onChange={(e) => setFormData({ ...formData, age: e.target.value ? parseInt(e.target.value) : undefined })}
-                          className="border-primary/40 focus:border-primary"
-                        />
-                      </div>
-                      <div>
-                        <Label className="font-display tracking-wide text-muted-foreground mb-2 block text-sm">
-                          GENDER
-                        </Label>
-                        <RadioGroup
-                          value={formData.gender || ''}
-                          onValueChange={(v) => setFormData({ ...formData, gender: v as 'male' | 'female' })}
-                          className="flex gap-6 mt-3"
-                        >
-                          <Label className="flex items-center gap-2 cursor-pointer">
-                            <RadioGroupItem value="male" />
-                            <span>Male</span>
-                          </Label>
-                          <Label className="flex items-center gap-2 cursor-pointer">
-                            <RadioGroupItem value="female" />
-                            <span>Female</span>
-                          </Label>
-                        </RadioGroup>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Navigation Buttons */}
-          <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              disabled={currentStep === 1}
-              className="gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-
-            <Button
-              onClick={handleNext}
-              disabled={!canProceed() || isGenerating}
-              className="gap-2 min-w-[180px]"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Generating...
-                </>
-              ) : currentStep === totalSteps ? (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  Build Programme
-                </>
-              ) : (
-                <>
-                  Next
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </Button>
+              <Button
+                onClick={handleNext}
+                disabled={!canProceed() || isGenerating}
+                className="gap-2 min-w-[160px]"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : currentStep === totalSteps ? (
+                  <>
+                    <Zap className="w-4 h-4" />
+                    Generate Programme
+                  </>
+                ) : (
+                  <>
+                    Next
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
+        </main>
+
+        <UnifiedFooter className="mt-auto" />
+        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      </div>
+    );
+  }
+
+  // Mode selection view (default)
+  return (
+    <div className="min-h-screen bg-background">
+      <MainNavigation />
+
+      {/* Hero */}
+      <section className="pt-24 pb-12 md:pt-28 md:pb-16 border-b border-border">
+        <div className="container mx-auto px-4 text-center max-w-4xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="space-y-6"
+          >
+            <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wide leading-none">
+              <span className="text-foreground">BECOME </span>
+              <span className="text-primary neon-glow-subtle">UNBREAKABLE</span>
+            </h1>
+            <p className="text-primary font-display text-xl md:text-2xl tracking-wide neon-glow-subtle">
+              LIVE WITHOUT LIMITS
+            </p>
+            <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+              Choose how you want to train. Build a personalised 12-week programme or 
+              start a quick tracking session for Walk, Run, or Cycle activities.
+              Built with <span className="text-primary font-semibold">over 10 years of coaching expertise</span>.
+            </p>
+            <p className="text-primary font-display text-lg neon-glow-subtle">KEEP SHOWING UP.</p>
+          </motion.div>
         </div>
+      </section>
+
+      {/* Mode Selector */}
+      <main className="container mx-auto px-4 py-8 md:py-12">
+        <CardioModeSelector onSelectMode={handleModeSelect} />
       </main>
 
-      {/* Hashtag */}
-      <section className="container mx-auto px-4 py-8 text-center">
-        <p className="text-primary font-display text-2xl md:text-3xl tracking-wide neon-glow-subtle">
-          #UNBREAKABLEMOVEMENT
-        </p>
+      {/* Quick Links to Sub-pages */}
+      <section className="container mx-auto px-4 py-8 border-t border-border">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="font-display text-2xl text-foreground mb-6">
+            EXPLORE <span className="text-primary">MOVEMENT</span>
+          </h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Link to="/tracker/quick-track">
+              <Card className="p-5 hover:bg-primary/5 transition-colors border-2 border-border hover:border-primary/30">
+                <Timer className="w-8 h-8 text-primary mb-3" />
+                <h3 className="font-display text-lg tracking-wide mb-1">QUICK TRACK</h3>
+                <p className="text-sm text-muted-foreground">Start a cardio session immediately</p>
+              </Card>
+            </Link>
+            <Link to="/tracker/my-programmes">
+              <Card className="p-5 hover:bg-primary/5 transition-colors border-2 border-border hover:border-primary/30">
+                <BookOpen className="w-8 h-8 text-primary mb-3" />
+                <h3 className="font-display text-lg tracking-wide mb-1">MY PROGRAMMES</h3>
+                <p className="text-sm text-muted-foreground">View saved cardio programmes</p>
+              </Card>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Coach Banner - Bottom of page */}
+      <section className="container mx-auto px-4 py-12 border-t border-border">
+        <Link to="/help" className="block max-w-3xl mx-auto">
+          <Card className="border-2 border-primary/40 bg-primary/5 p-6 hover:bg-primary/10 transition-all neon-border-subtle">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center neon-glow">
+                  <Flame className="w-7 h-7 text-primary" />
+                </div>
+                <div>
+                  <p className="font-display text-xl tracking-wide text-foreground">
+                    NEED HELP? <span className="text-primary neon-glow-subtle">ASK YOUR COACH</span>
+                  </p>
+                  <p className="text-muted-foreground mt-1">
+                    Get personalised guidance on cardio programming, pacing, and endurance training
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="w-6 h-6 text-primary hidden sm:block" />
+            </div>
+          </Card>
+        </Link>
       </section>
 
       <UnifiedFooter className="mt-auto" />
-
-      {/* Modals */}
-      <CardioTrackerModal
-        isOpen={showCardioModal}
-        onClose={() => {
-          setShowCardioModal(false);
-          setSelectedActivity(null);
-        }}
-        initialActivity={selectedActivity || undefined}
-      />
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
-};
-
-export default Tracker;
+}

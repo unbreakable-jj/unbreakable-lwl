@@ -1,24 +1,19 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ThemedLogo } from '@/components/ThemedLogo';
-import { Button } from '@/components/ui/button';
-import { NavigationDrawer } from '@/components/NavigationDrawer';
-import { ThemeToggle } from '@/components/hub/ThemeToggle';
+import { MainNavigation } from '@/components/MainNavigation';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
-import { PageNavigation, SwipeNavigationWrapper } from '@/components/PageNavigation';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { ProgramFormStep1 } from '@/components/programming/ProgramFormStep1';
 import { ProgramFormStep2 } from '@/components/programming/ProgramFormStep2';
 import { ProgramFormStep3 } from '@/components/programming/ProgramFormStep3';
 import { ProgramFormStep4 } from '@/components/programming/ProgramFormStep4';
 import { ProgramDisplay } from '@/components/programming/ProgramDisplay';
-import { MyProgramsSection } from '@/components/programming/MyProgramsSection';
-import { ProgrammeBuilder } from '@/components/programming/ProgrammeBuilder';
 import { BuilderModeSelector } from '@/components/programming/BuilderModeSelector';
 import { ManualProgramBuilder } from '@/components/programming/ManualProgramBuilder';
-import { ProgrammeLogsView } from '@/components/programming/ProgrammeLogsView';
-import { AIBuildBanner } from '@/components/ai/AIBuildBanner';
 import { useAuth } from '@/hooks/useAuth';
+import { AuthModal } from '@/components/tracker/AuthModal';
 import { 
   Goal, 
   Level,
@@ -35,14 +30,15 @@ import {
   Dumbbell,
   Home,
   History,
-  Flame
+  Flame,
+  BookOpen
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Card } from '@/components/ui/card';
 
 export default function Programming() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [builderMode, setBuilderMode] = useState<'select' | 'auto' | 'manual'>('select');
   const [currentStep, setCurrentStep] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -73,6 +69,10 @@ export default function Programming() {
   };
 
   const handleNext = () => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -153,70 +153,32 @@ export default function Programming() {
     setCurrentStep(1);
   };
 
+  const handleModeSelect = (mode: 'auto' | 'manual') => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+    setBuilderMode(mode);
+  };
+
   if (generatedProgram) {
     return (
       <div className="min-h-screen bg-background">
-        {/* Header with Theme Toggle */}
-        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <ThemeToggle />
-                <Link to="/" className="flex items-center gap-3">
-                  <ThemedLogo />
-                  <div className="hidden sm:block">
-                    <span className="font-display text-lg tracking-wide text-foreground">
-                      UNBREAKABLE
-                    </span>
-                    <span className="font-display text-sm tracking-wide text-primary ml-2">
-                      POWER
-                    </span>
-                  </div>
-                </Link>
-              </div>
-              <NavigationDrawer />
-            </div>
-          </div>
-        </header>
-
-        <main className="container mx-auto px-4 py-8">
+        <MainNavigation />
+        <main className="container mx-auto px-4 py-24 md:py-28">
           <ProgramDisplay program={generatedProgram} onReset={handleReset} />
         </main>
-        
         <UnifiedFooter className="mt-auto" />
       </div>
     );
   }
 
   return (
-    <SwipeNavigationWrapper>
-      <div className="min-h-screen bg-background">
-        {/* Header with Theme Toggle */}
-        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <ThemeToggle />
-                <Link to="/" className="flex items-center gap-3">
-                  <ThemedLogo />
-                  <div className="hidden sm:block">
-                    <span className="font-display text-lg tracking-wide text-foreground">
-                      UNBREAKABLE
-                    </span>
-                    <span className="font-display text-sm tracking-wide text-primary ml-2">
-                      POWER
-                    </span>
-                  </div>
-                </Link>
-              </div>
-              <NavigationDrawer />
-            </div>
-          </div>
-        </header>
+    <div className="min-h-screen bg-background">
+      <MainNavigation />
 
-        {/* Page Navigation */}
-        <PageNavigation />
-      <section className="py-16 md:py-20 lg:py-24 border-b border-border">
+      {/* Hero */}
+      <section className="pt-24 pb-12 md:pt-28 md:pb-16 border-b border-border">
         <div className="container mx-auto px-4 text-center max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -234,8 +196,8 @@ export default function Programming() {
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
               Choose how you want to create a personalised programme. Select{' '}
               <span className="text-foreground font-medium">Manual</span> for full customisation or{' '}
-              <span className="text-foreground font-medium">Auto</span> to let the system build a programme for you.
-              Once created, programmes are ready to track, log, and receive optional guidance.
+              <span className="text-foreground font-medium">Auto</span> to let your coach build a programme for you.
+              Built with <span className="text-primary font-semibold">over 10 years of coaching expertise</span>.
             </p>
             <p className="text-primary font-display text-lg neon-glow-subtle">KEEP SHOWING UP.</p>
           </motion.div>
@@ -252,7 +214,7 @@ export default function Programming() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <BuilderModeSelector onSelectMode={(mode) => setBuilderMode(mode as 'auto' | 'manual')} />
+              <BuilderModeSelector onSelectMode={handleModeSelect} />
             </motion.div>
           )}
 
@@ -396,35 +358,30 @@ export default function Programming() {
         </AnimatePresence>
       </main>
 
-      {/* My Programs Section */}
-      {user && (
-        <section className="container mx-auto px-4 py-12 md:py-16 border-t border-border">
-          <div className="max-w-4xl mx-auto space-y-6">
-            <h2 className="font-display text-2xl md:text-3xl text-foreground flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center neon-glow">
-                <Dumbbell className="w-6 h-6 text-primary" />
-              </div>
-              MY PROGRAMMES
-            </h2>
-            <MyProgramsSection />
+      {/* Quick Links to Sub-pages */}
+      <section className="container mx-auto px-4 py-8 border-t border-border">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="font-display text-2xl text-foreground mb-6">
+            EXPLORE <span className="text-primary">POWER</span>
+          </h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Link to="/programming/my-programmes">
+              <Card className="p-5 hover:bg-primary/5 transition-colors border-2 border-border hover:border-primary/30">
+                <BookOpen className="w-8 h-8 text-primary mb-3" />
+                <h3 className="font-display text-lg tracking-wide mb-1">MY PROGRAMMES</h3>
+                <p className="text-sm text-muted-foreground">View and manage saved programmes</p>
+              </Card>
+            </Link>
+            <Link to="/programming/logs">
+              <Card className="p-5 hover:bg-primary/5 transition-colors border-2 border-border hover:border-primary/30">
+                <History className="w-8 h-8 text-primary mb-3" />
+                <h3 className="font-display text-lg tracking-wide mb-1">PROGRAMME LOGS</h3>
+                <p className="text-sm text-muted-foreground">Track your workout history</p>
+              </Card>
+            </Link>
           </div>
-        </section>
-      )}
-
-      {/* Workout Logs Section */}
-      {user && (
-        <section className="container mx-auto px-4 py-12 md:py-16 border-t border-border">
-          <div className="max-w-4xl mx-auto space-y-6">
-            <h2 className="font-display text-2xl md:text-3xl text-foreground flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center neon-glow">
-                <History className="w-6 h-6 text-primary" />
-              </div>
-              PROGRAMME TRACKING & LOGS
-            </h2>
-            <ProgrammeLogsView />
-          </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* Coach Banner - Bottom of page */}
       <section className="container mx-auto px-4 py-12 border-t border-border">
@@ -450,8 +407,8 @@ export default function Programming() {
         </Link>
       </section>
 
-        <UnifiedFooter className="mt-auto" />
-      </div>
-    </SwipeNavigationWrapper>
+      <UnifiedFooter className="mt-auto" />
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+    </div>
   );
 }
