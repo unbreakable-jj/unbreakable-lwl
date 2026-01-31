@@ -1,0 +1,199 @@
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { 
+  Play, 
+  Pause, 
+  RotateCcw, 
+  Timer,
+  X
+} from 'lucide-react';
+
+interface CompactRestTimerProps {
+  exerciseType?: 'strength' | 'hypertrophy' | 'endurance' | 'compound' | 'isolation' | 'bodyweight';
+  onComplete?: () => void;
+  onDismiss?: () => void;
+}
+
+const REST_PRESETS: Record<string, number> = {
+  compound: 180,
+  strength: 180,
+  isolation: 90,
+  hypertrophy: 90,
+  endurance: 60,
+  bodyweight: 60,
+};
+
+const QUICK_PRESETS = [60, 90, 120, 180];
+
+export function CompactRestTimer({ exerciseType = 'strength', onComplete, onDismiss }: CompactRestTimerProps) {
+  const defaultTime = REST_PRESETS[exerciseType] || 120;
+  const [timeLeft, setTimeLeft] = useState(defaultTime);
+  const [isRunning, setIsRunning] = useState(true); // Auto-start
+  const [initialTime, setInitialTime] = useState(defaultTime);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Initialize audio
+  useEffect(() => {
+    audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2AgHd0fIGDgoKCgYCAgH9/f4CAgIB/f39/f4CAgH9/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/');
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
+
+  // Timer logic
+  useEffect(() => {
+    if (isRunning && timeLeft > 0) {
+      intervalRef.current = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            setIsRunning(false);
+            if (audioRef.current) {
+              let count = 0;
+              const playBeep = () => {
+                if (count < 3 && audioRef.current) {
+                  audioRef.current.currentTime = 0;
+                  audioRef.current.play().catch(() => {});
+                  count++;
+                  setTimeout(playBeep, 300);
+                }
+              };
+              playBeep();
+            }
+            if ('vibrate' in navigator) {
+              navigator.vibrate([200, 100, 200, 100, 200]);
+            }
+            onComplete?.();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isRunning, timeLeft, onComplete]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleStart = () => setIsRunning(true);
+  const handlePause = () => setIsRunning(false);
+  const handleReset = () => {
+    setIsRunning(false);
+    setTimeLeft(initialTime);
+  };
+
+  const handlePreset = useCallback((preset: number) => {
+    setInitialTime(preset);
+    setTimeLeft(preset);
+    setIsRunning(true);
+  }, []);
+
+  const progress = (timeLeft / initialTime) * 100;
+  const isWarning = timeLeft <= 10 && timeLeft > 0;
+  const isComplete = timeLeft === 0;
+
+  return (
+    <div className={`fixed bottom-0 left-0 right-0 z-50 border-t-2 transition-all ${
+      isComplete ? 'border-green-500 bg-green-500/10' :
+      isWarning ? 'border-primary bg-primary/10' :
+      'border-primary/50 bg-background/95'
+    } backdrop-blur-sm`}>
+      {/* Progress bar at top of footer */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-muted/20">
+        <div 
+          className={`h-full transition-all duration-1000 ${
+            isComplete ? 'bg-green-500' : 'bg-primary'
+          }`}
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between gap-4">
+          {/* Timer Display */}
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              isComplete ? 'bg-green-500/20' : 'bg-primary/20'
+            }`}>
+              <Timer className={`w-5 h-5 ${isComplete ? 'text-green-500' : 'text-primary'}`} />
+            </div>
+            <div className={`font-display text-2xl ${
+              isComplete ? 'text-green-500 neon-glow' :
+              isWarning ? 'text-primary neon-glow' :
+              'text-foreground'
+            }`}>
+              {isComplete ? 'GO!' : formatTime(timeLeft)}
+            </div>
+          </div>
+
+          {/* Quick Presets */}
+          <div className="hidden sm:flex items-center gap-1">
+            {QUICK_PRESETS.map((preset) => (
+              <Button
+                key={preset}
+                variant={initialTime === preset ? 'default' : 'outline'}
+                size="sm"
+                className={`text-xs h-8 px-3 ${
+                  initialTime === preset 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'border-primary/30 text-muted-foreground hover:text-primary'
+                }`}
+                onClick={() => handlePreset(preset)}
+              >
+                {preset >= 60 ? `${preset / 60}m` : `${preset}s`}
+              </Button>
+            ))}
+          </div>
+
+          {/* Controls */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-9 w-9"
+              onClick={handleReset}
+            >
+              <RotateCcw className="w-4 h-4" />
+            </Button>
+            
+            <Button
+              size="sm"
+              onClick={isRunning ? handlePause : handleStart}
+              className="min-w-[80px] gap-1 h-9"
+            >
+              {isRunning ? (
+                <>
+                  <Pause className="w-4 h-4" />
+                  Pause
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4" />
+                  {timeLeft === initialTime ? 'Start' : 'Go'}
+                </>
+              )}
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              onClick={onDismiss}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
