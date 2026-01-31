@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 import ProgrammingLogs from "./pages/ProgrammingLogs";
 import ProgrammingMyProgrammes from "./pages/ProgrammingMyProgrammes";
+import ProgrammingCreate from "./pages/ProgrammingCreate";
 import FuelHistory from "./pages/FuelHistory";
 import FuelRecipes from "./pages/FuelRecipes";
 import FuelPlanning from "./pages/FuelPlanning";
@@ -54,6 +55,9 @@ const App = () => (
               {/* Programming (Power) routes */}
               <Route path="/programming" element={
                 <ProtectedRoute><Programming /></ProtectedRoute>
+              } />
+              <Route path="/programming/create" element={
+                <ProtectedRoute><ProgrammingCreate /></ProtectedRoute>
               } />
               <Route path="/programming/my-programmes" element={
                 <ProtectedRoute><ProgrammingMyProgrammes /></ProtectedRoute>

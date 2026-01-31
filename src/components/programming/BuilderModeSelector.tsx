@@ -1,7 +1,6 @@
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
-import { Sparkles, ArrowRight, Wrench, Dumbbell, Flame, MessageCircle } from 'lucide-react';
+import { Sparkles, ArrowRight, Wrench, Dumbbell, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface BuilderModeSelectorProps {
@@ -11,28 +10,6 @@ interface BuilderModeSelectorProps {
 export function BuilderModeSelector({ onSelectMode }: BuilderModeSelectorProps) {
   return (
     <div className="max-w-4xl mx-auto space-y-10">
-      {/* Coaching Link Banner */}
-      <Link to="/help" className="block group">
-        <Card className="border-2 border-primary/40 bg-primary/5 p-5 md:p-6 hover:bg-primary/10 transition-all neon-border-subtle">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                <Flame className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="font-display text-lg md:text-xl tracking-wide text-foreground">
-                  NEED HELP? <span className="text-primary">ASK YOUR COACH</span>
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Get personalised guidance on exercises, form, programming, and more
-                </p>
-              </div>
-            </div>
-            <ArrowRight className="w-5 h-5 text-primary shrink-0 group-hover:translate-x-1 transition-transform" />
-          </div>
-        </Card>
-      </Link>
-
       <div className="grid md:grid-cols-2 gap-6 md:gap-8">
         {/* Auto Builder Card */}
         <motion.div

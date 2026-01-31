@@ -63,22 +63,16 @@ const NAV_STRUCTURE = [
     href: '/programming',
     items: [
       { 
-        title: 'Build Programme', 
-        href: '/programming', 
-        description: 'Create personalised training plans',
+        title: 'Create', 
+        href: '/programming/create', 
+        description: 'Build a new programme with Auto or Manual builder',
         icon: Dumbbell 
       },
       { 
-        title: 'My Programmes', 
+        title: 'Library', 
         href: '/programming/my-programmes', 
-        description: 'View and manage saved programmes',
+        description: 'View saved programmes, track progress, and log workouts',
         icon: BookOpen 
-      },
-      { 
-        title: 'Programme Logs', 
-        href: '/programming/logs', 
-        description: 'Track your workout history',
-        icon: History 
       },
     ],
   },
