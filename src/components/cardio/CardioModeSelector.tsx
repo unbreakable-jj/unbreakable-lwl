@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Sparkles, ArrowRight, Timer, Footprints, Zap, Bike, Flame } from 'lucide-react';
@@ -10,29 +9,7 @@ interface CardioModeSelectorProps {
 
 export function CardioModeSelector({ onSelectMode }: CardioModeSelectorProps) {
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      {/* Coaching Link Banner */}
-      <Link to="/help" className="block">
-        <Card className="border-2 border-primary/40 bg-primary/5 p-4 hover:bg-primary/10 transition-all neon-border-subtle">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                <Flame className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <p className="font-display text-lg tracking-wide text-foreground">
-                  NEED HELP? <span className="text-primary">ASK YOUR COACH</span>
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Training tips, pacing strategy, recovery advice, and more
-                </p>
-              </div>
-            </div>
-            <ArrowRight className="w-5 h-5 text-primary" />
-          </div>
-        </Card>
-      </Link>
-
+    <div className="max-w-4xl mx-auto">
       <div className="grid md:grid-cols-2 gap-6">
         {/* Auto Builder Card */}
         <motion.div

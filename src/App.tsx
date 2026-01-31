@@ -27,6 +27,7 @@ import FuelFoods from "./pages/FuelFoods";
 import FuelMyFuel from "./pages/FuelMyFuel";
 import TrackerQuickTrack from "./pages/TrackerQuickTrack";
 import TrackerMyProgrammes from "./pages/TrackerMyProgrammes";
+import TrackerCreate from "./pages/TrackerCreate";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,9 @@ const App = () => (
               {/* Tracker (Movement) routes */}
               <Route path="/tracker" element={
                 <ProtectedRoute><Tracker /></ProtectedRoute>
+              } />
+              <Route path="/tracker/create" element={
+                <ProtectedRoute><TrackerCreate /></ProtectedRoute>
               } />
               <Route path="/tracker/quick-track" element={
                 <ProtectedRoute><TrackerQuickTrack /></ProtectedRoute>
