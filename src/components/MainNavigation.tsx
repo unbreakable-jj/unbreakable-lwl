@@ -81,22 +81,22 @@ const NAV_STRUCTURE = [
     href: '/tracker',
     items: [
       { 
-        title: 'Build Cardio Programme', 
-        href: '/tracker', 
-        description: 'Create walking, running, or cycling plans',
+        title: 'Create', 
+        href: '/tracker/create', 
+        description: 'Build a new cardio programme',
         icon: Footprints 
+      },
+      { 
+        title: 'Library', 
+        href: '/tracker/my-programmes', 
+        description: 'View saved programmes and activity logs',
+        icon: BookOpen 
       },
       { 
         title: 'Quick Track', 
         href: '/tracker/quick-track', 
         description: 'Start a cardio session immediately',
         icon: Timer 
-      },
-      { 
-        title: 'My Cardio Programmes', 
-        href: '/tracker/my-programmes', 
-        description: 'View saved cardio programmes',
-        icon: BookOpen 
       },
     ],
   },

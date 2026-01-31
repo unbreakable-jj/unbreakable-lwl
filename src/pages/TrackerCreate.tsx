@@ -1,0 +1,515 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MainNavigation } from '@/components/MainNavigation';
+import { UnifiedFooter } from '@/components/UnifiedFooter';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Input } from '@/components/ui/input';
+import { CardioProgramDisplay } from '@/components/cardio/CardioProgramDisplay';
+import { CardioModeSelector } from '@/components/cardio/CardioModeSelector';
+import { useCardioPrograms } from '@/hooks/useCardioPrograms';
+import { useAuth } from '@/hooks/useAuth';
+import { AuthModal } from '@/components/tracker/AuthModal';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { 
+  Timer, 
+  Footprints, 
+  Zap, 
+  Bike, 
+  ArrowLeft,
+  ArrowRight,
+  TrendingUp,
+  Heart,
+  Flame,
+  Loader2,
+  Home,
+  Wrench
+} from 'lucide-react';
+import {
+  ActivityType as CardioActivityType,
+  CardioGoal,
+  CardioLevel,
+  CardioFormData,
+  GeneratedCardioProgram,
+  activityLabels,
+  goalLabels,
+  goalDescriptions,
+  levelLabels,
+  levelDescriptions,
+} from '@/lib/cardioTypes';
+
+type ViewState = 'select' | 'wizard' | 'program';
+
+export default function TrackerCreate() {
+  const { user, loading } = useAuth();
+  const { saveProgram: saveProgramMutation } = useCardioPrograms();
+  const { toast } = useToast();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  
+  const [view, setView] = useState<ViewState>('select');
+  const [generatedProgram, setGeneratedProgram] = useState<GeneratedCardioProgram | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Wizard state
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 4;
+
+  // Form data
+  const [formData, setFormData] = useState<CardioFormData>({
+    activityType: 'run',
+    goal: 'fitness',
+    currentLevel: 'beginner',
+    sessionsPerWeek: 3,
+    sessionLength: 30,
+  });
+
+  const activityOptions: { value: CardioActivityType; label: string; icon: React.ReactNode; description: string }[] = [
+    { value: 'walk', label: 'WALK', icon: <Footprints className="w-10 h-10" />, description: 'Low-impact, steady state' },
+    { value: 'run', label: 'RUN', icon: <Zap className="w-10 h-10" />, description: 'Build speed & power' },
+    { value: 'cycle', label: 'CYCLE', icon: <Bike className="w-10 h-10" />, description: 'Leg power, zero impact' },
+  ];
+
+  const goalOptions: { value: CardioGoal; icon: React.ReactNode }[] = [
+    { value: 'fitness', icon: <Heart className="w-6 h-6" /> },
+    { value: 'distance', icon: <TrendingUp className="w-6 h-6" /> },
+    { value: 'speed', icon: <Zap className="w-6 h-6" /> },
+    { value: 'endurance', icon: <Timer className="w-6 h-6" /> },
+    { value: 'weight_loss', icon: <Flame className="w-6 h-6" /> },
+  ];
+
+  const canProceed = () => {
+    switch (currentStep) {
+      case 1: return formData.activityType !== null;
+      case 2: return formData.goal !== null;
+      case 3: return formData.currentLevel !== null;
+      case 4: return true;
+      default: return false;
+    }
+  };
+
+  const handleNext = () => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      handleGenerate();
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-cardio-program', {
+        body: formData,
+      });
+
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+
+      setGeneratedProgram(data.program);
+      setView('program');
+      toast({
+        title: 'Programme Generated',
+        description: `Your ${activityLabels[formData.activityType]} programme is ready!`,
+      });
+    } catch (error) {
+      console.error('Generate error:', error);
+      toast({
+        title: 'Generation Failed',
+        description: error instanceof Error ? error.message : 'Please try again',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleSaveProgram = async () => {
+    if (!generatedProgram) return;
+    setIsSaving(true);
+    try {
+      await saveProgramMutation.mutateAsync(generatedProgram);
+      handleReset();
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleReset = () => {
+    setGeneratedProgram(null);
+    setCurrentStep(1);
+    setView('select');
+    setFormData({
+      activityType: 'run',
+      goal: 'fitness',
+      currentLevel: 'beginner',
+      sessionsPerWeek: 3,
+      sessionLength: 30,
+    });
+  };
+
+  const handleModeSelect = (mode: 'auto' | 'manual') => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+    if (mode === 'auto') {
+      setView('wizard');
+    }
+    // Manual mode not implemented for cardio yet
+  };
+
+  const handleBackToSelect = () => {
+    setView('select');
+    setCurrentStep(1);
+  };
+
+  const getStepLabel = () => {
+    switch (currentStep) {
+      case 1: return 'SELECT ACTIVITY';
+      case 2: return 'SET GOAL';
+      case 3: return 'YOUR LEVEL';
+      case 4: return 'OPTIONAL DETAILS';
+      default: return '';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Program display view
+  if (view === 'program' && generatedProgram) {
+    return (
+      <div className="min-h-screen bg-background">
+        <MainNavigation />
+        <main className="container mx-auto px-4 py-24 md:py-28">
+          <CardioProgramDisplay
+            program={generatedProgram}
+            onSave={handleSaveProgram}
+            onBack={handleReset}
+            isSaving={isSaving}
+          />
+        </main>
+        <UnifiedFooter className="mt-auto" />
+      </div>
+    );
+  }
+
+  // Wizard view (auto programme builder)
+  if (view === 'wizard') {
+    return (
+      <div className="min-h-screen bg-background">
+        <MainNavigation />
+
+        <main className="container mx-auto px-4 py-24 md:py-28">
+          <Button variant="ghost" onClick={handleBackToSelect} className="mb-6 gap-2">
+            <Home className="w-4 h-4" />
+            Back to Selection
+          </Button>
+
+          <div className="max-w-3xl mx-auto">
+            {/* Progress Bar */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-muted-foreground">Step {currentStep} of {totalSteps}</span>
+                <span className="text-sm text-primary font-display">{getStepLabel()}</span>
+              </div>
+              <div className="h-2 bg-surface rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-primary"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+            </div>
+
+            <AnimatePresence mode="wait">
+              {/* Step 1: Activity Type */}
+              {currentStep === 1 && (
+                <motion.div
+                  key="step1"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <h2 className="font-display text-2xl text-center">
+                    CHOOSE YOUR <span className="text-primary">ACTIVITY</span>
+                  </h2>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {activityOptions.map((option) => (
+                      <Card
+                        key={option.value}
+                        className={`cursor-pointer transition-all border-2 ${
+                          formData.activityType === option.value
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        onClick={() => setFormData({ ...formData, activityType: option.value })}
+                      >
+                        <CardContent className="p-6 text-center">
+                          <div className="text-primary mx-auto mb-3">{option.icon}</div>
+                          <h3 className="font-display text-xl tracking-wide">{option.label}</h3>
+                          <p className="text-sm text-muted-foreground mt-1">{option.description}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Step 2: Goal */}
+              {currentStep === 2 && (
+                <motion.div
+                  key="step2"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <h2 className="font-display text-2xl text-center">
+                    SELECT YOUR <span className="text-primary">GOAL</span>
+                  </h2>
+                  <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {goalOptions.map((option) => (
+                      <Card
+                        key={option.value}
+                        className={`cursor-pointer transition-all border-2 ${
+                          formData.goal === option.value
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        onClick={() => setFormData({ ...formData, goal: option.value })}
+                      >
+                        <CardContent className="p-5 text-center">
+                          <div className="text-primary mx-auto mb-2">{option.icon}</div>
+                          <h3 className="font-display text-lg tracking-wide">{goalLabels[option.value]}</h3>
+                          <p className="text-xs text-muted-foreground mt-1">{goalDescriptions[option.value]}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Step 3: Level */}
+              {currentStep === 3 && (
+                <motion.div
+                  key="step3"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <h2 className="font-display text-2xl text-center">
+                    YOUR CURRENT <span className="text-primary">LEVEL</span>
+                  </h2>
+                  <RadioGroup
+                    value={formData.currentLevel}
+                    onValueChange={(value) => setFormData({ ...formData, currentLevel: value as CardioLevel })}
+                    className="space-y-3"
+                  >
+                    {(Object.keys(levelLabels) as CardioLevel[]).map((level) => (
+                      <div key={level} className="flex items-start space-x-3">
+                        <RadioGroupItem value={level} id={level} className="mt-1" />
+                        <Label htmlFor={level} className="cursor-pointer flex-1">
+                          <span className="font-display text-lg">{levelLabels[level]}</span>
+                          <p className="text-sm text-muted-foreground">{levelDescriptions[level]}</p>
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </motion.div>
+              )}
+
+              {/* Step 4: Schedule */}
+              {currentStep === 4 && (
+                <motion.div
+                  key="step4"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-8"
+                >
+                  <h2 className="font-display text-2xl text-center">
+                    SET YOUR <span className="text-primary">SCHEDULE</span>
+                  </h2>
+
+                  <div className="space-y-6">
+                    <div>
+                      <Label className="text-base mb-4 block">
+                        Sessions per week: <span className="text-primary font-display">{formData.sessionsPerWeek}</span>
+                      </Label>
+                      <Slider
+                        value={[formData.sessionsPerWeek]}
+                        onValueChange={([value]) => setFormData({ ...formData, sessionsPerWeek: value })}
+                        min={2}
+                        max={7}
+                        step={1}
+                        className="mt-2"
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-base mb-4 block">
+                        Session length: <span className="text-primary font-display">{formData.sessionLength} min</span>
+                      </Label>
+                      <Slider
+                        value={[formData.sessionLength]}
+                        onValueChange={([value]) => setFormData({ ...formData, sessionLength: value })}
+                        min={15}
+                        max={90}
+                        step={5}
+                        className="mt-2"
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-base mb-2 block">Target distance (optional)</Label>
+                      <Input
+                        placeholder="e.g., 5K, 10K, Marathon"
+                        value={formData.targetDistance || ''}
+                        onChange={(e) => setFormData({ ...formData, targetDistance: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Navigation Buttons */}
+            <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
+              <Button
+                variant="outline"
+                onClick={handleBack}
+                disabled={currentStep === 1}
+                className="gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </Button>
+
+              <Button
+                onClick={handleNext}
+                disabled={!canProceed() || isGenerating}
+                className="gap-2 min-w-[160px]"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : currentStep === totalSteps ? (
+                  <>
+                    <Zap className="w-4 h-4" />
+                    Generate Programme
+                  </>
+                ) : (
+                  <>
+                    Next
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </main>
+
+        <UnifiedFooter className="mt-auto" />
+        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      </div>
+    );
+  }
+
+  // Mode selection view (default)
+  return (
+    <div className="min-h-screen bg-background">
+      <MainNavigation />
+
+      {/* Hero */}
+      <section className="pt-24 pb-12 md:pt-28 md:pb-16 border-b border-border">
+        <div className="container mx-auto px-4 text-center max-w-4xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="space-y-6"
+          >
+            <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto neon-glow">
+              <Wrench className="w-10 h-10 text-primary" />
+            </div>
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide leading-none">
+              <span className="text-foreground">CREATE </span>
+              <span className="text-primary neon-glow-subtle">PROGRAMME</span>
+            </h1>
+            <p className="text-primary font-display text-xl tracking-wide neon-glow-subtle">
+              BUILD YOUR UNBREAKABLE CARDIO PLAN
+            </p>
+            <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+              Build a personalised 12-week cardio programme for Walk, Run, or Cycle.
+              Built with <span className="text-primary font-semibold">over 10 years of coaching expertise</span>.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Mode Selector */}
+      <main className="container mx-auto px-4 py-8 md:py-12">
+        <CardioModeSelector onSelectMode={handleModeSelect} />
+      </main>
+
+      {/* Coach Banner - Bottom of page */}
+      <section className="container mx-auto px-4 py-12 border-t border-border">
+        <Link to="/help" className="block max-w-3xl mx-auto">
+          <Card className="border-2 border-primary/40 bg-primary/5 p-6 hover:bg-primary/10 transition-all neon-border-subtle">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center neon-glow">
+                  <Flame className="w-7 h-7 text-primary" />
+                </div>
+                <div>
+                  <p className="font-display text-xl tracking-wide text-foreground">
+                    NEED HELP? <span className="text-primary neon-glow-subtle">ASK YOUR COACH</span>
+                  </p>
+                  <p className="text-muted-foreground mt-1">
+                    Get personalised guidance on cardio programming, pacing, and endurance training
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="w-6 h-6 text-primary hidden sm:block" />
+            </div>
+          </Card>
+        </Link>
+      </section>
+
+      <UnifiedFooter className="mt-auto" />
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+    </div>
+  );
+}
