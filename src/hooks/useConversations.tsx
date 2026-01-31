@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-
+import { useBlockedUsers } from './useBlockedUsers';
 export interface Message {
   id: string;
   conversation_id: string;
@@ -40,6 +40,7 @@ export interface Conversation {
 
 export function useConversations() {
   const { user } = useAuth();
+  const { blockedUsers, isUserBlocked, checkIfBlockedBy } = useBlockedUsers();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -147,9 +148,17 @@ export function useConversations() {
       };
     });
 
-    setConversations(convs);
+    // Filter out conversations with blocked users
+    const blockedIds = new Set(blockedUsers.map(b => b.blocked_id));
+    const filteredConvs = convs.filter((conv) => {
+      const otherParticipant = conv.participants.find((p) => p.user_id !== user?.id);
+      if (!otherParticipant) return true;
+      return !blockedIds.has(otherParticipant.user_id);
+    });
+
+    setConversations(filteredConvs);
     setLoading(false);
-  }, [user]);
+  }, [user, blockedUsers]);
 
   useEffect(() => {
     fetchConversations();
@@ -177,6 +186,16 @@ export function useConversations() {
 
   const startConversation = async (recipientId: string) => {
     if (!user) return { error: new Error('Not authenticated'), conversation: null };
+
+    // Check if user is blocked or has blocked the recipient
+    if (isUserBlocked(recipientId)) {
+      return { error: new Error('Cannot message a blocked user'), conversation: null };
+    }
+    
+    const isBlockedByRecipient = await checkIfBlockedBy(recipientId);
+    if (isBlockedByRecipient) {
+      return { error: new Error('You cannot message this user'), conversation: null };
+    }
 
     // Check if conversation already exists between these users
     const { data: existingParticipations } = await supabase
@@ -233,6 +252,21 @@ export function useConversations() {
     videoUrl?: string
   ) => {
     if (!user) return { error: new Error('Not authenticated') };
+
+    // Get the other participant and check if blocked
+    const conv = conversations.find(c => c.id === conversationId);
+    if (conv) {
+      const otherParticipant = conv.participants.find(p => p.user_id !== user.id);
+      if (otherParticipant) {
+        if (isUserBlocked(otherParticipant.user_id)) {
+          return { error: new Error('Cannot message a blocked user') };
+        }
+        const isBlockedByRecipient = await checkIfBlockedBy(otherParticipant.user_id);
+        if (isBlockedByRecipient) {
+          return { error: new Error('You cannot message this user') };
+        }
+      }
+    }
 
     const { error } = await supabase.from('messages').insert({
       conversation_id: conversationId,

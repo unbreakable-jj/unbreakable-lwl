@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,8 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { ThemedLogo } from '@/components/ThemedLogo';
 import { useConversations, Conversation, Message } from '@/hooks/useConversations';
 import { useAuth } from '@/hooks/useAuth';
+import { useBlockedUsers } from '@/hooks/useBlockedUsers';
 import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow, format } from 'date-fns';
+import { toast } from 'sonner';
 import {
   ArrowLeft,
   Send,
@@ -22,6 +24,8 @@ import {
   MessageCircle,
   Check,
   CheckCheck,
+  Ban,
+  ShieldAlert,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -33,11 +37,13 @@ import {
 export default function Inbox() {
   const { user } = useAuth();
   const { conversations, loading, sendMessage, deleteConversation, markConversationAsRead } = useConversations();
+  const { blockUser, isUserBlocked, checkIfBlockedBy } = useBlockedUsers();
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageText, setMessageText] = useState('');
   const [messagesLoading, setMessagesLoading] = useState(false);
+  const [isBlockedByOther, setIsBlockedByOther] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Filter conversations by search
@@ -65,11 +71,20 @@ export default function Inbox() {
     setMessagesLoading(false);
   };
 
-  // Subscribe to new messages
+  // Subscribe to new messages and check block status
   useEffect(() => {
-    if (!selectedConversation) return;
+    if (!selectedConversation) {
+      setIsBlockedByOther(false);
+      return;
+    }
 
     fetchMessages(selectedConversation.id);
+
+    // Check if blocked by the other user
+    const otherParticipant = selectedConversation.participants.find(p => p.user_id !== user?.id);
+    if (otherParticipant) {
+      checkIfBlockedBy(otherParticipant.user_id).then(setIsBlockedByOther);
+    }
 
     const channel = supabase
       .channel(`inbox-chat-${selectedConversation.id}`)
@@ -90,7 +105,7 @@ export default function Inbox() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [selectedConversation?.id]);
+  }, [selectedConversation?.id, user?.id]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -99,9 +114,34 @@ export default function Inbox() {
 
   const handleSendMessage = async () => {
     if (!messageText.trim() || !selectedConversation) return;
+    
+    const otherParticipant = selectedConversation.participants.find(p => p.user_id !== user?.id);
+    if (otherParticipant && isUserBlocked(otherParticipant.user_id)) {
+      toast.error('You have blocked this user');
+      return;
+    }
+    if (isBlockedByOther) {
+      toast.error('You cannot message this user');
+      return;
+    }
+    
     const text = messageText;
     setMessageText('');
-    await sendMessage(selectedConversation.id, text);
+    const { error } = await sendMessage(selectedConversation.id, text);
+    if (error) {
+      toast.error(error.message);
+      setMessageText(text);
+    }
+  };
+
+  const handleBlockUser = async (userId: string, name: string) => {
+    const { error } = await blockUser(userId);
+    if (error) {
+      toast.error('Failed to block user');
+    } else {
+      toast.success(`${name} has been blocked`);
+      setSelectedConversation(null);
+    }
   };
 
   const getMessageStatus = (msg: Message & { read_at?: string; delivered_at?: string; status?: string }): 'sent' | 'delivered' | 'read' => {
@@ -269,6 +309,22 @@ export default function Inbox() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                    {(() => {
+                      const otherParticipant = selectedConversation.participants.find(
+                        p => p.user_id !== user.id
+                      );
+                      const profile = otherParticipant?.profile;
+                      const displayName = profile?.display_name || profile?.username || 'User';
+                      return (
+                        <DropdownMenuItem
+                          onClick={() => otherParticipant && handleBlockUser(otherParticipant.user_id, displayName)}
+                          className="text-destructive"
+                        >
+                          <Ban className="w-4 h-4 mr-2" />
+                          Block {displayName}
+                        </DropdownMenuItem>
+                      );
+                    })()}
                     <DropdownMenuItem
                       onClick={() => {
                         deleteConversation(selectedConversation.id);
@@ -373,29 +429,48 @@ export default function Inbox() {
 
               {/* Message Input */}
               <div className="p-4 border-t border-border bg-card">
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" disabled>
-                    <Image className="w-5 h-5" />
-                  </Button>
-                  <Button variant="ghost" size="sm" disabled>
-                    <Video className="w-5 h-5" />
-                  </Button>
-                  <Input
-                    value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
-                    placeholder="Type a message..."
-                    className="flex-1"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendMessage();
-                      }
-                    }}
-                  />
-                  <Button onClick={handleSendMessage} disabled={!messageText.trim()}>
-                    <Send className="w-4 h-4" />
-                  </Button>
-                </div>
+                {isBlockedByOther ? (
+                  <div className="flex items-center justify-center gap-2 text-muted-foreground py-2">
+                    <ShieldAlert className="w-5 h-5" />
+                    <span>You cannot reply to this conversation</span>
+                  </div>
+                ) : (() => {
+                  const otherParticipant = selectedConversation.participants.find(p => p.user_id !== user.id);
+                  const isBlocked = otherParticipant && isUserBlocked(otherParticipant.user_id);
+                  if (isBlocked) {
+                    return (
+                      <div className="flex items-center justify-center gap-2 text-muted-foreground py-2">
+                        <Ban className="w-5 h-5" />
+                        <span>You have blocked this user</span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm" disabled>
+                        <Image className="w-5 h-5" />
+                      </Button>
+                      <Button variant="ghost" size="sm" disabled>
+                        <Video className="w-5 h-5" />
+                      </Button>
+                      <Input
+                        value={messageText}
+                        onChange={(e) => setMessageText(e.target.value)}
+                        placeholder="Type a message..."
+                        className="flex-1"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendMessage();
+                          }
+                        }}
+                      />
+                      <Button onClick={handleSendMessage} disabled={!messageText.trim()}>
+                        <Send className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  );
+                })()}
               </div>
             </>
           ) : (
