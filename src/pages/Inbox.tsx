@@ -26,6 +26,7 @@ import {
   CheckCheck,
   Ban,
   ShieldAlert,
+  Plus,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -33,6 +34,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { NewMessageDialog } from '@/components/inbox/NewMessageDialog';
 
 export default function Inbox() {
   const { user } = useAuth();
@@ -180,16 +182,22 @@ export default function Inbox() {
         <div className={`w-full md:w-80 lg:w-96 border-r border-border flex flex-col ${
           selectedConversation ? 'hidden md:flex' : 'flex'
         }`}>
-          {/* Search */}
-          <div className="p-4 border-b border-border">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search conversations..."
-                className="pl-10"
-              />
+          {/* Search + New Message */}
+          <div className="p-4 border-b border-border space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search conversations..."
+                  className="pl-10"
+                />
+              </div>
+              <NewMessageDialog onConversationStarted={(id) => {
+                const conv = conversations.find(c => c.id === id);
+                if (conv) setSelectedConversation(conv);
+              }} />
             </div>
           </div>
 
@@ -204,7 +212,7 @@ export default function Inbox() {
                 <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">No conversations yet</p>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Start a conversation from someone's profile
+                  Click "New Message" to start a conversation
                 </p>
               </div>
             ) : (

@@ -29,6 +29,7 @@ import FuelMyFuel from "./pages/FuelMyFuel";
 import TrackerQuickTrack from "./pages/TrackerQuickTrack";
 import TrackerMyProgrammes from "./pages/TrackerMyProgrammes";
 import TrackerCreate from "./pages/TrackerCreate";
+import UserProfile from "./pages/UserProfile";
 
 const queryClient = new QueryClient();
 
@@ -116,6 +117,9 @@ const App = () => (
               <Route path="/inbox" element={
                 <ProtectedRoute><Inbox /></ProtectedRoute>
               } />
+              
+              {/* User Profile - Public profile viewing */}
+              <Route path="/user/:userId" element={<UserProfile />} />
               
               {/* Admin Dashboard - Hidden, role-protected */}
               <Route path="/admin" element={<Admin />} />
