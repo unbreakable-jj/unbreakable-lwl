@@ -2466,6 +2466,146 @@ export function getExerciseById(id: string): LibraryExercise | undefined {
   return EXERCISE_LIBRARY.find(ex => ex.id === id);
 }
 
+/**
+ * Fuzzy matching for exercise names - finds the best match from the library
+ * Handles variations like "Bench Press" matching "Flat Barbell Bench Press"
+ */
+export function findExerciseByName(name: string): LibraryExercise | undefined {
+  if (!name) return undefined;
+  
+  const normalizedQuery = name.toLowerCase().trim();
+  
+  // Try exact match first
+  const exactMatch = [...EXERCISE_LIBRARY, ...CARDIO_EXERCISES].find(
+    ex => ex.name.toLowerCase() === normalizedQuery
+  );
+  if (exactMatch) return exactMatch;
+  
+  // Build search tokens from the query
+  const queryTokens = normalizedQuery
+    .replace(/[^\w\s]/g, ' ')
+    .split(/\s+/)
+    .filter(t => t.length > 2);
+  
+  if (queryTokens.length === 0) return undefined;
+  
+  // Score each exercise
+  let bestMatch: LibraryExercise | undefined;
+  let bestScore = 0;
+  
+  const allExercises = [...EXERCISE_LIBRARY, ...CARDIO_EXERCISES];
+  
+  for (const exercise of allExercises) {
+    const exerciseName = exercise.name.toLowerCase();
+    const exerciseTokens = exerciseName
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter(t => t.length > 2);
+    
+    let score = 0;
+    
+    // Check if query is contained in exercise name
+    if (exerciseName.includes(normalizedQuery)) {
+      score += 100;
+    }
+    
+    // Check if exercise name is contained in query
+    if (normalizedQuery.includes(exerciseName)) {
+      score += 80;
+    }
+    
+    // Token matching
+    for (const queryToken of queryTokens) {
+      for (const exToken of exerciseTokens) {
+        if (exToken === queryToken) {
+          score += 20; // Exact token match
+        } else if (exToken.includes(queryToken) || queryToken.includes(exToken)) {
+          score += 10; // Partial token match
+        } else if (exToken.startsWith(queryToken.slice(0, 3))) {
+          score += 5; // Prefix match
+        }
+      }
+    }
+    
+    // Bonus for matching key exercise words
+    const keyWords = ['press', 'curl', 'row', 'squat', 'deadlift', 'lunge', 'fly', 'raise', 'extension', 'pulldown', 'pullup', 'pushup', 'dip'];
+    for (const word of keyWords) {
+      if (normalizedQuery.includes(word) && exerciseName.includes(word)) {
+        score += 15;
+      }
+    }
+    
+    // Equipment match bonus
+    const equipmentWords = ['barbell', 'dumbbell', 'cable', 'machine', 'bodyweight', 'kettlebell'];
+    for (const eq of equipmentWords) {
+      if (normalizedQuery.includes(eq) && exerciseName.includes(eq)) {
+        score += 10;
+      }
+    }
+    
+    // Body position match bonus
+    const positionWords = ['incline', 'decline', 'flat', 'seated', 'standing', 'lying'];
+    for (const pos of positionWords) {
+      if (normalizedQuery.includes(pos) && exerciseName.includes(pos)) {
+        score += 8;
+      }
+    }
+    
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = exercise;
+    }
+  }
+  
+  // Only return if we have a reasonable match
+  return bestScore >= 15 ? bestMatch : undefined;
+}
+
+/**
+ * Get exercise details with generated execution steps
+ */
+export function getExerciseDetails(name: string): {
+  exercise: LibraryExercise | undefined;
+  steps: string[];
+} {
+  const exercise = findExerciseByName(name);
+  
+  if (!exercise) {
+    return { exercise: undefined, steps: [] };
+  }
+  
+  // Generate execution steps from tips and description
+  const steps: string[] = [];
+  
+  // Add setup step based on equipment
+  if (exercise.equipment.includes('barbell')) {
+    steps.push('Set up the barbell with appropriate weight and secure the collars.');
+  } else if (exercise.equipment.includes('dumbbell')) {
+    steps.push('Select appropriate dumbbell weight and position yourself.');
+  } else if (exercise.equipment.includes('cable')) {
+    steps.push('Set the cable to the correct height and attach the appropriate handle.');
+  } else if (exercise.equipment.includes('machine')) {
+    steps.push('Adjust the machine settings to fit your body and select the weight.');
+  } else if (exercise.equipment.includes('bodyweight')) {
+    steps.push('Position yourself in the starting position with proper form.');
+  }
+  
+  // Add execution step from description
+  if (exercise.description) {
+    steps.push(exercise.description);
+  }
+  
+  // Add tips as execution guidance
+  for (const tip of exercise.tips) {
+    steps.push(tip);
+  }
+  
+  // Add rep guidance
+  steps.push(`Perform ${exercise.defaultReps} repetitions for ${exercise.defaultSets} sets.`);
+  
+  return { exercise, steps };
+}
+
 export function getSplitDayNames(split: SplitType, days: number): string[] {
   switch (split) {
     case 'full_body':
