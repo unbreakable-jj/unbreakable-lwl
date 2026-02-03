@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useUnifiedFeed } from '@/hooks/useUnifiedFeed';
 import { useAuth } from '@/hooks/useAuth';
 import { ActivityCard } from '@/components/tracker/ActivityCard';
@@ -7,7 +6,6 @@ import { WorkoutCard } from './WorkoutCard';
 import { MilestoneCard } from './MilestoneCard';
 import { StoriesSection } from './StoriesSection';
 import { CreatePostBox } from '@/components/tracker/CreatePostBox';
-import { UserProfileModal } from './UserProfileModal';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Activity, RefreshCw, Loader2 } from 'lucide-react';
@@ -21,7 +19,6 @@ interface UnifiedFeedProps {
 
 export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
   const { user } = useAuth();
-  const [viewProfileUserId, setViewProfileUserId] = useState<string | null>(null);
   const {
     feedItems,
     loading,
@@ -118,16 +115,6 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
     }
   };
 
-  const handleViewProfile = (userId: string) => {
-    // Don't open modal for own profile
-    if (userId === user?.id) return;
-    setViewProfileUserId(userId);
-  };
-
-  const handleStartConversation = (conversationId: string) => {
-    onOpenMessages?.(conversationId);
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -205,7 +192,6 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
                   onDelete={handleDeleteRun}
                   onToggleComments={handleToggleRunComments}
                   onUpdateRun={handleUpdateRun}
-                  onViewProfile={handleViewProfile}
                 />
               )}
               {item.type === 'post' && (
@@ -219,7 +205,6 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
                   onDelete={handleDeletePost}
                   onToggleComments={handleTogglePostComments}
                   onUpdatePost={handleUpdatePost}
-                  onViewProfile={handleViewProfile}
                 />
               )}
               {item.type === 'workout' && (
@@ -229,7 +214,6 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
                   onDelete={handleDeleteWorkout}
                   onToggleComments={handleToggleWorkoutComments}
                   onUpdateWorkout={handleUpdateWorkout}
-                  onViewProfile={handleViewProfile}
                 />
               )}
               {item.type === 'milestone' && (
@@ -263,13 +247,6 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
           <p className="text-muted-foreground text-sm">You've reached the end of your feed</p>
         </div>
       )}
-
-      {/* User Profile Modal */}
-      <UserProfileModal
-        userId={viewProfileUserId}
-        onClose={() => setViewProfileUserId(null)}
-        onStartConversation={handleStartConversation}
-      />
     </div>
   );
 }

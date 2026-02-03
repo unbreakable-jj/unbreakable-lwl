@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ClickableAvatar } from '@/components/ClickableAvatar';
+import { ClickableUsername } from '@/components/ClickableUsername';
 import { Button } from '@/components/ui/button';
 import { Heart, MessageCircle, Dumbbell, Clock, Globe, Users, Lock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -20,10 +21,9 @@ interface WorkoutCardProps {
   onDelete: (workoutId: string) => void;
   onToggleComments: (workoutId: string) => void;
   onUpdateWorkout?: (workoutId: string, updates: { notes?: string; visibility?: string }) => Promise<{ error: Error | null }>;
-  onViewProfile?: (userId: string) => void;
 }
 
-export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onUpdateWorkout, onViewProfile }: WorkoutCardProps) {
+export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onUpdateWorkout }: WorkoutCardProps) {
   const { user } = useAuth();
   const { createStory } = useStories();
   const [isLiking, setIsLiking] = useState(false);
@@ -73,13 +73,6 @@ export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onUp
     }
   };
 
-  const getInitials = () => {
-    if (workout.profiles?.display_name) {
-      return workout.profiles.display_name.slice(0, 2).toUpperCase();
-    }
-    return '??';
-  };
-
   const getVisibilityIcon = () => {
     switch (workout.visibility) {
       case 'friends':
@@ -108,24 +101,21 @@ export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onUp
         {/* Header */}
         <div className="p-4 flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => onViewProfile?.(workout.user_id)}
-              className="focus:outline-none focus:ring-2 focus:ring-primary rounded-full transition-transform hover:scale-105"
-            >
-              <Avatar className="w-12 h-12 cursor-pointer">
-                <AvatarImage src={workout.profiles?.avatar_url || ''} />
-                <AvatarFallback className="bg-primary/10 text-primary font-display">
-                  {getInitials()}
-                </AvatarFallback>
-              </Avatar>
-            </button>
+            <ClickableAvatar
+              userId={workout.user_id}
+              displayName={workout.profiles?.display_name}
+              username={workout.profiles?.username}
+              avatarUrl={workout.profiles?.avatar_url}
+              className="w-12 h-12"
+              fallbackClassName="bg-primary/10 text-primary font-display"
+            />
             <div>
-              <button
-                onClick={() => onViewProfile?.(workout.user_id)}
-                className="font-display text-foreground tracking-wide hover:underline focus:outline-none text-left"
-              >
-                {workout.profiles?.display_name || 'Athlete'}
-              </button>
+              <ClickableUsername
+                userId={workout.user_id}
+                displayName={workout.profiles?.display_name}
+                username={workout.profiles?.username}
+                className="font-display tracking-wide hover:underline"
+              />
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span>{formatDistanceToNow(workout.timestamp, { addSuffix: true })}</span>
                 <span className="flex items-center gap-1">

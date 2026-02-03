@@ -1,8 +1,11 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useNavigate } from 'react-router-dom';
+import { ClickableAvatar } from '@/components/ClickableAvatar';
+import { ClickableUsername } from '@/components/ClickableUsername';
 import { Check, X, Clock } from 'lucide-react';
 import { useFriends } from '@/hooks/useFriends';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
@@ -13,6 +16,8 @@ interface FriendRequestsModalProps {
 }
 
 export function FriendRequestsModal({ isOpen, onClose }: FriendRequestsModalProps) {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const { pendingRequests, acceptFriendRequest, declineFriendRequest, cancelFriendRequest } = useFriends();
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
@@ -55,14 +60,13 @@ export function FriendRequestsModal({ isOpen, onClose }: FriendRequestsModalProp
     }
   };
 
-  const getInitials = (name: string | null) => {
-    if (!name) return '?';
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+  const goToUser = (userId: string) => {
+    onClose();
+    if (user?.id === userId) {
+      navigate('/profile');
+    } else {
+      navigate(`/user/${userId}`);
+    }
   };
 
   return (
@@ -87,16 +91,23 @@ export function FriendRequestsModal({ isOpen, onClose }: FriendRequestsModalProp
                   className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
                 >
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={request.avatar_url || undefined} alt="Profile" />
-                      <AvatarFallback className="bg-primary text-primary-foreground font-display">
-                        {getInitials(request.display_name)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <ClickableAvatar
+                      userId={request.user_id}
+                      displayName={request.display_name}
+                      username={request.username}
+                      avatarUrl={request.avatar_url}
+                      className="h-10 w-10"
+                      fallbackClassName="bg-primary text-primary-foreground font-display"
+                      onClick={() => goToUser(request.user_id)}
+                    />
                     <div>
-                      <p className="font-display text-foreground">
-                        {request.display_name || 'Runner'}
-                      </p>
+                      <ClickableUsername
+                        userId={request.user_id}
+                        displayName={request.display_name}
+                        username={request.username}
+                        className="font-display text-foreground"
+                        onClick={() => goToUser(request.user_id)}
+                      />
                       {request.username && (
                         <p className="text-xs text-muted-foreground">@{request.username}</p>
                       )}
@@ -141,16 +152,23 @@ export function FriendRequestsModal({ isOpen, onClose }: FriendRequestsModalProp
                   className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
                 >
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={request.avatar_url || undefined} alt="Profile" />
-                      <AvatarFallback className="bg-primary text-primary-foreground font-display">
-                        {getInitials(request.display_name)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <ClickableAvatar
+                      userId={request.user_id}
+                      displayName={request.display_name}
+                      username={request.username}
+                      avatarUrl={request.avatar_url}
+                      className="h-10 w-10"
+                      fallbackClassName="bg-primary text-primary-foreground font-display"
+                      onClick={() => goToUser(request.user_id)}
+                    />
                     <div>
-                      <p className="font-display text-foreground">
-                        {request.display_name || 'Runner'}
-                      </p>
+                      <ClickableUsername
+                        userId={request.user_id}
+                        displayName={request.display_name}
+                        username={request.username}
+                        className="font-display text-foreground"
+                        onClick={() => goToUser(request.user_id)}
+                      />
                       {request.username && (
                         <p className="text-xs text-muted-foreground">@{request.username}</p>
                       )}

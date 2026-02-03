@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ClickableAvatar } from '@/components/ClickableAvatar';
+import { ClickableUsername } from '@/components/ClickableUsername';
 import { Search, UserPlus, Clock, Check, Users } from 'lucide-react';
 import { useUserSearch } from '@/hooks/useUserSearch';
 import { useFriends } from '@/hooks/useFriends';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
 interface UserSearchModalProps {
@@ -14,6 +17,8 @@ interface UserSearchModalProps {
 }
 
 export function UserSearchModal({ isOpen, onClose }: UserSearchModalProps) {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [query, setQuery] = useState('');
   const { results, loading, searchUsers, clearResults } = useUserSearch();
   const { 
@@ -56,6 +61,15 @@ export function UserSearchModal({ isOpen, onClose }: UserSearchModalProps) {
     clearResults();
     onClose();
   }, [clearResults, onClose]);
+
+  const goToUser = (userId: string) => {
+    handleClose();
+    if (user?.id === userId) {
+      navigate('/profile');
+    } else {
+      navigate(`/user/${userId}`);
+    }
+  };
 
   const getStatus = (userId: string) => {
     if (friends.some(f => f.user_id === userId)) {
@@ -112,16 +126,6 @@ export function UserSearchModal({ isOpen, onClose }: UserSearchModalProps) {
     } else {
       toast.success('Request cancelled');
     }
-  };
-
-  const getInitials = (name: string | null) => {
-    if (!name) return '?';
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
   };
 
   const renderActionButton = (userId: string) => {
@@ -221,16 +225,23 @@ export function UserSearchModal({ isOpen, onClose }: UserSearchModalProps) {
                 className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={result.avatar_url || undefined} alt="Profile" />
-                    <AvatarFallback className="bg-primary text-primary-foreground font-display">
-                      {getInitials(result.display_name)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <ClickableAvatar
+                    userId={result.user_id}
+                    displayName={result.display_name}
+                    username={result.username}
+                    avatarUrl={result.avatar_url}
+                    className="h-10 w-10"
+                    fallbackClassName="bg-primary text-primary-foreground font-display"
+                    onClick={() => goToUser(result.user_id)}
+                  />
                   <div>
-                    <p className="font-display text-foreground">
-                      {result.display_name || 'Runner'}
-                    </p>
+                    <ClickableUsername
+                      userId={result.user_id}
+                      displayName={result.display_name}
+                      username={result.username}
+                      className="font-display text-foreground"
+                      onClick={() => goToUser(result.user_id)}
+                    />
                     {result.username && (
                       <p className="text-xs text-muted-foreground">@{result.username}</p>
                     )}
