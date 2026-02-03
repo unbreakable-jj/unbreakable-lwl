@@ -43,14 +43,18 @@ export function ClickableAvatar({
   const initials = name.slice(0, 2).toUpperCase();
 
   return (
-    <Avatar
-      className={cn('cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all', className)}
+    <button
+      type="button"
       onClick={handleClick}
+      aria-label={`View ${name} profile`}
+      className="inline-flex rounded-full focus:outline-none focus:ring-2 focus:ring-primary"
     >
-      <AvatarImage src={avatarUrl || undefined} />
-      <AvatarFallback className={cn('bg-primary/20 text-primary font-display', fallbackClassName)}>
-        {initials}
-      </AvatarFallback>
-    </Avatar>
+      <Avatar className={cn('cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all', className)}>
+        <AvatarImage src={avatarUrl || undefined} />
+        <AvatarFallback className={cn('bg-primary/20 text-primary font-display', fallbackClassName)}>
+          {initials}
+        </AvatarFallback>
+      </Avatar>
+    </button>
   );
 }

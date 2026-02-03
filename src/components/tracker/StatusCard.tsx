@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ClickableAvatar } from '@/components/ClickableAvatar';
+import { ClickableUsername } from '@/components/ClickableUsername';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Heart, MessageCircle, Globe, Users, Lock, Play, Pause, Volume2, VolumeX, Maximize } from 'lucide-react';
@@ -22,10 +23,9 @@ interface StatusCardProps {
   onDelete: (postId: string) => void;
   onToggleComments: (postId: string) => void;
   onUpdatePost?: (postId: string, updates: { content?: string; visibility?: string }) => Promise<{ error: Error | null }>;
-  onViewProfile?: (userId: string) => void;
 }
 
-export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdatePost, onViewProfile }: StatusCardProps) {
+export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdatePost }: StatusCardProps) {
   const { user } = useAuth();
   const { createStory } = useStories();
   const [isLiking, setIsLiking] = useState(false);
@@ -69,18 +69,6 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdate
       videoRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
     }
-  };
-
-  const getInitials = () => {
-    if (post.profiles?.display_name) {
-      return post.profiles.display_name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2);
-    }
-    return 'R';
   };
 
   const getVisibilityIcon = () => {
@@ -148,24 +136,21 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdate
       <Card className="bg-card border-border overflow-hidden">
         {/* Header */}
         <div className="p-4 flex items-start gap-3">
-          <button
-            onClick={() => onViewProfile?.(post.user_id)}
-            className="focus:outline-none focus:ring-2 focus:ring-primary rounded-full transition-transform hover:scale-105"
-          >
-            <Avatar className="h-12 w-12 cursor-pointer">
-              <AvatarImage src={post.profiles?.avatar_url || undefined} />
-              <AvatarFallback className="bg-primary text-primary-foreground font-display">
-                {getInitials()}
-              </AvatarFallback>
-            </Avatar>
-          </button>
+          <ClickableAvatar
+            userId={post.user_id}
+            displayName={post.profiles?.display_name}
+            username={post.profiles?.username}
+            avatarUrl={post.profiles?.avatar_url}
+            className="h-12 w-12"
+            fallbackClassName="bg-primary text-primary-foreground font-display"
+          />
           <div className="flex-1 min-w-0">
-            <button
-              onClick={() => onViewProfile?.(post.user_id)}
-              className="font-semibold text-foreground truncate hover:underline focus:outline-none text-left"
-            >
-              {post.profiles?.display_name || 'User'}
-            </button>
+            <ClickableUsername
+              userId={post.user_id}
+              displayName={post.profiles?.display_name}
+              username={post.profiles?.username}
+              className="font-semibold truncate hover:underline"
+            />
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span>{formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</span>
               <span>·</span>

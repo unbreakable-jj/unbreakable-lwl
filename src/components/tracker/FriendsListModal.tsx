@@ -1,10 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ClickableAvatar } from '@/components/ClickableAvatar';
+import { ClickableUsername } from '@/components/ClickableUsername';
 import { UserMinus, Activity, Ban, Loader2 } from 'lucide-react';
 import { useFriends } from '@/hooks/useFriends';
 import { useBlockedUsers } from '@/hooks/useBlockedUsers';
+import { useAuth } from '@/hooks/useAuth';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
 import { toast } from 'sonner';
 
@@ -14,12 +17,23 @@ interface FriendsListModalProps {
 }
 
 export function FriendsListModal({ isOpen, onClose }: FriendsListModalProps) {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const { friends, removeFriend, refetch: refetchFriends } = useFriends();
   const { blockUser } = useBlockedUsers();
   const [friendToRemove, setFriendToRemove] = useState<{ id: string; name: string } | null>(null);
   const [friendToBlock, setFriendToBlock] = useState<{ userId: string; name: string } | null>(null);
   const [removing, setRemoving] = useState(false);
   const [blocking, setBlocking] = useState(false);
+
+  const goToUser = (userId: string) => {
+    onClose();
+    if (user?.id === userId) {
+      navigate('/profile');
+    } else {
+      navigate(`/user/${userId}`);
+    }
+  };
 
   const handleRemove = async () => {
     if (!friendToRemove) return;
@@ -52,16 +66,6 @@ export function FriendsListModal({ isOpen, onClose }: FriendsListModalProps) {
     }
   };
 
-  const getInitials = (name: string | null) => {
-    if (!name) return '?';
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -85,16 +89,23 @@ export function FriendsListModal({ isOpen, onClose }: FriendsListModalProps) {
                 className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={friend.avatar_url || undefined} alt="Profile" />
-                    <AvatarFallback className="bg-primary text-primary-foreground font-display">
-                      {getInitials(friend.display_name)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <ClickableAvatar
+                    userId={friend.user_id}
+                    displayName={friend.display_name}
+                    username={friend.username}
+                    avatarUrl={friend.avatar_url}
+                    className="h-10 w-10"
+                    fallbackClassName="bg-primary text-primary-foreground font-display"
+                    onClick={() => goToUser(friend.user_id)}
+                  />
                   <div>
-                    <p className="font-display text-foreground">
-                      {friend.display_name || 'Runner'}
-                    </p>
+                    <ClickableUsername
+                      userId={friend.user_id}
+                      displayName={friend.display_name}
+                      username={friend.username}
+                      className="font-display text-foreground"
+                      onClick={() => goToUser(friend.user_id)}
+                    />
                     {friend.username && (
                       <p className="text-xs text-muted-foreground">@{friend.username}</p>
                     )}
