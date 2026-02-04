@@ -16,8 +16,6 @@ import { toast } from 'sonner';
 import {
   ArrowLeft,
   Send,
-  Image,
-  Video,
   MoreVertical,
   Trash2,
   Search,
@@ -34,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { NewMessageDialog } from '@/components/inbox/NewMessageDialog';
+import { ChatMediaUpload, ChatMediaAttachment } from '@/components/inbox/ChatMediaUpload';
 
 export default function Inbox() {
   const { user } = useAuth();
@@ -54,6 +53,7 @@ export default function Inbox() {
   const [messageText, setMessageText] = useState('');
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [isBlockedByOther, setIsBlockedByOther] = useState(false);
+  const [mediaAttachment, setMediaAttachment] = useState<ChatMediaAttachment | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-select conversation from URL query param ?cid=
@@ -158,7 +158,8 @@ export default function Inbox() {
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!messageText.trim() || !selectedConversationId) return;
+    if (!messageText.trim() && !mediaAttachment) return;
+    if (!selectedConversationId) return;
     if (!selectedConversation) {
       toast.error('Loading conversation…');
       return;
@@ -175,11 +176,18 @@ export default function Inbox() {
     }
     
     const text = messageText;
+    const attachment = mediaAttachment;
     setMessageText('');
-    const { error } = await sendMessage(selectedConversationId, text);
+    setMediaAttachment(null);
+    
+    const imageUrl = attachment?.type === 'image' ? attachment.url : undefined;
+    const videoUrl = attachment?.type === 'video' ? attachment.url : undefined;
+    
+    const { error } = await sendMessage(selectedConversationId, text, imageUrl, videoUrl);
     if (error) {
       toast.error(error.message);
       setMessageText(text);
+      setMediaAttachment(attachment);
     }
   };
 
@@ -504,28 +512,35 @@ export default function Inbox() {
                     );
                   }
                   return (
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm" disabled>
-                        <Image className="w-5 h-5" />
-                      </Button>
-                      <Button variant="ghost" size="sm" disabled>
-                        <Video className="w-5 h-5" />
-                      </Button>
-                      <Input
-                        value={messageText}
-                        onChange={(e) => setMessageText(e.target.value)}
-                        placeholder="Type a message..."
-                        className="flex-1"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSendMessage();
-                          }
-                        }}
+                    <div className="space-y-2">
+                      {/* Media attachment preview */}
+                      <ChatMediaUpload
+                        attachment={mediaAttachment}
+                        onAttachmentChange={setMediaAttachment}
+                        disabled={false}
                       />
-                      <Button onClick={handleSendMessage} disabled={!messageText.trim()}>
-                        <Send className="w-4 h-4" />
-                      </Button>
+                      
+                      {/* Text input and send */}
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={messageText}
+                          onChange={(e) => setMessageText(e.target.value)}
+                          placeholder="Type a message..."
+                          className="flex-1"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              handleSendMessage();
+                            }
+                          }}
+                        />
+                        <Button 
+                          onClick={handleSendMessage} 
+                          disabled={!messageText.trim() && !mediaAttachment}
+                        >
+                          <Send className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   );
                 })()}
