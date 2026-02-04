@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ThemedLogo } from '@/components/ThemedLogo';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { ThemeToggle } from '@/components/hub/ThemeToggle';
 import { NotificationsPanel } from '@/components/hub/NotificationsPanel';
-import { MessagesPanel } from '@/components/hub/MessagesPanel';
 
 import { useNotifications } from '@/hooks/useNotifications';
 import { useConversations } from '@/hooks/useConversations';
@@ -38,9 +37,9 @@ export function SocialHeader({
   onShowActionMenu,
 }: SocialHeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showMessages, setShowMessages] = useState(false);
   const { unreadCount: notificationCount } = useNotifications();
   const { unreadCount: messageCount } = useConversations();
+  const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
@@ -70,7 +69,7 @@ export function SocialHeader({
             <button
               onClick={() => {
                 onTabChange('messages');
-                setShowMessages(true);
+                navigate('/inbox?compose=1');
               }}
               className={`relative flex items-center gap-2 px-4 py-2 rounded-md font-display text-sm tracking-wide transition-all ${
                 activeTab === 'messages'
@@ -117,7 +116,7 @@ export function SocialHeader({
                 variant="ghost"
                 size="sm"
                 className="relative"
-                onClick={() => setShowMessages(true)}
+                onClick={() => navigate('/inbox?compose=1')}
               >
                 <MessageCircle className="w-5 h-5" />
                 {messageCount > 0 && (
@@ -175,10 +174,6 @@ export function SocialHeader({
       <NotificationsPanel 
         isOpen={showNotifications} 
         onClose={() => setShowNotifications(false)} 
-      />
-      <MessagesPanel 
-        isOpen={showMessages} 
-        onClose={() => setShowMessages(false)} 
       />
     </header>
   );
