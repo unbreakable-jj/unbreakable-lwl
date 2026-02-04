@@ -2197,6 +2197,10 @@ export type Database = {
         Args: { conv_id: string; user_uuid: string }
         Returns: boolean
       }
+      start_or_get_conversation: {
+        Args: { recipient_id: string }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "owner" | "admin" | "user"
