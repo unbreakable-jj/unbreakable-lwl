@@ -1,19 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Play, Pause, RotateCcw, Share2, Brain, ChevronLeft, Zap, Target, Heart, Volume2, VolumeX, Settings, Flame, ArrowRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Brain, Zap, Target, Heart, Volume2, VolumeX, Flame, ArrowRight, Settings } from "lucide-react";
 import { ThemedLogo } from "@/components/ThemedLogo";
 import { NavigationDrawer } from "@/components/NavigationDrawer";
 import { ThemeToggle } from "@/components/hub/ThemeToggle";
 import { UnifiedFooter } from "@/components/UnifiedFooter";
 import { CountdownOverlay } from "@/components/CountdownOverlay";
 import { getVisibleExercises, BreathingExercise } from "@/lib/breathingExercises";
-import { BreathingVisual } from "@/components/mindset/BreathingVisual";
+import { ImmersiveSessionView } from "@/components/mindset/ImmersiveSessionView";
 import { useBreathingAudio, VoiceType } from "@/hooks/useBreathingAudio";
 import {
   Sheet,
@@ -103,7 +101,7 @@ const Mindset = () => {
     }
   }, [getCycleDuration]);
 
-  // Play audio when phase changes - MINIMAL CUES
+  // Play audio when phase changes - FIRST CYCLE ONLY + ENDING
   useEffect(() => {
     if (!selectedExercise || !voiceEnabled || view !== "exercise") return;
     
@@ -112,27 +110,24 @@ const Mindset = () => {
       
       let textToSpeak = "";
       
-      switch (phase) {
-        case "inhale":
-          // Only first 2 cycles get voice cues, then every 3rd cycle
-          if (currentCycle <= 2 || currentCycle % 3 === 0) {
-            textToSpeak = selectedExercise.scripts.inhale; // "Breathe in"
-          }
-          break;
-        case "hold":
-          if (currentCycle <= 2 || currentCycle % 3 === 0) {
-            textToSpeak = selectedExercise.scripts.hold; // "Hold"
-          }
-          break;
-        case "exhale":
-          if (currentCycle <= 2 || currentCycle % 3 === 0) {
-            textToSpeak = selectedExercise.scripts.exhale; // "Release"
-          }
-          break;
-        case "complete":
-          textToSpeak = selectedExercise.scripts.closing;
-          break;
-        // No rest cues for minimal approach
+      // Only voice on first cycle
+      if (currentCycle === 1) {
+        switch (phase) {
+          case "inhale":
+            textToSpeak = selectedExercise.scripts.inhale;
+            break;
+          case "hold":
+            textToSpeak = selectedExercise.scripts.hold;
+            break;
+          case "exhale":
+            textToSpeak = selectedExercise.scripts.exhale;
+            break;
+        }
+      }
+      
+      // Always voice the ending
+      if (phase === "complete") {
+        textToSpeak = selectedExercise.scripts.closing;
       }
       
       if (textToSpeak) {
@@ -553,149 +548,23 @@ const Mindset = () => {
     );
   }
 
-  // Exercise/Complete view
+  // Exercise/Complete view - Full immersive experience
+  const phaseDuration = selectedExercise?.phases[phase === "rest" ? "exhale" : (phase === "complete" ? "exhale" : phase)] || 4;
+  
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden">
-      {/* Background pulse effect */}
-      <div 
-        className={`absolute inset-0 transition-opacity duration-1000 ${
-          phase === "inhale" ? "opacity-100" : phase === "hold" ? "opacity-80" : "opacity-30"
-        }`}
-        style={{
-          background: `radial-gradient(circle at center, hsl(var(--primary) / 0.15), transparent 70%)`
-        }}
-      />
-
-      {/* Main content */}
-      <div className="relative z-10 flex flex-col items-center justify-center flex-1 w-full px-4">
-        {/* Exercise name & cycle counter */}
-        <div className="absolute top-8 left-1/2 -translate-x-1/2 text-center">
-          <p className="font-display text-xl text-primary tracking-wider mb-1">
-            {selectedExercise?.name}
-          </p>
-          <p className="text-muted-foreground text-sm font-display tracking-wider">
-            CYCLE {Math.min(currentCycle, selectedExercise?.cycles || 0)} / {selectedExercise?.cycles}
-          </p>
-          {/* Voice indicator */}
-          {voiceEnabled && (
-            <div className="flex items-center justify-center gap-1 mt-2">
-              <Volume2 className="w-3 h-3 text-primary" />
-              <span className="text-xs text-muted-foreground">Voice on</span>
-            </div>
-          )}
-        </div>
-
-        {/* Halfway message */}
-        <AnimatePresence>
-          {showHalfwayMessage && selectedExercise && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="absolute top-28 left-1/2 -translate-x-1/2 bg-card/90 backdrop-blur border border-primary px-6 py-3 rounded-lg max-w-sm text-center"
-            >
-              <p className="text-foreground text-sm">{selectedExercise.scripts.halfway}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Breathing Visual - combined orb + progress ring */}
-        <div className="relative mb-8">
-          <BreathingVisual
-            phase={phase}
-            progress={progress}
-            phaseDuration={selectedExercise?.phases[phase === "rest" ? "exhale" : (phase === "complete" ? "exhale" : phase)] || 4}
-          />
-        </div>
-
-        {/* Phase text */}
-        <AnimatePresence mode="wait">
-          <motion.h2
-            key={phase}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="font-display text-3xl md:text-5xl text-foreground mb-4 tracking-wider text-center max-w-lg"
-          >
-            {view === "complete" ? "SESSION COMPLETE 🧘‍♂️" : (
-              phase === "inhale" ? "BREATHE IN" :
-              phase === "hold" ? "HOLD" :
-              phase === "exhale" ? "BREATHE OUT" :
-              phase === "rest" ? "REST" : "READY"
-            )}
-          </motion.h2>
-        </AnimatePresence>
-
-        {/* Instructions or completion message */}
-        {view === "complete" && selectedExercise ? (
-          <div className="text-center max-w-md">
-            <p className="text-muted-foreground mb-6">
-              {selectedExercise.scripts.closing}
-            </p>
-            <Button 
-              onClick={handleShare}
-              variant="outline"
-              className="gap-2"
-            >
-              <Share2 className="w-4 h-4" />
-              Share #UnbreakableMindset
-            </Button>
-          </div>
-        ) : selectedExercise && (
-          <p className="text-muted-foreground text-center max-w-md">
-            {phase === "inhale" && "Fill your lungs completely through your nose"}
-            {phase === "hold" && "Feel the energy building inside you"}
-            {phase === "exhale" && "Release slowly through your mouth"}
-            {phase === "rest" && "Embrace the stillness"}
-          </p>
-        )}
-      </div>
-
-      {/* Controls */}
-      <div className="relative z-10 w-full max-w-md px-4 pb-8">
-        {/* Progress bar */}
-        <div className="mb-6">
-          <Progress value={progress} className="h-2" />
-          <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>{formatTime(progress, selectedExercise?.durationMinutes || 3)}</span>
-            <span>{selectedExercise?.durationMinutes || 3}:00</span>
-          </div>
-        </div>
-
-        {/* Control buttons */}
-        <div className="flex items-center justify-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={resetExercise}
-            className="w-12 h-12"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
-          
-          {view !== "complete" && (
-            <Button
-              onClick={toggleBreathing}
-              size="lg"
-              className="w-16 h-16 rounded-full"
-            >
-              {isActive ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-1" />}
-            </Button>
-          )}
-
-          {view === "complete" && (
-            <Button
-              onClick={resetExercise}
-              size="lg"
-              className="px-8"
-            >
-              <RotateCcw className="w-5 h-5 mr-2" />
-              NEW SESSION
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
+    <ImmersiveSessionView
+      phase={phase}
+      progress={progress}
+      currentCycle={currentCycle}
+      totalCycles={selectedExercise?.cycles || 9}
+      phaseDuration={phaseDuration}
+      isActive={isActive}
+      isComplete={view === "complete"}
+      closingMessage={selectedExercise?.scripts.closing}
+      onToggle={toggleBreathing}
+      onReset={resetExercise}
+      onShare={handleShare}
+    />
   );
 };
 
