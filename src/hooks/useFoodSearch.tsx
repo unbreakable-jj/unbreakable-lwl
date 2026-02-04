@@ -2,11 +2,26 @@ import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
+export interface NutritionValues {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber?: number;
+  sugar?: number;
+  sodium?: number;
+}
+
 export interface FoodSearchResult {
   barcode?: string;
   name: string;
   brand?: string;
   servingSize: string;
+  servingQuantityG?: number;
+  hasServingData: boolean;
+  per100g: NutritionValues;
+  perServing: NutritionValues;
+  // Legacy fields for backward compatibility
   calories: number;
   protein: number;
   carbs: number;

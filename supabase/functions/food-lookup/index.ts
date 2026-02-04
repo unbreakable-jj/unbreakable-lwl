@@ -11,6 +11,7 @@ interface OpenFoodFactsProduct {
   product_name?: string;
   brands?: string;
   serving_size?: string;
+  serving_quantity?: number;
   nutriments?: {
     'energy-kcal_100g'?: number;
     'energy-kcal_serving'?: number;
@@ -21,11 +22,24 @@ interface OpenFoodFactsProduct {
     fat_100g?: number;
     fat_serving?: number;
     fiber_100g?: number;
+    fiber_serving?: number;
     sugars_100g?: number;
+    sugars_serving?: number;
     sodium_100g?: number;
+    sodium_serving?: number;
   };
   image_front_small_url?: string;
   image_url?: string;
+}
+
+interface NutritionValues {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber?: number;
+  sugar?: number;
+  sodium?: number;
 }
 
 interface FoodResult {
@@ -33,6 +47,11 @@ interface FoodResult {
   name: string;
   brand?: string;
   servingSize: string;
+  servingQuantityG?: number; // serving size in grams if available
+  hasServingData: boolean; // whether per-serving data is available
+  per100g: NutritionValues;
+  perServing: NutritionValues;
+  // Legacy fields for backward compatibility
   calories: number;
   protein: number;
   carbs: number;
@@ -78,6 +97,16 @@ serve(async (req) => {
           .maybeSingle();
 
         if (savedFood) {
+          const per100g: NutritionValues = {
+            calories: savedFood.calories,
+            protein: savedFood.protein_g || 0,
+            carbs: savedFood.carbs_g || 0,
+            fat: savedFood.fat_g || 0,
+            fiber: savedFood.fiber_g,
+            sugar: savedFood.sugar_g,
+            sodium: savedFood.sodium_mg,
+          };
+          
           return new Response(JSON.stringify({
             found: true,
             result: {
@@ -85,6 +114,10 @@ serve(async (req) => {
               name: savedFood.food_name,
               brand: savedFood.brand,
               servingSize: savedFood.serving_size || '100g',
+              hasServingData: false, // User library items don't have separate serving data
+              per100g,
+              perServing: per100g, // Same as per100g for user items
+              // Legacy fields
               calories: savedFood.calories,
               protein: savedFood.protein_g || 0,
               carbs: savedFood.carbs_g || 0,
@@ -127,29 +160,58 @@ serve(async (req) => {
       const product: OpenFoodFactsProduct = offData.product;
       const nutriments = product.nutriments || {};
 
-      // Prefer per-serving values, fallback to per-100g
-      const hasServing = nutriments['energy-kcal_serving'] !== undefined;
-      
+      // Build per-100g values
+      const per100g: NutritionValues = {
+        calories: Math.round(nutriments['energy-kcal_100g'] || 0),
+        protein: Math.round(nutriments.proteins_100g || 0),
+        carbs: Math.round(nutriments.carbohydrates_100g || 0),
+        fat: Math.round(nutriments.fat_100g || 0),
+        fiber: nutriments.fiber_100g ? Math.round(nutriments.fiber_100g) : undefined,
+        sugar: nutriments.sugars_100g ? Math.round(nutriments.sugars_100g) : undefined,
+        sodium: nutriments.sodium_100g ? Math.round(nutriments.sodium_100g * 1000) : undefined,
+      };
+
+      // Build per-serving values (if available)
+      const hasServingData = nutriments['energy-kcal_serving'] !== undefined;
+      const perServing: NutritionValues = hasServingData ? {
+        calories: Math.round(nutriments['energy-kcal_serving'] || 0),
+        protein: Math.round(nutriments.proteins_serving || 0),
+        carbs: Math.round(nutriments.carbohydrates_serving || 0),
+        fat: Math.round(nutriments.fat_serving || 0),
+        fiber: nutriments.fiber_serving ? Math.round(nutriments.fiber_serving) : per100g.fiber,
+        sugar: nutriments.sugars_serving ? Math.round(nutriments.sugars_serving) : per100g.sugar,
+        sodium: nutriments.sodium_serving ? Math.round(nutriments.sodium_serving * 1000) : per100g.sodium,
+      } : per100g;
+
+      // Parse serving quantity if available
+      let servingQuantityG: number | undefined;
+      if (product.serving_quantity) {
+        servingQuantityG = product.serving_quantity;
+      } else if (product.serving_size) {
+        // Try to extract grams from serving size string like "30g" or "250ml"
+        const match = product.serving_size.match(/(\d+(?:\.\d+)?)\s*g/i);
+        if (match) {
+          servingQuantityG = parseFloat(match[1]);
+        }
+      }
+
       const result: FoodResult = {
         barcode: product.code,
         name: product.product_name || 'Unknown Product',
         brand: product.brands?.split(',')[0],
         servingSize: product.serving_size || '100g',
-        calories: Math.round(hasServing 
-          ? (nutriments['energy-kcal_serving'] || 0)
-          : (nutriments['energy-kcal_100g'] || 0)),
-        protein: Math.round(hasServing
-          ? (nutriments.proteins_serving || 0)
-          : (nutriments.proteins_100g || 0)),
-        carbs: Math.round(hasServing
-          ? (nutriments.carbohydrates_serving || 0)
-          : (nutriments.carbohydrates_100g || 0)),
-        fat: Math.round(hasServing
-          ? (nutriments.fat_serving || 0)
-          : (nutriments.fat_100g || 0)),
-        fiber: nutriments.fiber_100g ? Math.round(nutriments.fiber_100g) : undefined,
-        sugar: nutriments.sugars_100g ? Math.round(nutriments.sugars_100g) : undefined,
-        sodium: nutriments.sodium_100g ? Math.round(nutriments.sodium_100g * 1000) : undefined,
+        servingQuantityG,
+        hasServingData,
+        per100g,
+        perServing,
+        // Legacy fields - default to per-serving for backward compatibility
+        calories: perServing.calories,
+        protein: perServing.protein,
+        carbs: perServing.carbs,
+        fat: perServing.fat,
+        fiber: perServing.fiber,
+        sugar: perServing.sugar,
+        sodium: perServing.sodium,
         imageUrl: product.image_front_small_url || product.image_url,
         source: 'api',
       };
@@ -174,11 +236,23 @@ serve(async (req) => {
 
         if (savedFoods) {
           for (const food of savedFoods) {
+            const per100g: NutritionValues = {
+              calories: food.calories,
+              protein: food.protein_g || 0,
+              carbs: food.carbs_g || 0,
+              fat: food.fat_g || 0,
+              fiber: food.fiber_g,
+              sugar: food.sugar_g,
+              sodium: food.sodium_mg,
+            };
             results.push({
               barcode: food.barcode,
               name: food.food_name,
               brand: food.brand,
               servingSize: food.serving_size || '100g',
+              hasServingData: false,
+              per100g,
+              perServing: per100g,
               calories: food.calories,
               protein: food.protein_g || 0,
               carbs: food.carbs_g || 0,
@@ -216,26 +290,42 @@ serve(async (req) => {
           // Skip products without calorie data
           if (!nutriments['energy-kcal_100g'] && !nutriments['energy-kcal_serving']) continue;
 
+          const per100g: NutritionValues = {
+            calories: Math.round(nutriments['energy-kcal_100g'] || 0),
+            protein: Math.round(nutriments.proteins_100g || 0),
+            carbs: Math.round(nutriments.carbohydrates_100g || 0),
+            fat: Math.round(nutriments.fat_100g || 0),
+            fiber: nutriments.fiber_100g ? Math.round(nutriments.fiber_100g) : undefined,
+            sugar: nutriments.sugars_100g ? Math.round(nutriments.sugars_100g) : undefined,
+            sodium: nutriments.sodium_100g ? Math.round(nutriments.sodium_100g * 1000) : undefined,
+          };
+
+          const hasServingData = hasServing;
+          const perServing: NutritionValues = hasServing ? {
+            calories: Math.round(nutriments['energy-kcal_serving'] || 0),
+            protein: Math.round(nutriments.proteins_serving || 0),
+            carbs: Math.round(nutriments.carbohydrates_serving || 0),
+            fat: Math.round(nutriments.fat_serving || 0),
+            fiber: nutriments.fiber_serving ? Math.round(nutriments.fiber_serving) : per100g.fiber,
+            sugar: nutriments.sugars_serving ? Math.round(nutriments.sugars_serving) : per100g.sugar,
+            sodium: nutriments.sodium_serving ? Math.round(nutriments.sodium_serving * 1000) : per100g.sodium,
+          } : per100g;
+
           results.push({
             barcode: product.code,
             name: product.product_name,
             brand: product.brands?.split(',')[0],
             servingSize: product.serving_size || '100g',
-            calories: Math.round(hasServing 
-              ? (nutriments['energy-kcal_serving'] || 0)
-              : (nutriments['energy-kcal_100g'] || 0)),
-            protein: Math.round(hasServing
-              ? (nutriments.proteins_serving || 0)
-              : (nutriments.proteins_100g || 0)),
-            carbs: Math.round(hasServing
-              ? (nutriments.carbohydrates_serving || 0)
-              : (nutriments.carbohydrates_100g || 0)),
-            fat: Math.round(hasServing
-              ? (nutriments.fat_serving || 0)
-              : (nutriments.fat_100g || 0)),
-            fiber: nutriments.fiber_100g ? Math.round(nutriments.fiber_100g) : undefined,
-            sugar: nutriments.sugars_100g ? Math.round(nutriments.sugars_100g) : undefined,
-            sodium: nutriments.sodium_100g ? Math.round(nutriments.sodium_100g * 1000) : undefined,
+            hasServingData,
+            per100g,
+            perServing,
+            calories: perServing.calories,
+            protein: perServing.protein,
+            carbs: perServing.carbs,
+            fat: perServing.fat,
+            fiber: perServing.fiber,
+            sugar: perServing.sugar,
+            sodium: perServing.sodium,
             imageUrl: product.image_front_small_url,
             source: 'api',
           });

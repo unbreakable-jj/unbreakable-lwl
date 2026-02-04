@@ -51,6 +51,7 @@ export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeS
   const [notFound, setNotFound] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<MealType>(mealType);
   const [servings, setServings] = useState(1);
+  const [displayMode, setDisplayMode] = useState<'serving' | '100g'>('serving');
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -215,36 +216,53 @@ export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeS
   const handleAddToLog = async () => {
     if (!scannedItem) return;
     
+    const nutrition = getActiveNutrition();
+    if (!nutrition) return;
+    
+    const servingSizeLabel = displayMode === 'serving' && scannedItem.hasServingData 
+      ? scannedItem.servingSize 
+      : '100g';
+    
     await addFoodLog.mutateAsync({
       food_name: scannedItem.name,
       brand: scannedItem.brand,
       barcode: scannedItem.barcode || barcodeInput,
-      serving_size: scannedItem.servingSize,
-      calories: scannedItem.calories,
-      protein_g: scannedItem.protein,
-      carbs_g: scannedItem.carbs,
-      fat_g: scannedItem.fat,
-      fiber_g: scannedItem.fiber,
-      sugar_g: scannedItem.sugar,
-      sodium_mg: scannedItem.sodium,
+      serving_size: servingSizeLabel,
+      calories: nutrition.calories,
+      protein_g: nutrition.protein,
+      carbs_g: nutrition.carbs,
+      fat_g: nutrition.fat,
+      fiber_g: nutrition.fiber,
+      sugar_g: nutrition.sugar,
+      sodium_mg: nutrition.sodium,
       meal_type: selectedMeal,
       servings,
       logged_at: new Date().toISOString(),
     });
     
-    // Save to food library for future use
+    // Save to food library for future use (save per-100g for consistency)
+    const per100g = scannedItem.per100g || {
+      calories: scannedItem.calories,
+      protein: scannedItem.protein,
+      carbs: scannedItem.carbs,
+      fat: scannedItem.fat,
+      fiber: scannedItem.fiber,
+      sugar: scannedItem.sugar,
+      sodium: scannedItem.sodium,
+    };
+    
     saveFood.mutate({
       food_name: scannedItem.name,
       brand: scannedItem.brand,
       barcode: scannedItem.barcode || barcodeInput,
       serving_size: scannedItem.servingSize,
-      calories: scannedItem.calories,
-      protein_g: scannedItem.protein,
-      carbs_g: scannedItem.carbs,
-      fat_g: scannedItem.fat,
-      fiber_g: scannedItem.fiber,
-      sugar_g: scannedItem.sugar,
-      sodium_mg: scannedItem.sodium,
+      calories: per100g.calories,
+      protein_g: per100g.protein,
+      carbs_g: per100g.carbs,
+      fat_g: per100g.fat,
+      fiber_g: per100g.fiber,
+      sugar_g: per100g.sugar,
+      sodium_mg: per100g.sodium,
       is_favourite: false,
     });
     
@@ -258,6 +276,29 @@ export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeS
     setAnalysis(null);
     setNotFound(false);
     setServings(1);
+    setDisplayMode('serving');
+  };
+
+  // Get the active nutrition values based on display mode
+  const getActiveNutrition = () => {
+    if (!scannedItem) return null;
+    
+    // If no serving data available, always use per100g
+    if (!scannedItem.hasServingData) {
+      return scannedItem.per100g || {
+        calories: scannedItem.calories,
+        protein: scannedItem.protein,
+        carbs: scannedItem.carbs,
+        fat: scannedItem.fat,
+        fiber: scannedItem.fiber,
+        sugar: scannedItem.sugar,
+        sodium: scannedItem.sodium,
+      };
+    }
+    
+    return displayMode === 'serving' 
+      ? (scannedItem.perServing || scannedItem.per100g)
+      : scannedItem.per100g;
   };
 
   const handleScanAnother = () => {
@@ -461,27 +502,67 @@ export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeS
                           )}
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-display text-2xl text-primary">{scannedItem.calories}</p>
-                        <p className="text-xs text-muted-foreground">kcal</p>
-                      </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                      <div className="p-2 bg-muted/30 rounded-lg">
-                        <p className="font-display text-primary">{scannedItem.protein}g</p>
-                        <p className="text-xs text-muted-foreground">Protein</p>
+                  <CardContent className="space-y-4">
+                    {/* Display Mode Toggle */}
+                    {scannedItem.hasServingData && (
+                      <div className="flex gap-2">
+                        <Button
+                          variant={displayMode === 'serving' ? 'default' : 'outline'}
+                          size="sm"
+                          className="flex-1 text-xs"
+                          onClick={() => setDisplayMode('serving')}
+                        >
+                          Per Serving ({scannedItem.servingSize})
+                        </Button>
+                        <Button
+                          variant={displayMode === '100g' ? 'default' : 'outline'}
+                          size="sm"
+                          className="flex-1 text-xs"
+                          onClick={() => setDisplayMode('100g')}
+                        >
+                          Per 100g
+                        </Button>
                       </div>
-                      <div className="p-2 bg-muted/30 rounded-lg">
-                        <p className="font-display text-primary">{scannedItem.carbs}g</p>
-                        <p className="text-xs text-muted-foreground">Carbs</p>
-                      </div>
-                      <div className="p-2 bg-muted/30 rounded-lg">
-                        <p className="font-display text-primary">{scannedItem.fat}g</p>
-                        <p className="text-xs text-muted-foreground">Fat</p>
-                      </div>
-                    </div>
+                    )}
+
+                    {/* Nutrition Display */}
+                    {(() => {
+                      const nutrition = getActiveNutrition();
+                      if (!nutrition) return null;
+                      
+                      return (
+                        <>
+                          <div className="flex items-center justify-center gap-2 p-3 bg-primary/10 rounded-lg">
+                            <p className="font-display text-3xl text-primary">{nutrition.calories}</p>
+                            <div className="text-left">
+                              <p className="text-xs text-muted-foreground">kcal</p>
+                              <p className="text-xs text-muted-foreground">
+                                {displayMode === 'serving' && scannedItem.hasServingData 
+                                  ? `per ${scannedItem.servingSize}` 
+                                  : 'per 100g'}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-3 gap-4 text-center">
+                            <div className="p-2 bg-muted/30 rounded-lg">
+                              <p className="font-display text-primary">{nutrition.protein}g</p>
+                              <p className="text-xs text-muted-foreground">Protein</p>
+                            </div>
+                            <div className="p-2 bg-muted/30 rounded-lg">
+                              <p className="font-display text-primary">{nutrition.carbs}g</p>
+                              <p className="text-xs text-muted-foreground">Carbs</p>
+                            </div>
+                            <div className="p-2 bg-muted/30 rounded-lg">
+                              <p className="font-display text-primary">{nutrition.fat}g</p>
+                              <p className="text-xs text-muted-foreground">Fat</p>
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </CardContent>
                 </Card>
 
@@ -515,17 +596,21 @@ export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeS
                 </div>
 
                 {/* Calculated Totals */}
-                {servings !== 1 && (
-                  <div className="p-3 bg-muted/30 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Total for {servings} servings:</p>
-                    <p className="font-display text-primary">
-                      {Math.round(scannedItem.calories * servings)} kcal · 
-                      P: {Math.round(scannedItem.protein * servings)}g · 
-                      C: {Math.round(scannedItem.carbs * servings)}g · 
-                      F: {Math.round(scannedItem.fat * servings)}g
-                    </p>
-                  </div>
-                )}
+                {servings !== 1 && (() => {
+                  const nutrition = getActiveNutrition();
+                  if (!nutrition) return null;
+                  return (
+                    <div className="p-3 bg-muted/30 rounded-lg">
+                      <p className="text-sm text-muted-foreground mb-1">Total for {servings} servings:</p>
+                      <p className="font-display text-primary">
+                        {Math.round(nutrition.calories * servings)} kcal · 
+                        P: {Math.round(nutrition.protein * servings)}g · 
+                        C: {Math.round(nutrition.carbs * servings)}g · 
+                        F: {Math.round(nutrition.fat * servings)}g
+                      </p>
+                    </div>
+                  );
+                })()}
 
                 {/* AI Feedback Button */}
                 <Button
