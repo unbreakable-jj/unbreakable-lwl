@@ -51,7 +51,6 @@ const Mindset = () => {
   const [phase, setPhase] = useState<BreathPhase>("idle");
   const [currentCycle, setCurrentCycle] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [showHalfwayMessage, setShowHalfwayMessage] = useState(false);
   
   // Voice settings
   const [voiceEnabled, setVoiceEnabled] = useState(true);
@@ -60,7 +59,6 @@ const Mindset = () => {
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
-  const halfwayShownRef = useRef(false);
   const lastPhaseRef = useRef<BreathPhase>("idle");
 
   // Audio hook
@@ -131,13 +129,6 @@ const Mindset = () => {
     }
   }, [phase, currentCycle, selectedExercise, voiceEnabled, view, playAudio]);
 
-  // Play halfway message
-  useEffect(() => {
-    if (showHalfwayMessage && selectedExercise && voiceEnabled) {
-      playAudio(selectedExercise.scripts.halfway);
-    }
-  }, [showHalfwayMessage, selectedExercise, voiceEnabled, playAudio]);
-
   const startExercise = useCallback(() => {
     if (!selectedExercise) return;
     
@@ -146,7 +137,6 @@ const Mindset = () => {
     setCurrentCycle(1);
     setPhase("inhale");
     setProgress(0);
-    halfwayShownRef.current = false;
     lastPhaseRef.current = "idle";
     startTimeRef.current = Date.now();
 
@@ -158,13 +148,6 @@ const Mindset = () => {
       const progressPercent = Math.min((elapsed / totalDuration) * 100, 100);
       
       setProgress(progressPercent);
-
-      // Show halfway message
-      if (progressPercent >= 50 && !halfwayShownRef.current) {
-        halfwayShownRef.current = true;
-        setShowHalfwayMessage(true);
-        setTimeout(() => setShowHalfwayMessage(false), 3000);
-      }
 
       const { phase: currentPhase, cycle } = getPhaseFromTime(elapsed, selectedExercise);
       setPhase(currentPhase);
@@ -201,8 +184,6 @@ const Mindset = () => {
         exercise.scripts.inhale,
         exercise.scripts.hold,
         exercise.scripts.exhale,
-        exercise.scripts.intro,
-        exercise.scripts.halfway,
         exercise.scripts.closing,
       ]);
     }
