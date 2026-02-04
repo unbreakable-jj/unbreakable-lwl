@@ -12,7 +12,8 @@ import { NavigationDrawer } from "@/components/NavigationDrawer";
 import { ThemeToggle } from "@/components/hub/ThemeToggle";
 import { UnifiedFooter } from "@/components/UnifiedFooter";
 import { CountdownOverlay } from "@/components/CountdownOverlay";
-import { BREATHING_EXERCISES, BreathingExercise } from "@/lib/breathingExercises";
+import { getVisibleExercises, BreathingExercise } from "@/lib/breathingExercises";
+import { BreathingVisual } from "@/components/mindset/BreathingVisual";
 import { useBreathingAudio, VoiceType } from "@/hooks/useBreathingAudio";
 import {
   Sheet,
@@ -102,7 +103,7 @@ const Mindset = () => {
     }
   }, [getCycleDuration]);
 
-  // Play audio when phase changes
+  // Play audio when phase changes - MINIMAL CUES
   useEffect(() => {
     if (!selectedExercise || !voiceEnabled || view !== "exercise") return;
     
@@ -113,28 +114,25 @@ const Mindset = () => {
       
       switch (phase) {
         case "inhale":
-          if (currentCycle <= 3 || currentCycle % 5 === 0) {
-            textToSpeak = "Breathe in";
+          // Only first 2 cycles get voice cues, then every 3rd cycle
+          if (currentCycle <= 2 || currentCycle % 3 === 0) {
+            textToSpeak = selectedExercise.scripts.inhale; // "Breathe in"
           }
           break;
         case "hold":
-          if (currentCycle <= 3 || currentCycle % 5 === 0) {
-            textToSpeak = "Hold";
+          if (currentCycle <= 2 || currentCycle % 3 === 0) {
+            textToSpeak = selectedExercise.scripts.hold; // "Hold"
           }
           break;
         case "exhale":
-          if (currentCycle <= 3 || currentCycle % 5 === 0) {
-            textToSpeak = "Breathe out";
-          }
-          break;
-        case "rest":
-          if (currentCycle <= 2) {
-            textToSpeak = "Rest";
+          if (currentCycle <= 2 || currentCycle % 3 === 0) {
+            textToSpeak = selectedExercise.scripts.exhale; // "Release"
           }
           break;
         case "complete":
           textToSpeak = selectedExercise.scripts.closing;
           break;
+        // No rest cues for minimal approach
       }
       
       if (textToSpeak) {
@@ -207,13 +205,12 @@ const Mindset = () => {
   const selectExercise = useCallback((exercise: BreathingExercise) => {
     setSelectedExercise(exercise);
     
-    // Preload common audio phrases
+    // Preload minimal audio phrases
     if (voiceEnabled) {
       preloadAudio([
-        "Breathe in",
-        "Hold",
-        "Breathe out",
-        "Rest",
+        exercise.scripts.inhale,
+        exercise.scripts.hold,
+        exercise.scripts.exhale,
         exercise.scripts.intro,
         exercise.scripts.halfway,
         exercise.scripts.closing,
@@ -271,21 +268,7 @@ const Mindset = () => {
     };
   }, [cleanup]);
 
-  const getScaleForPhase = () => {
-    if (!selectedExercise) return 1;
-    switch (phase) {
-      case "inhale":
-        return 1.8;
-      case "hold":
-        return 1.8;
-      case "exhale":
-        return 1;
-      case "rest":
-        return 1;
-      default:
-        return 1;
-    }
-  };
+  // getScaleForPhase moved to BreathingVisual component
 
   const formatTime = (progressPercent: number, totalMinutes: number) => {
     const totalSeconds = totalMinutes * 60;
@@ -486,8 +469,8 @@ const Mindset = () => {
             </h2>
 
             {/* Exercise Cards Grid - matches Calculator grid */}
-            <div className="grid md:grid-cols-3 gap-6">
-              {BREATHING_EXERCISES.map((exercise) => (
+            <div className="grid md:grid-cols-1 gap-6 max-w-lg mx-auto">
+              {getVisibleExercises().map((exercise) => (
                 <Card
                   key={exercise.id}
                   className="bg-card border-2 border-primary/30 neon-border-subtle border-l-4 border-l-primary p-6 cursor-pointer hover:bg-muted/50 transition-all group"
@@ -616,20 +599,12 @@ const Mindset = () => {
           )}
         </AnimatePresence>
 
-        {/* Breathing dot */}
-        <div className="relative mb-12">
-          <motion.div
-            animate={{
-              scale: getScaleForPhase(),
-              boxShadow: phase === "inhale" || phase === "hold" 
-                ? "0 0 60px 20px hsl(var(--primary) / 0.4)"
-                : "0 0 20px 5px hsl(var(--primary) / 0.3)",
-            }}
-            transition={{
-              duration: selectedExercise?.phases[phase === "rest" ? "exhale" : (phase === "complete" ? "exhale" : phase)] || 4,
-              ease: "easeInOut",
-            }}
-            className="w-32 h-32 md:w-48 md:h-48 rounded-full bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))]"
+        {/* Breathing Visual - combined orb + progress ring */}
+        <div className="relative mb-8">
+          <BreathingVisual
+            phase={phase}
+            progress={progress}
+            phaseDuration={selectedExercise?.phases[phase === "rest" ? "exhale" : (phase === "complete" ? "exhale" : phase)] || 4}
           />
         </div>
 

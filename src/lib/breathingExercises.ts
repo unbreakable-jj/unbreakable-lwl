@@ -23,32 +23,37 @@ export interface BreathingExercise {
   };
   intensity: "high" | "medium" | "calm";
   color: string;
+  isVisible?: boolean; // Controls visibility in UI
 }
 
+// Power Breath: 4-7-8 pattern
+// Each cycle = 4 + 7 + 8 = 19 seconds
+// 3 minutes = 180 seconds / 19 = ~9.5 cycles → 9 complete cycles
 export const BREATHING_EXERCISES: BreathingExercise[] = [
   {
     id: "power-breath",
     name: "POWER BREATH",
-    tagline: "Ignite Your Fire",
-    description: "High-intensity controlled breathing to energize your body and sharpen focus. Rapid cycles build internal heat and mental clarity.",
+    tagline: "4-7-8 Pattern",
+    description: "The scientifically-proven 4-7-8 technique. Inhale for 4, hold for 7, release for 8. This pattern activates your parasympathetic nervous system while building mental resilience.",
     duration: "3 MIN",
     durationMinutes: 3,
-    cycles: 18,
+    cycles: 9,
     phases: {
-      inhale: 3,
-      hold: 3,
-      exhale: 4,
+      inhale: 4,
+      hold: 7,
+      exhale: 8,
     },
     scripts: {
-      intro: "Welcome to Power Breath. We're about to ignite your inner fire. Find your stance. This is where you become unbreakable.",
-      inhale: "BREATHE IN — fill your lungs completely",
-      hold: "HOLD — feel the energy build",
-      exhale: "RELEASE — let it all go",
-      halfway: "You're halfway there. Keep showing up. Every breath makes you stronger.",
-      closing: "Session complete. You've unlocked your power. Carry this energy with you. Stay unbreakable.",
+      intro: "Find your stance. Ground yourself. Let's begin.",
+      inhale: "Breathe in",
+      hold: "Hold",
+      exhale: "Release",
+      halfway: "Halfway. Stay with it.",
+      closing: "Complete. You are unbreakable.",
     },
     intensity: "high",
     color: "from-primary to-[hsl(20,100%,45%)]",
+    isVisible: true,
   },
   {
     id: "focus-flow",
@@ -73,6 +78,7 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
     },
     intensity: "medium",
     color: "from-[hsl(30,100%,50%)] to-primary",
+    isVisible: false, // Hidden
   },
   {
     id: "deep-reset",
@@ -99,8 +105,14 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
     },
     intensity: "calm",
     color: "from-[hsl(35,100%,50%)] to-[hsl(25,100%,45%)]",
+    isVisible: false, // Hidden
   },
 ];
+
+// Get only visible exercises for UI display
+export const getVisibleExercises = (): BreathingExercise[] => {
+  return BREATHING_EXERCISES.filter((ex) => ex.isVisible !== false);
+};
 
 export const getExerciseById = (id: string): BreathingExercise | undefined => {
   return BREATHING_EXERCISES.find((ex) => ex.id === id);
