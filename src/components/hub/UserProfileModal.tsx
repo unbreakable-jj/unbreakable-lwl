@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,7 @@ interface UserProfile {
 }
 
 export function UserProfileModal({ userId, onClose, onStartConversation }: UserProfileModalProps) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { sendFriendRequest, acceptFriendRequest, cancelFriendRequest, getFriendshipStatus, refetch: refetchFriends } = useFriends();
   const { startConversation } = useConversations();
@@ -162,11 +164,11 @@ export function UserProfileModal({ userId, onClose, onStartConversation }: UserP
 
     const { conversation, error } = await startConversation(userId);
     if (error) {
-      toast.error('Failed to start conversation');
+      toast.error(error.message || 'Failed to start conversation');
     } else if (conversation) {
-      toast.success('Conversation started!');
-      onStartConversation?.(conversation.id);
+      toast.success('Opening conversation…');
       onClose();
+      navigate(`/inbox?cid=${conversation.id}`);
     }
 
     setMessageLoading(false);

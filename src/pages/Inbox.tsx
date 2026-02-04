@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -37,6 +37,7 @@ import { NewMessageDialog } from '@/components/inbox/NewMessageDialog';
 
 export default function Inbox() {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { conversations, loading, sendMessage, deleteConversation, markConversationAsRead } = useConversations();
   const { blockUser, isUserBlocked, checkIfBlockedBy } = useBlockedUsers();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
@@ -46,6 +47,16 @@ export default function Inbox() {
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [isBlockedByOther, setIsBlockedByOther] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-select conversation from URL query param ?cid=
+  useEffect(() => {
+    const cid = searchParams.get('cid');
+    if (cid && !loading) {
+      setSelectedConversationId(cid);
+      // Clear the param so refreshing doesn't keep selecting it
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, loading]);
 
   const selectedConversation = useMemo(() => {
     if (!selectedConversationId) return null;
