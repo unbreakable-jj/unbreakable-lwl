@@ -16,7 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { MedalCheckStats } from '@/lib/medalDefinitions';
 import { getCategoryLabel, TROPHY_ICONS } from '@/lib/trophyDefinitions';
 import { toast } from 'sonner';
-import { Play, Square, Timer, Globe, Users, Lock, Footprints, Bike, Edit3 } from 'lucide-react';
+import { Play, Square, Pause, Timer, Globe, Users, Lock, Footprints, Bike, Edit3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CountdownOverlay } from '@/components/CountdownOverlay';
 
@@ -93,9 +93,13 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   const [distance, setDistance] = useState(0);
   const [currentSpeed, setCurrentSpeed] = useState<number | null>(null);
   const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
-  const [gpsStatus, setGpsStatus] = useState<'acquiring' | 'active' | 'error'>('acquiring');
+  const [gpsStatus, setGpsStatus] = useState<'acquiring' | 'active' | 'error' | 'paused'>('acquiring');
+  const [isPaused, setIsPaused] = useState(false);
+  const [pausedDuration, setPausedDuration] = useState(0); // Total seconds spent paused
+  const pauseStartRef = useRef<number | null>(null);
   const watchIdRef = useRef<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const sessionStartRef = useRef<Date | null>(null);
 
   // Post-session state (also used for manual entry)
   const [title, setTitle] = useState('');
@@ -140,20 +144,30 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     setPhase('tracking');
     const sessionStart = new Date();
     setStartTime(sessionStart);
+    sessionStartRef.current = sessionStart;
     setPositions([]);
     setDistance(0);
     setElapsedSeconds(0);
+    setPausedDuration(0);
+    setIsPaused(false);
     setGpsStatus('acquiring');
     setGpsAccuracy(null);
     setCurrentSpeed(null);
 
     // Start timer using timestamp-based calculation for background accuracy
     timerRef.current = setInterval(() => {
-      const now = Date.now();
-      const elapsed = Math.floor((now - sessionStart.getTime()) / 1000);
-      setElapsedSeconds(elapsed);
+      if (sessionStartRef.current) {
+        const now = Date.now();
+        const totalElapsed = Math.floor((now - sessionStartRef.current.getTime()) / 1000);
+        // Subtract paused duration from total elapsed time
+        setElapsedSeconds(totalElapsed - pausedDuration);
+      }
     }, 1000);
 
+    startGpsTracking();
+  }, [pausedDuration]);
+
+  const startGpsTracking = useCallback(() => {
     // Request location permission and start high-accuracy GPS tracking
     watchIdRef.current = navigator.geolocation.watchPosition(
       (position) => {
@@ -235,7 +249,58 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     );
   }, []);
 
+  const pauseTracking = useCallback(() => {
+    setIsPaused(true);
+    pauseStartRef.current = Date.now();
+    setGpsStatus('paused');
+    
+    // Stop GPS tracking
+    if (watchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+    // Stop timer updates
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  const resumeTracking = useCallback(() => {
+    // Calculate how long we were paused and add to pausedDuration
+    if (pauseStartRef.current) {
+      const pausedTime = Math.floor((Date.now() - pauseStartRef.current) / 1000);
+      setPausedDuration((prev) => prev + pausedTime);
+      pauseStartRef.current = null;
+    }
+    
+    setIsPaused(false);
+    setGpsStatus('acquiring');
+
+    // Restart timer with updated paused duration
+    timerRef.current = setInterval(() => {
+      if (sessionStartRef.current) {
+        const now = Date.now();
+        const totalElapsed = Math.floor((now - sessionStartRef.current.getTime()) / 1000);
+        setPausedDuration((currentPaused) => {
+          setElapsedSeconds(totalElapsed - currentPaused);
+          return currentPaused;
+        });
+      }
+    }, 1000);
+
+    // Restart GPS tracking
+    startGpsTracking();
+  }, []);
+
   const stopTracking = useCallback(() => {
+    // If paused, finalize the paused duration
+    if (isPaused && pauseStartRef.current) {
+      const pausedTime = Math.floor((Date.now() - pauseStartRef.current) / 1000);
+      setPausedDuration((prev) => prev + pausedTime);
+      pauseStartRef.current = null;
+    }
+    
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
@@ -244,8 +309,9 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
+    setIsPaused(false);
     setPhase('summary');
-  }, []);
+  }, [isPaused]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -517,6 +583,10 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     setManualHours('0');
     setManualMinutes('');
     setManualSeconds('0');
+    setPausedDuration(0);
+    setIsPaused(false);
+    pauseStartRef.current = null;
+    sessionStartRef.current = null;
     setCurrentSpeed(null);
     setGpsAccuracy(null);
     setGpsStatus('acquiring');
@@ -792,15 +862,18 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                         transition={{ repeat: gpsStatus === 'active' ? Infinity : 0, duration: 1.5 }}
                         className={`w-2 h-2 rounded-full ${
                           gpsStatus === 'active' ? 'bg-emerald-500' : 
-                          gpsStatus === 'acquiring' ? 'bg-amber-500' : 'bg-destructive'
+                          gpsStatus === 'acquiring' ? 'bg-amber-500' : 
+                          gpsStatus === 'paused' ? 'bg-primary' : 'bg-destructive'
                         }`}
                       />
                       <span className={
                         gpsStatus === 'active' ? 'text-emerald-500' : 
-                        gpsStatus === 'acquiring' ? 'text-amber-500' : 'text-destructive'
+                        gpsStatus === 'acquiring' ? 'text-amber-500' : 
+                        gpsStatus === 'paused' ? 'text-primary' : 'text-destructive'
                       }>
                         {gpsStatus === 'active' ? 'GPS Active' : 
-                         gpsStatus === 'acquiring' ? 'Acquiring GPS...' : 'GPS Error'}
+                         gpsStatus === 'acquiring' ? 'Acquiring GPS...' : 
+                         gpsStatus === 'paused' ? 'Paused' : 'GPS Error'}
                       </span>
                     </div>
                     {gpsAccuracy !== null && gpsStatus === 'active' && (
@@ -833,16 +906,36 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                   </div>
                 </div>
 
-                {/* Stop Button */}
-                <div className="text-center">
+                {/* Control Buttons */}
+                <div className="flex justify-center gap-4">
+                  {isPaused ? (
+                    <Button
+                      size="lg"
+                      className="font-display text-xl tracking-wide px-12 py-8 rounded-full bg-primary hover:bg-primary/90"
+                      onClick={resumeTracking}
+                    >
+                      <Play className="w-6 h-6 mr-3" />
+                      RESUME
+                    </Button>
+                  ) : (
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="font-display text-xl tracking-wide px-12 py-8 rounded-full border-primary text-primary hover:bg-primary/10"
+                      onClick={pauseTracking}
+                    >
+                      <Pause className="w-6 h-6 mr-3" />
+                      PAUSE
+                    </Button>
+                  )}
                   <Button
                     size="lg"
                     variant="destructive"
-                    className="font-display text-xl tracking-wide px-16 py-8 rounded-full"
+                    className="font-display text-xl tracking-wide px-12 py-8 rounded-full"
                     onClick={stopTracking}
                   >
                     <Square className="w-6 h-6 mr-3" />
-                    STOP
+                    END
                   </Button>
                 </div>
               </motion.div>
