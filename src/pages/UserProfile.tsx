@@ -150,6 +150,8 @@ export default function UserProfile() {
     const { error, conversation } = await startConversation(userId);
     if (error) {
       toast.error(error.message || 'Failed to start conversation');
+    } else if (conversation) {
+      navigate(`/inbox?cid=${conversation.id}`);
     } else {
       navigate('/inbox');
     }
