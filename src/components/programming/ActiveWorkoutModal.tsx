@@ -12,6 +12,7 @@ import { SessionResultsView } from './SessionResultsView';
 import { AIFeedbackView } from './AIFeedbackView';
 import { ProgressMetricsView } from './ProgressMetricsView';
 import { CompactRestTimer } from './CompactRestTimer';
+import { ExerciseCoachingPanel } from './ExerciseCoachingPanel';
 import { 
   Square, 
   X,
@@ -19,11 +20,12 @@ import {
   ChevronDown,
   ChevronUp,
   Check,
-  Info,
+  BookOpen,
   Lightbulb
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getExerciseDetails } from '@/lib/exerciseLibrary';
+import { findCoachingDataByName } from '@/lib/exerciseCoachingData';
 
 interface ActiveWorkoutModalProps {
   session: WorkoutSession;
@@ -201,7 +203,9 @@ export function ActiveWorkoutModal({
                   <div className="px-4 pb-4 space-y-2">
                     {Object.values(exerciseGroups).map((exercise) => {
                       const details = getExerciseDetails(exercise.name);
+                      const coachingData = findCoachingDataByName(exercise.name);
                       const isExpanded = expandedExercise === exercise.name;
+                      const hasDetails = details.exercise || coachingData;
 
                       return (
                         <div key={exercise.name} className="rounded-lg border border-border bg-surface overflow-hidden">
@@ -220,8 +224,8 @@ export function ActiveWorkoutModal({
                               <Badge variant="outline" className="text-xs">
                                 {exercise.completed}/{exercise.sets}
                               </Badge>
-                              {details.exercise && (
-                                <Info className="w-4 h-4 text-muted-foreground" />
+                              {hasDetails && (
+                                <BookOpen className="w-4 h-4 text-primary" />
                               )}
                               {isExpanded ? (
                                 <ChevronUp className="w-4 h-4 text-muted-foreground" />
@@ -231,9 +235,9 @@ export function ActiveWorkoutModal({
                             </div>
                           </button>
 
-                          {/* Tips & Alternatives Dropdown */}
+                          {/* Premium Coaching Panel or Basic Tips */}
                           <AnimatePresence>
-                            {isExpanded && details.exercise && (
+                            {isExpanded && hasDetails && (
                               <motion.div
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: 'auto', opacity: 1 }}
@@ -241,68 +245,65 @@ export function ActiveWorkoutModal({
                                 transition={{ duration: 0.2 }}
                                 className="overflow-hidden border-t border-border"
                               >
-                                <div className="p-3 space-y-3 bg-muted/20">
-                                  {/* Description */}
-                                  {details.exercise?.description && (
-                                    <p className="text-xs text-muted-foreground">
-                                      {details.exercise.description}
-                                    </p>
-                                  )}
+                                <div className="p-4 bg-muted/20">
+                                  {/* Premium coaching data takes priority */}
+                                  {coachingData ? (
+                                    <ExerciseCoachingPanel 
+                                      coachingData={coachingData}
+                                      exerciseName={exercise.name}
+                                    />
+                                  ) : details.exercise ? (
+                                    /* Fallback to basic details */
+                                    <div className="space-y-3">
+                                      {/* Description */}
+                                      {details.exercise?.description && (
+                                        <p className="text-sm text-muted-foreground">
+                                          {details.exercise.description}
+                                        </p>
+                                      )}
 
-                                  {/* How-to steps (generated) */}
-                                  {details.steps.length > 0 && (
-                                    <div>
-                                      <span className="text-xs font-display text-muted-foreground tracking-wide">
-                                        HOW TO
-                                      </span>
-                                      <ol className="mt-1 space-y-1 list-decimal list-inside text-xs text-muted-foreground">
-                                        {details.steps.slice(0, 6).map((step, idx) => (
-                                          <li key={idx}>{step}</li>
-                                        ))}
-                                      </ol>
-                                    </div>
-                                  )}
+                                      {/* Tips */}
+                                      {details.exercise?.tips && details.exercise.tips.length > 0 && (
+                                        <div>
+                                          <div className="flex items-center gap-1 mb-2">
+                                            <Lightbulb className="w-3 h-3 text-primary" />
+                                            <span className="text-xs font-display text-primary tracking-wide">TIPS</span>
+                                          </div>
+                                          <ul className="space-y-1">
+                                            {details.exercise.tips.map((tip, idx) => (
+                                              <li key={idx} className="text-xs text-muted-foreground flex gap-2">
+                                                <span className="text-primary">•</span>
+                                                {tip}
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
 
-                                  {/* Tips */}
-                                  {details.exercise?.tips && details.exercise.tips.length > 0 && (
-                                    <div>
-                                      <div className="flex items-center gap-1 mb-2">
-                                        <Lightbulb className="w-3 h-3 text-primary" />
-                                        <span className="text-xs font-display text-primary tracking-wide">TIPS</span>
-                                      </div>
-                                      <ul className="space-y-1">
-                                        {details.exercise.tips.map((tip, idx) => (
-                                          <li key={idx} className="text-xs text-muted-foreground flex gap-2">
-                                            <span className="text-primary">•</span>
-                                            {tip}
-                                          </li>
-                                        ))}
-                                      </ul>
+                                      {/* Alternatives */}
+                                      {details.exercise?.alternatives && details.exercise.alternatives.length > 0 && (
+                                        <div>
+                                          <span className="text-xs font-display text-muted-foreground tracking-wide">
+                                            ALTERNATIVES:
+                                          </span>
+                                          <div className="flex flex-wrap gap-1 mt-1">
+                                            {details.exercise.alternatives.map((alt, idx) => (
+                                              <Badge key={idx} variant="outline" className="text-xs">
+                                                {alt}
+                                              </Badge>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
                                     </div>
-                                  )}
-
-                                  {/* Alternatives */}
-                                  {details.exercise?.alternatives && details.exercise.alternatives.length > 0 && (
-                                    <div>
-                                      <span className="text-xs font-display text-muted-foreground tracking-wide">
-                                        ALTERNATIVES:
-                                      </span>
-                                      <div className="flex flex-wrap gap-1 mt-1">
-                                        {details.exercise.alternatives.map((alt, idx) => (
-                                          <Badge key={idx} variant="outline" className="text-xs">
-                                            {alt}
-                                          </Badge>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
+                                  ) : null}
                                 </div>
                               </motion.div>
                             )}
                           </AnimatePresence>
 
                           {/* No details available message */}
-                          {isExpanded && !details.exercise && (
+                          {isExpanded && !hasDetails && (
                             <div className="p-3 text-xs text-muted-foreground border-t border-border bg-muted/20">
                               No additional details available for this exercise.
                             </div>

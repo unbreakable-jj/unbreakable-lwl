@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { FullScreenToolView } from './FullScreenToolView';
 import { CompactRestTimer } from './CompactRestTimer';
+import { ExerciseCoachingPanel } from './ExerciseCoachingPanel';
 import { ExerciseLog } from '@/hooks/useWorkoutSessions';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,11 +18,11 @@ import {
   ChevronDown,
   ChevronUp,
   Lightbulb,
-  Info
+  BookOpen
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getExerciseDetails } from '@/lib/exerciseLibrary';
-
+import { findCoachingDataByName } from '@/lib/exerciseCoachingData';
 interface SessionLoggingViewProps {
   exerciseLogs: ExerciseLog[];
   onUpdateLog: (logId: string, data: {
@@ -249,57 +250,77 @@ export function SessionLoggingView({
                       className="overflow-hidden"
                     >
                       <div className="px-4 pb-4 space-y-3">
-                        {/* Tips Toggle Button */}
-                        {details.exercise && (
+                        {/* Premium Coaching Toggle Button */}
+                        {(details.exercise || findCoachingDataByName(exerciseName)) && (
                           <button
                             onClick={() => setShowTipsFor(showingTips ? null : exerciseName)}
-                            className="flex items-center gap-2 text-xs text-primary hover:underline"
+                            className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
                           >
-                            <Info className="w-3 h-3" />
-                            {showingTips ? 'Hide Tips & Alternatives' : 'View Tips & Alternatives'}
+                            <BookOpen className="w-4 h-4" />
+                            {showingTips ? 'Hide Coaching Guide' : 'View Full Coaching Guide'}
                           </button>
                         )}
 
-                        {/* Tips & Alternatives Panel */}
+                        {/* Premium Coaching Panel */}
                         <AnimatePresence>
-                          {showingTips && details.exercise && (
+                          {showingTips && (
                             <motion.div
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: 'auto', opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              className="rounded-lg bg-muted/30 p-3 space-y-3 overflow-hidden"
+                              className="rounded-lg bg-muted/20 border border-border/50 p-4 space-y-4 overflow-hidden"
                             >
-                              {details.exercise.tips && details.exercise.tips.length > 0 && (
-                                <div>
-                                  <div className="flex items-center gap-1 mb-2">
-                                    <Lightbulb className="w-3 h-3 text-primary" />
-                                    <span className="text-xs font-display text-primary tracking-wide">TIPS</span>
-                                  </div>
-                                  <ul className="space-y-1">
-                                    {details.exercise.tips.map((tip, idx) => (
-                                      <li key={idx} className="text-xs text-muted-foreground flex gap-2">
-                                        <span className="text-primary">•</span>
-                                        {tip}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
+                              {/* Check for premium coaching data first */}
+                              {findCoachingDataByName(exerciseName) ? (
+                                <ExerciseCoachingPanel 
+                                  coachingData={findCoachingDataByName(exerciseName)!}
+                                  exerciseName={exerciseName}
+                                />
+                              ) : details.exercise ? (
+                                /* Fallback to basic tips if no premium data */
+                                <>
+                                  {details.exercise.description && (
+                                    <div>
+                                      <span className="text-xs font-display text-muted-foreground tracking-wide block mb-1">
+                                        DESCRIPTION
+                                      </span>
+                                      <p className="text-sm text-foreground">{details.exercise.description}</p>
+                                    </div>
+                                  )}
+                                  
+                                  {details.exercise.tips && details.exercise.tips.length > 0 && (
+                                    <div>
+                                      <div className="flex items-center gap-1 mb-2">
+                                        <Lightbulb className="w-3 h-3 text-primary" />
+                                        <span className="text-xs font-display text-primary tracking-wide">QUICK TIPS</span>
+                                      </div>
+                                      <ul className="space-y-1">
+                                        {details.exercise.tips.map((tip, idx) => (
+                                          <li key={idx} className="text-xs text-muted-foreground flex gap-2">
+                                            <span className="text-primary">•</span>
+                                            {tip}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
 
-                              {details.exercise.alternatives && details.exercise.alternatives.length > 0 && (
-                                <div>
-                                  <span className="text-xs font-display text-muted-foreground tracking-wide">
-                                    ALTERNATIVES:
-                                  </span>
-                                  <div className="flex flex-wrap gap-1 mt-1">
-                                    {details.exercise.alternatives.map((alt, idx) => (
-                                      <Badge key={idx} variant="outline" className="text-xs">
-                                        {alt}
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
+                                  {details.exercise.alternatives && details.exercise.alternatives.length > 0 && (
+                                    <div>
+                                      <span className="text-xs font-display text-muted-foreground tracking-wide">
+                                        ALTERNATIVES:
+                                      </span>
+                                      <div className="flex flex-wrap gap-1 mt-1">
+                                        {details.exercise.alternatives.map((alt, idx) => (
+                                          <Badge key={idx} variant="outline" className="text-xs">
+                                            {alt}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </>
+                              ) : null}
                             </motion.div>
                           )}
                         </AnimatePresence>
