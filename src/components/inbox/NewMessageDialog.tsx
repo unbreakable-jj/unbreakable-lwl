@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,7 +20,6 @@ interface NewMessageDialogProps {
 }
 
 export function NewMessageDialog({ onConversationStarted }: NewMessageDialogProps) {
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [starting, setStarting] = useState(false);
@@ -73,12 +70,10 @@ export function NewMessageDialog({ onConversationStarted }: NewMessageDialogProp
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button size="sm" className="gap-2">
-          <Plus className="w-4 h-4" />
-          New Message
-        </Button>
-      </DialogTrigger>
+      <Button size="sm" className="gap-2" type="button" onClick={() => setOpen(true)}>
+        <Plus className="w-4 h-4" />
+        New Message
+      </Button>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="font-display tracking-wide">
