@@ -18,6 +18,11 @@ import { Plus, Search, Loader2, MessageCircle, Users } from 'lucide-react';
 
 interface NewMessageDialogProps {
   onConversationStarted?: (conversationId: string) => void;
+  /** Optional: provide a startConversation implementation from the parent to share state. */
+  startConversationFn?: (recipientId: string) => Promise<{
+    error: any;
+    conversation: { id: string } | null;
+  }>;
   /** Controlled open state (optional). */
   open?: boolean;
   /** Controlled open state setter (optional). */
@@ -28,6 +33,7 @@ interface NewMessageDialogProps {
 
 export function NewMessageDialog({
   onConversationStarted,
+  startConversationFn,
   open: controlledOpen,
   onOpenChange,
   hideTrigger,
@@ -38,7 +44,8 @@ export function NewMessageDialog({
   const [starting, setStarting] = useState(false);
   
   const { results, loading, searchUsers, clearResults } = useUserSearch();
-  const { startConversation } = useConversations();
+  const { startConversation: startConversationFromHook } = useConversations();
+  const startConversation = startConversationFn ?? startConversationFromHook;
   const { friends } = useFriends();
 
   // Friends are already filtered as accepted in the hook

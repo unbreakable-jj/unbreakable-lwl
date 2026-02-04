@@ -38,7 +38,14 @@ import { NewMessageDialog } from '@/components/inbox/NewMessageDialog';
 export default function Inbox() {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { conversations, loading, sendMessage, deleteConversation, markConversationAsRead } = useConversations();
+  const {
+    conversations,
+    loading,
+    sendMessage,
+    deleteConversation,
+    markConversationAsRead,
+    startConversation,
+  } = useConversations();
   const { blockUser, isUserBlocked, checkIfBlockedBy } = useBlockedUsers();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [newMessageOpen, setNewMessageOpen] = useState(false);
@@ -236,7 +243,11 @@ export default function Inbox() {
               </div>
               <NewMessageDialog onConversationStarted={(id) => {
                 setSelectedConversationId(id);
-              }} open={newMessageOpen} onOpenChange={setNewMessageOpen} />
+               }}
+               startConversationFn={startConversation}
+               open={newMessageOpen}
+               onOpenChange={setNewMessageOpen}
+             />
             </div>
           </div>
 

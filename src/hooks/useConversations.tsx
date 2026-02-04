@@ -197,52 +197,17 @@ export function useConversations() {
       return { error: new Error('You cannot message this user'), conversation: null };
     }
 
-    // Check if conversation already exists between these users
-    const { data: existingParticipations } = await supabase
-      .from('conversation_participants')
-      .select('conversation_id')
-      .eq('user_id', user.id)
-      .eq('is_deleted', false);
+    // Create-or-get conversation server-side (enforces messaging + block rules)
+    const { data: convId, error: rpcError } = await supabase
+      .rpc('start_or_get_conversation', { recipient_id: recipientId });
 
-    if (existingParticipations) {
-      for (const part of existingParticipations) {
-        const { data: otherPart } = await supabase
-          .from('conversation_participants')
-          .select('user_id')
-          .eq('conversation_id', part.conversation_id)
-          .eq('user_id', recipientId)
-          .eq('is_deleted', false)
-          .maybeSingle();
-
-        if (otherPart) {
-          // Existing conversation found
-          const existing = conversations.find((c) => c.id === part.conversation_id);
-          return { error: null, conversation: existing || null };
-        }
-      }
-    }
-
-    // Create new conversation
-    const { data: newConv, error: convError } = await supabase
-      .from('conversations')
-      .insert({})
-      .select()
-      .single();
-
-    if (convError) return { error: convError, conversation: null };
-
-    // Add participants
-    const { error: partError } = await supabase
-      .from('conversation_participants')
-      .insert([
-        { conversation_id: newConv.id, user_id: user.id },
-        { conversation_id: newConv.id, user_id: recipientId },
-      ]);
-
-    if (partError) return { error: partError, conversation: null };
+    if (rpcError) return { error: rpcError, conversation: null };
 
     await fetchConversations();
-    return { error: null, conversation: newConv };
+
+    // Return a minimal conversation object (callers only need the id for navigation)
+    const id = typeof convId === 'string' ? convId : (convId as any)?.toString?.();
+    return { error: null, conversation: id ? ({ id } as any) : null };
   };
 
   const sendMessage = async (
