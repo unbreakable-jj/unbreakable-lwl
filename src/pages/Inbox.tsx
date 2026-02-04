@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,6 @@ import {
   CheckCheck,
   Ban,
   ShieldAlert,
-  Plus,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -40,13 +39,18 @@ export default function Inbox() {
   const { user } = useAuth();
   const { conversations, loading, sendMessage, deleteConversation, markConversationAsRead } = useConversations();
   const { blockUser, isUserBlocked, checkIfBlockedBy } = useBlockedUsers();
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageText, setMessageText] = useState('');
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [isBlockedByOther, setIsBlockedByOther] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const selectedConversation = useMemo(() => {
+    if (!selectedConversationId) return null;
+    return conversations.find((c) => c.id === selectedConversationId) || null;
+  }, [conversations, selectedConversationId]);
 
   // Filter conversations by search
   const filteredConversations = conversations.filter(conv => {
@@ -75,31 +79,25 @@ export default function Inbox() {
 
   // Subscribe to new messages and check block status
   useEffect(() => {
-    if (!selectedConversation) {
+    if (!selectedConversationId) {
       setIsBlockedByOther(false);
       return;
     }
 
-    fetchMessages(selectedConversation.id);
-
-    // Check if blocked by the other user
-    const otherParticipant = selectedConversation.participants.find(p => p.user_id !== user?.id);
-    if (otherParticipant) {
-      checkIfBlockedBy(otherParticipant.user_id).then(setIsBlockedByOther);
-    }
+    fetchMessages(selectedConversationId);
 
     const channel = supabase
-      .channel(`inbox-chat-${selectedConversation.id}`)
+      .channel(`inbox-chat-${selectedConversationId}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'messages',
-          filter: `conversation_id=eq.${selectedConversation.id}`,
+          filter: `conversation_id=eq.${selectedConversationId}`,
         },
         () => {
-          fetchMessages(selectedConversation.id);
+          fetchMessages(selectedConversationId);
         }
       )
       .subscribe();
@@ -107,7 +105,23 @@ export default function Inbox() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [selectedConversation?.id, user?.id]);
+  }, [selectedConversationId]);
+
+  // Check if blocked by the other user (once we have participant info)
+  useEffect(() => {
+    if (!selectedConversationId || !selectedConversation) {
+      setIsBlockedByOther(false);
+      return;
+    }
+
+    const otherParticipant = selectedConversation.participants.find(p => p.user_id !== user?.id);
+    if (!otherParticipant) {
+      setIsBlockedByOther(false);
+      return;
+    }
+
+    checkIfBlockedBy(otherParticipant.user_id).then(setIsBlockedByOther);
+  }, [selectedConversationId, selectedConversation, user?.id]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -115,7 +129,11 @@ export default function Inbox() {
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!messageText.trim() || !selectedConversation) return;
+    if (!messageText.trim() || !selectedConversationId) return;
+    if (!selectedConversation) {
+      toast.error('Loading conversation…');
+      return;
+    }
     
     const otherParticipant = selectedConversation.participants.find(p => p.user_id !== user?.id);
     if (otherParticipant && isUserBlocked(otherParticipant.user_id)) {
@@ -129,7 +147,7 @@ export default function Inbox() {
     
     const text = messageText;
     setMessageText('');
-    const { error } = await sendMessage(selectedConversation.id, text);
+    const { error } = await sendMessage(selectedConversationId, text);
     if (error) {
       toast.error(error.message);
       setMessageText(text);
@@ -142,7 +160,7 @@ export default function Inbox() {
       toast.error('Failed to block user');
     } else {
       toast.success(`${name} has been blocked`);
-      setSelectedConversation(null);
+      setSelectedConversationId(null);
     }
   };
 
@@ -180,7 +198,7 @@ export default function Inbox() {
       <div className="flex-1 flex overflow-hidden">
         {/* Conversation List - Desktop */}
         <div className={`w-full md:w-80 lg:w-96 border-r border-border flex flex-col ${
-          selectedConversation ? 'hidden md:flex' : 'flex'
+          selectedConversationId ? 'hidden md:flex' : 'flex'
         }`}>
           {/* Search + New Message */}
           <div className="p-4 border-b border-border space-y-3">
@@ -195,8 +213,7 @@ export default function Inbox() {
                 />
               </div>
               <NewMessageDialog onConversationStarted={(id) => {
-                const conv = conversations.find(c => c.id === id);
-                if (conv) setSelectedConversation(conv);
+                setSelectedConversationId(id);
               }} />
             </div>
           </div>
@@ -227,7 +244,7 @@ export default function Inbox() {
                   return (
                     <button
                       key={conv.id}
-                      onClick={() => setSelectedConversation(conv)}
+                      onClick={() => setSelectedConversationId(conv.id)}
                       className={`w-full p-4 text-left hover:bg-muted/50 transition-colors ${
                         isSelected ? 'bg-primary/10' : ''
                       } ${conv.unreadCount > 0 ? 'bg-primary/5' : ''}`}
@@ -273,7 +290,7 @@ export default function Inbox() {
 
         {/* Chat View */}
         <div className={`flex-1 flex flex-col ${
-          selectedConversation ? 'flex' : 'hidden md:flex'
+          selectedConversationId ? 'flex' : 'hidden md:flex'
         }`}>
           {selectedConversation ? (
             <>
@@ -282,7 +299,7 @@ export default function Inbox() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setSelectedConversation(null)}
+                  onClick={() => setSelectedConversationId(null)}
                   className="md:hidden"
                 >
                   <ArrowLeft className="w-5 h-5" />
@@ -335,8 +352,8 @@ export default function Inbox() {
                     })()}
                     <DropdownMenuItem
                       onClick={() => {
-                        deleteConversation(selectedConversation.id);
-                        setSelectedConversation(null);
+                        deleteConversation(selectedConversationId);
+                        setSelectedConversationId(null);
                       }}
                       className="text-destructive"
                     >
@@ -481,6 +498,19 @@ export default function Inbox() {
                 })()}
               </div>
             </>
+          ) : selectedConversationId ? (
+            <div className="flex-1 flex items-center justify-center text-muted-foreground">
+              <div className="text-center">
+                <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-lg">Loading conversation</p>
+                <p className="text-sm mt-1">Just a moment…</p>
+                <div className="mt-4">
+                  <Button variant="outline" onClick={() => setSelectedConversationId(null)}>
+                    Back
+                  </Button>
+                </div>
+              </div>
+            </div>
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">
               <div className="text-center">
