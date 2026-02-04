@@ -41,6 +41,7 @@ export default function Inbox() {
   const { conversations, loading, sendMessage, deleteConversation, markConversationAsRead } = useConversations();
   const { blockUser, isUserBlocked, checkIfBlockedBy } = useBlockedUsers();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [newMessageOpen, setNewMessageOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageText, setMessageText] = useState('');
@@ -54,6 +55,16 @@ export default function Inbox() {
     if (cid && !loading) {
       setSelectedConversationId(cid);
       // Clear the param so refreshing doesn't keep selecting it
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, loading]);
+
+  // Open composer via /inbox?compose=1
+  useEffect(() => {
+    const compose = searchParams.get('compose');
+    const cid = searchParams.get('cid');
+    if (!cid && compose === '1' && !loading) {
+      setNewMessageOpen(true);
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, loading]);
@@ -225,7 +236,7 @@ export default function Inbox() {
               </div>
               <NewMessageDialog onConversationStarted={(id) => {
                 setSelectedConversationId(id);
-              }} />
+              }} open={newMessageOpen} onOpenChange={setNewMessageOpen} />
             </div>
           </div>
 

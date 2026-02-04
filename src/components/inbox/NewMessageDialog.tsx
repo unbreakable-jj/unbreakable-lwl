@@ -18,10 +18,22 @@ import { Plus, Search, Loader2, MessageCircle, Users } from 'lucide-react';
 
 interface NewMessageDialogProps {
   onConversationStarted?: (conversationId: string) => void;
+  /** Controlled open state (optional). */
+  open?: boolean;
+  /** Controlled open state setter (optional). */
+  onOpenChange?: (open: boolean) => void;
+  /** Hide the trigger button (optional). */
+  hideTrigger?: boolean;
 }
 
-export function NewMessageDialog({ onConversationStarted }: NewMessageDialogProps) {
-  const [open, setOpen] = useState(false);
+export function NewMessageDialog({
+  onConversationStarted,
+  open: controlledOpen,
+  onOpenChange,
+  hideTrigger,
+}: NewMessageDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
   const [query, setQuery] = useState('');
   const [starting, setStarting] = useState(false);
   
@@ -31,6 +43,13 @@ export function NewMessageDialog({ onConversationStarted }: NewMessageDialogProp
 
   // Friends are already filtered as accepted in the hook
   const friendProfiles = friends;
+
+  const setOpen = (next: boolean) => {
+    if (controlledOpen === undefined) {
+      setInternalOpen(next);
+    }
+    onOpenChange?.(next);
+  };
 
   const handleSearch = (value: string) => {
     setQuery(value);
@@ -71,10 +90,12 @@ export function NewMessageDialog({ onConversationStarted }: NewMessageDialogProp
 
   return (
     <>
-      <Button size="sm" className="gap-2" type="button" onClick={() => setOpen(true)}>
-        <Plus className="w-4 h-4" />
-        New Message
-      </Button>
+      {!hideTrigger && (
+        <Button size="sm" className="gap-2" type="button" onClick={() => setOpen(true)}>
+          <Plus className="w-4 h-4" />
+          New Message
+        </Button>
+      )}
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
