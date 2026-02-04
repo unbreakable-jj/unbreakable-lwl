@@ -205,13 +205,20 @@ export default function Help() {
         : `Please review this ${selectedMedia.type}: ${selectedMedia.name}`;
     }
     
+    // Prepare media attachments for the coach
+    const mediaAttachments = selectedMedia ? [{
+      type: selectedMedia.type,
+      url: selectedMedia.url,
+      name: selectedMedia.name,
+    }] : undefined;
+    
     // Check if this is a programme request
     if (detectProgrammeRequest(messageContent)) {
       setProgrammeGenerating(true);
       
       // Add user message to chat first
       const userMsg = messageContent;
-      sendMessage(userMsg);
+      sendMessage(userMsg, { mediaAttachments });
       setInput('');
       setSelectedMedia(null);
       
@@ -251,7 +258,7 @@ export default function Help() {
       
       // Add user message to chat first
       const userMsg = messageContent;
-      sendMessage(userMsg);
+      sendMessage(userMsg, { mediaAttachments });
       setInput('');
       setSelectedMedia(null);
       
@@ -291,7 +298,8 @@ export default function Help() {
       setMessagesWithMedia(prev => new Map(prev).set(tempId, selectedMedia));
     }
     
-    sendMessage(messageContent);
+    // Send message with media attachments and user context
+    sendMessage(messageContent, { mediaAttachments });
     setInput('');
     setSelectedMedia(null);
   };

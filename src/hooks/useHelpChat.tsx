@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
+import { useCoachContext, CoachUserContext } from './useCoachContext';
 
 export interface Message {
   id: string;
@@ -18,6 +19,12 @@ export interface Conversation {
   updated_at: string;
 }
 
+export interface MediaAttachment {
+  type: 'image' | 'video';
+  url: string;
+  name: string;
+}
+
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/help-chat`;
 
 export function useHelpChat() {
@@ -26,6 +33,7 @@ export function useHelpChat() {
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { gatherContext, formatContextForAI } = useCoachContext();
 
   // Fetch all conversations
   const { data: conversations = [], isLoading: conversationsLoading } = useQuery({
@@ -127,13 +135,22 @@ export function useHelpChat() {
     },
   });
 
-  // Stream chat response
-  const sendMessage = useCallback(async (input: string) => {
+  // Stream chat response with user context and media support
+  const sendMessage = useCallback(async (
+    input: string,
+    options?: {
+      mediaAttachments?: MediaAttachment[];
+    }
+  ) => {
     if (!user || !input.trim()) return;
     
     setIsLoading(true);
     
     try {
+      // Gather user context for personalized coaching
+      const userContextData = await gatherContext();
+      const formattedContext = formatContextForAI(userContextData);
+      
       // Create or use existing conversation
       let convId = currentConversationId;
       if (!convId) {
@@ -161,14 +178,24 @@ export function useHelpChat() {
         content: m.content,
       }));
       
-      // Stream response
+      // Prepare media URLs if any
+      const mediaUrls = options?.mediaAttachments?.map(m => ({
+        type: m.type,
+        url: m.url,
+      })) || [];
+      
+      // Stream response with context and media
       const resp = await fetch(CHAT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: apiMessages }),
+        body: JSON.stringify({
+          messages: apiMessages,
+          userContext: formattedContext,
+          mediaUrls: mediaUrls.length > 0 ? mediaUrls : undefined,
+        }),
       });
       
       if (!resp.ok || !resp.body) {
@@ -243,7 +270,7 @@ export function useHelpChat() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, currentConversationId, messages, createConversation, saveMessage, queryClient]);
+  }, [user, currentConversationId, messages, createConversation, saveMessage, queryClient, gatherContext, formatContextForAI]);
 
   // Start new conversation
   const startNewConversation = useCallback(() => {
