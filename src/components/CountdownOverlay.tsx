@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
 
-type CountdownPhase = "welcome" | "power" | "speed" | "mindset" | "countdown" | "pause" | "go";
+type CountdownPhase = "welcome" | "power" | "fuel" | "mindset" | "countdown" | "pause" | "go";
 
 interface CountdownOverlayProps {
   isActive: boolean;
@@ -37,41 +37,32 @@ export function CountdownOverlay({
 
     const timer = setTimeout(() => {
       setPhase("power");
-      if (onPlayAudio) {
-        onPlayAudio("Power");
-      }
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [isActive, phase, onPlayAudio]);
+  }, [isActive, phase]);
 
   // POWER phase
   useEffect(() => {
     if (!isActive || phase !== "power") return;
 
     const timer = setTimeout(() => {
-      setPhase("speed");
-      if (onPlayAudio) {
-        onPlayAudio("Speed");
-      }
+      setPhase("fuel");
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [isActive, phase, onPlayAudio]);
+  }, [isActive, phase]);
 
-  // SPEED phase
+  // FUEL phase
   useEffect(() => {
-    if (!isActive || phase !== "speed") return;
+    if (!isActive || phase !== "fuel") return;
 
     const timer = setTimeout(() => {
       setPhase("mindset");
-      if (onPlayAudio) {
-        onPlayAudio("Mindset");
-      }
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [isActive, phase, onPlayAudio]);
+  }, [isActive, phase]);
 
   // MINDSET phase
   useEffect(() => {
@@ -80,13 +71,10 @@ export function CountdownOverlay({
     const timer = setTimeout(() => {
       setPhase("countdown");
       setCount(3);
-      if (onPlayAudio) {
-        onPlayAudio("3");
-      }
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [isActive, phase, onPlayAudio]);
+  }, [isActive, phase]);
 
   // Countdown phase - 3, 2, 1
   useEffect(() => {
@@ -98,15 +86,11 @@ export function CountdownOverlay({
     }
 
     const timer = setTimeout(() => {
-      const nextCount = count - 1;
-      setCount(nextCount);
-      if (onPlayAudio && nextCount > 0) {
-        onPlayAudio(String(nextCount));
-      }
+      setCount((prev) => prev - 1);
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [isActive, count, phase, onPlayAudio]);
+  }, [isActive, count, phase]);
 
   // Pause phase - 2 second pause before GO
   useEffect(() => {
@@ -184,9 +168,9 @@ export function CountdownOverlay({
           <PowerWord word="POWER" />
         )}
 
-        {/* SPEED Phase */}
-        {phase === "speed" && (
-          <PowerWord word="SPEED" />
+        {/* FUEL Phase */}
+        {phase === "fuel" && (
+          <PowerWord word="FUEL" />
         )}
 
         {/* MINDSET Phase */}

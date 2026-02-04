@@ -101,7 +101,7 @@ const Mindset = () => {
     }
   }, [getCycleDuration]);
 
-  // Play audio when phase changes - FIRST CYCLE ONLY + ENDING
+  // Play audio when phase changes - VOICE THROUGHOUT ALL CYCLES
   useEffect(() => {
     if (!selectedExercise || !voiceEnabled || view !== "exercise") return;
     
@@ -110,24 +110,19 @@ const Mindset = () => {
       
       let textToSpeak = "";
       
-      // Only voice on first cycle
-      if (currentCycle === 1) {
-        switch (phase) {
-          case "inhale":
-            textToSpeak = selectedExercise.scripts.inhale;
-            break;
-          case "hold":
-            textToSpeak = selectedExercise.scripts.hold;
-            break;
-          case "exhale":
-            textToSpeak = selectedExercise.scripts.exhale;
-            break;
-        }
-      }
-      
-      // Always voice the ending
-      if (phase === "complete") {
-        textToSpeak = selectedExercise.scripts.closing;
+      switch (phase) {
+        case "inhale":
+          textToSpeak = selectedExercise.scripts.inhale;
+          break;
+        case "hold":
+          textToSpeak = selectedExercise.scripts.hold;
+          break;
+        case "exhale":
+          textToSpeak = selectedExercise.scripts.exhale;
+          break;
+        case "complete":
+          textToSpeak = selectedExercise.scripts.closing;
+          break;
       }
       
       if (textToSpeak) {
