@@ -35,11 +35,16 @@ export function ChatMediaUpload({
       return;
     }
 
-    // Validate file size (50MB max for videos, 10MB for images)
-    const maxSize = type === 'video' ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
+    // Validate file size (500MB max for videos, 5MB for images - matches timeline)
+    const maxSize = type === 'video' ? 500 * 1024 * 1024 : 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      toast.error(`File too large. Max ${type === 'video' ? '50MB' : '10MB'}`);
+      toast.error(`File too large. Max ${type === 'video' ? '500MB' : '5MB'}`);
       return;
+    }
+
+    const sizeMB = file.size / (1024 * 1024);
+    if (type === 'video' && sizeMB > 50) {
+      toast.info(`Uploading ${sizeMB.toFixed(0)}MB video...`);
     }
 
     setIsUploading(true);

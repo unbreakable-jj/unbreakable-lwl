@@ -30,6 +30,18 @@ YOUR STYLE:
 - Don't be afraid to be funny — training should be fun
 - End with encouragement or a challenge when appropriate
 
+MEDIA ANALYSIS:
+- When users share videos, analyse their movement/technique in detail
+- When users share images, provide feedback on form, progress photos, or meal composition
+- Be specific with form corrections and cues
+- Reference the user's context (stats, recent workouts) to personalize feedback
+
+USER CONTEXT:
+- You have access to the user's profile, workout history, and nutrition logs
+- Use this information to personalize your advice without them needing to repeat themselves
+- Reference their recent workouts, current programs, and nutrition patterns naturally
+- Make recommendations based on their actual data
+
 NEVER DO:
 - Never mention AI, algorithms, technology, or that you're a bot
 - Never give medical diagnoses — suggest seeing a professional for injuries/health concerns
@@ -45,12 +57,34 @@ serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json();
+    const { messages, userContext, mediaUrls } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
       throw new Error("Coaching service is temporarily unavailable");
     }
+
+    // Build enhanced system prompt with user context
+    let enhancedSystemPrompt = systemPrompt;
+    if (userContext) {
+      enhancedSystemPrompt += `\n\n[CURRENT USER DATA]\n${userContext}`;
+    }
+
+    // Process messages to include media references
+    const processedMessages = messages.map((msg: any) => {
+      if (msg.role === 'user' && mediaUrls && mediaUrls.length > 0) {
+        // For the most recent user message, include media context
+        const mediaContext = mediaUrls.map((media: { type: string; url: string }) => 
+          `[User attached ${media.type}: ${media.url}]`
+        ).join('\n');
+        
+        return {
+          role: msg.role,
+          content: `${msg.content}\n\n${mediaContext}`,
+        };
+      }
+      return msg;
+    });
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -61,8 +95,8 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: systemPrompt },
-          ...messages,
+          { role: "system", content: enhancedSystemPrompt },
+          ...processedMessages,
         ],
         stream: true,
       }),
