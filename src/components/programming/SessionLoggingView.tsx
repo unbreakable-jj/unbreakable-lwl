@@ -20,7 +20,7 @@ import {
   Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { EXERCISE_LIBRARY, LibraryExercise } from '@/lib/exerciseLibrary';
+import { getExerciseDetails } from '@/lib/exerciseLibrary';
 
 interface SessionLoggingViewProps {
   exerciseLogs: ExerciseLog[];
@@ -75,13 +75,6 @@ function groupByExercise(logs: ExerciseLog[]): Array<[string, ExerciseLog[]]> {
   });
   
   return Array.from(groups.entries());
-}
-
-// Helper to find exercise details from library
-function getExerciseDetails(exerciseName: string): LibraryExercise | undefined {
-  return EXERCISE_LIBRARY.find(
-    (e) => e.name.toLowerCase() === exerciseName.toLowerCase()
-  );
 }
 
 // Local state manager for input values to prevent re-renders during typing
@@ -257,7 +250,7 @@ export function SessionLoggingView({
                     >
                       <div className="px-4 pb-4 space-y-3">
                         {/* Tips Toggle Button */}
-                        {details && (
+                        {details.exercise && (
                           <button
                             onClick={() => setShowTipsFor(showingTips ? null : exerciseName)}
                             className="flex items-center gap-2 text-xs text-primary hover:underline"
@@ -269,21 +262,21 @@ export function SessionLoggingView({
 
                         {/* Tips & Alternatives Panel */}
                         <AnimatePresence>
-                          {showingTips && details && (
+                          {showingTips && details.exercise && (
                             <motion.div
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: 'auto', opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
                               className="rounded-lg bg-muted/30 p-3 space-y-3 overflow-hidden"
                             >
-                              {details.tips && details.tips.length > 0 && (
+                              {details.exercise.tips && details.exercise.tips.length > 0 && (
                                 <div>
                                   <div className="flex items-center gap-1 mb-2">
                                     <Lightbulb className="w-3 h-3 text-primary" />
                                     <span className="text-xs font-display text-primary tracking-wide">TIPS</span>
                                   </div>
                                   <ul className="space-y-1">
-                                    {details.tips.map((tip, idx) => (
+                                    {details.exercise.tips.map((tip, idx) => (
                                       <li key={idx} className="text-xs text-muted-foreground flex gap-2">
                                         <span className="text-primary">•</span>
                                         {tip}
@@ -293,13 +286,13 @@ export function SessionLoggingView({
                                 </div>
                               )}
 
-                              {details.alternatives && details.alternatives.length > 0 && (
+                              {details.exercise.alternatives && details.exercise.alternatives.length > 0 && (
                                 <div>
                                   <span className="text-xs font-display text-muted-foreground tracking-wide">
                                     ALTERNATIVES:
                                   </span>
                                   <div className="flex flex-wrap gap-1 mt-1">
-                                    {details.alternatives.map((alt, idx) => (
+                                    {details.exercise.alternatives.map((alt, idx) => (
                                       <Badge key={idx} variant="outline" className="text-xs">
                                         {alt}
                                       </Badge>

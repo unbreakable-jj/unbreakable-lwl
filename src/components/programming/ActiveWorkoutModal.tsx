@@ -23,7 +23,7 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { EXERCISE_LIBRARY, LibraryExercise } from '@/lib/exerciseLibrary';
+import { getExerciseDetails } from '@/lib/exerciseLibrary';
 
 interface ActiveWorkoutModalProps {
   session: WorkoutSession;
@@ -41,13 +41,6 @@ interface ActiveWorkoutModalProps {
 }
 
 type ActiveTool = 'none' | 'logging' | 'notes' | 'feedback' | 'progress' | 'results';
-
-// Helper to find exercise details from library
-function getExerciseDetails(exerciseName: string): LibraryExercise | undefined {
-  return EXERCISE_LIBRARY.find(
-    (e) => e.name.toLowerCase() === exerciseName.toLowerCase()
-  );
-}
 
 export function ActiveWorkoutModal({
   session,
@@ -227,7 +220,7 @@ export function ActiveWorkoutModal({
                               <Badge variant="outline" className="text-xs">
                                 {exercise.completed}/{exercise.sets}
                               </Badge>
-                              {details && (
+                              {details.exercise && (
                                 <Info className="w-4 h-4 text-muted-foreground" />
                               )}
                               {isExpanded ? (
@@ -240,7 +233,7 @@ export function ActiveWorkoutModal({
 
                           {/* Tips & Alternatives Dropdown */}
                           <AnimatePresence>
-                            {isExpanded && details && (
+                            {isExpanded && details.exercise && (
                               <motion.div
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: 'auto', opacity: 1 }}
@@ -249,15 +242,36 @@ export function ActiveWorkoutModal({
                                 className="overflow-hidden border-t border-border"
                               >
                                 <div className="p-3 space-y-3 bg-muted/20">
+                                  {/* Description */}
+                                  {details.exercise?.description && (
+                                    <p className="text-xs text-muted-foreground">
+                                      {details.exercise.description}
+                                    </p>
+                                  )}
+
+                                  {/* How-to steps (generated) */}
+                                  {details.steps.length > 0 && (
+                                    <div>
+                                      <span className="text-xs font-display text-muted-foreground tracking-wide">
+                                        HOW TO
+                                      </span>
+                                      <ol className="mt-1 space-y-1 list-decimal list-inside text-xs text-muted-foreground">
+                                        {details.steps.slice(0, 6).map((step, idx) => (
+                                          <li key={idx}>{step}</li>
+                                        ))}
+                                      </ol>
+                                    </div>
+                                  )}
+
                                   {/* Tips */}
-                                  {details.tips && details.tips.length > 0 && (
+                                  {details.exercise?.tips && details.exercise.tips.length > 0 && (
                                     <div>
                                       <div className="flex items-center gap-1 mb-2">
                                         <Lightbulb className="w-3 h-3 text-primary" />
                                         <span className="text-xs font-display text-primary tracking-wide">TIPS</span>
                                       </div>
                                       <ul className="space-y-1">
-                                        {details.tips.map((tip, idx) => (
+                                        {details.exercise.tips.map((tip, idx) => (
                                           <li key={idx} className="text-xs text-muted-foreground flex gap-2">
                                             <span className="text-primary">•</span>
                                             {tip}
@@ -268,13 +282,13 @@ export function ActiveWorkoutModal({
                                   )}
 
                                   {/* Alternatives */}
-                                  {details.alternatives && details.alternatives.length > 0 && (
+                                  {details.exercise?.alternatives && details.exercise.alternatives.length > 0 && (
                                     <div>
                                       <span className="text-xs font-display text-muted-foreground tracking-wide">
                                         ALTERNATIVES:
                                       </span>
                                       <div className="flex flex-wrap gap-1 mt-1">
-                                        {details.alternatives.map((alt, idx) => (
+                                        {details.exercise.alternatives.map((alt, idx) => (
                                           <Badge key={idx} variant="outline" className="text-xs">
                                             {alt}
                                           </Badge>
@@ -288,7 +302,7 @@ export function ActiveWorkoutModal({
                           </AnimatePresence>
 
                           {/* No details available message */}
-                          {isExpanded && !details && (
+                          {isExpanded && !details.exercise && (
                             <div className="p-3 text-xs text-muted-foreground border-t border-border bg-muted/20">
                               No additional details available for this exercise.
                             </div>
