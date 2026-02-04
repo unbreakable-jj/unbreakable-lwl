@@ -138,7 +138,8 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
 
   const startTracking = useCallback(() => {
     setPhase('tracking');
-    setStartTime(new Date());
+    const sessionStart = new Date();
+    setStartTime(sessionStart);
     setPositions([]);
     setDistance(0);
     setElapsedSeconds(0);
@@ -146,9 +147,11 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     setGpsAccuracy(null);
     setCurrentSpeed(null);
 
-    // Start timer
+    // Start timer using timestamp-based calculation for background accuracy
     timerRef.current = setInterval(() => {
-      setElapsedSeconds((prev) => prev + 1);
+      const now = Date.now();
+      const elapsed = Math.floor((now - sessionStart.getTime()) / 1000);
+      setElapsedSeconds(elapsed);
     }, 1000);
 
     // Request location permission and start high-accuracy GPS tracking
