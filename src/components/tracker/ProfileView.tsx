@@ -499,42 +499,6 @@ export function ProfileView() {
             <MyProgramsSection />
           </Card>
 
-          {/* Workout History */}
-          <Card className="bg-card border-border p-6">
-            <h3 className="font-display text-xl text-foreground mb-4 tracking-wide">WORKOUT HISTORY</h3>
-            {sessions && sessions.length > 0 ? (
-              <div className="space-y-3">
-                {sessions
-                  .filter((s) => s.status !== 'cancelled')
-                  .slice(0, 8)
-                  .map((s) => (
-                    <div
-                      key={s.id}
-                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
-                    >
-                      <div className="min-w-0">
-                        <p className="font-medium text-foreground truncate">{s.session_type}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {format(parseISO(s.started_at), 'MMM d, yyyy')} • Week {s.week_number} • {s.day_name}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-muted-foreground capitalize">{s.status.replace('_', ' ')}</p>
-                        {typeof s.duration_seconds === 'number' && (
-                          <p className="text-sm text-muted-foreground">
-                            {Math.floor(s.duration_seconds / 60)}m
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-center py-8">
-                No workouts logged yet — start your first session from a saved programme.
-              </p>
-            )}
-          </Card>
 
           {/* Recent Activity */}
           <Card className="bg-card border-border p-6">
