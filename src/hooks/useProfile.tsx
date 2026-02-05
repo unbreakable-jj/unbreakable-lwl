@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { profileSchema, getValidationError } from '@/lib/validations';
 
 export interface Profile {
   id: string;
@@ -64,9 +65,15 @@ export function useProfile() {
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user) return { error: new Error('Not authenticated') };
 
+    // Validate profile updates
+    const validation = profileSchema.safeParse(updates);
+    if (!validation.success) {
+      return { error: new Error(getValidationError(validation)) };
+    }
+
     // Convert empty strings to null to satisfy database constraints
     const sanitizedUpdates: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(updates)) {
+    for (const [key, value] of Object.entries(validation.data)) {
       const normalizedValue = key === 'username' ? normalizeUsername(value) : value;
       if (value === '') {
         sanitizedUpdates[key] = null;
