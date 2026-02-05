@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { runSchema, runUpdateSchema, getValidationError } from '@/lib/validations';
 
 export interface Run {
   id: string;
@@ -91,6 +92,12 @@ export function useRuns() {
   const createRun = async (runData: Omit<Run, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     if (!user) return { error: new Error('Not authenticated'), data: null };
 
+    // Validate input before sending to database
+    const validation = runSchema.safeParse(runData);
+    if (!validation.success) {
+      return { error: new Error(getValidationError(validation)), data: null };
+    }
+
     const { data, error } = await supabase
       .from('runs')
       .insert({
@@ -123,9 +130,15 @@ export function useRuns() {
   const updateRun = async (runId: string, updates: { title?: string; description?: string; visibility?: string }) => {
     if (!user) return { error: new Error('Not authenticated') };
 
+    // Validate update input
+    const validation = runUpdateSchema.safeParse(updates);
+    if (!validation.success) {
+      return { error: new Error(getValidationError(validation)) };
+    }
+
     const { error } = await supabase
       .from('runs')
-      .update(updates)
+      .update(validation.data)
       .eq('id', runId)
       .eq('user_id', user.id);
 

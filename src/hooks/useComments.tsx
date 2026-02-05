@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { commentSchema, getValidationError } from '@/lib/validations';
 
 export interface Comment {
   id: string;
@@ -69,12 +70,18 @@ export function useComments(runId: string) {
   const addComment = async (content: string) => {
     if (!user) return { error: new Error('Not authenticated'), data: null };
 
+    // Validate comment content
+    const validation = commentSchema.safeParse({ content });
+    if (!validation.success) {
+      return { error: new Error(getValidationError(validation)), data: null };
+    }
+
     const { data, error } = await supabase
       .from('comments')
       .insert({
         run_id: runId,
         user_id: user.id,
-        content: content.trim(),
+        content: validation.data.content.trim(),
       })
       .select()
       .single();
