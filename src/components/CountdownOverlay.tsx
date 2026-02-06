@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
 
-type CountdownPhase = "welcome" | "power" | "fuel" | "mindset" | "countdown" | "pause" | "go";
+type CountdownPhase = "welcome" | "power" | "movement" | "fuel" | "mindset" | "pause" | "go";
 
 interface CountdownOverlayProps {
   isActive: boolean;
@@ -47,6 +47,17 @@ export function CountdownOverlay({
     if (!isActive || phase !== "power") return;
 
     const timer = setTimeout(() => {
+      setPhase("movement");
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [isActive, phase]);
+
+  // MOVEMENT phase
+  useEffect(() => {
+    if (!isActive || phase !== "movement") return;
+
+    const timer = setTimeout(() => {
       setPhase("fuel");
     }, 1000);
 
@@ -69,36 +80,19 @@ export function CountdownOverlay({
     if (!isActive || phase !== "mindset") return;
 
     const timer = setTimeout(() => {
-      setPhase("countdown");
-      setCount(3);
+      setPhase("pause");
     }, 1000);
 
     return () => clearTimeout(timer);
   }, [isActive, phase]);
 
-  // Countdown phase - 3, 2, 1
-  useEffect(() => {
-    if (!isActive || phase !== "countdown") return;
-
-    if (count === 0) {
-      setPhase("pause");
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setCount((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [isActive, count, phase]);
-
-  // Pause phase - 2 second pause before GO
+  // Pause phase - 1 second pause before GO
   useEffect(() => {
     if (!isActive || phase !== "pause") return;
 
     const timer = setTimeout(() => {
       setPhase("go");
-    }, 2000);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [isActive, phase]);
@@ -168,6 +162,11 @@ export function CountdownOverlay({
           <PowerWord word="POWER" />
         )}
 
+        {/* MOVEMENT Phase */}
+        {phase === "movement" && (
+          <PowerWord word="MOVEMENT" />
+        )}
+
         {/* FUEL Phase */}
         {phase === "fuel" && (
           <PowerWord word="FUEL" />
@@ -176,51 +175,6 @@ export function CountdownOverlay({
         {/* MINDSET Phase */}
         {phase === "mindset" && (
           <PowerWord word="MINDSET" />
-        )}
-
-        {/* Countdown Phase - 3, 2, 1 */}
-        {phase === "countdown" && count > 0 && (
-          <motion.div
-            key={`count-${count}`}
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 1.5, opacity: 0 }}
-            transition={{ 
-              type: "spring", 
-              stiffness: 300, 
-              damping: 20,
-              duration: 0.4 
-            }}
-            className="relative z-10 flex flex-col items-center"
-          >
-            {/* Outer ring pulse */}
-            <motion.div
-              animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.5, 0, 0.5],
-              }}
-              transition={{
-                duration: 1,
-                repeat: Infinity,
-                ease: "easeOut",
-              }}
-              className="absolute w-48 h-48 rounded-full border-4 border-primary"
-              style={{ 
-                left: "50%", 
-                top: "50%", 
-                transform: "translate(-50%, -50%)" 
-              }}
-            />
-
-            <span 
-              className="font-display text-[12rem] md:text-[16rem] leading-none text-primary"
-              style={{
-                textShadow: "0 0 60px hsl(var(--primary) / 0.6)",
-              }}
-            >
-              {count}
-            </span>
-          </motion.div>
         )}
 
         {/* Pause Phase - visual breath before GO */}
@@ -238,7 +192,7 @@ export function CountdownOverlay({
                 opacity: [0.4, 0.8, 0.4],
               }}
               transition={{
-                duration: 2,
+                duration: 1,
                 ease: "easeInOut",
               }}
               className="w-32 h-32 rounded-full bg-primary/20 border-2 border-primary"
@@ -249,6 +203,7 @@ export function CountdownOverlay({
           </motion.div>
         )}
 
+        {/* Go Phase */}
         {/* Go Phase */}
         {phase === "go" && (
           <motion.div
@@ -265,7 +220,7 @@ export function CountdownOverlay({
                 textShadow: "0 0 80px hsl(var(--primary) / 0.8)",
               }}
             >
-              GO
+              GO!
             </span>
           </motion.div>
         )}

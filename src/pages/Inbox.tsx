@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,6 +33,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { NewMessageDialog } from '@/components/inbox/NewMessageDialog';
 import { ChatMediaUpload, ChatMediaAttachment } from '@/components/inbox/ChatMediaUpload';
+import { DeleteMessageDialog } from '@/components/inbox/DeleteMessageDialog';
+import { DeleteConfirmModal } from '@/components/tracker/DeleteConfirmModal';
 
 export default function Inbox() {
   const { user } = useAuth();
@@ -42,6 +44,9 @@ export default function Inbox() {
     loading,
     sendMessage,
     deleteConversation,
+    deleteMessageForMe,
+    deleteMessageForEveryone,
+    getDeletedForMeIds,
     markConversationAsRead,
     startConversation,
   } = useConversations();
@@ -55,6 +60,13 @@ export default function Inbox() {
   const [isBlockedByOther, setIsBlockedByOther] = useState(false);
   const [mediaAttachment, setMediaAttachment] = useState<ChatMediaAttachment | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Delete states
+  const [deleteMessageDialogOpen, setDeleteMessageDialogOpen] = useState(false);
+  const [selectedMessageForDelete, setSelectedMessageForDelete] = useState<Message | null>(null);
+  const [deleteConvoModalOpen, setDeleteConvoModalOpen] = useState(false);
+  const [convoToDelete, setConvoToDelete] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Auto-select conversation from URL query param ?cid=
   useEffect(() => {
@@ -92,6 +104,8 @@ export default function Inbox() {
   // Fetch messages for selected conversation
   const fetchMessages = async (conversationId: string) => {
     setMessagesLoading(true);
+    const deletedForMeIds = getDeletedForMeIds();
+    
     const { data, error } = await supabase
       .from('messages')
       .select('*')
@@ -100,7 +114,11 @@ export default function Inbox() {
       .order('created_at', { ascending: true });
 
     if (!error && data) {
-      setMessages(data as Message[]);
+      // Filter out messages deleted for me
+      const filteredMessages = (data as Message[]).filter(
+        msg => !deletedForMeIds.includes(msg.id)
+      );
+      setMessages(filteredMessages);
       markConversationAsRead(conversationId);
     }
     setMessagesLoading(false);
@@ -201,6 +219,71 @@ export default function Inbox() {
     }
   };
 
+  // Handle delete message
+  const handleDeleteMessage = (msg: Message) => {
+    setSelectedMessageForDelete(msg);
+    setDeleteMessageDialogOpen(true);
+  };
+
+  const handleDeleteForMe = async () => {
+    if (!selectedMessageForDelete) return;
+    setDeleteLoading(true);
+    
+    const { error } = await deleteMessageForMe(selectedMessageForDelete.id);
+    if (error) {
+      toast.error('Failed to delete message');
+    } else {
+      setMessages(prev => prev.filter(m => m.id !== selectedMessageForDelete.id));
+      toast.success('Message deleted');
+    }
+    
+    setDeleteLoading(false);
+    setDeleteMessageDialogOpen(false);
+    setSelectedMessageForDelete(null);
+  };
+
+  const handleDeleteForEveryone = async () => {
+    if (!selectedMessageForDelete) return;
+    setDeleteLoading(true);
+    
+    const { error } = await deleteMessageForEveryone(selectedMessageForDelete.id);
+    if (error) {
+      toast.error('Failed to delete message');
+    } else {
+      setMessages(prev => prev.filter(m => m.id !== selectedMessageForDelete.id));
+      toast.success('Message deleted for everyone');
+    }
+    
+    setDeleteLoading(false);
+    setDeleteMessageDialogOpen(false);
+    setSelectedMessageForDelete(null);
+  };
+
+  // Handle swipe to delete conversation
+  const handleSwipeDeleteConvo = (conversationId: string) => {
+    setConvoToDelete(conversationId);
+    setDeleteConvoModalOpen(true);
+  };
+
+  const confirmDeleteConvo = async () => {
+    if (!convoToDelete) return;
+    setDeleteLoading(true);
+    
+    const { error } = await deleteConversation(convoToDelete);
+    if (error) {
+      toast.error('Failed to delete conversation');
+    } else {
+      toast.success('Conversation deleted');
+      if (selectedConversationId === convoToDelete) {
+        setSelectedConversationId(null);
+      }
+    }
+    
+    setDeleteLoading(false);
+    setDeleteConvoModalOpen(false);
+    setConvoToDelete(null);
+  };
+
   const getMessageStatus = (msg: Message & { read_at?: string; delivered_at?: string; status?: string }): 'sent' | 'delivered' | 'read' => {
     if ((msg as any).read_at) return 'read';
     if ((msg as any).delivered_at) return 'delivered';
@@ -283,45 +366,83 @@ export default function Inbox() {
                   const isSelected = selectedConversation?.id === conv.id;
 
                   return (
-                    <button
+                    <motion.div
                       key={conv.id}
-                      onClick={() => setSelectedConversationId(conv.id)}
-                      className={`w-full p-4 text-left hover:bg-muted/50 transition-colors ${
-                        isSelected ? 'bg-primary/10' : ''
-                      } ${conv.unreadCount > 0 ? 'bg-primary/5' : ''}`}
+                      drag="x"
+                      dragConstraints={{ left: -80, right: 0 }}
+                      dragElastic={0.1}
+                      onDragEnd={(_, info: PanInfo) => {
+                        if (info.offset.x < -60) {
+                          handleSwipeDeleteConvo(conv.id);
+                        }
+                      }}
+                      className="relative"
                     >
-                      <div className="flex items-start gap-3">
-                        <Avatar className="h-12 w-12">
-                          <AvatarImage src={profile?.avatar_url || undefined} />
-                          <AvatarFallback className="bg-primary/20 text-primary font-display">
-                            {initials}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <p className="font-medium text-foreground truncate">{displayName}</p>
+                      {/* Delete indicator behind */}
+                      <div className="absolute inset-y-0 right-0 w-20 bg-destructive flex items-center justify-center">
+                        <Trash2 className="w-5 h-5 text-destructive-foreground" />
+                      </div>
+                      
+                      <motion.button
+                        onClick={() => setSelectedConversationId(conv.id)}
+                        className={`w-full p-4 text-left hover:bg-muted/50 transition-colors bg-background relative ${
+                          isSelected ? 'bg-primary/10' : ''
+                        } ${conv.unreadCount > 0 ? 'bg-primary/5' : ''}`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <Avatar className="h-12 w-12">
+                            <AvatarImage src={profile?.avatar_url || undefined} />
+                            <AvatarFallback className="bg-primary/20 text-primary font-display">
+                              {initials}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p className="font-medium text-foreground truncate">{displayName}</p>
+                              <div className="flex items-center gap-2">
+                                {conv.lastMessage && (
+                                  <p className="text-xs text-muted-foreground">
+                                    {formatDistanceToNow(new Date(conv.lastMessage.created_at), {
+                                      addSuffix: false,
+                                    })}
+                                  </p>
+                                )}
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                      <MoreVertical className="w-4 h-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleSwipeDeleteConvo(conv.id);
+                                      }}
+                                      className="text-destructive"
+                                    >
+                                      <Trash2 className="w-4 h-4 mr-2" />
+                                      Delete conversation
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            </div>
                             {conv.lastMessage && (
-                              <p className="text-xs text-muted-foreground">
-                                {formatDistanceToNow(new Date(conv.lastMessage.created_at), {
-                                  addSuffix: false,
-                                })}
+                              <p className="text-sm text-muted-foreground truncate mt-1">
+                                {conv.lastMessage.sender_id === user.id && 'You: '}
+                                {conv.lastMessage.content || '[Media]'}
                               </p>
                             )}
+                            {conv.unreadCount > 0 && (
+                              <Badge variant="default" className="mt-1 h-5 text-xs">
+                                {conv.unreadCount} new
+                              </Badge>
+                            )}
                           </div>
-                          {conv.lastMessage && (
-                            <p className="text-sm text-muted-foreground truncate mt-1">
-                              {conv.lastMessage.sender_id === user.id && 'You: '}
-                              {conv.lastMessage.content || '[Media]'}
-                            </p>
-                          )}
-                          {conv.unreadCount > 0 && (
-                            <Badge variant="default" className="mt-1 h-5 text-xs">
-                              {conv.unreadCount} new
-                            </Badge>
-                          )}
                         </div>
-                      </div>
-                    </button>
+                      </motion.button>
+                    </motion.div>
                   );
                 })}
               </div>
@@ -435,53 +556,77 @@ export default function Inbox() {
                           <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
+                            className={`flex ${isOwn ? 'justify-end' : 'justify-start'} group`}
                           >
-                            <div
-                              className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                                isOwn
-                                  ? 'bg-primary text-primary-foreground rounded-br-sm'
-                                  : 'bg-muted rounded-bl-sm'
-                              }`}
-                            >
-                              {msg.image_url && (
-                                <img
-                                  src={msg.image_url}
-                                  alt="Shared image"
-                                  className="rounded-lg max-w-full mb-2"
-                                />
-                              )}
-                              {msg.video_url && (
-                                <video
-                                  src={msg.video_url}
-                                  controls
-                                  className="rounded-lg max-w-full mb-2"
-                                />
-                              )}
-                              {msg.content && <p>{msg.content}</p>}
-                              <div className={`flex items-center gap-1 mt-1 ${
-                                isOwn ? 'justify-end' : ''
-                              }`}>
-                                <span
-                                  className={`text-xs ${
-                                    isOwn ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                                  }`}
-                                >
-                                  {format(new Date(msg.created_at), 'HH:mm')}
-                                </span>
-                                {isOwn && (
-                                  <span className={`${
-                                    status === 'read' ? 'text-primary-foreground' : 'text-primary-foreground/50'
-                                  }`}>
-                                    {status === 'read' ? (
-                                      <CheckCheck className="w-3.5 h-3.5" />
-                                    ) : status === 'delivered' ? (
-                                      <CheckCheck className="w-3.5 h-3.5" />
-                                    ) : (
-                                      <Check className="w-3.5 h-3.5" />
-                                    )}
-                                  </span>
+                            <div className="relative">
+                              {/* Delete button on hover */}
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={`absolute top-0 ${isOwn ? '-left-8' : '-right-8'} opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0`}
+                                  >
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align={isOwn ? 'start' : 'end'}>
+                                  <DropdownMenuItem
+                                    onClick={() => handleDeleteMessage(msg)}
+                                    className="text-destructive"
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Delete message
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                              
+                              <div
+                                className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                                  isOwn
+                                    ? 'bg-primary text-primary-foreground rounded-br-sm'
+                                    : 'bg-muted rounded-bl-sm'
+                                }`}
+                              >
+                                {msg.image_url && (
+                                  <img
+                                    src={msg.image_url}
+                                    alt="Shared image"
+                                    className="rounded-lg max-w-full mb-2"
+                                  />
                                 )}
+                                {msg.video_url && (
+                                  <video
+                                    src={msg.video_url}
+                                    controls
+                                    className="rounded-lg max-w-full mb-2"
+                                  />
+                                )}
+                                {msg.content && <p>{msg.content}</p>}
+                                <div className={`flex items-center gap-1 mt-1 ${
+                                  isOwn ? 'justify-end' : ''
+                                }`}>
+                                  <span
+                                    className={`text-xs ${
+                                      isOwn ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                                    }`}
+                                  >
+                                    {format(new Date(msg.created_at), 'HH:mm')}
+                                  </span>
+                                  {isOwn && (
+                                    <span className={`${
+                                      status === 'read' ? 'text-primary-foreground' : 'text-primary-foreground/50'
+                                    }`}>
+                                      {status === 'read' ? (
+                                        <CheckCheck className="w-3.5 h-3.5" />
+                                      ) : status === 'delivered' ? (
+                                        <CheckCheck className="w-3.5 h-3.5" />
+                                      ) : (
+                                        <Check className="w-3.5 h-3.5" />
+                                      )}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </motion.div>
@@ -570,6 +715,33 @@ export default function Inbox() {
           )}
         </div>
       </div>
+
+      {/* Delete Message Dialog */}
+      <DeleteMessageDialog
+        isOpen={deleteMessageDialogOpen}
+        onClose={() => {
+          setDeleteMessageDialogOpen(false);
+          setSelectedMessageForDelete(null);
+        }}
+        onDeleteForMe={handleDeleteForMe}
+        onDeleteForEveryone={handleDeleteForEveryone}
+        isOwnMessage={selectedMessageForDelete?.sender_id === user?.id}
+        loading={deleteLoading}
+      />
+
+      {/* Delete Conversation Modal */}
+      <DeleteConfirmModal
+        isOpen={deleteConvoModalOpen}
+        onClose={() => {
+          setDeleteConvoModalOpen(false);
+          setConvoToDelete(null);
+        }}
+        onConfirm={confirmDeleteConvo}
+        title="Delete Conversation"
+        description="This will remove the conversation from your inbox. The other person will still be able to see the conversation."
+        confirmText="Delete"
+        loading={deleteLoading}
+      />
     </div>
   );
 }

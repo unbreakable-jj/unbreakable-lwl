@@ -252,7 +252,23 @@ export function useConversations() {
     return { error };
   };
 
-  const deleteMessage = async (messageId: string) => {
+  // Delete message for current user only (soft delete via local state)
+  const deleteMessageForMe = async (messageId: string) => {
+    if (!user) return { error: new Error('Not authenticated') };
+    
+    // We'll track deleted-for-me messages in local storage
+    const storageKey = `deleted_messages_${user.id}`;
+    const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    if (!existing.includes(messageId)) {
+      existing.push(messageId);
+      localStorage.setItem(storageKey, JSON.stringify(existing));
+    }
+    
+    return { error: null };
+  };
+
+  // Delete message for everyone (only sender can do this)
+  const deleteMessageForEveryone = async (messageId: string) => {
     if (!user) return { error: new Error('Not authenticated') };
 
     const { error } = await supabase
@@ -262,6 +278,18 @@ export function useConversations() {
       .eq('sender_id', user.id);
 
     return { error };
+  };
+
+  // Legacy function for backwards compatibility
+  const deleteMessage = async (messageId: string) => {
+    return deleteMessageForEveryone(messageId);
+  };
+  
+  // Get deleted-for-me message IDs
+  const getDeletedForMeIds = (): string[] => {
+    if (!user) return [];
+    const storageKey = `deleted_messages_${user.id}`;
+    return JSON.parse(localStorage.getItem(storageKey) || '[]');
   };
 
   const deleteConversation = async (conversationId: string) => {
@@ -305,6 +333,9 @@ export function useConversations() {
     startConversation,
     sendMessage,
     deleteMessage,
+    deleteMessageForMe,
+    deleteMessageForEveryone,
+    getDeletedForMeIds,
     deleteConversation,
     markConversationAsRead,
     refetch: fetchConversations,
