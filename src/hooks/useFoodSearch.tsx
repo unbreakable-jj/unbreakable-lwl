@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export interface NutritionValues {
@@ -38,34 +39,48 @@ export function useFoodSearch() {
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<FoodSearchResult[]>([]);
 
+  const getAuthHeaders = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      throw new Error('Not authenticated');
+    }
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`,
+    };
+  }, []);
+
   const searchFoods = useCallback(async (query: string): Promise<FoodSearchResult[]> => {
     if (!query.trim() || query.length < 2) {
       setResults([]);
       return [];
     }
 
+    if (!user) {
+      toast.error('Please sign in to search foods');
+      return [];
+    }
+
     setIsSearching(true);
 
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/food-lookup`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
+          headers,
           body: JSON.stringify({
             type: 'search',
             query,
-            userId: user?.id,
+            userId: user.id,
           }),
         }
       );
 
       if (!response.ok) {
-        throw new Error('Search failed');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Search failed');
       }
 
       const data = await response.json();
@@ -73,38 +88,40 @@ export function useFoodSearch() {
       return data.results || [];
     } catch (error) {
       console.error('Food search error:', error);
-      toast.error('Search failed. Try again.');
+      toast.error(error instanceof Error ? error.message : 'Search failed. Try again.');
       return [];
     } finally {
       setIsSearching(false);
     }
-  }, [user]);
-
+  }, [user, getAuthHeaders]);
   const lookupBarcode = useCallback(async (barcode: string): Promise<FoodSearchResult | null> => {
     if (!barcode.trim()) return null;
+
+    if (!user) {
+      toast.error('Please sign in to scan barcodes');
+      return null;
+    }
 
     setIsSearching(true);
 
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/food-lookup`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
+          headers,
           body: JSON.stringify({
             type: 'barcode',
             barcode,
-            userId: user?.id,
+            userId: user.id,
           }),
         }
       );
 
       if (!response.ok) {
-        throw new Error('Barcode lookup failed');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Barcode lookup failed');
       }
 
       const data = await response.json();
@@ -116,12 +133,12 @@ export function useFoodSearch() {
       return null;
     } catch (error) {
       console.error('Barcode lookup error:', error);
-      toast.error('Could not find product. Try manual entry.');
+      toast.error(error instanceof Error ? error.message : 'Could not find product. Try manual entry.');
       return null;
     } finally {
       setIsSearching(false);
     }
-  }, [user]);
+  }, [user, getAuthHeaders]);
 
   const clearResults = useCallback(() => {
     setResults([]);
