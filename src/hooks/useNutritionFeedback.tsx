@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNutritionGoals } from '@/hooks/useNutritionGoals';
 import { useFoodLogs } from '@/hooks/useFoodLogs';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
 interface FoodItem {
@@ -28,6 +29,17 @@ export function useNutritionFeedback() {
   const { goals } = useNutritionGoals();
   const { dailySummary } = useFoodLogs();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const getAuthHeaders = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      throw new Error('Not authenticated');
+    }
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`,
+    };
+  }, []);
 
   const analyzeFood = useCallback(async (
     type: 'barcode' | 'food_log' | 'recipe' | 'daily_summary',
@@ -60,14 +72,12 @@ export function useNutritionFeedback() {
         timeOfDay,
       };
 
+      const headers = await getAuthHeaders();
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-nutrition`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
+          headers,
           body: JSON.stringify({
             type,
             item,
@@ -93,7 +103,7 @@ export function useNutritionFeedback() {
     } finally {
       setIsAnalyzing(false);
     }
-  }, [user, goals, dailySummary]);
+  }, [user, goals, dailySummary, getAuthHeaders]);
 
   const analyzeDailySummary = useCallback(async (): Promise<FeedbackResult | null> => {
     return analyzeFood('daily_summary', {
