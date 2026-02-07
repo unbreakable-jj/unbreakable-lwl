@@ -1637,6 +1637,30 @@ export type Database = {
           },
         ]
       }
+      snake_scores: {
+        Row: {
+          created_at: string
+          id: string
+          score: number
+          theme_shifts: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          score?: number
+          theme_shifts?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          score?: number
+          theme_shifts?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       stories: {
         Row: {
           content: string | null
