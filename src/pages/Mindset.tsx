@@ -4,8 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Brain, Zap, Target, Heart, Volume2, VolumeX, Flame, ArrowRight, Settings } from "lucide-react";
+import { Brain, Zap, Target, Heart, Volume2, VolumeX, Flame, ArrowRight, Settings, Gamepad2 } from "lucide-react";
 import { ThemedLogo } from "@/components/ThemedLogo";
+import { lazy, Suspense } from "react";
+
+const SnakeGame = lazy(() => import("@/components/mindset/SnakeGame"));
 import { NavigationDrawer } from "@/components/NavigationDrawer";
 import { ThemeToggle } from "@/components/hub/ThemeToggle";
 import { UnifiedFooter } from "@/components/UnifiedFooter";
@@ -22,7 +25,7 @@ import {
 } from "@/components/ui/sheet";
 
 type BreathPhase = "idle" | "inhale" | "hold" | "exhale" | "rest" | "complete";
-type ViewState = "selection" | "countdown" | "exercise" | "complete";
+type ViewState = "selection" | "countdown" | "exercise" | "complete" | "game";
 
 const VOICE_OPTIONS = [
   { value: "male" as VoiceType, label: "Male Voice", description: "Calm, warm guidance" },
@@ -478,6 +481,40 @@ const Mindset = () => {
                 </Card>
               ))}
             </div>
+
+            {/* Snake Game Card */}
+            <div className="max-w-lg mx-auto mt-10">
+              <h2 className="font-display text-2xl text-primary mb-6 tracking-wide text-center neon-glow-subtle">
+                TRAIN YOUR FOCUS
+              </h2>
+              <Card
+                className="bg-card border-2 border-primary/30 neon-border-subtle border-l-4 border-l-primary p-6 cursor-pointer hover:bg-muted/50 transition-all group"
+                onClick={() => setView("game")}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                    <Gamepad2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-xl text-foreground tracking-wide">
+                      SNAKE
+                    </h3>
+                    <p className="text-xs text-primary font-display">UNBREAKABLE EDITION</p>
+                  </div>
+                </div>
+                <p className="text-primary font-display text-sm tracking-wide mb-3">
+                  SHARPEN YOUR REACTIONS
+                </p>
+                <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                  Classic snake with a twist — colours shift every 5 points as difficulty auto-scales.
+                  Compete on the global leaderboard.
+                </p>
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border">
+                  <span>Endless mode</span>
+                  <span>Auto-scaling difficulty</span>
+                </div>
+              </Card>
+            </div>
           </div>
         </main>
 
@@ -504,6 +541,47 @@ const Mindset = () => {
             </Card>
           </Link>
         </section>
+
+        <UnifiedFooter className="mt-16" />
+      </div>
+    );
+  }
+
+  // Game view
+  if (view === "game") {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                <Link to="/" className="flex items-center gap-3">
+                  <ThemedLogo />
+                  <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
+                    UNBREAKABLE
+                  </span>
+                </Link>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" className="font-display text-xs tracking-wide" onClick={resetExercise}>
+                  ← BACK
+                </Button>
+                <NavigationDrawer />
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="container mx-auto px-6 pt-28 pb-12">
+          <Suspense fallback={
+            <div className="flex items-center justify-center py-20">
+              <p className="font-display text-primary tracking-wide animate-pulse">LOADING...</p>
+            </div>
+          }>
+            <SnakeGame />
+          </Suspense>
+        </main>
 
         <UnifiedFooter className="mt-16" />
       </div>
