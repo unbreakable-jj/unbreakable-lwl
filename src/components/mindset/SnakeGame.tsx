@@ -92,9 +92,9 @@ const THEME_PALETTES: ThemePalette[] = [
 
 // --- Constants ---
 const GRID_SIZE = 20;
-const INITIAL_SPEED = 150;
-const MIN_SPEED = 60;
-const SPEED_DECREASE_PER_POINT = 3;
+const INITIAL_SPEED = 200;
+const MIN_SPEED = 80;
+const SPEED_DECREASE_PER_POINT = 1.5;
 
 const getTheme = (score: number): ThemePalette => {
   const themeIndex = Math.floor(score / 5) % THEME_PALETTES.length;
@@ -563,31 +563,31 @@ const SnakeGame = () => {
       </div>
 
       {/* Mobile D-Pad */}
-      <div className="grid grid-cols-3 gap-1 w-36 md:hidden">
+      <div className="grid grid-cols-3 gap-2 w-48 md:hidden">
         <div />
         <Button
           variant="outline"
           size="icon"
-          className="h-11 w-full border-primary/40"
+          className="h-14 w-full border-primary/40 text-lg"
           onTouchStart={(e) => { e.preventDefault(); handleDPad("UP"); }}
           onMouseDown={() => handleDPad("UP")}
         >
-          <ArrowUp className="w-5 h-5" />
+          <ArrowUp className="w-6 h-6" />
         </Button>
         <div />
         <Button
           variant="outline"
           size="icon"
-          className="h-11 w-full border-primary/40"
+          className="h-14 w-full border-primary/40 text-lg"
           onTouchStart={(e) => { e.preventDefault(); handleDPad("LEFT"); }}
           onMouseDown={() => handleDPad("LEFT")}
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-6 h-6" />
         </Button>
         <Button
           variant="outline"
           size="icon"
-          className="h-11 w-full border-primary/40"
+          className="h-14 w-full border-primary/40 text-lg"
           onTouchStart={(e) => {
             e.preventDefault();
             if (gameState === "idle" || gameState === "gameover") startGame();
@@ -598,26 +598,26 @@ const SnakeGame = () => {
             else togglePause();
           }}
         >
-          {gameState === "playing" ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+          {gameState === "playing" ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
         </Button>
         <Button
           variant="outline"
           size="icon"
-          className="h-11 w-full border-primary/40"
+          className="h-14 w-full border-primary/40 text-lg"
           onTouchStart={(e) => { e.preventDefault(); handleDPad("RIGHT"); }}
           onMouseDown={() => handleDPad("RIGHT")}
         >
-          <ArrowRight className="w-5 h-5" />
+          <ArrowRight className="w-6 h-6" />
         </Button>
         <div />
         <Button
           variant="outline"
           size="icon"
-          className="h-11 w-full border-primary/40"
+          className="h-14 w-full border-primary/40 text-lg"
           onTouchStart={(e) => { e.preventDefault(); handleDPad("DOWN"); }}
           onMouseDown={() => handleDPad("DOWN")}
         >
-          <ArrowDown className="w-5 h-5" />
+          <ArrowDown className="w-6 h-6" />
         </Button>
         <div />
       </div>
