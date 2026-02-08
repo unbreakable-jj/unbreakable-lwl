@@ -114,6 +114,7 @@ const SnakeGame = () => {
   const foodRef = useRef<Position>({ x: 15, y: 10 });
 
   const [score, setScore] = useState(0);
+  const scoreRef = useRef(0);
   const [highScore, setHighScore] = useState(0);
   const [gameState, setGameState] = useState<"idle" | "playing" | "paused" | "gameover">("idle");
   const [showLeaderboard, setShowLeaderboard] = useState(false);
@@ -155,7 +156,7 @@ const SnakeGame = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const theme = getTheme(score);
+    const theme = getTheme(scoreRef.current);
     const snake = snakeRef.current;
     const food = foodRef.current;
 
@@ -221,13 +222,13 @@ const SnakeGame = () => {
     ctx.strokeStyle = theme.border;
     ctx.lineWidth = 2;
     ctx.strokeRect(0, 0, canvasSize, canvasSize);
-  }, [canvasSize, cellSize, score]);
+  }, [canvasSize, cellSize]);
 
   const gameOver = useCallback(() => {
     if (gameLoopRef.current) clearInterval(gameLoopRef.current);
     setGameState("gameover");
 
-    const finalScore = score;
+    const finalScore = scoreRef.current;
     const shifts = Math.floor(finalScore / 5);
 
     if (finalScore > highScore) {
@@ -238,7 +239,7 @@ const SnakeGame = () => {
     if (finalScore > 0) {
       saveScore(finalScore, shifts);
     }
-  }, [score, highScore, saveScore]);
+  }, [highScore, saveScore]);
 
   const tick = useCallback(() => {
     const snake = [...snakeRef.current];
@@ -269,20 +270,19 @@ const SnakeGame = () => {
 
     // Eat food
     if (head.x === foodRef.current.x && head.y === foodRef.current.y) {
-      setScore((prev) => {
-        const newScore = prev + 1;
-        const oldShifts = Math.floor(prev / 5);
-        const newShifts = Math.floor(newScore / 5);
-        if (newShifts > oldShifts) {
-          setThemeShifts(newShifts);
-        }
+      const newScore = scoreRef.current + 1;
+      scoreRef.current = newScore;
+      setScore(newScore);
 
-        // Adjust speed
-        if (gameLoopRef.current) clearInterval(gameLoopRef.current);
-        gameLoopRef.current = setInterval(tick, getSpeed(newScore));
+      const oldShifts = Math.floor((newScore - 1) / 5);
+      const newShifts = Math.floor(newScore / 5);
+      if (newShifts > oldShifts) {
+        setThemeShifts(newShifts);
+      }
 
-        return newScore;
-      });
+      // Adjust speed
+      if (gameLoopRef.current) clearInterval(gameLoopRef.current);
+      gameLoopRef.current = setInterval(tick, getSpeed(newScore));
       spawnFood();
     } else {
       snake.pop();
@@ -296,6 +296,7 @@ const SnakeGame = () => {
     snakeRef.current = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
     directionRef.current = "RIGHT";
     nextDirectionRef.current = "RIGHT";
+    scoreRef.current = 0;
     setScore(0);
     setThemeShifts(0);
     spawnFood();
