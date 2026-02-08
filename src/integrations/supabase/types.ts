@@ -47,6 +47,30 @@ export type Database = {
         }
         Relationships: []
       }
+      alleyway_scores: {
+        Row: {
+          created_at: string
+          id: string
+          score: number
+          theme_shifts: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          score?: number
+          theme_shifts?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          score?: number
+          theme_shifts?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       blocked_users: {
         Row: {
           blocked_id: string
