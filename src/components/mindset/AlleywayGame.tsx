@@ -86,10 +86,10 @@ const BRICK_HEIGHT = 18;
 const BRICK_PADDING = 3;
 const BRICK_TOP_OFFSET = 40;
 
-// Gentler speed curve: starts slow, ramps at theme shifts
-const INITIAL_BALL_SPEED = 2.5;
-const MAX_BALL_SPEED = 5.5;
-const SPEED_INCREASE_PER_SHIFT = 0.35; // only increases at each theme shift (every 5 pts)
+// Very gradual speed curve: starts slow, tiny ramp at theme shifts
+const INITIAL_BALL_SPEED = 2.2;
+const MAX_BALL_SPEED = 4.2;
+const SPEED_INCREASE_PER_SHIFT = 0.15; // minimal increase at each theme shift (every 5 pts)
 
 // Row-by-row regen interval (ms)
 const ROW_REGEN_INTERVAL = 8000;
@@ -243,12 +243,27 @@ const AlleywayGame = () => {
       ctx.lineTo(brick.x + brick.width - 4, brick.y + 1.5);
       ctx.stroke();
 
-      // Reinforced indicator: second inner line
+      // Reinforced indicator: bold contrasting border so players know
       if (brick.hp > 1) {
-        ctx.strokeStyle = `${theme.accent}88`;
+        // Use the opposing color from the theme for maximum contrast
+        const contrastColor = theme.bg === "#0a0a0a" || theme.bg === "#0f0f0f"
+          ? "#ffffff" // white border on dark backgrounds
+          : theme.bg === "#fafafa" || theme.bg === "#f5f5f5"
+            ? "#0a0a0a" // black border on light backgrounds
+            : "#ffffff"; // white border on orange backgrounds
+        
+        // Outer contrasting border
+        ctx.strokeStyle = contrastColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(brick.x + 1, brick.y + 1, brick.width - 2, brick.height - 2, 3);
+        ctx.stroke();
+
+        // Inner accent glow line
+        ctx.strokeStyle = `${contrastColor}55`;
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.roundRect(brick.x + 2, brick.y + 2, brick.width - 4, brick.height - 4, 3);
+        ctx.roundRect(brick.x + 3, brick.y + 3, brick.width - 6, brick.height - 6, 2);
         ctx.stroke();
       }
     });
