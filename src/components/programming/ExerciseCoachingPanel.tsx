@@ -8,9 +8,22 @@ import {
   Clock, 
   Lightbulb,
   ChevronRight,
-  Dumbbell
+  Dumbbell,
+  Shield,
+  TrendingUp,
+  TrendingDown,
+  Gauge,
+  ClipboardList
 } from 'lucide-react';
 import { ExerciseCoachingData } from '@/lib/exerciseCoachingData';
+
+const EXERCISE_TYPE_LABELS: Record<string, string> = {
+  primary_lift: 'Primary Lift',
+  accessory: 'Accessory',
+  assistance: 'Assistance',
+  conditioning: 'Conditioning',
+  mobility: 'Mobility',
+};
 
 interface ExerciseCoachingPanelProps {
   coachingData: ExerciseCoachingData;
@@ -28,6 +41,20 @@ export const ExerciseCoachingPanel = memo(function ExerciseCoachingPanel({
       exit={{ opacity: 0, height: 0 }}
       className="space-y-4 pt-2"
     >
+      {/* Exercise Type & Purpose */}
+      {(coachingData.exerciseType || coachingData.purpose) && (
+        <div className="space-y-2">
+          {coachingData.exerciseType && (
+            <Badge className="bg-primary/20 text-primary border-primary/30 text-xs font-display tracking-wide">
+              {EXERCISE_TYPE_LABELS[coachingData.exerciseType] || coachingData.exerciseType}
+            </Badge>
+          )}
+          {coachingData.purpose && (
+            <p className="text-xs text-foreground/80 leading-relaxed">{coachingData.purpose}</p>
+          )}
+        </div>
+      )}
+
       {/* Movement Phases */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
@@ -63,7 +90,7 @@ export const ExerciseCoachingPanel = memo(function ExerciseCoachingPanel({
           <Wind className="w-4 h-4 text-blue-400" />
           <span className="text-sm font-display text-blue-400 tracking-wide">BREATHING</span>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className={`grid gap-3 ${coachingData.breathing.brace ? 'grid-cols-3' : 'grid-cols-2'}`}>
           <div>
             <span className="text-xs text-muted-foreground block mb-1">Inhale</span>
             <span className="text-xs text-foreground">{coachingData.breathing.inhale}</span>
@@ -72,6 +99,12 @@ export const ExerciseCoachingPanel = memo(function ExerciseCoachingPanel({
             <span className="text-xs text-muted-foreground block mb-1">Exhale</span>
             <span className="text-xs text-foreground">{coachingData.breathing.exhale}</span>
           </div>
+          {coachingData.breathing.brace && (
+            <div>
+              <span className="text-xs text-muted-foreground block mb-1">Brace</span>
+              <span className="text-xs text-foreground">{coachingData.breathing.brace}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -127,6 +160,86 @@ export const ExerciseCoachingPanel = memo(function ExerciseCoachingPanel({
         </div>
       </div>
 
+      {/* Load & Intensity Guidelines */}
+      {coachingData.loadGuidelines && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Gauge className="w-4 h-4 text-purple-400" />
+            <span className="text-sm font-display text-purple-400 tracking-wide">LOAD & INTENSITY</span>
+          </div>
+          <div className="space-y-2">
+            <div className="rounded-lg bg-muted/40 p-2 border border-border/50">
+              <span className="text-xs text-muted-foreground block mb-0.5">Technique Focus</span>
+              <span className="text-xs text-foreground">{coachingData.loadGuidelines.technique}</span>
+            </div>
+            <div className="rounded-lg bg-muted/40 p-2 border border-border/50">
+              <span className="text-xs text-muted-foreground block mb-0.5">Hypertrophy</span>
+              <span className="text-xs text-foreground">{coachingData.loadGuidelines.hypertrophy}</span>
+            </div>
+            <div className="rounded-lg bg-muted/40 p-2 border border-border/50">
+              <span className="text-xs text-muted-foreground block mb-0.5">Strength</span>
+              <span className="text-xs text-foreground">{coachingData.loadGuidelines.strength}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Regressions & Progressions */}
+      {(coachingData.regressions || coachingData.progressions) && (
+        <div className="grid grid-cols-2 gap-3">
+          {coachingData.regressions && coachingData.regressions.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <TrendingDown className="w-4 h-4 text-cyan-400" />
+                <span className="text-xs font-display text-cyan-400 tracking-wide">REGRESSIONS</span>
+              </div>
+              <ul className="space-y-1">
+                {coachingData.regressions.map((r, idx) => (
+                  <li key={idx} className="text-xs text-foreground/80 flex items-start gap-1.5">
+                    <span className="text-cyan-400 mt-0.5">•</span>
+                    <span>{r}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {coachingData.progressions && coachingData.progressions.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-amber-400" />
+                <span className="text-xs font-display text-amber-400 tracking-wide">PROGRESSIONS</span>
+              </div>
+              <ul className="space-y-1">
+                {coachingData.progressions.map((p, idx) => (
+                  <li key={idx} className="text-xs text-foreground/80 flex items-start gap-1.5">
+                    <span className="text-amber-400 mt-0.5">•</span>
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Safety Notes */}
+      {coachingData.safetyNotes && coachingData.safetyNotes.length > 0 && (
+        <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <Shield className="w-4 h-4 text-red-400" />
+            <span className="text-sm font-display text-red-400 tracking-wide">SAFETY NOTES</span>
+          </div>
+          <ul className="space-y-1">
+            {coachingData.safetyNotes.map((note, idx) => (
+              <li key={idx} className="text-xs text-foreground/80 flex items-start gap-2">
+                <ChevronRight className="w-3 h-3 text-red-400 mt-0.5 flex-shrink-0" />
+                <span>{note}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* Tempo Guide */}
       <div className="flex items-center gap-3 rounded-lg bg-muted/40 p-3 border border-border/50">
         <Clock className="w-4 h-4 text-primary flex-shrink-0" />
@@ -135,6 +248,24 @@ export const ExerciseCoachingPanel = memo(function ExerciseCoachingPanel({
           <span className="text-sm text-foreground font-medium">{coachingData.tempoGuide}</span>
         </div>
       </div>
+
+      {/* Logging Instructions */}
+      {coachingData.loggingInstructions && coachingData.loggingInstructions.length > 0 && (
+        <div className="rounded-lg bg-muted/40 p-3 border border-border/50">
+          <div className="flex items-center gap-2 mb-2">
+            <ClipboardList className="w-4 h-4 text-muted-foreground" />
+            <span className="text-xs font-display text-muted-foreground tracking-wide">LOGGING REQUIREMENTS</span>
+          </div>
+          <ul className="space-y-1">
+            {coachingData.loggingInstructions.map((instruction, idx) => (
+              <li key={idx} className="text-xs text-foreground/80 flex items-start gap-1.5">
+                <span className="text-muted-foreground">•</span>
+                <span>{instruction}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Coaching Notes */}
       <div className="rounded-lg bg-primary/10 border border-primary/30 p-3">

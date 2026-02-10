@@ -223,11 +223,13 @@ export type Database = {
         Row: {
           actual_reps: number | null
           completed: boolean
+          confidence_rating: number | null
           created_at: string
           equipment: string
           exercise_name: string
           id: string
           notes: string | null
+          pain_flag: boolean | null
           rpe: number | null
           session_id: string
           set_number: number
@@ -238,11 +240,13 @@ export type Database = {
         Insert: {
           actual_reps?: number | null
           completed?: boolean
+          confidence_rating?: number | null
           created_at?: string
           equipment: string
           exercise_name: string
           id?: string
           notes?: string | null
+          pain_flag?: boolean | null
           rpe?: number | null
           session_id: string
           set_number: number
@@ -253,11 +257,13 @@ export type Database = {
         Update: {
           actual_reps?: number | null
           completed?: boolean
+          confidence_rating?: number | null
           created_at?: string
           equipment?: string
           exercise_name?: string
           id?: string
           notes?: string | null
+          pain_flag?: boolean | null
           rpe?: number | null
           session_id?: string
           set_number?: number
