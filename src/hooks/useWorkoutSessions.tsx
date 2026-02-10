@@ -16,6 +16,8 @@ export interface ExerciseLog {
   rpe: number | null;
   completed: boolean;
   notes: string | null;
+  confidence_rating: number | null;
+  pain_flag: boolean | null;
   created_at: string;
 }
 
@@ -164,6 +166,8 @@ export function useWorkoutSessions() {
       rpe,
       completed,
       notes,
+      confidenceRating,
+      painFlag,
     }: {
       logId: string;
       actualReps?: number;
@@ -171,6 +175,8 @@ export function useWorkoutSessions() {
       rpe?: number;
       completed?: boolean;
       notes?: string;
+      confidenceRating?: number;
+      painFlag?: boolean;
     }) => {
       const updates: Record<string, unknown> = {};
       if (actualReps !== undefined) updates.actual_reps = actualReps;
@@ -178,6 +184,8 @@ export function useWorkoutSessions() {
       if (rpe !== undefined) updates.rpe = rpe;
       if (completed !== undefined) updates.completed = completed;
       if (notes !== undefined) updates.notes = notes;
+      if (confidenceRating !== undefined) updates.confidence_rating = confidenceRating;
+      if (painFlag !== undefined) updates.pain_flag = painFlag;
       
       const { error } = await supabase
         .from('exercise_logs')
@@ -189,7 +197,7 @@ export function useWorkoutSessions() {
       return { logId, updates };
     },
     // Use optimistic updates to prevent re-renders during input
-    onMutate: async ({ logId, actualReps, weightKg, rpe, completed, notes }) => {
+    onMutate: async ({ logId, actualReps, weightKg, rpe, completed, notes, confidenceRating, painFlag }) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['active-session', user?.id] });
       
@@ -207,6 +215,8 @@ export function useWorkoutSessions() {
               ...(rpe !== undefined && { rpe }),
               ...(completed !== undefined && { completed }),
               ...(notes !== undefined && { notes }),
+              ...(confidenceRating !== undefined && { confidence_rating: confidenceRating }),
+              ...(painFlag !== undefined && { pain_flag: painFlag }),
             };
           }
           return log;

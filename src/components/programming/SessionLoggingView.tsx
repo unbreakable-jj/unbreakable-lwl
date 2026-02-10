@@ -6,6 +6,7 @@ import { ExerciseLog } from '@/hooks/useWorkoutSessions';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
@@ -18,7 +19,9 @@ import {
   ChevronDown,
   ChevronUp,
   Lightbulb,
-  BookOpen
+  BookOpen,
+  AlertTriangle,
+  Star
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getExerciseDetails } from '@/lib/exerciseLibrary';
@@ -31,6 +34,8 @@ interface SessionLoggingViewProps {
     rpe?: number;
     completed?: boolean;
     notes?: string;
+    confidenceRating?: number;
+    painFlag?: boolean;
   }) => void;
   onStartRest: (exerciseType: string) => void;
   onClose: () => void;
@@ -329,64 +334,110 @@ export function SessionLoggingView({
                         <div className="grid grid-cols-12 gap-2 text-xs text-muted-foreground px-1">
                           <div className="col-span-1">Set</div>
                           <div className="col-span-2">Target</div>
-                          <div className="col-span-3">Reps</div>
+                          <div className="col-span-2">Reps</div>
                           <div className="col-span-2">Weight</div>
-                          <div className="col-span-2">RPE</div>
+                          <div className="col-span-1">RPE</div>
+                          <div className="col-span-2 text-center text-[10px]">Conf / Pain</div>
                           <div className="col-span-2 text-center">Done</div>
                         </div>
 
                         {/* Use stable log.id as key - logs are pre-sorted */}
                         {logs.map((log) => (
-                          <div key={log.id} className="grid grid-cols-12 gap-2 items-center">
-                            <div className="col-span-1">
-                              <span className="font-display text-primary">{log.set_number}</span>
-                            </div>
-                            <div className="col-span-2">
-                              <span className="text-sm text-muted-foreground">{log.target_reps || '-'}</span>
-                            </div>
-                            <div className="col-span-3">
-                              <Input
-                                type="number"
-                                inputMode="numeric"
-                                placeholder="Reps"
-                                value={getInputValue(log.id, 'reps', log.actual_reps)}
-                                onChange={(e) => handleLocalInputChange(log.id, 'reps', e.target.value)}
-                                onBlur={() => handleInputBlur(log.id, 'reps')}
-                                className="h-10 text-center"
-                              />
-                            </div>
-                            <div className="col-span-2">
-                              <Input
-                                type="number"
-                                inputMode="decimal"
-                                placeholder="kg"
-                                step="0.5"
-                                value={getInputValue(log.id, 'weight', log.weight_kg)}
-                                onChange={(e) => handleLocalInputChange(log.id, 'weight', e.target.value)}
-                                onBlur={() => handleInputBlur(log.id, 'weight')}
-                                className="h-10 text-center"
-                              />
-                            </div>
-                            <div className="col-span-2">
-                              <Input
-                                type="number"
-                                inputMode="decimal"
-                                placeholder="RPE"
-                                step="0.5"
-                                min="1"
-                                max="10"
-                                value={getInputValue(log.id, 'rpe', log.rpe)}
-                                onChange={(e) => handleLocalInputChange(log.id, 'rpe', e.target.value)}
-                                onBlur={() => handleInputBlur(log.id, 'rpe')}
-                                className="h-10 text-center"
-                              />
-                            </div>
-                            <div className="col-span-2 flex justify-center">
-                              <Checkbox
-                                checked={log.completed}
-                                onCheckedChange={(checked) => handleSetComplete(log, !!checked)}
-                                className="h-6 w-6"
-                              />
+                          <div key={log.id} className="space-y-1">
+                            <div className="grid grid-cols-12 gap-2 items-center">
+                              <div className="col-span-1">
+                                <span className="font-display text-primary">{log.set_number}</span>
+                              </div>
+                              <div className="col-span-2">
+                                <span className="text-sm text-muted-foreground">{log.target_reps || '-'}</span>
+                              </div>
+                              <div className="col-span-2">
+                                <Input
+                                  type="number"
+                                  inputMode="numeric"
+                                  placeholder="Reps"
+                                  value={getInputValue(log.id, 'reps', log.actual_reps)}
+                                  onChange={(e) => handleLocalInputChange(log.id, 'reps', e.target.value)}
+                                  onBlur={() => handleInputBlur(log.id, 'reps')}
+                                  className="h-9 text-center text-sm px-1"
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <Input
+                                  type="number"
+                                  inputMode="decimal"
+                                  placeholder="kg"
+                                  step="0.5"
+                                  value={getInputValue(log.id, 'weight', log.weight_kg)}
+                                  onChange={(e) => handleLocalInputChange(log.id, 'weight', e.target.value)}
+                                  onBlur={() => handleInputBlur(log.id, 'weight')}
+                                  className="h-9 text-center text-sm px-1"
+                                />
+                              </div>
+                              <div className="col-span-1">
+                                <Input
+                                  type="number"
+                                  inputMode="decimal"
+                                  placeholder="RPE"
+                                  step="0.5"
+                                  min="1"
+                                  max="10"
+                                  value={getInputValue(log.id, 'rpe', log.rpe)}
+                                  onChange={(e) => handleLocalInputChange(log.id, 'rpe', e.target.value)}
+                                  onBlur={() => handleInputBlur(log.id, 'rpe')}
+                                  className="h-9 text-center text-sm px-0.5"
+                                />
+                              </div>
+                              <div className="col-span-2 flex items-center justify-center gap-1.5">
+                                {/* Confidence rating 1-5 stars */}
+                                <div className="flex gap-0.5">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                      key={star}
+                                      type="button"
+                                      onClick={() => {
+                                        const current = (log as any).confidence_rating;
+                                        const newVal = current === star ? undefined : star;
+                                        onUpdateLog(log.id, { confidenceRating: newVal });
+                                      }}
+                                      className="p-0"
+                                    >
+                                      <Star
+                                        className={`w-3 h-3 ${
+                                          star <= ((log as any).confidence_rating || 0)
+                                            ? 'text-amber-400 fill-amber-400'
+                                            : 'text-muted-foreground/30'
+                                        }`}
+                                      />
+                                    </button>
+                                  ))}
+                                </div>
+                                {/* Pain flag */}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const current = (log as any).pain_flag || false;
+                                    onUpdateLog(log.id, { painFlag: !current });
+                                  }}
+                                  className="p-0.5"
+                                  title="Flag pain or discomfort"
+                                >
+                                  <AlertTriangle
+                                    className={`w-3.5 h-3.5 ${
+                                      (log as any).pain_flag
+                                        ? 'text-red-500 fill-red-500/20'
+                                        : 'text-muted-foreground/30'
+                                    }`}
+                                  />
+                                </button>
+                              </div>
+                              <div className="col-span-2 flex justify-center">
+                                <Checkbox
+                                  checked={log.completed}
+                                  onCheckedChange={(checked) => handleSetComplete(log, !!checked)}
+                                  className="h-6 w-6"
+                                />
+                              </div>
                             </div>
                           </div>
                         ))}

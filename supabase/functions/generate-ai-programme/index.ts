@@ -36,7 +36,7 @@ interface ProgrammeRequest {
   requestType: 'full_programme' | 'quick_programme' | 'chat_request';
 }
 
-// Full exercise library for AI reference
+// Full exercise library and manual standard for AI reference
 const EXERCISE_LIBRARY_SUMMARY = `
 AVAILABLE EXERCISES BY BODY PART:
 
@@ -82,12 +82,37 @@ GLUTES:
 CARDIO:
 - Treadmill, Rowing, Bike, Jump Rope, Burpees, Battle Ropes
 
-COACHING CUES:
+EXERCISE ENTRY STANDARD (Mandatory for every exercise in the programme):
+Each exercise must include:
+1. Exercise Type: Primary Lift / Accessory / Assistance / Conditioning / Mobility
+2. Equipment Required
+3. Sets, Reps, Intensity (RPE or load guidance)
+4. Rest periods
+5. Coaching cues (3-6 action-based, no metaphors)
+6. Safety notes where relevant
+7. Regressions (1-2 easier alternatives) for intermediate/advanced exercises
+8. Progressions (1-2 harder alternatives) for beginner/intermediate exercises
+
+COACHING CUE STANDARDS:
 - Compound movements: Brace core, maintain neutral spine, control eccentric
 - Pressing: Retract scapulae, elbows at 45 degrees, full lockout
 - Pulling: Lead with elbows, squeeze at contraction, full stretch
 - Squatting: Knees track toes, depth to parallel minimum, drive through heels
 - Hinging: Hip hinge pattern, maintain flat back, hamstring tension
+
+LOAD & INTENSITY GUIDELINES:
+- Technique focus: Light-moderate load, slow tempo
+- Hypertrophy: Moderate load, controlled tempo, 8-12 reps
+- Strength: Heavier load, full rest periods, 1-6 reps
+- Do NOT prescribe percentages unless the programme specifically requires it
+
+LOGGING REQUIREMENTS (users must log per set):
+- Load used (kg)
+- Sets and reps completed
+- RPE or effort rating
+- Confidence rating (1-5)
+- Pain flag (yes/no) for injury tracking
+- Optional notes
 `;
 
 serve(async (req) => {

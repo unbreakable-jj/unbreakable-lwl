@@ -1,6 +1,10 @@
 // Premium coaching data for exercises - detailed movement cues, phases, and coaching notes
 
+export type ExerciseType = 'primary_lift' | 'accessory' | 'assistance' | 'conditioning' | 'mobility';
+
 export interface ExerciseCoachingData {
+  exerciseType?: ExerciseType;
+  purpose?: string;
   phases: {
     name: string;
     description: string;
@@ -9,6 +13,7 @@ export interface ExerciseCoachingData {
   breathing: {
     inhale: string;
     exhale: string;
+    brace?: string;
   };
   commonMistakes: {
     mistake: string;
@@ -20,6 +25,15 @@ export interface ExerciseCoachingData {
   };
   tempoGuide: string;
   coachingNotes: string;
+  loadGuidelines?: {
+    technique: string;
+    hypertrophy: string;
+    strength: string;
+  };
+  regressions?: string[];
+  progressions?: string[];
+  safetyNotes?: string[];
+  loggingInstructions?: string[];
 }
 
 // Comprehensive coaching data for key exercises
@@ -28,6 +42,8 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
   // CHEST EXERCISES
   // =====================
   'flat-barbell-bench-press': {
+    exerciseType: 'primary_lift',
+    purpose: 'The flat barbell bench press develops horizontal pressing strength, chest mass, and upper-body power. It is a foundational movement for building maximal pressing capacity and is typically used for strength, hypertrophy, and athletic performance.',
     phases: [
       {
         name: 'Setup',
@@ -75,7 +91,8 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     ],
     breathing: {
       inhale: 'Deep breath at the top, hold during descent',
-      exhale: 'Forceful exhale as you press through the sticking point'
+      exhale: 'Forceful exhale as you press through the sticking point',
+      brace: 'Brace core before unracking and maintain throughout the set'
     },
     commonMistakes: [
       { mistake: 'Flaring elbows to 90 degrees', correction: 'Keep elbows tucked at 45-75 degrees to protect shoulders' },
@@ -89,7 +106,25 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
       secondary: ['Serratus Anterior', 'Core Stabilizers']
     },
     tempoGuide: '3-1-1-0 (3 sec down, 1 sec pause, 1 sec up, no pause at top)',
-    coachingNotes: 'The bench press is a skill that requires practice. Focus on bar path, leg drive, and maintaining upper back tightness. Progressive overload with proper form will build serious pressing power.'
+    coachingNotes: 'The bench press is a skill that requires practice. Focus on bar path, leg drive, and maintaining upper back tightness. Progressive overload with proper form will build serious pressing power.',
+    loadGuidelines: {
+      technique: 'Light-moderate load, slow tempo, focus on bar path and shoulder blade position',
+      hypertrophy: 'Moderate load, controlled reps 8-12, full range of motion',
+      strength: 'Heavy load 3-6 reps, full rest periods (3-5 mins)'
+    },
+    regressions: ['Dumbbell Bench Press', 'Machine Chest Press', 'Push Ups'],
+    progressions: ['Paused Bench Press', 'Tempo Bench Press (4-1-1)', 'Close Grip Bench Press'],
+    safetyNotes: [
+      'Always use a spotter or safety bars when training heavy',
+      'Reduce load if experiencing sharp shoulder or elbow pain',
+      'Ensure wrists stay stacked over elbows to avoid wrist strain'
+    ],
+    loggingInstructions: [
+      'Log barbell weight in kg',
+      'Log total sets and reps completed',
+      'Note RPE per set',
+      'Record any shoulder or wrist discomfort'
+    ]
   },
 
   'incline-barbell-bench-press': {
@@ -143,6 +178,8 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
   },
 
   'conventional-deadlift': {
+    exerciseType: 'primary_lift',
+    purpose: 'The conventional deadlift develops full-body pulling strength, posterior chain power, and grip endurance. It is a cornerstone movement for building raw strength and functional capacity, used in strength, powerlifting, and general fitness programming.',
     phases: [
       {
         name: 'Setup',
@@ -200,7 +237,8 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     ],
     breathing: {
       inhale: 'Massive breath before initiating the pull - hold throughout',
-      exhale: 'Exhale at lockout or after bar returns to floor'
+      exhale: 'Exhale at lockout or after bar returns to floor',
+      brace: 'Full 360-degree core brace before every rep - reset at top'
     },
     commonMistakes: [
       { mistake: 'Rounding lower back', correction: 'Engage lats, brace core, and maintain neutral spine - "chest up"' },
@@ -214,10 +252,30 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
       secondary: ['Quadriceps', 'Lats', 'Traps', 'Forearms', 'Core']
     },
     tempoGuide: 'Controlled setup, explosive pull, controlled descent',
-    coachingNotes: 'The deadlift is the ultimate test of full-body strength. Master the hip hinge pattern, prioritize position over weight, and build an unbreakable posterior chain. Every rep should look identical.'
+    coachingNotes: 'The deadlift is the ultimate test of full-body strength. Master the hip hinge pattern, prioritize position over weight, and build an unbreakable posterior chain. Every rep should look identical.',
+    loadGuidelines: {
+      technique: 'Light load, focus on hip hinge pattern and maintaining flat back',
+      hypertrophy: 'Moderate load, 6-10 reps, controlled tempo on eccentric',
+      strength: 'Heavy load, 1-5 reps, full reset between reps'
+    },
+    regressions: ['Trap Bar Deadlift', 'Romanian Deadlift', 'Block Pulls (elevated start)'],
+    progressions: ['Deficit Deadlift', 'Paused Deadlift (pause below knee)', 'Snatch Grip Deadlift'],
+    safetyNotes: [
+      'Stop immediately if you feel sharp lower back pain',
+      'Use a belt for heavy sets (85%+ 1RM) if desired',
+      'Avoid rounding under load - reduce weight if form breaks'
+    ],
+    loggingInstructions: [
+      'Log barbell weight in kg',
+      'Log total sets and reps completed',
+      'Note RPE per set',
+      'Record any lower back tightness or grip issues'
+    ]
   },
 
   'barbell-back-squat': {
+    exerciseType: 'primary_lift',
+    purpose: 'The barbell back squat develops lower-body strength, trunk stability, and full-body coordination. It is a cornerstone movement for building maximal strength and transferable athletic capacity, used across strength, hypertrophy, and conditioning programmes.',
     phases: [
       {
         name: 'Setup',
@@ -274,7 +332,8 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     ],
     breathing: {
       inhale: 'Deep breath and brace at the top before descending',
-      exhale: 'Exhale forcefully as you drive through the sticking point'
+      exhale: 'Exhale forcefully as you drive through the sticking point',
+      brace: 'Full belly brace before every rep - reset at the top'
     },
     commonMistakes: [
       { mistake: 'Knees caving inward', correction: 'Actively push knees out over toes - strengthen glutes' },
@@ -284,14 +343,34 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
       { mistake: 'Not hitting depth', correction: 'Work mobility and reduce weight until you can hit parallel' }
     ],
     musclesTargeted: {
-      primary: ['Quadriceps', 'Glutes', 'Adductors'],
-      secondary: ['Hamstrings', 'Erector Spinae', 'Core', 'Calves']
+      primary: ['Quadriceps', 'Glutes'],
+      secondary: ['Hamstrings', 'Erector Spinae', 'Core', 'Adductors']
     },
     tempoGuide: '2-0-1-0 (controlled descent, no pause, explosive up)',
-    coachingNotes: 'The king of lower body exercises. Own your depth, own your stance. A great squat is built on mobility, stability, and confidence. Never sacrifice form for weight.'
+    coachingNotes: 'The king of lower body exercises. Own your depth, own your stance. A great squat is built on mobility, stability, and confidence. Never sacrifice form for weight.',
+    loadGuidelines: {
+      technique: 'Light load, slow tempo, focus on depth and bracing',
+      hypertrophy: 'Moderate load, 8-12 reps, controlled descent',
+      strength: 'Heavy load, 1-5 reps, full rest periods (3-5 mins)'
+    },
+    regressions: ['Goblet Squat', 'Box Squat', 'Leg Press'],
+    progressions: ['Paused Squat (3-sec hold at bottom)', 'Tempo Squat (4-0-1)', 'Front Squat'],
+    safetyNotes: [
+      'Reduce load if experiencing sharp knee or lower back pain',
+      'Maintain neutral spine throughout - avoid excessive butt wink',
+      'Use safety bars or a spotter when training near maximal loads'
+    ],
+    loggingInstructions: [
+      'Log barbell weight in kg',
+      'Log total sets and reps completed',
+      'Note RPE per set',
+      'Record depth achieved and any knee or hip discomfort'
+    ]
   },
 
   'overhead-press': {
+    exerciseType: 'primary_lift',
+    purpose: 'The overhead press develops vertical pressing strength, shoulder stability, and upper-body power. It builds functional pressing capacity that transfers to sport and daily life, and is used for strength and hypertrophy development of the shoulders and triceps.',
     phases: [
       {
         name: 'Setup',
@@ -348,7 +427,8 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     ],
     breathing: {
       inhale: 'Big breath before pressing',
-      exhale: 'Exhale through the sticking point or at lockout'
+      exhale: 'Exhale through the sticking point or at lockout',
+      brace: 'Squeeze glutes and brace core before each rep'
     },
     commonMistakes: [
       { mistake: 'Pressing in front of face', correction: 'Press straight up, move head back, then push through' },
@@ -361,10 +441,30 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
       secondary: ['Upper Chest', 'Traps', 'Core Stabilizers']
     },
     tempoGuide: 'Explosive press, controlled lower',
-    coachingNotes: 'The strict press builds real overhead strength and shoulder stability. Keep it strict - no leg drive. This is a humbling movement that separates pretenders from true strength.'
+    coachingNotes: 'The strict press builds real overhead strength and shoulder stability. Keep it strict - no leg drive. This is a humbling movement that separates pretenders from true strength.',
+    loadGuidelines: {
+      technique: 'Light load, focus on bar path and overhead position',
+      hypertrophy: 'Moderate load, 8-12 reps, controlled eccentric',
+      strength: 'Heavy load, 3-6 reps, full rest periods (3-5 mins)'
+    },
+    regressions: ['Seated Dumbbell Press', 'Landmine Press', 'Pike Push Ups'],
+    progressions: ['Push Press (with leg drive)', 'Z-Press (seated on floor)', 'Single Arm Dumbbell Press'],
+    safetyNotes: [
+      'Stop if you feel sharp shoulder impingement or pinching',
+      'Avoid excessive lower back arch under load',
+      'Ensure adequate shoulder mobility before loading heavy'
+    ],
+    loggingInstructions: [
+      'Log barbell weight in kg',
+      'Log total sets and reps completed',
+      'Note RPE per set',
+      'Record any shoulder impingement or discomfort'
+    ]
   },
 
   'barbell-bent-over-row': {
+    exerciseType: 'primary_lift',
+    purpose: 'The barbell bent-over row develops back thickness, posterior chain stability, and pulling strength. It is a foundational horizontal pull used to balance pressing volume and build a strong, resilient upper back for both performance and posture.',
     phases: [
       {
         name: 'Setup',
@@ -411,7 +511,8 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     ],
     breathing: {
       inhale: 'At the bottom with arms extended',
-      exhale: 'As you pull the bar to your body'
+      exhale: 'As you pull the bar to your body',
+      brace: 'Maintain core brace throughout to protect lower back'
     },
     commonMistakes: [
       { mistake: 'Using momentum/standing up', correction: 'Maintain torso angle - the body should be still' },
@@ -424,7 +525,25 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
       secondary: ['Biceps', 'Erector Spinae', 'Core']
     },
     tempoGuide: '1-1-2-0 (explosive pull, squeeze, controlled lower)',
-    coachingNotes: 'The bent-over row builds a thick, powerful back. The key is maintaining position while pulling heavy. If you\'re swinging and standing up, the weight is too heavy.'
+    coachingNotes: 'The bent-over row builds a thick, powerful back. The key is maintaining position while pulling heavy. If you\'re swinging and standing up, the weight is too heavy.',
+    loadGuidelines: {
+      technique: 'Light load, focus on torso angle and lat engagement',
+      hypertrophy: 'Moderate load, 8-12 reps, squeeze at contraction',
+      strength: 'Heavy load, 5-8 reps, controlled but powerful pulls'
+    },
+    regressions: ['Single Arm Dumbbell Row', 'Chest-Supported Row', 'Inverted Row'],
+    progressions: ['Pendlay Row (reset on floor each rep)', 'Tempo Row (3-sec eccentric)', 'Deficit Bent-Over Row'],
+    safetyNotes: [
+      'Reduce load if lower back fatigues before upper back',
+      'Maintain neutral spine throughout - avoid rounding',
+      'Those with lower back issues should consider chest-supported alternatives'
+    ],
+    loggingInstructions: [
+      'Log barbell weight in kg',
+      'Log total sets and reps completed',
+      'Note RPE per set',
+      'Record any lower back fatigue or grip issues'
+    ]
   },
 
   'pull-ups': {
