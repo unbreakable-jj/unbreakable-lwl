@@ -16,10 +16,10 @@ import {
   ArrowLeft,
   ChevronDown,
   ChevronUp,
-  MessageCircle,
   Loader2,
-  Link as LinkIcon,
   Link2,
+  Flame,
+  Wrench,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -79,7 +79,6 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
         ? prev.filter(d => d !== day)
         : [...prev, day].sort((a, b) => TRAINING_DAYS.indexOf(a) - TRAINING_DAYS.indexOf(b));
       
-      // Update days array
       setDays(currentDays => {
         const existingDayMap = new Map(currentDays.map(d => [d.name, d]));
         return newSelection.map(dayName => 
@@ -146,7 +145,6 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
     ));
   };
 
-  // Superset functions
   const toggleSelectForSuperset = (exerciseId: string) => {
     setSelectedForSuperset(prev =>
       prev.includes(exerciseId) ? prev.filter(id => id !== exerciseId) : [...prev, exerciseId]
@@ -158,33 +156,27 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
 
     setDays(prev => prev.map(day => {
       if (day.name !== dayName) return day;
-
       const exercisesToGroup = day.exercises.filter(e => selectedForSuperset.includes(e.id));
       const remainingExercises = day.exercises.filter(e => !selectedForSuperset.includes(e.id));
-
       const newSuperset: Superset = {
         id: `ss-${Date.now()}`,
         exercises: exercisesToGroup,
         restSeconds: 60,
       };
-
       return {
         ...day,
         exercises: remainingExercises,
         supersets: [...day.supersets, newSuperset],
       };
     }));
-
     setSelectedForSuperset([]);
   };
 
   const ungroupSuperset = (dayName: string, supersetId: string) => {
     setDays(prev => prev.map(day => {
       if (day.name !== dayName) return day;
-
       const superset = day.supersets.find(s => s.id === supersetId);
       if (!superset) return day;
-
       return {
         ...day,
         exercises: [...day.exercises, ...superset.exercises],
@@ -207,40 +199,20 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
 
   const handleSaveProgram = async () => {
     if (!user) {
-      toast({
-        title: 'Login Required',
-        description: 'Please sign in to save your programme.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Login Required', description: 'Please sign in to save your programme.', variant: 'destructive' });
       return;
     }
-
     if (days.length === 0 || days.every(d => d.exercises.length === 0)) {
-      toast({
-        title: 'Empty Programme',
-        description: 'Add at least one exercise to save your programme.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Empty Programme', description: 'Add at least one exercise to save your programme.', variant: 'destructive' });
       return;
     }
-
     setIsSaving(true);
     try {
-      // Format for the training_programs table
       const programData = {
         programName,
         overview: `Custom ${selectedDays.length}-day programme`,
-        weeklySchedule: days.map(d => ({
-          day: d.name,
-          focus: d.name,
-          type: 'strength' as const,
-        })),
-        phases: [{
-          name: 'Custom Phase',
-          weeks: '1-12',
-          focus: 'Progressive Overload',
-          notes: 'User-created programme',
-        }],
+        weeklySchedule: days.map(d => ({ day: d.name, focus: d.name, type: 'strength' as const })),
+        phases: [{ name: 'Custom Phase', weeks: '1-12', focus: 'Progressive Overload', notes: 'User-created programme' }],
         templateWeek: {
           days: days.map(d => ({
             day: d.name,
@@ -262,20 +234,12 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
         progressionRules: ['Add weight when you complete all reps', 'Deload every 4th week'],
         nutritionTips: ['Prioritize protein intake', 'Stay hydrated'],
       };
-
       await saveProgram.mutateAsync(programData);
-      toast({
-        title: 'Programme Saved!',
-        description: 'Your custom programme is now in My Programmes.',
-      });
+      toast({ title: 'Programme Saved!', description: 'Your custom programme is now in My Programmes.' });
       onBack();
     } catch (error) {
       console.error('Save error:', error);
-      toast({
-        title: 'Save Failed',
-        description: 'Please try again.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Save Failed', description: 'Please try again.', variant: 'destructive' });
     } finally {
       setIsSaving(false);
     }
@@ -284,63 +248,62 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
   const toggleExerciseExpand = (exerciseId: string) => {
     setExpandedExercises(prev => {
       const next = new Set(prev);
-      if (next.has(exerciseId)) {
-        next.delete(exerciseId);
-      } else {
-        next.add(exerciseId);
-      }
+      if (next.has(exerciseId)) next.delete(exerciseId);
+      else next.add(exerciseId);
       return next;
     });
   };
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      {/* Header */}
+      {/* Header Bar */}
       <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={onBack} className="gap-2">
+        <Button variant="ghost" onClick={onBack} className="gap-2 font-display tracking-wide text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-4 h-4" />
-          Back
+          BACK
         </Button>
         <Button
           onClick={handleSaveProgram}
           disabled={isSaving || days.every(d => d.exercises.length === 0)}
-          className="gap-2"
+          className="gap-2 font-display tracking-wide neon-border-subtle"
         >
           {isSaving ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              Saving...
+              SAVING...
             </>
           ) : (
             <>
               <Save className="w-4 h-4" />
-              Save Programme
+              SAVE PROGRAMME
             </>
           )}
         </Button>
       </div>
 
-      {/* Programme Name */}
-      <Card className="border-primary/20">
-        <CardContent className="pt-6">
-          <label className="text-sm text-muted-foreground mb-2 block font-display">
+      {/* Programme Name Card */}
+      <Card className="border-primary/30 neon-border-subtle overflow-hidden">
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-1" />
+        <CardContent className="pt-5 pb-5">
+          <label className="text-xs text-primary mb-2 block font-display tracking-widest">
             PROGRAMME NAME
           </label>
           <Input
             value={programName}
             onChange={(e) => setProgramName(e.target.value)}
             placeholder="My Custom Programme"
-            className="text-lg font-display"
+            className="text-lg font-display border-primary/20 focus:border-primary bg-background/50"
           />
         </CardContent>
       </Card>
 
-      {/* Day Selection */}
-      <Card className="border-primary/20">
+      {/* Day Selection Card */}
+      <Card className="border-primary/30 neon-border-subtle overflow-hidden">
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-1" />
         <CardHeader className="pb-3">
-          <CardTitle className="font-display text-lg flex items-center gap-2">
+          <CardTitle className="font-display text-lg tracking-wider flex items-center gap-2">
             <Calendar className="w-5 h-5 text-primary" />
-            SELECT TRAINING DAYS
+            <span className="text-primary neon-glow-subtle">SELECT</span> TRAINING DAYS
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -352,39 +315,48 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
                 size="sm"
                 onClick={() => handleDayToggle(day)}
                 className={cn(
-                  'font-display',
-                  selectedDays.includes(day) && 'neon-border-subtle'
+                  'font-display tracking-wide',
+                  selectedDays.includes(day) && 'neon-border-subtle shadow-[0_0_12px_hsl(var(--primary)/0.3)]'
                 )}
               >
-                {day}
+                {day.toUpperCase()}
               </Button>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground mt-3">
-            Selected: {selectedDays.length} day{selectedDays.length !== 1 ? 's' : ''} per week
+          <p className="text-xs text-muted-foreground mt-3 font-display tracking-wide">
+            {selectedDays.length} DAY{selectedDays.length !== 1 ? 'S' : ''} PER WEEK SELECTED
           </p>
         </CardContent>
       </Card>
 
       {/* Day Tabs with Exercise Builder */}
       {days.length > 0 && (
-        <Card className="border-primary/20">
-          <CardContent className="pt-6">
+        <Card className="border-primary/30 neon-border-subtle overflow-hidden">
+          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-1" />
+          <CardContent className="pt-5">
             <Tabs
               value={activeDay || days[0]?.name}
               onValueChange={(v) => setActiveDay(v)}
             >
-              <TabsList className="w-full flex-wrap h-auto justify-start gap-1 bg-transparent p-0 mb-4">
+              <TabsList className="w-full flex-wrap h-auto justify-start gap-1.5 bg-transparent p-0 mb-5">
                 {days.map((day) => (
                   <TabsTrigger
                     key={day.name}
                     value={day.name}
-                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-1"
+                    className={cn(
+                      'gap-1.5 font-display tracking-wide text-xs',
+                      'data-[state=active]:bg-primary data-[state=active]:text-primary-foreground',
+                      'data-[state=active]:shadow-[0_0_12px_hsl(var(--primary)/0.4)]',
+                      'border border-transparent data-[state=active]:border-primary/50'
+                    )}
                   >
-                    <Dumbbell className="w-4 h-4" />
-                    {day.name}
+                    <Dumbbell className="w-3.5 h-3.5" />
+                    {day.name.toUpperCase()}
                     {day.exercises.length > 0 && (
-                      <Badge variant="secondary" className="ml-1 h-5 text-xs">
+                      <Badge 
+                        variant="secondary" 
+                        className="ml-1 h-5 text-[10px] font-display bg-primary/20 text-primary border-primary/30"
+                      >
                         {day.exercises.length}
                       </Badge>
                     )}
@@ -398,8 +370,8 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
                     {/* Exercise List */}
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <h4 className="font-display text-sm text-muted-foreground">
-                          {day.name.toUpperCase()} EXERCISES
+                        <h4 className="font-display text-xs tracking-widest text-primary neon-glow-subtle">
+                          {day.name.toUpperCase()} — EXERCISES
                         </h4>
                         <Button
                           variant="outline"
@@ -408,18 +380,90 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
                             setActiveDay(day.name);
                             setShowLibrary(!showLibrary);
                           }}
-                          className="gap-1"
+                          className="gap-1.5 font-display tracking-wide text-xs border-primary/30 hover:border-primary hover:bg-primary/5"
                         >
-                          <Plus className="w-4 h-4" />
-                          Add Exercise
+                          <Plus className="w-3.5 h-3.5" />
+                          ADD EXERCISE
                         </Button>
                       </div>
 
-                      {day.exercises.length === 0 ? (
-                        <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                          <Dumbbell className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                          <p className="text-sm text-muted-foreground">
-                            No exercises yet. Add from the library.
+                      {/* Superset controls */}
+                      {selectedForSuperset.length >= 2 && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="flex items-center justify-between p-3 bg-primary/10 border border-primary/30 rounded-lg neon-border-subtle"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Link2 className="w-4 h-4 text-primary" />
+                            <span className="text-xs font-display tracking-wide">
+                              {selectedForSuperset.length} SELECTED
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="ghost" size="sm" onClick={() => setSelectedForSuperset([])} className="font-display text-xs tracking-wide">
+                              CANCEL
+                            </Button>
+                            <Button size="sm" onClick={() => createSuperset(day.name)} className="gap-1 font-display text-xs tracking-wide">
+                              <Link2 className="w-3 h-3" />
+                              CREATE SUPERSET
+                            </Button>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {/* Supersets */}
+                      {day.supersets.length > 0 && (
+                        <div className="space-y-2">
+                          {day.supersets.map((superset) => (
+                            <Card key={superset.id} className="border-primary/40 bg-primary/5 p-3 space-y-2 neon-border-subtle">
+                              <div className="flex items-center justify-between">
+                                <Badge className="gap-1 bg-primary/20 text-primary border-primary/40 font-display tracking-wide text-[10px]">
+                                  <Link2 className="w-3 h-3" />
+                                  SUPERSET ({superset.exercises.length})
+                                </Badge>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] text-muted-foreground font-display">REST:</span>
+                                  <Input
+                                    type="number"
+                                    value={superset.restSeconds}
+                                    onChange={(e) => updateSupersetRest(day.name, superset.id, parseInt(e.target.value) || 60)}
+                                    className="w-14 h-6 text-[10px]"
+                                    min={15}
+                                    max={300}
+                                  />
+                                  <span className="text-[10px] text-muted-foreground">s</span>
+                                  <Button variant="ghost" size="icon" onClick={() => ungroupSuperset(day.name, superset.id)} className="h-6 w-6" title="Ungroup">
+                                    <Trash2 className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <div className="space-y-1.5 pl-4 border-l-2 border-primary/40">
+                                {superset.exercises.map((ex, idx) => (
+                                  <div key={ex.id} className="bg-card border border-border rounded p-2 flex items-center gap-2">
+                                    <span className="text-xs font-display text-primary font-bold w-5">{String.fromCharCode(65 + idx)}</span>
+                                    <div className="flex-1 min-w-0">
+                                      <span className="font-medium text-xs truncate block">{ex.name}</span>
+                                      <span className="text-[10px] text-muted-foreground">{ex.sets} × {ex.reps}</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+
+                      {day.exercises.length === 0 && day.supersets.length === 0 ? (
+                        <div className="border-2 border-dashed border-primary/20 rounded-lg p-8 text-center">
+                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                            <Dumbbell className="w-6 h-6 text-primary/40" />
+                          </div>
+                          <p className="text-xs text-muted-foreground font-display tracking-wide">
+                            NO EXERCISES YET
+                          </p>
+                          <p className="text-[10px] text-muted-foreground mt-1">
+                            Add from the library to start building
                           </p>
                         </div>
                       ) : (
@@ -430,28 +474,47 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
                             onReorder={(newOrder) => handleReorderExercises(day.name, newOrder)}
                             className="space-y-2"
                           >
-                            {day.exercises.map((exercise) => (
+                            {day.exercises.map((exercise, index) => (
                               <Reorder.Item
                                 key={exercise.id}
                                 value={exercise}
-                                className="bg-card border border-border rounded-lg overflow-hidden cursor-grab active:cursor-grabbing"
+                                className={cn(
+                                  'bg-card border rounded-lg overflow-hidden cursor-grab active:cursor-grabbing transition-colors',
+                                  selectedForSuperset.includes(exercise.id)
+                                    ? 'border-primary bg-primary/5'
+                                    : 'border-border hover:border-primary/30'
+                                )}
                               >
                                 <div className="p-3">
                                   <div className="flex items-center gap-2">
-                                    <GripVertical className="w-4 h-4 text-muted-foreground shrink-0" />
+                                    <button
+                                      onClick={() => toggleSelectForSuperset(exercise.id)}
+                                      className={cn(
+                                        'w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors',
+                                        selectedForSuperset.includes(exercise.id)
+                                          ? 'bg-primary border-primary text-primary-foreground'
+                                          : 'border-muted-foreground/40 hover:border-primary'
+                                      )}
+                                    >
+                                      {selectedForSuperset.includes(exercise.id) && <Link2 className="w-3 h-3" />}
+                                    </button>
+                                    <GripVertical className="w-4 h-4 text-muted-foreground/40 shrink-0" />
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-center gap-2">
+                                        <span className="font-display text-primary text-xs font-bold w-5">
+                                          {index + 1}
+                                        </span>
                                         <span className="font-medium text-sm truncate">
                                           {exercise.name}
                                         </span>
-                                        <Badge variant="outline" className="text-xs capitalize shrink-0">
+                                        <Badge variant="outline" className="text-[9px] capitalize shrink-0 font-display">
                                           {exercise.equipment}
                                         </Badge>
                                       </div>
-                                      <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                                        <span>{exercise.sets} sets</span>
-                                        <span>×</span>
-                                        <span>{exercise.reps} reps</span>
+                                      <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground font-display tracking-wide pl-5">
+                                        <span>{exercise.sets} SETS</span>
+                                        <span className="text-primary">×</span>
+                                        <span>{exercise.reps} REPS</span>
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-1 shrink-0">
@@ -486,10 +549,10 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
                                         exit={{ height: 0, opacity: 0 }}
                                         className="overflow-hidden"
                                       >
-                                        <div className="pt-3 mt-3 border-t border-border space-y-3">
+                                        <div className="pt-3 mt-3 border-t border-primary/20 space-y-3">
                                           <div className="grid grid-cols-2 gap-2">
                                             <div>
-                                              <label className="text-xs text-muted-foreground">Sets</label>
+                                              <label className="text-[10px] text-primary font-display tracking-wider">SETS</label>
                                               <Input
                                                 type="number"
                                                 min={1}
@@ -498,38 +561,38 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
                                                 onChange={(e) => handleUpdateExercise(day.name, exercise.id, {
                                                   sets: parseInt(e.target.value) || 1,
                                                 })}
-                                                className="h-8"
+                                                className="h-8 border-primary/20"
                                               />
                                             </div>
                                             <div>
-                                              <label className="text-xs text-muted-foreground">Reps</label>
+                                              <label className="text-[10px] text-primary font-display tracking-wider">REPS</label>
                                               <Input
                                                 value={exercise.reps}
                                                 onChange={(e) => handleUpdateExercise(day.name, exercise.id, {
                                                   reps: e.target.value,
                                                 })}
-                                                className="h-8"
+                                                className="h-8 border-primary/20"
                                                 placeholder="8-10"
                                               />
                                             </div>
                                           </div>
                                           <div>
-                                            <label className="text-xs text-muted-foreground">Notes</label>
+                                            <label className="text-[10px] text-primary font-display tracking-wider">NOTES</label>
                                             <Input
                                               value={exercise.notes || ''}
                                               onChange={(e) => handleUpdateExercise(day.name, exercise.id, {
                                                 notes: e.target.value,
                                               })}
-                                              className="h-8"
+                                              className="h-8 border-primary/20"
                                               placeholder="Optional notes..."
                                             />
                                           </div>
                                           <Link
                                             to={`/help?q=${encodeURIComponent(exercise.name + ' form tips')}`}
-                                            className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                                            className="flex items-center gap-1.5 text-xs text-primary hover:underline font-display tracking-wide"
                                           >
-                                            <MessageCircle className="w-3 h-3" />
-                                            Get AI coaching tips
+                                            <Flame className="w-3 h-3" />
+                                            ASK YOUR COACH
                                           </Link>
                                         </div>
                                       </motion.div>
@@ -567,21 +630,25 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
         </Card>
       )}
 
-      {/* Help Section */}
-      <Card className="border-primary/20 bg-primary/5">
+      {/* Coach Help Section */}
+      <Card className="border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent neon-border-subtle overflow-hidden">
         <CardContent className="py-4">
           <div className="flex items-center gap-3">
-            <MessageCircle className="w-5 h-5 text-primary shrink-0" />
-            <div>
-              <p className="text-sm font-medium">Need help designing your programme?</p>
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center neon-glow shrink-0">
+              <Flame className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-display tracking-wide">
+                NEED HELP? <span className="text-primary neon-glow-subtle">ASK YOUR COACH</span>
+              </p>
               <p className="text-xs text-muted-foreground">
-                Ask our AI coach for exercise recommendations, form tips, and progression advice.
+                Get personalised guidance on exercise selection, form, and progression
               </p>
             </div>
             <Link to="/help" className="shrink-0">
-              <Button variant="outline" size="sm" className="gap-1">
-                <LinkIcon className="w-3 h-3" />
-                AI Coach
+              <Button variant="outline" size="sm" className="gap-1.5 font-display tracking-wide text-xs border-primary/30 hover:border-primary">
+                <Flame className="w-3.5 h-3.5 text-primary" />
+                COACH
               </Button>
             </Link>
           </div>
