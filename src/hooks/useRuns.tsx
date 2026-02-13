@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { runSchema, runUpdateSchema, getValidationError } from '@/lib/validations';
 
+export type CardioActivityType = 'walk' | 'run' | 'cycle';
+
 export interface Run {
   id: string;
   user_id: string;
@@ -22,6 +24,7 @@ export interface Run {
   weather_conditions: string | null;
   temperature_celsius: number | null;
   notes: string | null;
+  activity_type: CardioActivityType;
   is_public: boolean;
   visibility: 'public' | 'friends' | 'private';
   comments_enabled: boolean;
@@ -75,6 +78,7 @@ export function useRuns() {
 
           return {
             ...run,
+            activity_type: (['walk', 'run', 'cycle'].includes(run.activity_type) ? run.activity_type : (run.notes && ['walk', 'run', 'cycle'].includes(run.notes) ? run.notes : 'run')) as CardioActivityType,
             visibility: (run.visibility || 'public') as 'public' | 'friends' | 'private',
             profiles: profileResult.data || undefined,
             kudos_count: kudosResult.count || 0,
@@ -226,6 +230,7 @@ export function useUserRuns(userId?: string) {
     } else {
       const typedRuns = (data || []).map(run => ({
         ...run,
+        activity_type: (['walk', 'run', 'cycle'].includes(run.activity_type) ? run.activity_type : (run.notes && ['walk', 'run', 'cycle'].includes(run.notes) ? run.notes : 'run')) as CardioActivityType,
         visibility: (run.visibility || 'public') as 'public' | 'friends' | 'private',
       }));
       setRuns(typedRuns);

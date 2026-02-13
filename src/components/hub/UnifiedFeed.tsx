@@ -185,6 +185,7 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
                     ended_at: null,
                     temperature_celsius: null,
                     is_public: true,
+                    activity_type: (item.data as any).activity_type || 'run',
                     created_at: item.data.started_at,
                     updated_at: item.data.started_at,
                   }}
