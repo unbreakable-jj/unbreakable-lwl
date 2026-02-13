@@ -102,11 +102,6 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
               🔥 {streak} day streak
             </p>
           )}
-          {!readOnly && (
-            <p className="text-xs text-muted-foreground italic">
-              "Leave enough to keep showing up."
-            </p>
-          )}
         </div>
 
         {/* Strength Session Card */}
