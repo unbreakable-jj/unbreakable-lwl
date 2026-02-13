@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
 import {
   ClipboardList, Dumbbell, Check, ChevronDown, ChevronUp, BookOpen
 } from 'lucide-react';
@@ -54,20 +55,20 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
 
   return (
     <FullScreenToolView
-      title={`DAY ${dayNumber} — ${readOnly ? 'SESSION LOG' : 'STRENGTH'}`}
-      subtitle={`${completedSets}/${totalSets} sets complete`}
+      title={`DAY ${dayNumber}`}
+      subtitle={readOnly ? `SESSION LOG · ${completedSets}/${totalSets} sets` : `${completedSets}/${totalSets} sets complete`}
       icon={<ClipboardList className="w-5 h-5" />}
       onClose={onClose}
     >
       <ScrollArea className={`h-[calc(100vh-180px)] ${showTimer ? 'pb-28' : ''}`}>
-        <div className="space-y-4 max-w-2xl mx-auto pb-8">
+        <div className="space-y-3 max-w-2xl mx-auto pb-8">
           {/* Progress Bar */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Session Progress</span>
-              <span className="text-foreground font-medium">{Math.round(progressPercent)}%</span>
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs font-display tracking-wider">
+              <span className="text-muted-foreground">SESSION PROGRESS</span>
+              <span className="text-primary">{Math.round(progressPercent)}%</span>
             </div>
-            <Progress value={progressPercent} className="h-2" />
+            <Progress value={progressPercent} className="h-1.5" />
           </div>
 
           {/* Exercise Cards */}
@@ -85,32 +86,43 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
               <Card
                 key={i}
                 className={cn(
-                  'border transition-colors',
-                  exerciseComplete ? 'border-green-500/30 bg-green-500/5' : 'border-border bg-card'
+                  'border transition-all',
+                  exerciseComplete ? 'border-green-500/30 bg-green-500/5' : 'border-border/50 bg-card'
                 )}
               >
+                {/* Exercise Header */}
                 <button
                   onClick={() => setExpandedExercise(isExpanded ? -1 : i)}
                   className="w-full p-4 flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3">
                     <div className={cn(
-                      'flex items-center justify-center w-8 h-8 rounded-md border',
-                      equipType === 'barbell' ? 'bg-primary/20 text-primary border-primary/30' :
-                      equipType === 'dumbbell' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' :
-                      'bg-green-500/20 text-green-400 border-green-500/30'
+                      'flex items-center justify-center w-8 h-8 rounded-md',
+                      exerciseComplete 
+                        ? 'bg-green-500/15 text-green-500' 
+                        : equipType === 'barbell' ? 'bg-primary/15 text-primary' :
+                          equipType === 'dumbbell' ? 'bg-orange-500/15 text-orange-400' :
+                          'bg-green-500/15 text-green-400'
                     )}>
-                      <Dumbbell className="w-4 h-4" />
+                      {exerciseComplete ? <Check className="w-4 h-4" /> : <Dumbbell className="w-4 h-4" />}
                     </div>
                     <div className="text-left">
-                      <span className="font-display text-foreground text-sm">{ex.name}</span>
-                      <p className="text-xs text-muted-foreground">{ex.category}</p>
+                      <span className="font-display text-foreground text-sm tracking-wide">{ex.name}</span>
+                      <p className="text-[11px] text-muted-foreground">{ex.category}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    {exerciseComplete && <Check className="w-5 h-5 text-green-500" />}
-                    <span className="text-sm text-muted-foreground">{setsComplete}/{sets.length}</span>
-                    {isExpanded ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className={cn(
+                      'text-[10px] font-display tracking-wider px-2 py-0.5',
+                      exerciseComplete ? 'border-green-500/30 text-green-500' : 'border-border text-muted-foreground'
+                    )}>
+                      {setsComplete}/{sets.length}
+                    </Badge>
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    )}
                   </div>
                 </button>
 
@@ -124,13 +136,14 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
                       className="overflow-hidden"
                     >
                       <div className="px-4 pb-4 space-y-3">
+                        {/* Coaching Toggle */}
                         {coachingData && (
                           <button
                             onClick={() => setShowCoachingFor(showingCoaching ? null : i)}
-                            className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+                            className="flex items-center gap-2 text-xs text-primary hover:text-primary/80 transition-colors font-display tracking-wider"
                           >
-                            <BookOpen className="w-4 h-4" />
-                            {showingCoaching ? 'Hide Coaching Guide' : 'View Full Coaching Guide'}
+                            <BookOpen className="w-3.5 h-3.5" />
+                            {showingCoaching ? 'HIDE COACHING' : 'COACHING GUIDE'}
                           </button>
                         )}
 
@@ -140,7 +153,7 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: 'auto', opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              className="rounded-lg bg-muted/20 border border-border/50 p-4 overflow-hidden"
+                              className="rounded-lg bg-muted/10 border border-border/30 p-4 overflow-hidden"
                             >
                               <ExerciseCoachingPanel coachingData={coachingData} exerciseName={ex.name} />
                             </motion.div>
@@ -148,7 +161,7 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
                         </AnimatePresence>
 
                         {/* Header Row */}
-                        <div className="grid grid-cols-12 gap-2 text-xs text-muted-foreground px-1 font-display tracking-wider">
+                        <div className="grid grid-cols-12 gap-2 text-[10px] text-muted-foreground/70 px-1 font-display tracking-[0.15em]">
                           <div className="col-span-1">SET</div>
                           <div className="col-span-3">TARGET</div>
                           <div className="col-span-2">REPS</div>
@@ -157,20 +170,21 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
                           <div className="col-span-2 text-center">DONE</div>
                         </div>
 
+                        {/* Set Rows */}
                         {sets.map((setInfo: any, si: number) => {
                           const logEntry = logged[si] || { reps: null, weight: null, rpe: null, completed: false };
                           return (
                             <div key={si} className={cn(
                               'grid grid-cols-12 gap-2 items-center',
-                              logEntry.completed && 'opacity-60'
+                              logEntry.completed && 'opacity-50'
                             )}>
                               <div className="col-span-1">
-                                <span className="font-display text-primary">{setInfo.set}</span>
+                                <span className="font-display text-primary text-sm">{setInfo.set}</span>
                               </div>
                               <div className="col-span-3">
                                 <div className="text-xs text-muted-foreground">
                                   <span>{setInfo.targetReps}</span>
-                                  <span className="block text-[10px] text-muted-foreground/60">{setInfo.suggestedWeight}</span>
+                                  <span className="block text-[10px] text-muted-foreground/50">{setInfo.suggestedWeight}</span>
                                 </div>
                               </div>
                               <div className="col-span-2">
@@ -183,7 +197,7 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
                                     placeholder="—"
                                     value={logEntry.reps ?? ''}
                                     onChange={(e) => handleSetUpdate(i, si, 'reps', e.target.value ? parseInt(e.target.value) : null)}
-                                    className="h-9 text-center text-sm px-1"
+                                    className="h-9 text-center text-sm px-1 border-border/30"
                                   />
                                 )}
                               </div>
@@ -198,7 +212,7 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
                                     step="0.5"
                                     value={logEntry.weight ?? ''}
                                     onChange={(e) => handleSetUpdate(i, si, 'weight', e.target.value ? parseFloat(e.target.value) : null)}
-                                    className="h-9 text-center text-sm px-1"
+                                    className="h-9 text-center text-sm px-1 border-border/30"
                                   />
                                 )}
                               </div>
@@ -215,7 +229,7 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
                                     max="10"
                                     value={logEntry.rpe ?? ''}
                                     onChange={(e) => handleSetUpdate(i, si, 'rpe', e.target.value ? parseFloat(e.target.value) : null)}
-                                    className="h-9 text-center text-sm px-1"
+                                    className="h-9 text-center text-sm px-1 border-border/30"
                                   />
                                 )}
                               </div>
