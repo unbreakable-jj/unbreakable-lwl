@@ -58,6 +58,8 @@ export interface Recipe {
   fat_g?: number;
   dietary_tags?: string[];
   image_url?: string;
+  pack?: string;
+  category?: string;
   is_public: boolean;
   is_favourite: boolean;
   created_at: string;
