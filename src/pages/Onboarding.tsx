@@ -325,7 +325,7 @@ export default function Onboarding() {
               <div>
                 <Label>Preferred Cardio (optional)</Label>
                 <RadioGroup value={data.preferred_cardio} onValueChange={v => update('preferred_cardio', v)} className="flex flex-wrap gap-3 mt-2">
-                  {['Walking', 'Running', 'Cycling', 'Rowing'].map(c => (
+                  {['Walking', 'Running', 'Cycling', 'Rowing', 'Swimming'].map(c => (
                     <Label key={c} className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border cursor-pointer transition-colors ${data.preferred_cardio === c ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card hover:border-muted-foreground'}`}>
                       <RadioGroupItem value={c} className="sr-only" />
                       <span className="text-sm">{c}</span>

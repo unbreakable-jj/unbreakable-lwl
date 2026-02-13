@@ -16,17 +16,17 @@ import { useAuth } from '@/hooks/useAuth';
 import { MedalCheckStats } from '@/lib/medalDefinitions';
 // import { getCategoryLabel, TROPHY_ICONS } from '@/lib/trophyDefinitions'; // Trophy system hidden for now
 import { toast } from 'sonner';
-import { Play, Square, Pause, Timer, Globe, Users, Lock, Footprints, Bike, Edit3, Waves } from 'lucide-react';
+import { Play, Square, Pause, Timer, Globe, Users, Lock, Footprints, Bike, Edit3, Waves, Droplets } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CountdownOverlay } from '@/components/CountdownOverlay';
 
 interface CardioTrackerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialActivity?: 'walk' | 'run' | 'cycle' | 'row';
+  initialActivity?: 'walk' | 'run' | 'cycle' | 'row' | 'swim';
 }
 
-type ActivityType = 'walk' | 'run' | 'cycle' | 'row';
+type ActivityType = 'walk' | 'run' | 'cycle' | 'row' | 'swim';
 type EntryMode = 'live' | 'manual';
 
 interface Position {
@@ -62,6 +62,13 @@ const ACTIVITY_CONFIG = {
   row: { 
     label: 'ROW', 
     icon: Waves, 
+    color: 'text-primary',
+    bgColor: 'bg-primary/10',
+    borderColor: 'border-primary/30'
+  },
+  swim: { 
+    label: 'SWIM', 
+    icon: Droplets, 
     color: 'text-primary',
     bgColor: 'bg-primary/10',
     borderColor: 'border-primary/30'

@@ -8,15 +8,16 @@ import { useAuth } from '@/hooks/useAuth';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Timer, Footprints, Zap, Bike, Waves, Flame, ArrowRight } from 'lucide-react';
+import { Timer, Footprints, Zap, Bike, Waves, Droplets, Flame, ArrowRight } from 'lucide-react';
 
-type ActivityType = 'walk' | 'run' | 'cycle' | 'row' | null;
+type ActivityType = 'walk' | 'run' | 'cycle' | 'row' | 'swim' | null;
 
 const activityOptions = [
   { value: 'walk' as const, label: 'WALK', icon: <Footprints className="w-10 h-10" />, description: 'Low-impact, steady state' },
   { value: 'run' as const, label: 'RUN', icon: <Zap className="w-10 h-10" />, description: 'Build speed & power' },
   { value: 'cycle' as const, label: 'CYCLE', icon: <Bike className="w-10 h-10" />, description: 'Leg power, zero impact' },
   { value: 'row' as const, label: 'ROW', icon: <Waves className="w-10 h-10" />, description: 'Full body, low impact' },
+  { value: 'swim' as const, label: 'SWIM', icon: <Droplets className="w-10 h-10" />, description: 'Full body, zero impact' },
 ];
 
 export default function TrackerQuickTrack() {

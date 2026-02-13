@@ -1,4 +1,4 @@
-export type ActivityType = 'walk' | 'run' | 'cycle' | 'row';
+export type ActivityType = 'walk' | 'run' | 'cycle' | 'row' | 'swim';
 export type CardioGoal = 'fitness' | 'distance' | 'speed' | 'endurance' | 'weight_loss';
 export type CardioLevel = 'beginner' | 'intermediate' | 'advanced';
 
@@ -69,6 +69,7 @@ export const activityLabels: Record<ActivityType, string> = {
   run: 'Running',
   cycle: 'Cycling',
   row: 'Rowing',
+  swim: 'Swimming',
 };
 
 export const goalLabels: Record<CardioGoal, string> = {
