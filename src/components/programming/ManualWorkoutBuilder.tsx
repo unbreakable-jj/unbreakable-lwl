@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,10 +22,15 @@ import {
   Save, 
   Dumbbell,
   Clock,
-  RotateCcw
+  RotateCcw,
+  BookOpen,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
+import { findCoachingDataByName } from '@/lib/exerciseCoachingData';
+import { ExerciseCoachingPanel } from '@/components/programming/ExerciseCoachingPanel';
 
 interface ManualExercise {
   id: string;
@@ -94,6 +99,7 @@ export function ManualWorkoutBuilder() {
   const [exercises, setExercises] = useState<ManualExercise[]>([]);
   const [sessionName, setSessionName] = useState('');
   const [isLogging, setIsLogging] = useState(false);
+  const [expandedCoachingIds, setExpandedCoachingIds] = useState<Set<string>>(new Set());
   
   // Form state for adding new exercise
   const [newExercise, setNewExercise] = useState({
@@ -105,6 +111,21 @@ export function ManualWorkoutBuilder() {
     notes: '',
     equipment: 'barbell',
   });
+
+  // Live coaching data lookup as user types exercise name
+  const liveCoachingData = useMemo(() => {
+    if (newExercise.name.trim().length < 2) return undefined;
+    return findCoachingDataByName(newExercise.name.trim());
+  }, [newExercise.name]);
+
+  const toggleCoaching = (id: string) => {
+    setExpandedCoachingIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const generateId = () => Math.random().toString(36).substring(2, 9);
 
@@ -267,6 +288,27 @@ export function ManualWorkoutBuilder() {
                 onChange={(e) => setNewExercise({ ...newExercise, name: e.target.value })}
                 onKeyDown={(e) => e.key === 'Enter' && handleAddExercise()}
               />
+              {/* Live coaching data preview */}
+              <AnimatePresence>
+                {liveCoachingData && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-2 rounded-lg border border-primary/30 bg-primary/5 p-3"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <BookOpen className="w-4 h-4 text-primary" />
+                      <span className="text-xs font-display text-primary tracking-wide">COACHING DATA FOUND</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-2">{liveCoachingData.purpose}</p>
+                    <ExerciseCoachingPanel
+                      coachingData={liveCoachingData}
+                      exerciseName={newExercise.name}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
             
             <div>
@@ -369,70 +411,74 @@ export function ManualWorkoutBuilder() {
                 </Button>
               </div>
 
-              <div className="border border-border rounded-lg overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-8"></TableHead>
-                      <TableHead>Exercise</TableHead>
-                      <TableHead>Sets</TableHead>
-                      <TableHead>Reps</TableHead>
-                      <TableHead>Weight/Time</TableHead>
-                      <TableHead className="w-8"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <Reorder.Group
-                      as="tbody"
-                      axis="y"
-                      values={exercises}
-                      onReorder={setExercises}
+              <Reorder.Group
+                axis="y"
+                values={exercises}
+                onReorder={setExercises}
+                className="space-y-2"
+              >
+                {exercises.map((exercise) => {
+                  const coaching = findCoachingDataByName(exercise.name);
+                  const isExpanded = expandedCoachingIds.has(exercise.id);
+                  return (
+                    <Reorder.Item
+                      key={exercise.id}
+                      value={exercise}
+                      className="rounded-lg border border-border bg-card p-3 cursor-grab active:cursor-grabbing"
                     >
-                      {exercises.map((exercise) => (
-                        <Reorder.Item
-                          key={exercise.id}
-                          value={exercise}
-                          as="tr"
-                          className="border-b border-border bg-card hover:bg-muted/50 cursor-grab active:cursor-grabbing"
-                        >
-                          <TableCell className="px-2">
-                            <GripVertical className="w-4 h-4 text-muted-foreground" />
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="text-xs capitalize">
-                                {exercise.equipment}
-                              </Badge>
-                              <span className="font-medium">{exercise.name}</span>
-                            </div>
-                            {exercise.notes && (
-                              <p className="text-xs text-muted-foreground mt-1">{exercise.notes}</p>
-                            )}
-                          </TableCell>
-                          <TableCell>{exercise.sets}</TableCell>
-                          <TableCell>{exercise.reps}</TableCell>
-                          <TableCell>
-                            {exercise.weight && `${exercise.weight}kg`}
-                            {exercise.weight && exercise.duration && ' / '}
-                            {exercise.duration && `${exercise.duration}min`}
-                            {!exercise.weight && !exercise.duration && '-'}
-                          </TableCell>
-                          <TableCell className="px-2">
+                      <div className="flex items-center gap-3">
+                        <GripVertical className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Badge variant="outline" className="text-xs capitalize">
+                              {exercise.equipment}
+                            </Badge>
+                            <span className="font-medium text-sm">{exercise.name}</span>
+                          </div>
+                          <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                            <span>{exercise.sets} sets</span>
+                            <span>×</span>
+                            <span>{exercise.reps} reps</span>
+                            {exercise.weight && <span>{exercise.weight}kg</span>}
+                            {exercise.duration && <span>{exercise.duration}min</span>}
+                          </div>
+                          {exercise.notes && (
+                            <p className="text-xs text-muted-foreground mt-1">{exercise.notes}</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          {coaching && (
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-destructive hover:text-destructive"
-                              onClick={() => handleRemoveExercise(exercise.id)}
+                              className="h-8 w-8 text-primary hover:text-primary"
+                              onClick={() => toggleCoaching(exercise.id)}
                             >
-                              <Trash2 className="w-4 h-4" />
+                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <BookOpen className="w-4 h-4" />}
                             </Button>
-                          </TableCell>
-                        </Reorder.Item>
-                      ))}
-                    </Reorder.Group>
-                  </TableBody>
-                </Table>
-              </div>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() => handleRemoveExercise(exercise.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <AnimatePresence>
+                        {coaching && isExpanded && (
+                          <ExerciseCoachingPanel
+                            coachingData={coaching}
+                            exerciseName={exercise.name}
+                          />
+                        )}
+                      </AnimatePresence>
+                    </Reorder.Item>
+                  );
+                })}
+              </Reorder.Group>
 
               <Button
                 onClick={handleLogSession}
