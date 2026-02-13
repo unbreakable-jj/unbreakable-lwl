@@ -20,6 +20,7 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Sync mode when defaultMode changes
   useEffect(() => {
@@ -29,52 +30,62 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setFormError(null);
 
     try {
       if (mode === 'signin') {
         const { error } = await signIn(email, password);
         if (error) {
           console.error('Sign in error:', error);
-          toast.error(error.message || 'Failed to sign in. Please try again.');
+          const msg = error.message || 'Failed to sign in. Please try again.';
+          setFormError(msg);
+          toast.error(msg);
         } else {
           toast.success('Welcome back!');
           onClose();
         }
       } else {
         if (!fullName.trim()) {
+          setFormError('Please enter your full name.');
           toast.error('Please enter your full name');
           setLoading(false);
           return;
         }
         
-        // Validate password length
         if (password.length < 6) {
+          setFormError('Password must be at least 6 characters.');
           toast.error('Password must be at least 6 characters');
           setLoading(false);
           return;
         }
         
-        console.log('Attempting signup with email:', email);
+        console.log('Attempting signup with email:', email, 'name:', fullName);
         const { error } = await signUp(email, password, fullName);
         console.log('Signup result - error:', error);
         if (error) {
-          console.error('Sign up error:', error);
-          const msg = error.message || 'Failed to create account. Please try again.';
-          if (msg.includes('already registered')) {
-            toast.error('This email is already registered. Try signing in instead.');
-          } else if (msg.toLowerCase().includes('password') || msg.toLowerCase().includes('weak')) {
-            toast.error('Please choose a stronger password. Try mixing letters, numbers, and symbols.');
+          console.error('Sign up error details:', error.message, error);
+          let msg: string;
+          if (error.message?.includes('already registered')) {
+            msg = 'This email is already registered. Try signing in instead.';
+          } else if (error.message?.toLowerCase().includes('password') || error.message?.toLowerCase().includes('weak')) {
+            msg = 'Please choose a stronger password (mix letters, numbers, symbols).';
+          } else if (error.message?.includes('Signups not allowed') || error.message?.includes('422')) {
+            msg = 'Signups are temporarily unavailable. Please try again in a moment.';
           } else {
-            toast.error(msg);
+            msg = error.message || 'Failed to create account. Please try again.';
           }
+          setFormError(msg);
+          toast.error(msg);
         } else {
           toast.success('Account created! Welcome to the movement.');
           onClose();
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Auth error:', err);
-      toast.error('An unexpected error occurred. Please try again.');
+      const msg = err?.message || 'An unexpected error occurred. Please try again.';
+      setFormError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -149,6 +160,12 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
                 />
               </div>
             </div>
+
+            {formError && (
+              <div className="bg-destructive/10 border border-destructive/30 rounded-md p-3 text-sm text-destructive">
+                {formError}
+              </div>
+            )}
 
             <Button type="submit" className="w-full font-display tracking-wide" disabled={loading}>
               {loading ? 'Loading...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
