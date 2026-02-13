@@ -94,8 +94,10 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdate
   };
 
   const handleShareToStory = async () => {
-    const storyData: { image_url?: string; video_url?: string; content?: string; visibility: string } = {
+    const storyData: { image_url?: string; video_url?: string; content?: string; visibility: string; text_overlays: any[]; background_color: string | null } = {
       visibility: 'public',
+      text_overlays: [],
+      background_color: '#1C1C1E',
     };
 
     if (post.image_url) {

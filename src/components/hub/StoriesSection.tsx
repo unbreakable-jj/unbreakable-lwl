@@ -164,10 +164,7 @@ export function StoriesSection() {
           </button>
         )}
 
-        {groupedStories.map((group, index) => {
-          // Skip current user's stories in the row — they use the "+" button
-          if (group.userId === user?.id) return null;
-          return (
+        {groupedStories.map((group, index) => (
           <button
             key={group.userId}
             onClick={() => openViewer(index)}
@@ -182,11 +179,10 @@ export function StoriesSection() {
               </Avatar>
             </div>
             <span className="text-xs text-muted-foreground truncate max-w-16 group-hover:text-foreground transition-colors">
-              {group.profile?.display_name?.split(' ')[0] || 'User'}
+              {group.userId === user?.id ? 'My Story' : (group.profile?.display_name?.split(' ')[0] || 'User')}
             </span>
           </button>
-          );
-        })}
+        ))}
 
         {loading && (
           <div className="flex items-center justify-center w-16 h-16">
