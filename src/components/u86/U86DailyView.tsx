@@ -24,9 +24,9 @@ interface U86DailyViewProps {
 
 const HABIT_CONFIG = [
   { key: 'habit_train', icon: Dumbbell, label: 'TRAIN', desc: 'Complete the full Unbreakable 86 session' },
-  { key: 'habit_control_inputs', icon: Shield, label: 'HIT YOUR NUMBERS', desc: 'Meet your daily calorie and macro targets' },
   { key: 'habit_learn_daily', icon: BookOpen, label: 'LEARN DAILY', desc: '10-20 minutes non-fiction reading' },
-  { key: 'habit_journal', icon: PenLine, label: 'JOURNAL HONESTLY', desc: '"Where did I want to quit today, and what did I do instead?"' },
+  { key: 'habit_journal', icon: Shield, label: 'HIT YOUR NUMBERS', desc: 'Meet your daily calorie and macro targets' },
+  { key: 'habit_control_inputs', icon: PenLine, label: 'DAILY WATER TARGET', desc: 'Drink at least 3 litres of water today' },
   { key: 'habit_hard_thing', icon: Zap, label: 'DO THE HARD THING', desc: 'One deliberately uncomfortable action completed' },
   { key: 'habit_identity', icon: Brain, label: 'IDENTITY REFLECTION', desc: '"Today I kept showing up by ______."' },
 ] as const;
