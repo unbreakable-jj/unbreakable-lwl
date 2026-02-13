@@ -95,15 +95,16 @@ export default function Unbreakable86() {
             <div className="max-w-2xl mx-auto space-y-4 text-left sm:text-center">
               <p className="text-muted-foreground text-sm leading-relaxed">
                 86 consecutive days. No rest days. No excuses. A progressive overload system
-                that builds you from <span className="text-primary font-semibold">1 km</span> to{' '}
-                <span className="text-primary font-semibold">5 km daily</span> — increasing
-                distance every 7 days while your strength sessions adapt around it.
+                built around the <span className="text-primary font-semibold">Big 5 lifts</span> — Squat, Bench,
+                Deadlift, Overhead Press and Row — plus Pull-ups and Push-ups. Strength first, then
+                run from <span className="text-primary font-semibold">1 km up to 5 km daily</span>,
+                increasing distance every 7 days.
               </p>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 Your plan is delivered <span className="text-foreground font-semibold">7 days at a time</span>,
                 remapped each week based on your performance, equipment, and level. Beginner to advanced —
-                every programme is bespoke. 8 full-body exercises daily. 6 non-negotiable habits.
-                Run before you lift. Discipline before motivation.
+                every programme is bespoke. 8 compound exercises daily. 6 non-negotiable habits.
+                Lift before you run. Discipline before motivation.
               </p>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 This isn't a workout plan. It's a system designed to prove what you're capable of
