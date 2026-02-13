@@ -7,8 +7,8 @@ const corsHeaders = {
 };
 
 // ─── Big 5 Compound Framework ───
-// The programme is built around the Big 5 lifts + Pull-ups/Chin-ups + Push-ups
-// Scaled by fitness level: beginner → intermediate → advanced
+// Built around: Squat, Bench, Deadlift, OHP, Row + Pull-ups + Push-ups + Core
+// Structured sets/reps scaled by level and week progression
 
 interface ExerciseSlot {
   category: string;
@@ -17,7 +17,6 @@ interface ExerciseSlot {
   advanced: string[];
 }
 
-// 8 exercise slots per day, built around the Big 5
 const EXERCISE_SLOTS: ExerciseSlot[] = [
   {
     category: 'Squat (Lower Push)',
@@ -44,19 +43,19 @@ const EXERCISE_SLOTS: ExerciseSlot[] = [
     advanced: ['Overhead Press', 'Push Press', 'Arnold Press', 'Z Press'],
   },
   {
-    category: 'Barbell Row (Upper Pull)',
+    category: 'Row (Upper Pull)',
     beginner: ['Dumbbell Bent Over Row', 'Inverted Rows', 'Single Arm Dumbbell Row'],
     intermediate: ['Bent Over Row', 'Single Arm Dumbbell Row', 'T-Bar Row', 'Inverted Rows'],
     advanced: ['Bent Over Row', 'Pendlay Row', 'T-Bar Row', 'Weighted Inverted Rows'],
   },
   {
-    category: 'Pull-up / Chin-up (Vertical Pull)',
+    category: 'Pull-up / Chin-up',
     beginner: ['Dead Hang', 'Band-Assisted Pull Ups', 'Lat Pulldown'],
     intermediate: ['Pull Ups', 'Chin Ups', 'Lat Pulldown', 'Neutral Grip Pull Ups'],
     advanced: ['Pull Ups', 'Chin Ups', 'Weighted Pull Ups', 'Muscle Ups'],
   },
   {
-    category: 'Push-up Variation (Bodyweight Push)',
+    category: 'Push-up Variation',
     beginner: ['Push Ups', 'Incline Push Ups', 'Knee Push Ups'],
     intermediate: ['Diamond Push Ups', 'Wide Push Ups', 'Decline Push Ups', 'Push Ups'],
     advanced: ['Weighted Push Ups', 'Deficit Push Ups', 'Archer Push Ups', 'Diamond Push Ups'],
@@ -69,60 +68,138 @@ const EXERCISE_SLOTS: ExerciseSlot[] = [
   },
 ];
 
-// Equipment-based fallbacks: if user lacks barbells, swap to alternatives
+// Equipment fallbacks
 const BARBELL_ALTERNATIVES: Record<string, string> = {
-  'Back Squat': 'Goblet Squat',
-  'Front Squat': 'Goblet Squat',
-  'Zercher Squat': 'Goblet Squat',
-  'Pause Squat': 'Bodyweight Squats',
-  'Flat Bench Press': 'Dumbbell Bench Press',
-  'Incline Bench Press': 'Incline Dumbbell Press',
-  'Close Grip Bench Press': 'Diamond Push Ups',
-  'Conventional Deadlift': 'Dumbbell Romanian Deadlift',
-  'Sumo Deadlift': 'Dumbbell Romanian Deadlift',
-  'Romanian Deadlift': 'Dumbbell Romanian Deadlift',
-  'Deficit Deadlift': 'Dumbbell Romanian Deadlift',
-  'Overhead Press': 'Dumbbell Overhead Press',
-  'Push Press': 'Dumbbell Overhead Press',
-  'Z Press': 'Dumbbell Overhead Press',
-  'Bent Over Row': 'Dumbbell Bent Over Row',
-  'Pendlay Row': 'Single Arm Dumbbell Row',
-  'T-Bar Row': 'Single Arm Dumbbell Row',
+  'Back Squat': 'Goblet Squat', 'Front Squat': 'Goblet Squat', 'Zercher Squat': 'Goblet Squat',
+  'Pause Squat': 'Bodyweight Squats', 'Flat Bench Press': 'Dumbbell Bench Press',
+  'Incline Bench Press': 'Incline Dumbbell Press', 'Close Grip Bench Press': 'Diamond Push Ups',
+  'Conventional Deadlift': 'Dumbbell Romanian Deadlift', 'Sumo Deadlift': 'Dumbbell Romanian Deadlift',
+  'Romanian Deadlift': 'Dumbbell Romanian Deadlift', 'Deficit Deadlift': 'Dumbbell Romanian Deadlift',
+  'Overhead Press': 'Dumbbell Overhead Press', 'Push Press': 'Dumbbell Overhead Press',
+  'Z Press': 'Dumbbell Overhead Press', 'Bent Over Row': 'Dumbbell Bent Over Row',
+  'Pendlay Row': 'Single Arm Dumbbell Row', 'T-Bar Row': 'Single Arm Dumbbell Row',
 };
 
 const DUMBBELL_ALTERNATIVES: Record<string, string> = {
-  'Goblet Squat': 'Bodyweight Squats',
-  'Dumbbell Bench Press': 'Push Ups',
-  'Incline Dumbbell Press': 'Decline Push Ups',
-  'Dumbbell Romanian Deadlift': 'Glute Bridge',
-  'Dumbbell Overhead Press': 'Pike Push Ups',
-  'Arnold Press': 'Pike Push Ups',
-  'Dumbbell Bent Over Row': 'Inverted Rows',
-  'Single Arm Dumbbell Row': 'Inverted Rows',
-  'Farmers Walk': 'Front Plank',
-  'Kettlebell Deadlift': 'Glute Bridge',
+  'Goblet Squat': 'Bodyweight Squats', 'Dumbbell Bench Press': 'Push Ups',
+  'Incline Dumbbell Press': 'Decline Push Ups', 'Dumbbell Romanian Deadlift': 'Glute Bridge',
+  'Dumbbell Overhead Press': 'Pike Push Ups', 'Arnold Press': 'Pike Push Ups',
+  'Dumbbell Bent Over Row': 'Inverted Rows', 'Single Arm Dumbbell Row': 'Inverted Rows',
+  'Farmers Walk': 'Front Plank', 'Kettlebell Deadlift': 'Glute Bridge',
 };
+
+// Bodyweight exercises that should use bodyweight rep schemes
+const BODYWEIGHT_EXERCISES = new Set([
+  'Push Ups', 'Incline Push Ups', 'Knee Push Ups', 'Diamond Push Ups', 'Wide Push Ups',
+  'Decline Push Ups', 'Archer Push Ups', 'Deficit Push Ups', 'Weighted Push Ups',
+  'Pike Push Ups', 'Pull Ups', 'Chin Ups', 'Weighted Pull Ups', 'Muscle Ups',
+  'Band-Assisted Pull Ups', 'Neutral Grip Pull Ups', 'Inverted Rows', 'Weighted Inverted Rows',
+  'Bodyweight Squats', 'Box Squat', 'Glute Bridge', 'Dead Hang',
+  'Front Plank', 'Dead Bug', 'Bird Dog', 'Mountain Climbers',
+  'Hanging Leg Raise', 'Ab Wheel Rollout', 'Russian Twists', 'Dragon Flag', 'Weighted Plank',
+]);
 
 function applyEquipmentFilter(exercise: string, equipment: string[]): string {
   const hasBarbell = equipment.includes('barbells');
   const hasDumbbell = equipment.includes('dumbbells');
-  
   let result = exercise;
-  
-  if (!hasBarbell && BARBELL_ALTERNATIVES[result]) {
-    result = BARBELL_ALTERNATIVES[result];
-  }
-  if (!hasDumbbell && DUMBBELL_ALTERNATIVES[result]) {
-    result = DUMBBELL_ALTERNATIVES[result];
-  }
-  
+  if (!hasBarbell && BARBELL_ALTERNATIVES[result]) result = BARBELL_ALTERNATIVES[result];
+  if (!hasDumbbell && DUMBBELL_ALTERNATIVES[result]) result = DUMBBELL_ALTERNATIVES[result];
   return result;
 }
 
 function selectExercise(pool: string[], dayNumber: number, slotIndex: number): string {
   if (pool.length === 0) return 'Bodyweight Squats';
-  const idx = (dayNumber + slotIndex * 3) % pool.length;
-  return pool[idx];
+  return pool[(dayNumber + slotIndex * 3) % pool.length];
+}
+
+// ─── Structured Sets/Reps Generation ───
+// Progressive overload across 86 days: volume/intensity increase by phase
+
+interface SetPrescription {
+  set: number;
+  targetReps: string; // e.g. "8-10" or "30s" for plank
+  suggestedWeight: string; // guidance like "Light", "Moderate", "Heavy", "BW"
+}
+
+function getEquipmentType(exercise: string): 'barbell' | 'dumbbell' | 'bodyweight' | 'machine' {
+  if (BODYWEIGHT_EXERCISES.has(exercise)) return 'bodyweight';
+  if (exercise.includes('Dumbbell') || exercise.includes('Goblet') || exercise.includes('Arnold') || 
+      exercise.includes('Kettlebell') || exercise.includes('Farmers') || exercise.includes('Lateral')) return 'dumbbell';
+  if (exercise.includes('Lat Pulldown') || exercise.includes('Leg Press') || exercise.includes('Machine') ||
+      exercise.includes('T-Bar')) return 'machine';
+  return 'barbell';
+}
+
+function generateSets(
+  exercise: string,
+  fitnessLevel: string,
+  dayNumber: number,
+  slotIndex: number
+): SetPrescription[] {
+  const phase = dayNumber <= 28 ? 1 : dayNumber <= 56 ? 2 : 3; // Foundation → Build → Peak
+  const isBodyweight = BODYWEIGHT_EXERCISES.has(exercise);
+  const equipType = getEquipmentType(exercise);
+  
+  // Time-based core exercises
+  const isTimeBased = ['Front Plank', 'Dead Hang', 'Weighted Plank', 'Bird Dog'].includes(exercise);
+  
+  if (isTimeBased) {
+    const duration = fitnessLevel === 'beginner' ? ['20s', '25s', '30s'] :
+                     fitnessLevel === 'intermediate' ? ['30s', '35s', '40s'] :
+                     ['40s', '45s', '50s'];
+    const numSets = phase === 1 ? 3 : 4;
+    return Array.from({ length: numSets }, (_, i) => ({
+      set: i + 1,
+      targetReps: duration[Math.min(phase - 1, duration.length - 1)],
+      suggestedWeight: 'BW',
+    }));
+  }
+
+  // Compound Big 5 exercises: more sets, lower reps, heavier
+  const isBig5 = slotIndex <= 4; // First 5 slots are the big compounds
+  
+  let numSets: number;
+  let repRange: string;
+  let weightGuide: string;
+
+  if (isBig5) {
+    // Big 5 compounds - progressive structure
+    if (fitnessLevel === 'beginner') {
+      numSets = phase === 1 ? 3 : phase === 2 ? 3 : 4;
+      repRange = phase === 1 ? '10-12' : phase === 2 ? '8-10' : '6-8';
+      weightGuide = isBodyweight ? 'BW' : phase === 1 ? 'Light' : phase === 2 ? 'Moderate' : 'Moderate-Heavy';
+    } else if (fitnessLevel === 'intermediate') {
+      numSets = phase === 1 ? 3 : phase === 2 ? 4 : 4;
+      repRange = phase === 1 ? '8-10' : phase === 2 ? '6-8' : '5-6';
+      weightGuide = isBodyweight ? 'BW' : phase === 1 ? 'Moderate' : phase === 2 ? 'Moderate-Heavy' : 'Heavy';
+    } else {
+      numSets = phase === 1 ? 4 : phase === 2 ? 4 : 5;
+      repRange = phase === 1 ? '6-8' : phase === 2 ? '5-6' : '3-5';
+      weightGuide = isBodyweight ? 'BW+' : phase === 1 ? 'Moderate-Heavy' : phase === 2 ? 'Heavy' : 'Heavy';
+    }
+  } else {
+    // Accessory exercises (pull-ups, push-ups, core) - higher reps
+    if (fitnessLevel === 'beginner') {
+      numSets = phase === 1 ? 3 : 3;
+      repRange = isBodyweight ? (phase === 1 ? '5-8' : phase === 2 ? '8-12' : '10-15') : '10-12';
+      weightGuide = isBodyweight ? 'BW' : 'Light';
+    } else if (fitnessLevel === 'intermediate') {
+      numSets = 3;
+      repRange = isBodyweight ? (phase === 1 ? '8-12' : phase === 2 ? '10-15' : '12-20') : '10-12';
+      weightGuide = isBodyweight ? 'BW' : 'Light-Moderate';
+    } else {
+      numSets = phase === 1 ? 3 : 4;
+      repRange = isBodyweight ? (phase === 1 ? '10-15' : phase === 2 ? '15-20' : 'Max') : '8-12';
+      weightGuide = isBodyweight ? 'BW+' : 'Moderate';
+    }
+  }
+
+  return Array.from({ length: numSets }, (_, i) => ({
+    set: i + 1,
+    targetReps: repRange,
+    suggestedWeight: weightGuide,
+  }));
 }
 
 function getRunDistance(day: number): number {
@@ -135,13 +212,6 @@ function getRunDistance(day: number): number {
   if (day <= 49) return 4.0;
   if (day <= 56) return 4.5;
   return 5.0;
-}
-
-function getStrengthTime(dist: number): number {
-  if (dist <= 2) return 48;
-  if (dist <= 3) return 43;
-  if (dist <= 4) return 38;
-  return 33;
 }
 
 serve(async (req) => {
@@ -172,7 +242,7 @@ serve(async (req) => {
       );
     }
 
-    const { programId, weekNumber, fitnessLevel, equipment, injuries } = await req.json();
+    const { programId, weekNumber, fitnessLevel, equipment } = await req.json();
 
     const startDay = (weekNumber - 1) * 7 + 1;
     const endDay = Math.min(startDay + 6, 86);
@@ -184,30 +254,31 @@ serve(async (req) => {
 
     const userId = user.id;
     const level = fitnessLevel as 'beginner' | 'intermediate' | 'advanced';
-
-    const intensityNote = level === 'beginner'
-      ? 'Moderate effort. Rest 60–90s between sets. Leave 2–3 reps in reserve.'
-      : level === 'intermediate'
-      ? 'Strong effort. Rest 45–60s between sets. Leave 1–2 reps in reserve.'
-      : 'High effort. Rest 30–45s between sets. Leave 1 rep in reserve.';
-
     const days = [];
 
     for (let day = startDay; day <= endDay; day++) {
       const runDist = getRunDistance(day);
-      const strengthTime = getStrengthTime(runDist);
-      const timePerExercise = Math.floor(strengthTime / 8);
 
       const exercises = EXERCISE_SLOTS.map((slot, i) => {
         const pool = slot[level];
         const rawExercise = selectExercise(pool, day, i);
         const exercise = applyEquipmentFilter(rawExercise, equipment);
+        const equipmentType = getEquipmentType(exercise);
+        const sets = generateSets(exercise, level, day, i);
 
         return {
           category: slot.category,
           name: exercise,
-          timeMinutes: timePerExercise,
-          instruction: `Work for ${timePerExercise} minutes. ${intensityNote}`,
+          equipment: equipmentType,
+          sets,
+          // Per-set logged data (filled in by user)
+          logged: sets.map(s => ({
+            set: s.set,
+            reps: null as number | null,
+            weight: null as number | null,
+            rpe: null as number | null,
+            completed: false,
+          })),
         };
       });
 
@@ -216,7 +287,7 @@ serve(async (req) => {
         user_id: userId,
         day_number: day,
         run_distance_km: runDist,
-        strength_time_minutes: strengthTime,
+        strength_time_minutes: 0, // No longer time-based
         exercises,
       });
     }
