@@ -506,7 +506,8 @@ export function ProfileView() {
               <div className="space-y-3">
                 {runs.slice(0, 5).map((run) => {
                   const activityType = (run as any).activity_type || 'run';
-                  const activityLabel = activityType === 'walk' ? '🚶 Walk' : activityType === 'cycle' ? '🚴 Cycle' : '🏃 Run';
+                  const activityLabels: Record<string, string> = { walk: '🚶 Walk', run: '🏃 Run', cycle: '🚴 Cycle', rowing: '🚣 Row', swimming: '🏊 Swim', hiking: '🥾 Hike', hiit: '⚡ HIIT' };
+                  const activityLabel = activityLabels[activityType] || '🏃 Run';
                   return (
                     <div
                       key={run.id}
