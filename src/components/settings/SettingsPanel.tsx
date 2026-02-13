@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -27,7 +27,7 @@ import {
   UserPlus,
   Settings,
   Dumbbell,
-  Share2,
+  
   LogOut,
   Sparkles,
   Video,
@@ -48,26 +48,6 @@ export function SettingsPanel() {
   const { profile, updateProfile } = useProfile();
   const { signOut } = useAuth();
   const [saving, setSaving] = useState(false);
-  const [socialHandles, setSocialHandles] = useState({
-    instagram: '',
-    tiktok: '',
-    facebook: '',
-    twitter: '',
-  });
-  const [socialSaving, setSocialSaving] = useState(false);
-
-
-  // Update social handles when profile loads
-  useEffect(() => {
-    if (profile) {
-      setSocialHandles({
-        instagram: (profile as any).social_instagram || '',
-        tiktok: (profile as any).social_tiktok || '',
-        facebook: (profile as any).social_facebook || '',
-        twitter: (profile as any).social_twitter || '',
-      });
-    }
-  }, [profile]);
 
   if (loading || !settings) {
     return (
@@ -295,92 +275,6 @@ export function SettingsPanel() {
       {/* Blocked Users */}
       <BlockedUsersSection />
 
-      {/* Social Integration */}
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle className="font-display text-xl tracking-wide flex items-center gap-2">
-            <Share2 className="w-5 h-5" />
-            SOCIAL ACCOUNTS
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground mb-4">
-            Link your social profiles for sharing. Enter your username or handle.
-          </p>
-          
-          <div className="space-y-3">
-            <div className="space-y-1.5">
-              <Label className="text-foreground font-medium flex items-center gap-2">
-                <div className="w-5 h-5 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 rounded flex items-center justify-center text-white text-xs font-bold">📷</div>
-                Instagram
-              </Label>
-              <Input 
-                placeholder="@username" 
-                value={socialHandles.instagram}
-                onChange={(e) => setSocialHandles(prev => ({ ...prev, instagram: e.target.value }))}
-              />
-            </div>
-            
-            <div className="space-y-1.5">
-              <Label className="text-foreground font-medium flex items-center gap-2">
-                <div className="w-5 h-5 bg-foreground rounded flex items-center justify-center text-background text-xs font-bold">𝕏</div>
-                X (Twitter)
-              </Label>
-              <Input 
-                placeholder="@username" 
-                value={socialHandles.twitter}
-                onChange={(e) => setSocialHandles(prev => ({ ...prev, twitter: e.target.value }))}
-              />
-            </div>
-            
-            <div className="space-y-1.5">
-              <Label className="text-foreground font-medium flex items-center gap-2">
-                <div className="w-5 h-5 bg-foreground rounded flex items-center justify-center text-background text-xs font-bold">♪</div>
-                TikTok
-              </Label>
-              <Input 
-                placeholder="@username" 
-                value={socialHandles.tiktok}
-                onChange={(e) => setSocialHandles(prev => ({ ...prev, tiktok: e.target.value }))}
-              />
-            </div>
-            
-            <div className="space-y-1.5">
-              <Label className="text-foreground font-medium flex items-center gap-2">
-                <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">f</div>
-                Facebook
-              </Label>
-              <Input 
-                placeholder="Profile URL or username" 
-                value={socialHandles.facebook}
-                onChange={(e) => setSocialHandles(prev => ({ ...prev, facebook: e.target.value }))}
-              />
-            </div>
-
-            <Button 
-              className="w-full font-display tracking-wide mt-2"
-              disabled={socialSaving}
-              onClick={async () => {
-                setSocialSaving(true);
-                const { error } = await updateProfile({
-                  social_instagram: socialHandles.instagram || null,
-                  social_tiktok: socialHandles.tiktok || null,
-                  social_facebook: socialHandles.facebook || null,
-                  social_twitter: socialHandles.twitter || null,
-                } as any);
-                setSocialSaving(false);
-                if (error) {
-                  toast.error('Failed to save social links');
-                } else {
-                  toast.success('Social links saved');
-                }
-              }}
-            >
-              {socialSaving ? 'SAVING...' : 'SAVE SOCIAL LINKS'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Programme Tracking Preferences */}
       <Card className="bg-card border-border">
