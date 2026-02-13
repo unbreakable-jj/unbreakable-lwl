@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { runSchema, runUpdateSchema, getValidationError } from '@/lib/validations';
 
-export type CardioActivityType = 'walk' | 'run' | 'cycle';
+export type CardioActivityType = 'walk' | 'run' | 'cycle' | 'rowing' | 'swimming' | 'hiking' | 'hiit';
 
 export interface Run {
   id: string;
@@ -78,7 +78,7 @@ export function useRuns() {
 
           return {
             ...run,
-            activity_type: (['walk', 'run', 'cycle'].includes(run.activity_type) ? run.activity_type : (run.notes && ['walk', 'run', 'cycle'].includes(run.notes) ? run.notes : 'run')) as CardioActivityType,
+            activity_type: (['walk', 'run', 'cycle', 'rowing', 'swimming', 'hiking', 'hiit'].includes(run.activity_type) ? run.activity_type : (run.notes && ['walk', 'run', 'cycle', 'rowing', 'swimming', 'hiking', 'hiit'].includes(run.notes) ? run.notes : 'run')) as CardioActivityType,
             visibility: (run.visibility || 'public') as 'public' | 'friends' | 'private',
             profiles: profileResult.data || undefined,
             kudos_count: kudosResult.count || 0,
@@ -230,7 +230,7 @@ export function useUserRuns(userId?: string) {
     } else {
       const typedRuns = (data || []).map(run => ({
         ...run,
-        activity_type: (['walk', 'run', 'cycle'].includes(run.activity_type) ? run.activity_type : (run.notes && ['walk', 'run', 'cycle'].includes(run.notes) ? run.notes : 'run')) as CardioActivityType,
+        activity_type: (['walk', 'run', 'cycle', 'rowing', 'swimming', 'hiking', 'hiit'].includes(run.activity_type) ? run.activity_type : (run.notes && ['walk', 'run', 'cycle', 'rowing', 'swimming', 'hiking', 'hiit'].includes(run.notes) ? run.notes : 'run')) as CardioActivityType,
         visibility: (run.visibility || 'public') as 'public' | 'friends' | 'private',
       }));
       setRuns(typedRuns);

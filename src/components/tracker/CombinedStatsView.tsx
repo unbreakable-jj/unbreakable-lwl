@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 import { 
   TrendingUp, Calendar, Clock, Zap, Target, Award, Activity,
-  Dumbbell, Timer, CheckCircle2, Footprints, Bike, Flame,
+  Dumbbell, Timer, CheckCircle2, Footprints, Bike, Flame, Waves, Droplets, Mountain,
 } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, subWeeks, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -18,12 +18,16 @@ const ACTIVITY_CONFIG: Record<CardioActivityType, { label: string; icon: typeof 
   walk: { label: 'WALK', icon: Footprints, emoji: '🚶' },
   run: { label: 'RUN', icon: Timer, emoji: '🏃' },
   cycle: { label: 'CYCLE', icon: Bike, emoji: '🚴' },
+  rowing: { label: 'ROW', icon: Waves, emoji: '🚣' },
+  swimming: { label: 'SWIM', icon: Droplets, emoji: '🏊' },
+  hiking: { label: 'HIKE', icon: Mountain, emoji: '🥾' },
+  hiit: { label: 'HIIT', icon: Zap, emoji: '⚡' },
 };
 
 function CardioSubStats({ runs, activityType }: { runs: any[]; activityType: CardioActivityType }) {
   const filteredRuns = useMemo(() => {
     return runs.filter(r => {
-      const type = r.activity_type || (r.notes && ['walk', 'run', 'cycle'].includes(r.notes) ? r.notes : 'run');
+      const type = r.activity_type || (r.notes && ['walk', 'run', 'cycle', 'rowing', 'swimming', 'hiking', 'hiit'].includes(r.notes) ? r.notes : 'run');
       return type === activityType;
     });
   }, [runs, activityType]);
@@ -261,11 +265,11 @@ export function CombinedStatsView() {
 
         <TabsContent value="cardio" className="space-y-6 mt-4">
           {/* Cardio sub-selector */}
-          <div className="flex gap-2">
-            {(['walk', 'run', 'cycle'] as CardioActivityType[]).map(type => {
+          <div className="flex flex-wrap gap-2">
+            {(Object.keys(ACTIVITY_CONFIG) as CardioActivityType[]).map(type => {
               const config = ACTIVITY_CONFIG[type];
               const count = runs.filter(r => {
-                const t = r.activity_type || (r.notes && ['walk', 'run', 'cycle'].includes(r.notes) ? r.notes : 'run');
+                const t = r.activity_type || (r.notes && Object.keys(ACTIVITY_CONFIG).includes(r.notes) ? r.notes : 'run');
                 return t === type;
               }).length;
               return (
