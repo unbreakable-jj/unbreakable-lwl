@@ -21,11 +21,53 @@ export default function Unbreakable86() {
   const [activeTab, setActiveTab] = useState<'today' | 'progress'>('today');
   const [generating, setGenerating] = useState(false);
 
-  // Auto-generate week when needed
+  // Auto-generate week when needed OR auto-reset old format data
   useEffect(() => {
     if (!program || program.status !== 'active' || generating) return;
     
     const currentWeek = Math.ceil((program.current_day || 1) / 7);
+
+    // Check if existing days use old time-based format (no sets array)
+    const hasOldFormat = days && days.length > 0 && days.some(d => {
+      const exercises = Array.isArray(d.exercises) ? d.exercises : [];
+      return exercises.length > 0 && !exercises[0]?.sets;
+    });
+
+    if (hasOldFormat) {
+      // Auto-reset: delete old days and regenerate from week 1
+      setGenerating(true);
+      (async () => {
+        try {
+          // Delete all old days
+          const { supabase } = await import('@/integrations/supabase/client');
+          await (supabase as any)
+            .from('unbreakable_86_days')
+            .delete()
+            .eq('program_id', program.id);
+          
+          // Reset last_generated_week to 0
+          await (supabase as any)
+            .from('unbreakable_86_programs')
+            .update({ last_generated_week: 0, current_day: 1 })
+            .eq('id', program.id);
+
+          // Generate week 1 with new format
+          await generateWeek.mutateAsync({
+            programId: program.id,
+            weekNumber: 1,
+            fitnessLevel: program.fitness_level,
+            equipment: program.equipment,
+            injuries: program.injuries || '',
+          });
+        } catch (e) {
+          console.error('Auto-reset failed:', e);
+        } finally {
+          setGenerating(false);
+        }
+      })();
+      return;
+    }
+    
     if (currentWeek > program.last_generated_week) {
       setGenerating(true);
       generateWeek.mutateAsync({
@@ -36,7 +78,7 @@ export default function Unbreakable86() {
         injuries: program.injuries || '',
       }).finally(() => setGenerating(false));
     }
-  }, [program?.id, program?.current_day, program?.last_generated_week, program?.status]);
+  }, [program?.id, program?.current_day, program?.last_generated_week, program?.status, days]);
 
   const handleSetupComplete = async (config: any) => {
     await createProgram.mutateAsync(config);
