@@ -1,37 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Brain, Zap, Target, Heart, Volume2, VolumeX, Flame, ArrowRight, Settings, Gamepad2 } from "lucide-react";
+import { Brain, Wind, Gamepad2, Flame, ArrowRight } from "lucide-react";
 import { ThemedLogo } from "@/components/ThemedLogo";
-import { lazy, Suspense } from "react";
-
-const SnakeGame = lazy(() => import("@/components/mindset/SnakeGame"));
-const AlleywayGame = lazy(() => import("@/components/mindset/AlleywayGame"));
 import { NavigationDrawer } from "@/components/NavigationDrawer";
 import { ThemeToggle } from "@/components/hub/ThemeToggle";
 import { UnifiedFooter } from "@/components/UnifiedFooter";
-import { CountdownOverlay } from "@/components/CountdownOverlay";
-import { getVisibleExercises, BreathingExercise } from "@/lib/breathingExercises";
-import { ImmersiveSessionView } from "@/components/mindset/ImmersiveSessionView";
-import { useBreathingAudio, VoiceType } from "@/hooks/useBreathingAudio";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-
-type BreathPhase = "idle" | "inhale" | "hold" | "exhale" | "rest" | "complete";
-type ViewState = "selection" | "countdown" | "exercise" | "complete" | "game" | "alleyway";
-
-const VOICE_OPTIONS = [
-  { value: "male" as VoiceType, label: "Male Voice", description: "Calm, warm guidance" },
-  { value: "female" as VoiceType, label: "Female Voice", description: "Soothing, gentle guidance" },
-];
 
 const heroContent = {
   title: "UNBREAKABLE",
@@ -39,7 +12,7 @@ const heroContent = {
   tagline: "LIVE WITHOUT LIMITS",
   intro: "Your mind is your ultimate weapon. This isn't meditation for relaxation — it's",
   emphasis: "MENTAL CONDITIONING",
-  description: "Controlled breathing rewires your nervous system. Every session builds",
+  description: "Controlled breathing rewires your nervous system. Focus games sharpen your reactions. Every session builds",
   descEmphasis: "RESILIENCE UNDER PRESSURE",
   descEnd: ".",
   goal: "Develop a mind that stays calm in chaos — focused, present, and",
@@ -48,660 +21,144 @@ const heroContent = {
   hashtag: "#UNBREAKABLEMINDSET",
 };
 
+const exploreCards = [
+  {
+    title: "BREATHING",
+    subtitle: "BREATHE WITH PURPOSE",
+    description: "Voice-guided breathing sessions built on proven techniques — from military-grade Box Breathing to deep parasympathetic resets. Train your nervous system for calm under pressure.",
+    icon: Wind,
+    link: "/mindset/breathing",
+  },
+  {
+    title: "FOCUS GAMES",
+    subtitle: "TRAIN YOUR REACTIONS",
+    description: "Reaction-based games that sharpen focus and hand-eye coordination. Auto-scaling difficulty and global leaderboards push you to compete against yourself and others.",
+    icon: Gamepad2,
+    link: "/mindset/games",
+  },
+];
+
 const Mindset = () => {
-  const [view, setView] = useState<ViewState>("selection");
-  const [selectedExercise, setSelectedExercise] = useState<BreathingExercise | null>(null);
-  const [isActive, setIsActive] = useState(false);
-  const [phase, setPhase] = useState<BreathPhase>("idle");
-  const [currentCycle, setCurrentCycle] = useState(0);
-  const [progress, setProgress] = useState(0);
-  
-  // Voice settings
-  const [voiceEnabled, setVoiceEnabled] = useState(true);
-  const [voiceType, setVoiceType] = useState<VoiceType>("male");
-  const [showSettings, setShowSettings] = useState(false);
-  
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const startTimeRef = useRef<number>(0);
-  const lastPhaseRef = useRef<BreathPhase>("idle");
-
-  // Audio hook
-  const { playAudio, stopAudio, preloadAudio, cleanup } = useBreathingAudio({
-    voiceType,
-    enabled: voiceEnabled,
-  });
-
-  const getCycleDuration = useCallback((exercise: BreathingExercise) => {
-    const { inhale, hold, exhale, rest = 0 } = exercise.phases;
-    return (inhale + hold + exhale + rest) * 1000;
-  }, []);
-
-  const getPhaseFromTime = useCallback((elapsed: number, exercise: BreathingExercise): { phase: BreathPhase; cycle: number } => {
-    const cycleDuration = getCycleDuration(exercise);
-    const totalDuration = exercise.cycles * cycleDuration;
-    
-    if (elapsed >= totalDuration) {
-      return { phase: "complete", cycle: exercise.cycles };
-    }
-
-    const cycleNumber = Math.floor(elapsed / cycleDuration) + 1;
-    const timeInCycle = elapsed % cycleDuration;
-    const { inhale, hold, exhale } = exercise.phases;
-
-    const inhaleMs = inhale * 1000;
-    const holdMs = hold * 1000;
-    const exhaleMs = exhale * 1000;
-
-    if (timeInCycle < inhaleMs) {
-      return { phase: "inhale", cycle: cycleNumber };
-    } else if (timeInCycle < inhaleMs + holdMs) {
-      return { phase: "hold", cycle: cycleNumber };
-    } else if (timeInCycle < inhaleMs + holdMs + exhaleMs) {
-      return { phase: "exhale", cycle: cycleNumber };
-    } else {
-      return { phase: "rest", cycle: cycleNumber };
-    }
-  }, [getCycleDuration]);
-
-  // Play audio when phase changes - VOICE THROUGHOUT ALL CYCLES
-  useEffect(() => {
-    if (!selectedExercise || !voiceEnabled || view !== "exercise") return;
-    
-    if (phase !== lastPhaseRef.current) {
-      lastPhaseRef.current = phase;
-      
-      let textToSpeak = "";
-      
-      switch (phase) {
-        case "inhale":
-          textToSpeak = selectedExercise.scripts.inhale;
-          break;
-        case "hold":
-          textToSpeak = selectedExercise.scripts.hold;
-          break;
-        case "exhale":
-          textToSpeak = selectedExercise.scripts.exhale;
-          break;
-        case "complete":
-          textToSpeak = selectedExercise.scripts.closing;
-          break;
-      }
-      
-      if (textToSpeak) {
-        playAudio(textToSpeak);
-      }
-    }
-  }, [phase, currentCycle, selectedExercise, voiceEnabled, view, playAudio]);
-
-  const startExercise = useCallback(() => {
-    if (!selectedExercise) return;
-    
-    setIsActive(true);
-    setView("exercise");
-    setCurrentCycle(1);
-    setPhase("inhale");
-    setProgress(0);
-    lastPhaseRef.current = "idle";
-    startTimeRef.current = Date.now();
-
-    const cycleDuration = getCycleDuration(selectedExercise);
-    const totalDuration = selectedExercise.cycles * cycleDuration;
-
-    intervalRef.current = setInterval(() => {
-      const elapsed = Date.now() - startTimeRef.current;
-      const progressPercent = Math.min((elapsed / totalDuration) * 100, 100);
-      
-      setProgress(progressPercent);
-
-      const { phase: currentPhase, cycle } = getPhaseFromTime(elapsed, selectedExercise);
-      setPhase(currentPhase);
-      setCurrentCycle(cycle);
-
-      if (elapsed >= totalDuration) {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-        }
-        setIsActive(false);
-        setView("complete");
-        setPhase("complete");
-      }
-    }, 100);
-  }, [selectedExercise, getCycleDuration, getPhaseFromTime]);
-
-  const handleCountdownComplete = useCallback(() => {
-    startExercise();
-  }, [startExercise]);
-
-  // Callback for countdown to play audio
-  const handleCountdownAudio = useCallback((text: string) => {
-    if (voiceEnabled) {
-      playAudio(text);
-    }
-  }, [voiceEnabled, playAudio]);
-
-  const selectExercise = useCallback((exercise: BreathingExercise) => {
-    setSelectedExercise(exercise);
-    
-    // Preload minimal audio phrases including countdown voice
-    if (voiceEnabled) {
-      preloadAudio([
-        "Get ready",
-        "Power",
-        "Movement",
-        "Fuel",
-        "Mindset",
-        "Go!",
-        exercise.scripts.inhale,
-        exercise.scripts.hold,
-        exercise.scripts.exhale,
-        exercise.scripts.closing,
-      ]);
-    }
-    
-    setView("countdown");
-  }, [voiceEnabled, preloadAudio]);
-
-  const toggleBreathing = useCallback(() => {
-    if (isActive) {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      setIsActive(false);
-      stopAudio();
-    } else {
-      startExercise();
-    }
-  }, [isActive, startExercise, stopAudio]);
-
-  const resetExercise = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-    stopAudio();
-    setIsActive(false);
-    setPhase("idle");
-    setCurrentCycle(0);
-    setProgress(0);
-    setView("selection");
-    setSelectedExercise(null);
-    lastPhaseRef.current = "idle";
-  }, [stopAudio]);
-
-  const handleShare = useCallback(() => {
-    const shareText = `Just completed ${selectedExercise?.name || "an Unbreakable Mindset"} breathing session! 🧘‍♂️ #UnbreakableMindset #KeepShowingUp`;
-    if (navigator.share) {
-      navigator.share({
-        title: "Unbreakable Mindset",
-        text: shareText,
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(shareText);
-    }
-  }, [selectedExercise]);
-
-  useEffect(() => {
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      cleanup();
-    };
-  }, [cleanup]);
-
-  // getScaleForPhase moved to BreathingVisual component
-
-  const formatTime = (progressPercent: number, totalMinutes: number) => {
-    const totalSeconds = totalMinutes * 60;
-    const elapsed = Math.floor((progressPercent / 100) * totalSeconds);
-    const mins = Math.floor(elapsed / 60);
-    const secs = elapsed % 60;
-    return `${mins}:${String(secs).padStart(2, '0')}`;
-  };
-
-  const getIntensityIcon = (intensity: string) => {
-    switch (intensity) {
-      case "high":
-        return <Zap className="w-5 h-5" />;
-      case "medium":
-        return <Target className="w-5 h-5" />;
-      case "calm":
-        return <Heart className="w-5 h-5" />;
-      default:
-        return <Brain className="w-5 h-5" />;
-    }
-  };
-
-  // Settings sheet content
-  const SettingsSheet = () => (
-    <Sheet open={showSettings} onOpenChange={setShowSettings}>
-      <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="absolute top-4 right-4">
-          <Settings className="w-5 h-5" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent className="bg-card border-border">
-        <SheetHeader>
-          <SheetTitle className="font-display text-xl tracking-wide text-foreground">
-            VOICE SETTINGS
-          </SheetTitle>
-        </SheetHeader>
-        
-        <div className="space-y-6 mt-6">
-          {/* Voice enabled toggle */}
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
+        <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {voiceEnabled ? (
-                <Volume2 className="w-5 h-5 text-primary" />
-              ) : (
-                <VolumeX className="w-5 h-5 text-muted-foreground" />
-              )}
-              <Label htmlFor="voice-enabled" className="font-display tracking-wide">
-                VOICE GUIDANCE
-              </Label>
+              <ThemeToggle />
+              <Link to="/" className="flex items-center gap-3">
+                <ThemedLogo />
+                <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
+                  UNBREAKABLE
+                </span>
+              </Link>
             </div>
-            <Switch
-              id="voice-enabled"
-              checked={voiceEnabled}
-              onCheckedChange={setVoiceEnabled}
-            />
+            <NavigationDrawer />
           </div>
-
-          {/* Voice type selection */}
-          {voiceEnabled && (
-            <div className="space-y-3">
-              <Label className="font-display tracking-wide text-muted-foreground">
-                VOICE TYPE
-              </Label>
-              <div className="space-y-2">
-                {VOICE_OPTIONS.map((option) => (
-                  <Card
-                    key={option.value}
-                    className={`p-4 cursor-pointer transition-all border ${
-                      voiceType === option.value
-                        ? "border-primary bg-primary/10"
-                        : "border-border hover:border-primary/50"
-                    }`}
-                    onClick={() => setVoiceType(option.value)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-display text-foreground tracking-wide">
-                          {option.label}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {option.description}
-                        </p>
-                      </div>
-                      {voiceType === option.value && (
-                        <div className="w-3 h-3 rounded-full bg-primary" />
-                      )}
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
-      </SheetContent>
-    </Sheet>
-  );
+      </header>
 
-  // Exercise selection view - matches Calculator page structure
-  if (view === "selection") {
-    return (
-      <div className="min-h-screen bg-background">
-        {/* Header with Theme Toggle */}
-        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
-          <div className="container mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <ThemeToggle />
-                <Link to="/" className="flex items-center gap-3">
-                  <ThemedLogo />
-                  <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
-                    UNBREAKABLE
-                  </span>
-                </Link>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowSettings(true)}
-                >
-                  {voiceEnabled ? (
-                    <Volume2 className="w-5 h-5" />
-                  ) : (
-                    <VolumeX className="w-5 h-5" />
-                  )}
-                </Button>
-                <NavigationDrawer />
-              </div>
-            </div>
-          </div>
-        </header>
+      {/* Hero Section */}
+      <section className="pt-32 pb-12 text-center px-6">
+        <div className="max-w-4xl mx-auto">
+          <ThemedLogo className="h-32 md:h-40 object-contain mx-auto mb-6" />
+          <h1 className="font-display text-6xl md:text-8xl text-primary tracking-wide leading-none mb-2 neon-glow-subtle">
+            {heroContent.title}
+          </h1>
+          <h1 className="font-display text-6xl md:text-8xl text-foreground tracking-wide leading-none">
+            {heroContent.titleAccent}
+          </h1>
+          <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">
+            {heroContent.tagline}
+          </p>
+        </div>
+      </section>
 
-        <SettingsSheet />
-
-        {/* Hero Section - matches Calculator style */}
-        <section className="pt-32 pb-12 text-center px-6">
-          <div className="max-w-4xl mx-auto">
-            <ThemedLogo className="h-32 md:h-40 object-contain mx-auto mb-6" />
-            <h1 className="font-display text-6xl md:text-8xl text-primary tracking-wide leading-none mb-2 neon-glow-subtle">
-              {heroContent.title}
-            </h1>
-            <h1 className="font-display text-6xl md:text-8xl text-foreground tracking-wide leading-none">
-              {heroContent.titleAccent}
-            </h1>
-            <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">
-              {heroContent.tagline}
+      {/* Main Content */}
+      <main className="container mx-auto px-6 py-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Description Card */}
+          <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8 md:p-10 mb-10 text-center max-w-4xl mx-auto">
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              {heroContent.intro}{' '}
+              <span className="text-primary font-semibold">{heroContent.emphasis}</span>.
             </p>
-
-            {/* Voice indicator */}
-            <div className="flex items-center justify-center gap-2 mt-6 text-sm">
-              {voiceEnabled ? (
-                <>
-                  <Volume2 className="w-4 h-4 text-primary" />
-                  <span className="text-muted-foreground">
-                    {voiceType === "male" ? "Male" : "Female"} voice guidance enabled
-                  </span>
-                </>
-              ) : (
-                <>
-                  <VolumeX className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Voice guidance disabled</span>
-                </>
-              )}
-            </div>
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              {heroContent.description}{' '}
+              <span className="text-primary font-semibold">{heroContent.descEmphasis}</span>
+              {heroContent.descEnd}
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              {heroContent.goal}{' '}
+              <span className="text-primary font-semibold">{heroContent.goalEmphasis}</span>{' '}
+              {heroContent.goalEnd}
+            </p>
+            <p className="text-primary font-display text-2xl tracking-wide mt-6 neon-glow-subtle">
+              {heroContent.hashtag}
+            </p>
           </div>
-        </section>
 
-        {/* Main Content */}
-        <main className="container mx-auto px-6 py-8">
-          <div className="max-w-6xl mx-auto">
-            {/* Description Card - matches Calculator style */}
-            <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8 md:p-10 mb-10 text-center max-w-4xl mx-auto">
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                {heroContent.intro}{' '}
-                <span className="text-primary font-semibold">{heroContent.emphasis}</span>.
-              </p>
-              
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                {heroContent.description}{' '}
-                <span className="text-primary font-semibold">{heroContent.descEmphasis}</span>
-                {heroContent.descEnd}
-              </p>
-              
-              <p className="text-muted-foreground leading-relaxed">
-                {heroContent.goal}{' '}
-                <span className="text-primary font-semibold">{heroContent.goalEmphasis}</span>{' '}
-                {heroContent.goalEnd}
-              </p>
-              
-              <p className="text-primary font-display text-2xl tracking-wide mt-6 neon-glow-subtle">
-                {heroContent.hashtag}
-              </p>
-            </div>
+          {/* Explore Section */}
+          <h2 className="font-display text-2xl text-primary mb-8 tracking-wide text-center neon-glow-subtle">
+            EXPLORE
+          </h2>
 
-            {/* Exercise Selection Header */}
-            <h2 className="font-display text-2xl text-primary mb-8 tracking-wide text-center neon-glow-subtle">
-              SELECT YOUR SESSION
-            </h2>
-
-            {/* Exercise Cards Grid - matches Calculator grid */}
-            <div className="grid md:grid-cols-1 gap-6 max-w-lg mx-auto">
-              {getVisibleExercises().map((exercise) => (
-                <Card
-                  key={exercise.id}
-                  className="bg-card border-2 border-primary/30 neon-border-subtle border-l-4 border-l-primary p-6 cursor-pointer hover:bg-muted/50 transition-all group"
-                  onClick={() => selectExercise(exercise)}
-                >
-                  {/* Icon & Title */}
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            {exploreCards.map((card) => (
+              <Link key={card.title} to={card.link}>
+                <Card className="bg-card border-2 border-primary/30 neon-border-subtle border-l-4 border-l-primary p-6 cursor-pointer hover:bg-muted/50 transition-all group h-full">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
-                      {getIntensityIcon(exercise.intensity)}
+                      <card.icon className="w-6 h-6" />
                     </div>
                     <div>
                       <h3 className="font-display text-xl text-foreground tracking-wide">
-                        {exercise.name}
+                        {card.title}
                       </h3>
-                      <p className="text-xs text-primary font-display">{exercise.duration}</p>
+                      <p className="text-xs text-primary font-display">{card.subtitle}</p>
                     </div>
                   </div>
-
-                  {/* Tagline */}
-                  <p className="text-primary font-display text-sm tracking-wide mb-3">
-                    {exercise.tagline}
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {card.description}
                   </p>
-                  
-                  {/* Description */}
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                    {exercise.description}
-                  </p>
-
-                  {/* Meta info */}
-                  <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border">
-                    <span>{exercise.cycles} cycles</span>
-                    <span className="capitalize">{exercise.intensity} intensity</span>
+                  <div className="flex items-center gap-2 mt-4 text-primary font-display text-sm tracking-wide">
+                    <span>ENTER</span>
+                    <ArrowRight className="w-4 h-4" />
                   </div>
                 </Card>
-              ))}
-            </div>
-
-            {/* Games Section */}
-            <div className="max-w-lg mx-auto mt-10">
-              <h2 className="font-display text-2xl text-primary mb-6 tracking-wide text-center neon-glow-subtle">
-                TRAIN YOUR FOCUS
-              </h2>
-              <div className="space-y-6">
-                <Card
-                  className="bg-card border-2 border-primary/30 neon-border-subtle border-l-4 border-l-primary p-6 cursor-pointer hover:bg-muted/50 transition-all group"
-                  onClick={() => setView("game")}
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
-                      <Gamepad2 className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-display text-xl text-foreground tracking-wide">
-                        SNAKE
-                      </h3>
-                      <p className="text-xs text-primary font-display">UNBREAKABLE EDITION</p>
-                    </div>
-                  </div>
-                  <p className="text-primary font-display text-sm tracking-wide mb-3">
-                    SHARPEN YOUR REACTIONS
-                  </p>
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                    Classic snake with a twist — colours shift every 5 points as difficulty auto-scales.
-                    Compete on the global leaderboard.
-                  </p>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border">
-                    <span>Endless mode</span>
-                    <span>Auto-scaling difficulty</span>
-                  </div>
-                </Card>
-
-                <Card
-                  className="bg-card border-2 border-primary/30 neon-border-subtle border-l-4 border-l-primary p-6 cursor-pointer hover:bg-muted/50 transition-all group"
-                  onClick={() => setView("alleyway")}
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
-                      <Zap className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-display text-xl text-foreground tracking-wide">
-                        ALLEYWAY
-                      </h3>
-                      <p className="text-xs text-primary font-display">UNBREAKABLE EDITION</p>
-                    </div>
-                  </div>
-                  <p className="text-primary font-display text-sm tracking-wide mb-3">
-                    BREAK THROUGH BARRIERS
-                  </p>
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                    Classic brick-breaker reimagined — colours shift every 5 points, bricks regenerate endlessly.
-                    Compete on the global leaderboard.
-                  </p>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border">
-                    <span>Endless mode</span>
-                    <span>Auto-scaling difficulty</span>
-                  </div>
-                </Card>
-              </div>
-            </div>
+              </Link>
+            ))}
           </div>
-        </main>
+        </div>
+      </main>
 
-        {/* Coach Banner - Bottom of page */}
-        <section className="container mx-auto px-6 py-12 border-t border-border">
-          <Link to="/help" className="block max-w-3xl mx-auto">
-            <Card className="border-2 border-primary/40 bg-primary/5 p-6 hover:bg-primary/10 transition-all neon-border-subtle">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center neon-glow">
-                    <Flame className="w-7 h-7 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-display text-xl tracking-wide text-foreground">
-                      NEED MORE? <span className="text-primary neon-glow-subtle">ASK YOUR COACH</span>
-                    </p>
-                    <p className="text-muted-foreground mt-1">
-                      Mindset tips, stress management, and mental performance coaching
-                    </p>
-                  </div>
+      {/* Coach Banner */}
+      <section className="container mx-auto px-6 py-12 border-t border-border">
+        <Link to="/help" className="block max-w-3xl mx-auto">
+          <Card className="border-2 border-primary/40 bg-primary/5 p-6 hover:bg-primary/10 transition-all neon-border-subtle">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center neon-glow">
+                  <Flame className="w-7 h-7 text-primary" />
                 </div>
-                <ArrowRight className="w-6 h-6 text-primary hidden sm:block" />
+                <div>
+                  <p className="font-display text-xl tracking-wide text-foreground">
+                    NEED MORE? <span className="text-primary neon-glow-subtle">ASK YOUR COACH</span>
+                  </p>
+                  <p className="text-muted-foreground mt-1">
+                    Mindset tips, stress management, and mental performance coaching
+                  </p>
+                </div>
               </div>
-            </Card>
-          </Link>
-        </section>
-
-        <UnifiedFooter className="mt-16" />
-      </div>
-    );
-  }
-
-  // Game view
-  if (view === "game") {
-    return (
-      <div className="min-h-screen bg-background">
-        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
-          <div className="container mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <ThemeToggle />
-                <Link to="/" className="flex items-center gap-3">
-                  <ThemedLogo />
-                  <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
-                    UNBREAKABLE
-                  </span>
-                </Link>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="font-display text-xs tracking-wide" onClick={resetExercise}>
-                  ← BACK
-                </Button>
-                <NavigationDrawer />
-              </div>
+              <ArrowRight className="w-6 h-6 text-primary hidden sm:block" />
             </div>
-          </div>
-        </header>
+          </Card>
+        </Link>
+      </section>
 
-        <main className="container mx-auto px-6 pt-28 pb-12">
-          <Suspense fallback={
-            <div className="flex items-center justify-center py-20">
-              <p className="font-display text-primary tracking-wide animate-pulse">LOADING...</p>
-            </div>
-          }>
-            <SnakeGame />
-          </Suspense>
-        </main>
-
-        <UnifiedFooter className="mt-16" />
-      </div>
-    );
-  }
-
-  // Alleyway view
-  if (view === "alleyway") {
-    return (
-      <div className="min-h-screen bg-background">
-        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
-          <div className="container mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <ThemeToggle />
-                <Link to="/" className="flex items-center gap-3">
-                  <ThemedLogo />
-                  <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
-                    UNBREAKABLE
-                  </span>
-                </Link>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="font-display text-xs tracking-wide" onClick={resetExercise}>
-                  ← BACK
-                </Button>
-                <NavigationDrawer />
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <main className="container mx-auto px-6 pt-28 pb-12">
-          <Suspense fallback={
-            <div className="flex items-center justify-center py-20">
-              <p className="font-display text-primary tracking-wide animate-pulse">LOADING...</p>
-            </div>
-          }>
-            <AlleywayGame />
-          </Suspense>
-        </main>
-
-        <UnifiedFooter className="mt-16" />
-      </div>
-    );
-  }
-
-  // Countdown view with welcome message
-  if (view === "countdown") {
-    return (
-      <CountdownOverlay
-        isActive={true}
-        onComplete={handleCountdownComplete}
-        startFrom={3}
-        exerciseName={selectedExercise?.name}
-        welcomeMessage={selectedExercise?.scripts.intro}
-        onPlayAudio={handleCountdownAudio}
-      />
-    );
-  }
-
-  // Exercise/Complete view - Full immersive experience
-  const phaseDuration = selectedExercise?.phases[phase === "rest" ? "exhale" : (phase === "complete" ? "exhale" : phase)] || 4;
-  
-  return (
-    <ImmersiveSessionView
-      phase={phase}
-      progress={progress}
-      currentCycle={currentCycle}
-      totalCycles={selectedExercise?.cycles || 9}
-      phaseDuration={phaseDuration}
-      isActive={isActive}
-      isComplete={view === "complete"}
-      closingMessage={selectedExercise?.scripts.closing}
-      voiceEnabled={voiceEnabled}
-      onToggleVoice={() => {
-        if (voiceEnabled) stopAudio();
-        setVoiceEnabled(prev => !prev);
-      }}
-      onToggle={toggleBreathing}
-      onReset={resetExercise}
-      onShare={handleShare}
-    />
+      <UnifiedFooter className="mt-16" />
+    </div>
   );
 };
 

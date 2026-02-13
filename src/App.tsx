@@ -9,6 +9,8 @@ import Index from "./pages/Index";
 import Calculators from "./pages/Calculators";
 import Tracker from "./pages/Tracker";
 import Mindset from "./pages/Mindset";
+import MindsetBreathing from "./pages/MindsetBreathing";
+import MindsetGames from "./pages/MindsetGames";
 import Programming from "./pages/Programming";
 import Fuel from "./pages/Fuel";
 import Help from "./pages/Help";
@@ -104,9 +106,15 @@ const App = () => (
                 <ProtectedRoute><FuelMyFuel /></ProtectedRoute>
               } />
               
-              {/* Mindset */}
+              {/* Mindset routes */}
               <Route path="/mindset" element={
                 <ProtectedRoute><Mindset /></ProtectedRoute>
+              } />
+              <Route path="/mindset/breathing" element={
+                <ProtectedRoute><MindsetBreathing /></ProtectedRoute>
+              } />
+              <Route path="/mindset/games" element={
+                <ProtectedRoute><MindsetGames /></ProtectedRoute>
               } />
               
               {/* Coaching (Help) */}
