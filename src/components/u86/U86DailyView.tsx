@@ -75,36 +75,7 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete }: U86
         </p>
       </div>
 
-      {/* Run Section */}
-      <Card className={cn(
-        'border-2 p-5 transition-all',
-        day.run_completed ? 'border-green-500/50 bg-green-500/5' : 'border-primary/30 bg-primary/5'
-      )}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={cn(
-              'w-12 h-12 rounded-xl flex items-center justify-center',
-              day.run_completed ? 'bg-green-500/20' : 'bg-primary/20'
-            )}>
-              <Footprints className={cn('w-6 h-6', day.run_completed ? 'text-green-500' : 'text-primary')} />
-            </div>
-            <div>
-              <p className="font-display text-lg tracking-wider text-foreground">RUN — {day.run_distance_km} KM</p>
-              <p className="text-xs text-muted-foreground">
-                {program.running_ability === 'walk_only' ? 'Walk' :
-                 program.running_ability === 'run_walk' ? 'Run/Walk' : 'Run'} · Complete before strength
-              </p>
-            </div>
-          </div>
-          <Checkbox
-            checked={day.run_completed}
-            onCheckedChange={() => onUpdate({ run_completed: !day.run_completed })}
-            className="w-7 h-7 border-primary data-[state=checked]:bg-green-500"
-          />
-        </div>
-      </Card>
-
-      {/* Strength Section */}
+      {/* Strength Section — FIRST */}
       <Card className={cn(
         'border-2 p-5 transition-all',
         day.strength_completed ? 'border-green-500/50 bg-green-500/5' : 'border-primary/30'
@@ -119,7 +90,7 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete }: U86
             </div>
             <div>
               <p className="font-display text-lg tracking-wider text-foreground">STRENGTH — {day.strength_time_minutes} MIN</p>
-              <p className="text-xs text-muted-foreground">8 exercises · Full body · Time-based</p>
+              <p className="text-xs text-muted-foreground">Big 5 + Pull-ups + Push-ups · Full body</p>
             </div>
           </div>
           <Checkbox
@@ -189,6 +160,35 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete }: U86
               </div>
             );
           })}
+        </div>
+      </Card>
+
+      {/* Run Section — AFTER strength */}
+      <Card className={cn(
+        'border-2 p-5 transition-all',
+        day.run_completed ? 'border-green-500/50 bg-green-500/5' : 'border-primary/30 bg-primary/5'
+      )}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={cn(
+              'w-12 h-12 rounded-xl flex items-center justify-center',
+              day.run_completed ? 'bg-green-500/20' : 'bg-primary/20'
+            )}>
+              <Footprints className={cn('w-6 h-6', day.run_completed ? 'text-green-500' : 'text-primary')} />
+            </div>
+            <div>
+              <p className="font-display text-lg tracking-wider text-foreground">RUN — {day.run_distance_km} KM</p>
+              <p className="text-xs text-muted-foreground">
+                {program.running_ability === 'walk_only' ? 'Walk' :
+                 program.running_ability === 'run_walk' ? 'Run/Walk' : 'Run'} · Complete after strength
+              </p>
+            </div>
+          </div>
+          <Checkbox
+            checked={day.run_completed}
+            onCheckedChange={() => onUpdate({ run_completed: !day.run_completed })}
+            className="w-7 h-7 border-primary data-[state=checked]:bg-green-500"
+          />
         </div>
       </Card>
 
