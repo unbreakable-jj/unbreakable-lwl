@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -7,9 +7,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import {
   Footprints, Dumbbell, CheckCircle2, Flame, Clock, Target,
-  BookOpen, Brain, Zap, Shield, PenLine
+  BookOpen, Brain, Zap, Shield, PenLine, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { findCoachingDataByName } from '@/lib/exerciseCoachingData';
+import { ExerciseCoachingPanel } from '@/components/programming/ExerciseCoachingPanel';
 import type { U86Day, U86Program } from '@/hooks/useUnbreakable86';
 
 interface U86DailyViewProps {
@@ -32,6 +34,7 @@ const HABIT_CONFIG = [
 export function U86DailyView({ day, program, streak, onUpdate, onComplete }: U86DailyViewProps) {
   const [journalText, setJournalText] = useState(day.journal_entry || '');
   const [identityText, setIdentityText] = useState(day.identity_reflection || '');
+  const [expandedExercise, setExpandedExercise] = useState<number | null>(null);
 
   const allHabitsComplete = HABIT_CONFIG.every(h => (day as any)[h.key]);
   const sessionComplete = day.run_completed && day.strength_completed;
@@ -127,18 +130,65 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete }: U86
         </div>
 
         <div className="space-y-2">
-          {exercises.map((ex: any, i: number) => (
-            <div key={i} className="flex items-center justify-between py-2 px-3 rounded-lg bg-background/50 border border-border">
-              <div>
-                <p className="text-sm font-medium text-foreground">{ex.name}</p>
-                <p className="text-xs text-muted-foreground">{ex.category}</p>
+          {exercises.map((ex: any, i: number) => {
+            const coachingData = findCoachingDataByName(ex.name);
+            const isExpanded = expandedExercise === i;
+
+            return (
+              <div key={i} className="rounded-lg bg-background/50 border border-border overflow-hidden">
+                <button
+                  onClick={() => setExpandedExercise(isExpanded ? null : i)}
+                  className="w-full flex items-center justify-between py-3 px-3 hover:bg-muted/30 transition-colors text-left"
+                >
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground">{ex.name}</p>
+                    <p className="text-xs text-muted-foreground">{ex.category}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Clock className="w-3 h-3" />
+                      {ex.timeMinutes} min
+                    </div>
+                    {coachingData ? (
+                      isExpanded ? (
+                        <ChevronUp className="w-4 h-4 text-primary" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 text-primary" />
+                      )
+                    ) : null}
+                  </div>
+                </button>
+
+                <AnimatePresence>
+                  {isExpanded && coachingData && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-3 pb-3 border-t border-border pt-3">
+                        <p className="text-xs text-muted-foreground italic mb-3">{ex.instruction}</p>
+                        <ExerciseCoachingPanel coachingData={coachingData} exerciseName={ex.name} />
+                      </div>
+                    </motion.div>
+                  )}
+                  {isExpanded && !coachingData && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-3 pb-3 border-t border-border pt-3">
+                        <p className="text-xs text-muted-foreground italic">{ex.instruction}</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Clock className="w-3 h-3" />
-                {ex.timeMinutes} min
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </Card>
 
