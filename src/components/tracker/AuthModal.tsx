@@ -54,10 +54,11 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
           return;
         }
         
+        console.log('Attempting signup with email:', email);
         const { error } = await signUp(email, password, fullName);
+        console.log('Signup result - error:', error);
         if (error) {
           console.error('Sign up error:', error);
-          // Provide more helpful error messages
           if (error.message?.includes('already registered')) {
             toast.error('This email is already registered. Try signing in instead.');
           } else if (error.message?.includes('password')) {

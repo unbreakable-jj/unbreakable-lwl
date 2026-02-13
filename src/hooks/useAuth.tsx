@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, fullName?: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -54,6 +54,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         data: fullName ? { full_name: fullName } : undefined,
       },
     });
+    
+    // Supabase with auto_confirm returns success but empty identities for existing emails
+    if (!error && data?.user?.identities?.length === 0) {
+      return { error: new Error('This email is already registered. Try signing in instead.') };
+    }
+    
     return { error: error as Error | null };
   };
 
