@@ -503,35 +503,39 @@ export function ProfileView() {
           {/* Recent Activity */}
           <Card className="bg-card border-border p-6">
             <h3 className="font-display text-xl text-foreground mb-4 tracking-wide">
-              RECENT RUNS
+              RECENT ACTIVITY
             </h3>
             {runs.length > 0 ? (
               <div className="space-y-3">
-                {runs.slice(0, 5).map((run) => (
-                  <div
-                    key={run.id}
-                    className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
-                  >
-                    <div>
-                      <p className="font-medium text-foreground">{run.title || 'Run'}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {format(parseISO(run.started_at), 'MMM d, yyyy')}
-                      </p>
+                {runs.slice(0, 5).map((run) => {
+                  const activityType = (run as any).activity_type || 'run';
+                  const activityLabel = activityType === 'walk' ? '🚶 Walk' : activityType === 'cycle' ? '🚴 Cycle' : '🏃 Run';
+                  return (
+                    <div
+                      key={run.id}
+                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+                    >
+                      <div>
+                        <p className="font-medium text-foreground">{run.title || activityLabel}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {activityLabel} · {format(parseISO(run.started_at), 'MMM d, yyyy')}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-display text-lg text-primary">
+                          {Number(run.distance_km).toFixed(2)} km
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {Math.floor(run.duration_seconds / 60)}:{(run.duration_seconds % 60).toString().padStart(2, '0')}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-display text-lg text-primary">
-                        {Number(run.distance_km).toFixed(2)} km
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {Math.floor(run.duration_seconds / 60)}:{(run.duration_seconds % 60).toString().padStart(2, '0')}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <p className="text-muted-foreground text-center py-8">
-                No runs recorded yet. Start your journey!
+                No activity recorded yet. Start your journey!
               </p>
             )}
           </Card>
