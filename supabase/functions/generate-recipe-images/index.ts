@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
       .is("user_id", null)
       .is("image_url", null)
       .not("pack", "is", null)
-      .limit(10); // Process 10 at a time
+      .limit(3); // Process 3 at a time to avoid timeouts
 
     if (fetchError) throw fetchError;
 
