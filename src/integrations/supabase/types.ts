@@ -1717,31 +1717,37 @@ export type Database = {
       }
       stories: {
         Row: {
+          background_color: string | null
           content: string | null
           created_at: string
           expires_at: string
           id: string
           image_url: string | null
+          text_overlays: Json | null
           user_id: string
           video_url: string | null
           visibility: string
         }
         Insert: {
+          background_color?: string | null
           content?: string | null
           created_at?: string
           expires_at?: string
           id?: string
           image_url?: string | null
+          text_overlays?: Json | null
           user_id: string
           video_url?: string | null
           visibility?: string
         }
         Update: {
+          background_color?: string | null
           content?: string | null
           created_at?: string
           expires_at?: string
           id?: string
           image_url?: string | null
+          text_overlays?: Json | null
           user_id?: string
           video_url?: string | null
           visibility?: string
