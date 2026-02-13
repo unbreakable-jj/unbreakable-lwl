@@ -471,16 +471,17 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       average_speed_kph: Math.round(speedKph * 100) / 100,
       elevation_gain_m: null,
       calories_burned: Math.round(distance * 60),
-      route_polyline: null, // No map data stored
+      route_polyline: null,
       map_snapshot_url: null,
       is_gps_tracked: true,
       weather_conditions: null,
       temperature_celsius: null,
-      notes: activity,
+      notes: null,
+      activity_type: activity!,
       is_public: visibility === 'public',
       visibility: visibility,
       comments_enabled: true,
-    });
+    } as any);
 
     if (error) {
       setLoading(false);
@@ -542,11 +543,12 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       is_gps_tracked: false,
       weather_conditions: null,
       temperature_celsius: null,
-      notes: `${activity} (manual entry)`,
+      notes: null,
+      activity_type: activity!,
       is_public: visibility === 'public',
       visibility: visibility,
       comments_enabled: true,
-    });
+    } as any);
 
     if (error) {
       setLoading(false);

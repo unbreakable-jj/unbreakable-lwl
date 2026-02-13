@@ -1367,6 +1367,7 @@ export type Database = {
       }
       runs: {
         Row: {
+          activity_type: string
           average_speed_kph: number | null
           calories_burned: number | null
           comments_enabled: boolean
@@ -1392,6 +1393,7 @@ export type Database = {
           weather_conditions: string | null
         }
         Insert: {
+          activity_type?: string
           average_speed_kph?: number | null
           calories_burned?: number | null
           comments_enabled?: boolean
@@ -1417,6 +1419,7 @@ export type Database = {
           weather_conditions?: string | null
         }
         Update: {
+          activity_type?: string
           average_speed_kph?: number | null
           calories_burned?: number | null
           comments_enabled?: boolean
