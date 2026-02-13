@@ -1,0 +1,472 @@
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Wind, Zap, Target, Heart, Volume2, VolumeX, Flame, ArrowRight, Settings } from "lucide-react";
+import { ThemedLogo } from "@/components/ThemedLogo";
+import { NavigationDrawer } from "@/components/NavigationDrawer";
+import { ThemeToggle } from "@/components/hub/ThemeToggle";
+import { UnifiedFooter } from "@/components/UnifiedFooter";
+import { CountdownOverlay } from "@/components/CountdownOverlay";
+import { getVisibleExercises, BreathingExercise } from "@/lib/breathingExercises";
+import { ImmersiveSessionView } from "@/components/mindset/ImmersiveSessionView";
+import { useBreathingAudio, VoiceType } from "@/hooks/useBreathingAudio";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+
+type BreathPhase = "idle" | "inhale" | "hold" | "exhale" | "rest" | "complete";
+type ViewState = "selection" | "countdown" | "exercise" | "complete";
+
+const VOICE_OPTIONS = [
+  { value: "male" as VoiceType, label: "Male Voice", description: "Calm, warm guidance" },
+  { value: "female" as VoiceType, label: "Female Voice", description: "Soothing, gentle guidance" },
+];
+
+const heroContent = {
+  title: "UNBREAKABLE",
+  titleAccent: "BREATHING",
+  tagline: "BREATHE WITH PURPOSE",
+  intro: "Controlled breathing isn't relaxation — it's",
+  emphasis: "NERVOUS SYSTEM TRAINING",
+  description: "Every pattern here is built on proven science. The 4-7-8 activates your parasympathetic response. Box Breathing is used by Navy SEALs. Tactical Calm resets stress in seconds. Deep Reset restores you from the ground up.",
+  descEmphasis: "CHOOSE YOUR WEAPON",
+  descEnd: ".",
+  goal: "Master your breath, master your mind. Stay calm in chaos, focused under fire, and",
+  goalEmphasis: "UNBREAKABLE",
+  goalEnd: ". KEEP SHOWING UP.",
+  hashtag: "#UNBREAKABLEMINDSET",
+};
+
+const MindsetBreathing = () => {
+  const [view, setView] = useState<ViewState>("selection");
+  const [selectedExercise, setSelectedExercise] = useState<BreathingExercise | null>(null);
+  const [isActive, setIsActive] = useState(false);
+  const [phase, setPhase] = useState<BreathPhase>("idle");
+  const [currentCycle, setCurrentCycle] = useState(0);
+  const [progress, setProgress] = useState(0);
+  
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [voiceType, setVoiceType] = useState<VoiceType>("male");
+  const [showSettings, setShowSettings] = useState(false);
+  
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = useRef<number>(0);
+  const lastPhaseRef = useRef<BreathPhase>("idle");
+
+  const { playAudio, stopAudio, preloadAudio, cleanup } = useBreathingAudio({
+    voiceType,
+    enabled: voiceEnabled,
+  });
+
+  const getCycleDuration = useCallback((exercise: BreathingExercise) => {
+    const { inhale, hold, exhale, rest = 0 } = exercise.phases;
+    return (inhale + hold + exhale + rest) * 1000;
+  }, []);
+
+  const getPhaseFromTime = useCallback((elapsed: number, exercise: BreathingExercise): { phase: BreathPhase; cycle: number } => {
+    const cycleDuration = getCycleDuration(exercise);
+    const totalDuration = exercise.cycles * cycleDuration;
+    
+    if (elapsed >= totalDuration) {
+      return { phase: "complete", cycle: exercise.cycles };
+    }
+
+    const cycleNumber = Math.floor(elapsed / cycleDuration) + 1;
+    const timeInCycle = elapsed % cycleDuration;
+    const { inhale, hold, exhale } = exercise.phases;
+
+    const inhaleMs = inhale * 1000;
+    const holdMs = hold * 1000;
+    const exhaleMs = exhale * 1000;
+
+    if (timeInCycle < inhaleMs) {
+      return { phase: "inhale", cycle: cycleNumber };
+    } else if (timeInCycle < inhaleMs + holdMs) {
+      return { phase: "hold", cycle: cycleNumber };
+    } else if (timeInCycle < inhaleMs + holdMs + exhaleMs) {
+      return { phase: "exhale", cycle: cycleNumber };
+    } else {
+      return { phase: "rest", cycle: cycleNumber };
+    }
+  }, [getCycleDuration]);
+
+  useEffect(() => {
+    if (!selectedExercise || !voiceEnabled || view !== "exercise") return;
+    
+    if (phase !== lastPhaseRef.current) {
+      lastPhaseRef.current = phase;
+      
+      let textToSpeak = "";
+      
+      switch (phase) {
+        case "inhale":
+          textToSpeak = selectedExercise.scripts.inhale;
+          break;
+        case "hold":
+          textToSpeak = selectedExercise.scripts.hold;
+          break;
+        case "exhale":
+          textToSpeak = selectedExercise.scripts.exhale;
+          break;
+        case "rest":
+          textToSpeak = selectedExercise.scripts.rest || "";
+          break;
+        case "complete":
+          textToSpeak = selectedExercise.scripts.closing;
+          break;
+      }
+      
+      if (textToSpeak) {
+        playAudio(textToSpeak);
+      }
+    }
+  }, [phase, currentCycle, selectedExercise, voiceEnabled, view, playAudio]);
+
+  const startExercise = useCallback(() => {
+    if (!selectedExercise) return;
+    
+    setIsActive(true);
+    setView("exercise");
+    setCurrentCycle(1);
+    setPhase("inhale");
+    setProgress(0);
+    lastPhaseRef.current = "idle";
+    startTimeRef.current = Date.now();
+
+    const cycleDuration = getCycleDuration(selectedExercise);
+    const totalDuration = selectedExercise.cycles * cycleDuration;
+
+    intervalRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTimeRef.current;
+      const progressPercent = Math.min((elapsed / totalDuration) * 100, 100);
+      
+      setProgress(progressPercent);
+
+      const { phase: currentPhase, cycle } = getPhaseFromTime(elapsed, selectedExercise);
+      setPhase(currentPhase);
+      setCurrentCycle(cycle);
+
+      if (elapsed >= totalDuration) {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+        setIsActive(false);
+        setView("complete");
+        setPhase("complete");
+      }
+    }, 100);
+  }, [selectedExercise, getCycleDuration, getPhaseFromTime]);
+
+  const handleCountdownComplete = useCallback(() => {
+    startExercise();
+  }, [startExercise]);
+
+  const handleCountdownAudio = useCallback((text: string) => {
+    if (voiceEnabled) {
+      playAudio(text);
+    }
+  }, [voiceEnabled, playAudio]);
+
+  const selectExercise = useCallback((exercise: BreathingExercise) => {
+    setSelectedExercise(exercise);
+    
+    if (voiceEnabled) {
+      const textsToPreload = [
+        "Get ready", "Power", "Movement", "Fuel", "Mindset", "Go!",
+        exercise.scripts.inhale,
+        exercise.scripts.hold,
+        exercise.scripts.exhale,
+        exercise.scripts.closing,
+      ];
+      if (exercise.scripts.rest) textsToPreload.push(exercise.scripts.rest);
+      preloadAudio(textsToPreload);
+    }
+    
+    setView("countdown");
+  }, [voiceEnabled, preloadAudio]);
+
+  const toggleBreathing = useCallback(() => {
+    if (isActive) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      setIsActive(false);
+      stopAudio();
+    } else {
+      startExercise();
+    }
+  }, [isActive, startExercise, stopAudio]);
+
+  const resetExercise = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    stopAudio();
+    setIsActive(false);
+    setPhase("idle");
+    setCurrentCycle(0);
+    setProgress(0);
+    setView("selection");
+    setSelectedExercise(null);
+    lastPhaseRef.current = "idle";
+  }, [stopAudio]);
+
+  const handleShare = useCallback(() => {
+    const shareText = `Just completed ${selectedExercise?.name || "an Unbreakable"} breathing session! 🧘‍♂️ #UnbreakableMindset #KeepShowingUp`;
+    if (navigator.share) {
+      navigator.share({ title: "Unbreakable Mindset", text: shareText, url: window.location.href });
+    } else {
+      navigator.clipboard.writeText(shareText);
+    }
+  }, [selectedExercise]);
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      cleanup();
+    };
+  }, [cleanup]);
+
+  const getIntensityIcon = (intensity: string) => {
+    switch (intensity) {
+      case "high": return <Zap className="w-5 h-5" />;
+      case "medium": return <Target className="w-5 h-5" />;
+      case "calm": return <Heart className="w-5 h-5" />;
+      default: return <Wind className="w-5 h-5" />;
+    }
+  };
+
+  const SettingsSheet = () => (
+    <Sheet open={showSettings} onOpenChange={setShowSettings}>
+      <SheetTrigger asChild>
+        <Button variant="outline" size="icon" className="absolute top-4 right-4">
+          <Settings className="w-5 h-5" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent className="bg-card border-border">
+        <SheetHeader>
+          <SheetTitle className="font-display text-xl tracking-wide text-foreground">
+            VOICE SETTINGS
+          </SheetTitle>
+        </SheetHeader>
+        <div className="space-y-6 mt-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {voiceEnabled ? <Volume2 className="w-5 h-5 text-primary" /> : <VolumeX className="w-5 h-5 text-muted-foreground" />}
+              <Label htmlFor="voice-enabled" className="font-display tracking-wide">VOICE GUIDANCE</Label>
+            </div>
+            <Switch id="voice-enabled" checked={voiceEnabled} onCheckedChange={setVoiceEnabled} />
+          </div>
+          {voiceEnabled && (
+            <div className="space-y-3">
+              <Label className="font-display tracking-wide text-muted-foreground">VOICE TYPE</Label>
+              <div className="space-y-2">
+                {VOICE_OPTIONS.map((option) => (
+                  <Card
+                    key={option.value}
+                    className={`p-4 cursor-pointer transition-all border ${
+                      voiceType === option.value ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
+                    }`}
+                    onClick={() => setVoiceType(option.value)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-display text-foreground tracking-wide">{option.label}</p>
+                        <p className="text-sm text-muted-foreground">{option.description}</p>
+                      </div>
+                      {voiceType === option.value && <div className="w-3 h-3 rounded-full bg-primary" />}
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+
+  // Selection view
+  if (view === "selection") {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                <Link to="/" className="flex items-center gap-3">
+                  <ThemedLogo />
+                  <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">UNBREAKABLE</span>
+                </Link>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={() => setShowSettings(true)}>
+                  {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+                </Button>
+                <NavigationDrawer />
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <SettingsSheet />
+
+        {/* Hero */}
+        <section className="pt-32 pb-12 text-center px-6">
+          <div className="max-w-4xl mx-auto">
+            <ThemedLogo className="h-32 md:h-40 object-contain mx-auto mb-6" />
+            <h1 className="font-display text-6xl md:text-8xl text-primary tracking-wide leading-none mb-2 neon-glow-subtle">
+              {heroContent.title}
+            </h1>
+            <h1 className="font-display text-6xl md:text-8xl text-foreground tracking-wide leading-none">
+              {heroContent.titleAccent}
+            </h1>
+            <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-6 neon-glow-subtle">
+              {heroContent.tagline}
+            </p>
+            <div className="flex items-center justify-center gap-2 mt-6 text-sm">
+              {voiceEnabled ? (
+                <>
+                  <Volume2 className="w-4 h-4 text-primary" />
+                  <span className="text-muted-foreground">{voiceType === "male" ? "Male" : "Female"} voice guidance enabled</span>
+                </>
+              ) : (
+                <>
+                  <VolumeX className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Voice guidance disabled</span>
+                </>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <main className="container mx-auto px-6 py-8">
+          <div className="max-w-6xl mx-auto">
+            {/* Description Card */}
+            <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8 md:p-10 mb-10 text-center max-w-4xl mx-auto">
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                {heroContent.intro}{' '}
+                <span className="text-primary font-semibold">{heroContent.emphasis}</span>.
+              </p>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                {heroContent.description}
+              </p>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                <span className="text-primary font-semibold">{heroContent.descEmphasis}</span>{heroContent.descEnd}
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                {heroContent.goal}{' '}
+                <span className="text-primary font-semibold">{heroContent.goalEmphasis}</span>{heroContent.goalEnd}
+              </p>
+              <p className="text-primary font-display text-2xl tracking-wide mt-6 neon-glow-subtle">
+                {heroContent.hashtag}
+              </p>
+            </div>
+
+            <h2 className="font-display text-2xl text-primary mb-8 tracking-wide text-center neon-glow-subtle">
+              SELECT YOUR SESSION
+            </h2>
+
+            <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+              {getVisibleExercises().map((exercise) => (
+                <Card
+                  key={exercise.id}
+                  className="bg-card border-2 border-primary/30 neon-border-subtle border-l-4 border-l-primary p-6 cursor-pointer hover:bg-muted/50 transition-all group"
+                  onClick={() => selectExercise(exercise)}
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                      {getIntensityIcon(exercise.intensity)}
+                    </div>
+                    <div>
+                      <h3 className="font-display text-xl text-foreground tracking-wide">{exercise.name}</h3>
+                      <p className="text-xs text-primary font-display">{exercise.duration}</p>
+                    </div>
+                  </div>
+                  <p className="text-primary font-display text-sm tracking-wide mb-3">{exercise.tagline}</p>
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-4">{exercise.description}</p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border">
+                    <span>{exercise.cycles} cycles</span>
+                    <span className="capitalize">{exercise.intensity} intensity</span>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </main>
+
+        {/* Coach Banner */}
+        <section className="container mx-auto px-6 py-12 border-t border-border">
+          <Link to="/help" className="block max-w-3xl mx-auto">
+            <Card className="border-2 border-primary/40 bg-primary/5 p-6 hover:bg-primary/10 transition-all neon-border-subtle">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center neon-glow">
+                    <Flame className="w-7 h-7 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-display text-xl tracking-wide text-foreground">
+                      NEED MORE? <span className="text-primary neon-glow-subtle">ASK YOUR COACH</span>
+                    </p>
+                    <p className="text-muted-foreground mt-1">Breathing techniques, stress management, and mental resilience coaching</p>
+                  </div>
+                </div>
+                <ArrowRight className="w-6 h-6 text-primary hidden sm:block" />
+              </div>
+            </Card>
+          </Link>
+        </section>
+
+        <UnifiedFooter className="mt-16" />
+      </div>
+    );
+  }
+
+  // Countdown view
+  if (view === "countdown") {
+    return (
+      <CountdownOverlay
+        isActive={true}
+        onComplete={handleCountdownComplete}
+        startFrom={3}
+        exerciseName={selectedExercise?.name}
+        welcomeMessage={selectedExercise?.scripts.intro}
+        onPlayAudio={handleCountdownAudio}
+      />
+    );
+  }
+
+  // Exercise/Complete view
+  const phaseDuration = selectedExercise?.phases[phase === "rest" ? "exhale" : (phase === "complete" ? "exhale" : phase)] || 4;
+  
+  return (
+    <ImmersiveSessionView
+      phase={phase}
+      progress={progress}
+      currentCycle={currentCycle}
+      totalCycles={selectedExercise?.cycles || 9}
+      phaseDuration={phaseDuration}
+      isActive={isActive}
+      isComplete={view === "complete"}
+      closingMessage={selectedExercise?.scripts.closing}
+      voiceEnabled={voiceEnabled}
+      onToggleVoice={() => {
+        if (voiceEnabled) stopAudio();
+        setVoiceEnabled(prev => !prev);
+      }}
+      onToggle={toggleBreathing}
+      onReset={resetExercise}
+      onShare={handleShare}
+    />
+  );
+};
+
+export default MindsetBreathing;
