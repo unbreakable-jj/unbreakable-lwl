@@ -47,14 +47,14 @@ function MessageBubble({ message }: { message: MessageWithMedia }) {
   const formatContent = (content: string) => {
     const lines = content.split('\n');
     return lines.map((line, i) => {
-      // Bold text
-      const boldParsed = line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary">$1</strong>');
+      // Split by bold markers and render safely with React JSX (no dangerouslySetInnerHTML)
+      const parts = line.split(/\*\*(.*?)\*\*/);
       return (
-        <p 
-          key={i} 
-          className={i > 0 ? 'mt-2' : ''} 
-          dangerouslySetInnerHTML={{ __html: boldParsed }}
-        />
+        <p key={i} className={i > 0 ? 'mt-2' : ''}>
+          {parts.map((part, j) =>
+            j % 2 === 1 ? <strong key={j} className="text-primary">{part}</strong> : part
+          )}
+        </p>
       );
     });
   };
