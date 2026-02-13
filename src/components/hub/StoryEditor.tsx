@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   Type, Plus, Trash2, X, Check, Image, Video, Palette,
   AlignLeft, AlignCenter, AlignRight, Bold, Loader2,
-  Globe, Users, Lock, RotateCcw, ChevronDown, ChevronUp
+  Globe, Users, Lock, RotateCcw, ChevronDown, ChevronUp, Square
 } from 'lucide-react';
 import { TextOverlayData, DEFAULT_OVERLAY, StoryTextOverlay } from './StoryTextOverlay';
 import { supabase } from '@/integrations/supabase/client';
@@ -389,6 +389,9 @@ export function StoryEditor({ onPublish, onClose }: StoryEditorProps) {
               ))}
               <Button variant="ghost" size="icon" className={`h-7 w-7 ${selectedOverlay.fontWeight === 'bold' ? 'bg-white/20' : ''} text-white`} onClick={(e) => { e.stopPropagation(); updateOverlay(selectedOverlay.id, { fontWeight: selectedOverlay.fontWeight === 'bold' ? 'normal' : 'bold' }); }}>
                 <Bold className="w-3.5 h-3.5" />
+              </Button>
+              <Button variant="ghost" size="icon" className={`h-7 w-7 ${selectedOverlay.showBorder ? 'bg-white/20' : ''} text-white`} onClick={(e) => { e.stopPropagation(); updateOverlay(selectedOverlay.id, { showBorder: !selectedOverlay.showBorder }); }}>
+                <Square className="w-3.5 h-3.5" />
               </Button>
               <div className="flex-1" />
               <Button variant="ghost" size="icon" className="h-7 w-7 text-white" onClick={(e) => { e.stopPropagation(); setEditingTextId(selectedOverlay.id); setEditText(selectedOverlay.text); }}>

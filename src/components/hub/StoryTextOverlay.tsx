@@ -12,6 +12,7 @@ export interface TextOverlayData {
   scale: number;
   textAlign: 'left' | 'center' | 'right';
   fontWeight: 'normal' | 'bold';
+  showBorder?: boolean;
 }
 
 interface StoryTextOverlayProps {
@@ -57,7 +58,7 @@ export const StoryTextOverlay = memo(function StoryTextOverlay({
   return (
     <div
       style={style}
-      className={`${isSelected && isEditing ? 'ring-2 ring-white ring-offset-2 ring-offset-transparent' : ''}`}
+      className={`${overlay.showBorder ? 'ring-2 ring-white/80 rounded-md' : ''}`}
       onClick={(e) => {
         e.stopPropagation();
         onSelect?.();
@@ -79,4 +80,5 @@ export const DEFAULT_OVERLAY: Omit<TextOverlayData, 'id'> = {
   scale: 1,
   textAlign: 'center',
   fontWeight: 'bold',
+  showBorder: false,
 };
