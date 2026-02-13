@@ -34,24 +34,20 @@ export default function Unbreakable86() {
     });
 
     if (hasOldFormat) {
-      // Auto-reset: delete old days and regenerate from week 1
       setGenerating(true);
       (async () => {
         try {
-          // Delete all old days
           const { supabase } = await import('@/integrations/supabase/client');
           await (supabase as any)
             .from('unbreakable_86_days')
             .delete()
             .eq('program_id', program.id);
           
-          // Reset last_generated_week to 0
           await (supabase as any)
             .from('unbreakable_86_programs')
             .update({ last_generated_week: 0, current_day: 1 })
             .eq('id', program.id);
 
-          // Generate week 1 with new format
           await generateWeek.mutateAsync({
             programId: program.id,
             weekNumber: 1,
@@ -79,6 +75,21 @@ export default function Unbreakable86() {
       }).finally(() => setGenerating(false));
     }
   }, [program?.id, program?.current_day, program?.last_generated_week, program?.status, days]);
+
+  // Auto-restart if a day was missed (check if started_at + current_day < today)
+  useEffect(() => {
+    if (!program || program.status !== 'active' || !program.started_at) return;
+
+    const startDate = new Date(program.started_at);
+    const now = new Date();
+    const daysSinceStart = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const expectedDay = daysSinceStart + 1;
+
+    // If user is behind by more than 1 day, they missed a day — auto restart
+    if (expectedDay > program.current_day + 1 && program.restart_enabled) {
+      restartProgram.mutate(program.id);
+    }
+  }, [program?.id, program?.started_at, program?.current_day, program?.status]);
 
   const handleSetupComplete = async (config: any) => {
     await createProgram.mutateAsync(config);
@@ -111,7 +122,6 @@ export default function Unbreakable86() {
     );
   }
 
-  // Determine view
   const showSetup = !program && !completedProgram;
   const showAgreement = program?.status === 'setup';
   const showActive = program?.status === 'active';
@@ -129,7 +139,7 @@ export default function Unbreakable86() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-4"
           >
-           <h1 className="font-display text-5xl sm:text-6xl md:text-7xl tracking-wide leading-none">
+            <h1 className="font-display text-5xl sm:text-6xl md:text-7xl tracking-wide leading-none">
               <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
               <span className="text-foreground">86</span>
             </h1>
@@ -138,18 +148,18 @@ export default function Unbreakable86() {
               <p className="text-muted-foreground text-sm leading-relaxed">
                 86 consecutive days. No rest days. No excuses. A progressive overload system
                 built around the <span className="text-primary font-semibold">Big 5 lifts</span> — Squat, Bench,
-                Deadlift, Overhead Press and Row — plus Pull-ups and Push-ups. Strength first, then
+                Deadlift, Overhead Press and Row — plus Pull ups and Push ups. Strength first, then
                 run from <span className="text-primary font-semibold">1 km up to 5 km daily</span>,
                 increasing distance every 7 days.
               </p>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 Your plan is delivered <span className="text-foreground font-semibold">7 days at a time</span>,
-                remapped each week based on your performance, equipment, and level. Beginner to advanced —
-                every programme is bespoke. 8 compound exercises daily. 6 non-negotiable habits.
+                remapped each week based on your performance, equipment, and level. Beginner to advanced,
+                every programme is bespoke. 8 compound exercises daily. 6 non negotiable habits.
                 Lift before you run. Discipline before motivation.
               </p>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                This isn't a workout plan. It's a system designed to prove what you're capable of
+                This is not a workout plan. It is a system designed to prove what you are capable of
                 when you refuse to stop. All levels. All goals. One standard:{' '}
                 <span className="text-primary font-semibold">keep showing up</span>.
               </p>
@@ -166,21 +176,18 @@ export default function Unbreakable86() {
 
       <main className="container mx-auto px-4 py-8 md:py-12">
         <AnimatePresence mode="wait">
-          {/* Setup */}
           {showSetup && (
             <motion.div key="setup" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <U86Setup onComplete={handleSetupComplete} />
             </motion.div>
           )}
 
-          {/* Agreement */}
           {showAgreement && (
             <motion.div key="agreement" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <U86Agreement onAccept={handleAgreementAccept} />
             </motion.div>
           )}
 
-          {/* Active Programme */}
           {showActive && (
             <motion.div key="active" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               {generating ? (
@@ -189,47 +196,44 @@ export default function Unbreakable86() {
                   <p className="text-muted-foreground font-display tracking-wider">GENERATING YOUR WEEK...</p>
                 </div>
               ) : (
-                <>
-                  <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="max-w-2xl mx-auto">
-                    <TabsList className="grid w-full grid-cols-2 mb-6">
-                      <TabsTrigger value="today" className="font-display tracking-wider">TODAY</TabsTrigger>
-                      <TabsTrigger value="progress" className="font-display tracking-wider">PROGRESS</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="today">
-                      {currentDay ? (
-                        <U86DailyView
-                          day={currentDay}
-                          program={program!}
-                          streak={streak}
-                          onUpdate={handleDayUpdate}
-                          onComplete={handleDayComplete}
-                        />
-                      ) : (
-                        <div className="text-center py-16">
-                          <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
-                          <p className="text-muted-foreground">Loading today's session...</p>
-                        </div>
-                      )}
-                    </TabsContent>
-                    <TabsContent value="progress">
-                      {program && days && (
-                        <U86Progress
-                          program={program}
-                          days={days}
-                          completedDays={completedDays}
-                          streak={streak}
-                          onRestart={() => restartProgram.mutate(program.id)}
-                          onAbandon={() => abandonProgram.mutate(program.id)}
-                        />
-                      )}
-                    </TabsContent>
-                  </Tabs>
-                </>
+                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="max-w-2xl mx-auto">
+                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                    <TabsTrigger value="today" className="font-display tracking-wider">TODAY</TabsTrigger>
+                    <TabsTrigger value="progress" className="font-display tracking-wider">PROGRESS</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="today">
+                    {currentDay ? (
+                      <U86DailyView
+                        day={currentDay}
+                        program={program!}
+                        streak={streak}
+                        onUpdate={handleDayUpdate}
+                        onComplete={handleDayComplete}
+                      />
+                    ) : (
+                      <div className="text-center py-16">
+                        <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
+                        <p className="text-muted-foreground">Loading today's session...</p>
+                      </div>
+                    )}
+                  </TabsContent>
+                  <TabsContent value="progress">
+                    {program && days && (
+                      <U86Progress
+                        program={program}
+                        days={days}
+                        completedDays={completedDays}
+                        streak={streak}
+                        onRestart={() => restartProgram.mutate(program.id)}
+                        onAbandon={() => abandonProgram.mutate(program.id)}
+                      />
+                    )}
+                  </TabsContent>
+                </Tabs>
               )}
             </motion.div>
           )}
 
-          {/* Completed */}
           {showCompleted && (
             <motion.div key="completed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <U86Completion />

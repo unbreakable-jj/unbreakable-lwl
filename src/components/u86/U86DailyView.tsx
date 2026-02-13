@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import {
   Footprints, Dumbbell, CheckCircle2, Play,
-  BookOpen, Brain, Zap, Shield, PenLine
+  BookOpen, Brain, Zap, Shield, PenLine, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { U86SessionView } from './U86SessionView';
@@ -19,6 +19,7 @@ interface U86DailyViewProps {
   streak: number;
   onUpdate: (updates: Partial<U86Day>) => void;
   onComplete: () => void;
+  readOnly?: boolean;
 }
 
 const HABIT_CONFIG = [
@@ -30,10 +31,11 @@ const HABIT_CONFIG = [
   { key: 'habit_identity', icon: Brain, label: 'IDENTITY REFLECTION', desc: '"Today I kept showing up by ______."' },
 ] as const;
 
-export function U86DailyView({ day, program, streak, onUpdate, onComplete }: U86DailyViewProps) {
+export function U86DailyView({ day, program, streak, onUpdate, onComplete, readOnly = false }: U86DailyViewProps) {
   const [journalText, setJournalText] = useState(day.journal_entry || '');
   const [identityText, setIdentityText] = useState(day.identity_reflection || '');
   const [sessionOpen, setSessionOpen] = useState(false);
+  const [planExpanded, setPlanExpanded] = useState(false);
 
   const allHabitsComplete = HABIT_CONFIG.every(h => (day as any)[h.key]);
   const sessionComplete = day.run_completed && day.strength_completed;
@@ -47,14 +49,17 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete }: U86
   const strengthProgress = totalSets > 0 ? Math.round((completedSets / totalSets) * 100) : 0;
 
   const handleHabitToggle = (key: string) => {
+    if (readOnly) return;
     onUpdate({ [key]: !(day as any)[key] } as any);
   };
 
   const handleExercisesUpdate = (updatedExercises: any[]) => {
+    if (readOnly) return;
     onUpdate({ exercises: updatedExercises } as any);
   };
 
   const handleComplete = () => {
+    if (readOnly) return;
     onUpdate({
       journal_entry: journalText,
       identity_reflection: identityText,
@@ -73,6 +78,7 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete }: U86
             dayNumber={day.day_number}
             onUpdateExercises={handleExercisesUpdate}
             onClose={() => setSessionOpen(false)}
+            readOnly={readOnly}
           />
         )}
       </AnimatePresence>
@@ -83,20 +89,28 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete }: U86
           <Badge variant="outline" className="border-primary text-primary font-display tracking-wider text-sm px-4 py-1">
             DAY {day.day_number} OF 86
           </Badge>
-          <h2 className="font-display text-3xl md:text-4xl text-foreground tracking-wider">
-            <span className="text-primary neon-glow-subtle">KEEP</span> SHOWING UP
-          </h2>
-          {streak > 0 && (
+          {readOnly ? (
+            <h2 className="font-display text-3xl md:text-4xl text-foreground tracking-wider">
+              <span className="text-primary neon-glow-subtle">SESSION</span> LOG
+            </h2>
+          ) : (
+            <h2 className="font-display text-3xl md:text-4xl text-foreground tracking-wider">
+              <span className="text-primary neon-glow-subtle">KEEP</span> SHOWING UP
+            </h2>
+          )}
+          {!readOnly && streak > 0 && (
             <p className="text-sm text-muted-foreground">
               🔥 {streak} day streak
             </p>
           )}
-          <p className="text-xs text-muted-foreground italic">
-            "Leave enough to keep showing up."
-          </p>
+          {!readOnly && (
+            <p className="text-xs text-muted-foreground italic">
+              "Leave enough to keep showing up."
+            </p>
+          )}
         </div>
 
-        {/* Strength Session Card — START SESSION */}
+        {/* Strength Session Card */}
         <Card className={cn(
           'border-2 p-5 transition-all',
           day.strength_completed ? 'border-green-500/50 bg-green-500/5' : 'border-primary/30'
@@ -116,35 +130,82 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete }: U86
                 </p>
               </div>
             </div>
-            <Checkbox
-              checked={day.strength_completed}
-              onCheckedChange={() => onUpdate({ strength_completed: !day.strength_completed })}
-              className="w-7 h-7 border-primary data-[state=checked]:bg-green-500"
-            />
-          </div>
-
-          {/* Exercise summary */}
-          <div className="space-y-1 mb-4">
-            {exercises.slice(0, 4).map((ex: any, i: number) => {
-              const logged = ex.logged || [];
-              const setsComplete = logged.filter((s: any) => s.completed).length;
-              const total = ex.sets?.length || 0;
-              return (
-                <div key={i} className="flex items-center justify-between text-sm py-1">
-                  <span className="text-muted-foreground truncate flex-1">{ex.name}</span>
-                  <span className={cn(
-                    'text-xs font-display',
-                    setsComplete === total && total > 0 ? 'text-green-500' : 'text-muted-foreground'
-                  )}>
-                    {setsComplete}/{total}
-                  </span>
-                </div>
-              );
-            })}
-            {exercises.length > 4 && (
-              <p className="text-xs text-muted-foreground">+ {exercises.length - 4} more exercises</p>
+            {!readOnly && (
+              <Checkbox
+                checked={day.strength_completed}
+                onCheckedChange={() => onUpdate({ strength_completed: !day.strength_completed })}
+                className="w-7 h-7 border-primary data-[state=checked]:bg-green-500"
+              />
             )}
           </div>
+
+          {/* Expandable exercise preview */}
+          <button
+            onClick={() => setPlanExpanded(!planExpanded)}
+            className="w-full flex items-center justify-between text-sm text-muted-foreground hover:text-foreground transition-colors mb-3 py-1"
+          >
+            <span className="font-display tracking-wider text-xs">
+              {planExpanded ? 'HIDE SESSION PLAN' : 'VIEW SESSION PLAN'}
+            </span>
+            {planExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+
+          <AnimatePresence>
+            {planExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <div className="space-y-2 mb-4 border-t border-border/50 pt-3">
+                  {exercises.map((ex: any, i: number) => {
+                    const logged = ex.logged || [];
+                    const setsComplete = logged.filter((s: any) => s.completed).length;
+                    const total = ex.sets?.length || 0;
+                    const sets = ex.sets || [];
+                    return (
+                      <div key={i} className="space-y-1">
+                        <div className="flex items-center justify-between text-sm py-1">
+                          <div className="flex items-center gap-2 flex-1">
+                            <Dumbbell className="w-3 h-3 text-primary/60" />
+                            <span className="text-foreground font-medium truncate">{ex.name}</span>
+                          </div>
+                          <span className={cn(
+                            'text-xs font-display ml-2',
+                            setsComplete === total && total > 0 ? 'text-green-500' : 'text-muted-foreground'
+                          )}>
+                            {setsComplete}/{total}
+                          </span>
+                        </div>
+                        <div className="pl-5 space-y-0.5">
+                          {sets.map((s: any, si: number) => {
+                            const log = logged[si];
+                            const wasLogged = log?.completed;
+                            return (
+                              <div key={si} className={cn(
+                                'flex items-center gap-3 text-xs',
+                                wasLogged ? 'text-green-500/70' : 'text-muted-foreground/70'
+                              )}>
+                                <span className="w-12">Set {s.set}</span>
+                                <span className="flex-1">{s.targetReps} reps · {s.suggestedWeight}</span>
+                                {wasLogged && (
+                                  <span className="text-green-500/80">
+                                    {log.reps}r {log.weight && `${log.weight}kg`} {log.rpe && `RPE ${log.rpe}`}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <Button
             onClick={() => setSessionOpen(true)}
@@ -152,11 +213,11 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete }: U86
             size="lg"
           >
             <Play className="w-5 h-5" />
-            {completedSets > 0 ? 'CONTINUE SESSION' : 'START SESSION'}
+            {readOnly ? 'VIEW SESSION LOG' : completedSets > 0 ? 'CONTINUE SESSION' : 'START SESSION'}
           </Button>
         </Card>
 
-        {/* Run Section — AFTER strength */}
+        {/* Run Section */}
         <Card className={cn(
           'border-2 p-5 transition-all',
           day.run_completed ? 'border-green-500/50 bg-green-500/5' : 'border-primary/30 bg-primary/5'
@@ -170,18 +231,20 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete }: U86
                 <Footprints className={cn('w-6 h-6', day.run_completed ? 'text-green-500' : 'text-primary')} />
               </div>
               <div>
-                <p className="font-display text-lg tracking-wider text-foreground">RUN — {day.run_distance_km} KM</p>
+                <p className="font-display text-lg tracking-wider text-foreground">RUN {day.run_distance_km} KM</p>
                 <p className="text-xs text-muted-foreground">
                   {program.running_ability === 'walk_only' ? 'Walk' :
                    program.running_ability === 'run_walk' ? 'Run/Walk' : 'Run'} · Complete after strength
                 </p>
               </div>
             </div>
-            <Checkbox
-              checked={day.run_completed}
-              onCheckedChange={() => onUpdate({ run_completed: !day.run_completed })}
-              className="w-7 h-7 border-primary data-[state=checked]:bg-green-500"
-            />
+            {!readOnly && (
+              <Checkbox
+                checked={day.run_completed}
+                onCheckedChange={() => onUpdate({ run_completed: !day.run_completed })}
+                className="w-7 h-7 border-primary data-[state=checked]:bg-green-500"
+              />
+            )}
           </div>
         </Card>
 
@@ -195,7 +258,8 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete }: U86
               key={key}
               onClick={() => handleHabitToggle(key)}
               className={cn(
-                'p-4 cursor-pointer border-2 transition-all',
+                'p-4 border-2 transition-all',
+                readOnly ? '' : 'cursor-pointer',
                 (day as any)[key] ? 'border-green-500/50 bg-green-500/5' : 'border-border hover:border-primary/40'
               )}
             >
@@ -203,6 +267,7 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete }: U86
                 <Checkbox
                   checked={(day as any)[key]}
                   onCheckedChange={() => handleHabitToggle(key)}
+                  disabled={readOnly}
                   className="w-6 h-6 border-primary data-[state=checked]:bg-green-500"
                 />
                 <Icon className={cn('w-5 h-5', (day as any)[key] ? 'text-green-500' : 'text-primary')} />
@@ -221,13 +286,17 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete }: U86
             <span className="text-primary">JOURNAL</span> ENTRY
           </h3>
           <p className="text-xs text-muted-foreground italic">"Where did I want to quit today, and what did I do instead?"</p>
-          <Textarea
-            value={journalText}
-            onChange={e => setJournalText(e.target.value)}
-            placeholder="Write honestly..."
-            rows={4}
-            className="bg-background border-border"
-          />
+          {readOnly ? (
+            <p className="text-sm text-foreground bg-muted/20 rounded-lg p-3">{day.journal_entry || 'No entry'}</p>
+          ) : (
+            <Textarea
+              value={journalText}
+              onChange={e => setJournalText(e.target.value)}
+              placeholder="Write honestly..."
+              rows={4}
+              className="bg-background border-border"
+            />
+          )}
         </div>
 
         {/* Identity */}
@@ -235,34 +304,44 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete }: U86
           <h3 className="font-display text-lg tracking-wider text-foreground">
             <span className="text-primary">IDENTITY</span> REFLECTION
           </h3>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground whitespace-nowrap">"Today I kept showing up by</span>
-            <Textarea
-              value={identityText}
-              onChange={e => setIdentityText(e.target.value)}
-              placeholder="..."
-              rows={1}
-              className="bg-background border-border flex-1"
-            />
-            <span className="text-sm text-muted-foreground">"</span>
-          </div>
+          {readOnly ? (
+            <p className="text-sm text-foreground bg-muted/20 rounded-lg p-3">
+              "Today I kept showing up by {day.identity_reflection || '...'}"
+            </p>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">"Today I kept showing up by</span>
+              <Textarea
+                value={identityText}
+                onChange={e => setIdentityText(e.target.value)}
+                placeholder="..."
+                rows={1}
+                className="bg-background border-border flex-1"
+              />
+              <span className="text-sm text-muted-foreground">"</span>
+            </div>
+          )}
         </div>
 
         {/* Complete Day */}
-        <Button
-          size="lg"
-          onClick={handleComplete}
-          disabled={!canComplete}
-          className="w-full gap-3 font-display tracking-wider text-lg py-6 shadow-[0_0_20px_hsl(var(--primary)/0.3)]"
-        >
-          <CheckCircle2 className="w-5 h-5" />
-          COMPLETE DAY {day.day_number}
-        </Button>
+        {!readOnly && (
+          <>
+            <Button
+              size="lg"
+              onClick={handleComplete}
+              disabled={!canComplete}
+              className="w-full gap-3 font-display tracking-wider text-lg py-6 shadow-[0_0_20px_hsl(var(--primary)/0.3)]"
+            >
+              <CheckCircle2 className="w-5 h-5" />
+              COMPLETE DAY {day.day_number}
+            </Button>
 
-        {!canComplete && (
-          <p className="text-xs text-center text-muted-foreground">
-            Complete strength session, run, all 6 habits, journal and identity reflection to mark day complete
-          </p>
+            {!canComplete && (
+              <p className="text-xs text-center text-muted-foreground">
+                Complete strength session, run, all 6 habits, journal and identity reflection to mark day complete
+              </p>
+            )}
+          </>
         )}
       </div>
     </>
