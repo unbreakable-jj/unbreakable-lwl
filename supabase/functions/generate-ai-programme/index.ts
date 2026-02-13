@@ -36,84 +36,16 @@ interface ProgrammeRequest {
   requestType: 'full_programme' | 'quick_programme' | 'chat_request';
 }
 
-// Full exercise library and manual standard for AI reference
-const EXERCISE_LIBRARY_SUMMARY = `
-AVAILABLE EXERCISES BY BODY PART:
-
-CHEST:
-- Barbell: Flat/Incline/Decline Bench Press, Close Grip Bench, Floor Press
-- Dumbbell: Flat/Incline/Decline Press, Flyes, Squeeze Press, Pullovers
-- Bodyweight: Push Ups (Standard, Wide, Decline, Diamond, Archer), Chest Dips
-- Cable: Flyes (High/Low), Crossovers
-
-BACK:
-- Barbell: Deadlift (Conventional/Sumo), Bent Over Row, Pendlay Row
-- Dumbbell: Single Arm Row, Bent Over Row, Pullovers
-- Bodyweight: Pull Ups, Chin Ups, Inverted Rows
-- Cable: Lat Pulldown, Seated Row, Face Pulls, Straight Arm Pulldown
-- Machine: Lat Pulldown, Seated Row
-
-SHOULDERS:
-- Barbell: Overhead Press, Push Press, Upright Row
-- Dumbbell: Overhead Press, Lateral/Front/Rear Raises, Arnold Press
-- Bodyweight: Pike Push Ups, Handstand Push Ups
-- Cable: Lateral/Front Raises, Face Pulls
-
-LEGS:
-- Barbell: Back/Front Squat, Romanian Deadlift, Lunges, Hip Thrust
-- Dumbbell: Goblet Squat, Romanian Deadlift, Lunges, Step Ups
-- Bodyweight: Squats, Lunges, Bulgarian Split Squats, Jump Squats
-- Machine: Leg Press, Leg Extension, Leg Curl, Hack Squat, Calf Raises
-
-ARMS:
-- Barbell: Bicep Curls, Skull Crushers, Close Grip Bench
-- Dumbbell: Bicep Curls, Hammer Curls, Tricep Kickbacks, Overhead Extension
-- Cable: Curls, Tricep Pushdowns, Rope Curls
-- Bodyweight: Dips, Chin Ups, Diamond Push Ups
-
-CORE:
-- Planks (Front/Side), Dead Bug, Hanging Leg Raise, Cable Woodchops
-- Russian Twists, Mountain Climbers, Ab Wheel, Crunches, Leg Raises
-
-GLUTES:
-- Hip Thrust (Barbell/Dumbbell), Glute Bridge, Cable Kickbacks
-- Romanian Deadlift, Bulgarian Split Squat, Sumo Deadlift
-
-CARDIO:
-- Treadmill, Rowing, Bike, Jump Rope, Burpees, Battle Ropes
-
-EXERCISE ENTRY STANDARD (Mandatory for every exercise in the programme):
-Each exercise must include:
-1. Exercise Type: Primary Lift / Accessory / Assistance / Conditioning / Mobility
-2. Equipment Required
-3. Sets, Reps, Intensity (RPE or load guidance)
-4. Rest periods
-5. Coaching cues (3-6 action-based, no metaphors)
-6. Safety notes where relevant
-7. Regressions (1-2 easier alternatives) for intermediate/advanced exercises
-8. Progressions (1-2 harder alternatives) for beginner/intermediate exercises
-
-COACHING CUE STANDARDS:
-- Compound movements: Brace core, maintain neutral spine, control eccentric
-- Pressing: Retract scapulae, elbows at 45 degrees, full lockout
-- Pulling: Lead with elbows, squeeze at contraction, full stretch
-- Squatting: Knees track toes, depth to parallel minimum, drive through heels
-- Hinging: Hip hinge pattern, maintain flat back, hamstring tension
-
-LOAD & INTENSITY GUIDELINES:
-- Technique focus: Light-moderate load, slow tempo
-- Hypertrophy: Moderate load, controlled tempo, 8-12 reps
-- Strength: Heavier load, full rest periods, 1-6 reps
-- Do NOT prescribe percentages unless the programme specifically requires it
-
-LOGGING REQUIREMENTS (users must log per set):
-- Load used (kg)
-- Sets and reps completed
-- RPE or effort rating
-- Confidence rating (1-5)
-- Pain flag (yes/no) for injury tracking
-- Optional notes
-`;
+// Compact exercise name list — coaching cues/standards live client-side in exerciseCoachingData.ts
+const EXERCISE_NAMES = `ONLY use exercises from this list. No invented names.
+CHEST: Flat Bench Press,Incline Bench Press,Decline Bench Press,Close Grip Bench Press,Floor Press,Dumbbell Bench Press,Incline Dumbbell Press,Decline Dumbbell Press,Dumbbell Flyes,Incline Dumbbell Flyes,Squeeze Press,Dumbbell Pullovers,Push Ups,Wide Push Ups,Decline Push Ups,Diamond Push Ups,Archer Push Ups,Chest Dips,Cable Flyes,High Cable Flyes,Low Cable Flyes,Cable Crossovers,Chest Press Machine,Pec Deck,Smith Machine Bench Press
+BACK: Conventional Deadlift,Sumo Deadlift,Bent Over Row,Pendlay Row,Barbell Shrug,Single Arm Dumbbell Row,Dumbbell Bent Over Row,Dumbbell Pullovers,Dumbbell Shrug,Pull Ups,Chin Ups,Inverted Rows,Scapular Pull Ups,Lat Pulldown,Seated Cable Row,Face Pulls,Straight Arm Pulldown,Single Arm Cable Row,Machine Lat Pulldown,Seated Row Machine,T-Bar Row,Assisted Pull Up Machine
+SHOULDERS: Overhead Press,Push Press,Barbell Upright Row,Behind Neck Press,Dumbbell Overhead Press,Lateral Raises,Front Raises,Rear Delt Flyes,Arnold Press,Dumbbell Upright Row,Pike Push Ups,Handstand Push Ups,Cable Lateral Raises,Cable Front Raises,Cable Face Pulls,Cable Upright Row,Machine Shoulder Press,Reverse Pec Deck,Lateral Raise Machine
+LEGS: Back Squat,Front Squat,Romanian Deadlift,Barbell Lunges,Hip Thrust,Zercher Squat,Good Morning,Goblet Squat,Dumbbell Romanian Deadlift,Dumbbell Lunges,Dumbbell Step Ups,Dumbbell Bulgarian Split Squat,Bodyweight Squats,Walking Lunges,Bulgarian Split Squats,Jump Squats,Pistol Squats,Calf Raises,Leg Press,Leg Extension,Leg Curl,Hack Squat,Machine Calf Raises,Smith Machine Squat,Pendulum Squat
+ARMS: Barbell Curl,EZ Bar Curl,Skull Crushers,Barbell Preacher Curl,Dumbbell Bicep Curl,Hammer Curl,Concentration Curl,Incline Dumbbell Curl,Dumbbell Tricep Kickback,Overhead Dumbbell Extension,Cable Curl,Rope Curl,Tricep Pushdown,Rope Pushdown,Overhead Cable Extension,Bayesian Curl,Preacher Curl Machine,Tricep Dip Machine,Dips,Diamond Push Ups
+CORE: Front Plank,Side Plank,Dead Bug,Hanging Leg Raise,Cable Woodchops,Russian Twists,Mountain Climbers,Ab Wheel Rollout,Crunches,Lying Leg Raises,Pallof Press,Bird Dog
+GLUTES: Barbell Hip Thrust,Dumbbell Hip Thrust,Glute Bridge,Cable Kickbacks,Cable Pull Through,Frog Pumps
+CARDIO: Treadmill Run,Rowing Machine,Stationary Bike,Jump Rope,Burpees,Battle Ropes,Sled Push,Farmers Walk,Kettlebell Swings`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -208,61 +140,14 @@ serve(async (req) => {
       contextString += `\nConversation Context:\n${userContext.chatContext}\n`;
     }
 
-    const systemPrompt = `You are an elite strength & conditioning coach creating FULLY BESPOKE training programmes. Each programme must be uniquely crafted for this specific athlete based on their profile, goals, and constraints.
+    const systemPrompt = `Elite S&C coach. Create bespoke 12-week programmes using ONLY exercises from the approved library. Coaching cues are handled client-side — focus on exercise selection, sets/reps/intensity/rest.
 
-${EXERCISE_LIBRARY_SUMMARY}
+${EXERCISE_NAMES}
 
-PROGRAMME CREATION RULES:
-1. NEVER use generic templates - every programme is custom
-2. Match exercise selection to user's equipment and experience
-3. Include coaching cues/notes for each exercise
-4. Apply proper periodization based on goals
-5. Consider injuries and limitations in exercise selection
-6. Progress volume/intensity appropriately for experience level
-7. Include warm-up and cooldown recommendations
-8. Add rest day guidance and recovery notes
+Rules: Match equipment+experience. Periodize for goals. Account for injuries. Include warmup/cooldown.
 
-RETURN ONLY VALID JSON (no markdown):
-{
-  "programName": "Descriptive Name Based on User's Goal",
-  "overview": "2-3 sentences explaining the programme approach for this specific user",
-  "weeklySchedule": [{"day": "Monday", "focus": "Lower Strength", "type": "strength|running|rest|active_recovery"}],
-  "phases": [{"name": "Foundation", "weeks": "1-4", "focus": "Building base strength and movement quality", "notes": "Focus on technique, RPE 6-7"}],
-  "templateWeek": {
-    "days": [
-      {
-        "day": "Monday",
-        "sessionType": "Lower Strength",
-        "duration": "60 mins",
-        "warmup": "5 min cardio, hip mobility drills, glute activation",
-        "exercises": [
-          {
-            "name": "Back Squat",
-            "equipment": "barbell",
-            "sets": 4,
-            "reps": "6-8",
-            "intensity": "RPE 7",
-            "rest": "3 min",
-            "notes": "Brace core, knees track toes, full depth if mobility allows"
-          }
-        ],
-        "cooldown": "Lower body stretching, 5 min walk"
-      }
-    ]
-  },
-  "phaseProgressions": [
-    {"phase": "Foundation (Weeks 1-4)", "adjustments": "Start conservative, focus on form. Add weight when hitting top of rep range with good form."},
-    {"phase": "Building (Weeks 5-8)", "adjustments": "Increase intensity by 5%, reduce rest slightly."},
-    {"phase": "Peak (Weeks 9-12)", "adjustments": "Peak intensity, maintain volume, deload week 12."}
-  ],
-  "progressionRules": ["Add 2.5kg to upper body when completing all reps at RPE <8", "Add 5kg to lower body lifts", "If missing reps, stay at weight for another week"],
-  "nutritionTips": ["Protein: 1.8-2.2g per kg bodyweight", "Hydrate well before training"],
-  "metadata": {
-    "origin": "ai_chat",
-    "createdFor": "${userContext.profile?.displayName || 'User'}",
-    "promptUsed": "${prompt.replace(/"/g, '\\"').substring(0, 500)}"
-  }
-}`;
+Return ONLY valid JSON:
+{"programName":"string","overview":"string","weeklySchedule":[{"day":"Monday","focus":"string","type":"strength|running|rest|active_recovery"}],"phases":[{"name":"string","weeks":"1-4","focus":"string","notes":"string"}],"templateWeek":{"days":[{"day":"Monday","sessionType":"string","duration":"60 mins","warmup":"string","exercises":[{"name":"Back Squat","equipment":"barbell","sets":4,"reps":"6-8","intensity":"RPE 7","rest":"3 min","notes":"string"}],"cooldown":"string"}]},"phaseProgressions":[{"phase":"string","adjustments":"string"}],"progressionRules":["string"],"nutritionTips":["string"],"metadata":{"origin":"ai_chat","createdFor":"${userContext.profile?.displayName || 'User'}"}}`;
 
     const userPrompt = `${contextString}
 
