@@ -3929,8 +3929,6 @@ export function findCoachingDataByName(name: string): ExerciseCoachingData | und
     'dumbbell curl': 'dumbbell-bicep-curl',
     'db curl': 'dumbbell-bicep-curl',
     'rope curl': 'cable-rope-hammer-curl',
-    'rope pushdown': 'cable-rope-pushdown',
-    'rope push': 'cable-rope-pushdown',
     'dead bug': 'dead-bug',
     'side plank': 'side-plank',
     'farmer': 'farmers-walk',
@@ -3955,8 +3953,6 @@ export function findCoachingDataByName(name: string): ExerciseCoachingData | und
     'push press': 'push-press',
     'preacher curl': 'machine-preacher-curl',
     'preacher': 'machine-preacher-curl',
-    'flat dumbbell': 'flat-dumbbell-bench-press',
-    'incline dumbbell': 'incline-dumbbell-bench-press',
   };
   
   for (const [pattern, id] of Object.entries(patterns)) {
