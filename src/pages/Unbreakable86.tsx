@@ -87,17 +87,35 @@ export default function Unbreakable86() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-4"
           >
-            <h1 className="font-display text-5xl sm:text-6xl md:text-7xl tracking-wide leading-none">
+           <h1 className="font-display text-5xl sm:text-6xl md:text-7xl tracking-wide leading-none">
               <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
               <span className="text-foreground">86</span>
             </h1>
-            <p className="text-muted-foreground text-sm max-w-lg mx-auto">
-              86 days. No rest days. Run before strength. 6 daily habits.
-              Discipline over motivation.
-            </p>
-            <div className="space-y-1">
+
+            <div className="max-w-2xl mx-auto space-y-4 text-left sm:text-center">
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                86 consecutive days. No rest days. No excuses. A progressive overload system
+                that builds you from <span className="text-primary font-semibold">1 km</span> to{' '}
+                <span className="text-primary font-semibold">5 km daily</span> — increasing
+                distance every 7 days while your strength sessions adapt around it.
+              </p>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Your plan is delivered <span className="text-foreground font-semibold">7 days at a time</span>,
+                remapped each week based on your performance, equipment, and level. Beginner to advanced —
+                every programme is bespoke. 8 full-body exercises daily. 6 non-negotiable habits.
+                Run before you lift. Discipline before motivation.
+              </p>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                This isn't a workout plan. It's a system designed to prove what you're capable of
+                when you refuse to stop. All levels. All goals. One standard:{' '}
+                <span className="text-primary font-semibold">keep showing up</span>.
+              </p>
+            </div>
+
+            <div className="space-y-1 pt-2">
               <p className="font-display text-xs tracking-[0.3em] text-muted-foreground">UNBREAKABLE · LIVE WITHOUT LIMITS</p>
               <p className="text-primary font-display text-lg tracking-wider neon-glow-subtle">KEEP SHOWING UP</p>
+              <p className="font-display text-[10px] tracking-[0.25em] text-muted-foreground/60 pt-1">#UNBREAKABLE86</p>
             </div>
           </motion.div>
         </div>
