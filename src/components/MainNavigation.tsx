@@ -93,12 +93,6 @@ const NAV_STRUCTURE = [
         description: 'View saved programmes and activity logs',
         icon: BookOpen 
       },
-      { 
-        title: 'Quick Track', 
-        href: '/tracker/quick-track', 
-        description: 'Start a cardio session immediately',
-        icon: Timer 
-      },
     ],
   },
   {

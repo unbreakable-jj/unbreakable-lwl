@@ -49,11 +49,10 @@ export default function Tracker() {
             EXPLORE <span className="text-primary neon-glow-subtle">MOVEMENT</span>
           </h2>
           
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             {[
               { to: '/tracker/create', icon: Wrench, title: 'CREATE', desc: 'Build a new cardio programme using the Unbreakable Coach.', cta: 'START BUILDING', highlight: true },
               { to: '/tracker/my-programmes', icon: BookOpen, title: 'LIBRARY', desc: 'View saved programmes and activity logs.', cta: 'VIEW PROGRAMMES' },
-              { to: '/tracker/quick-track', icon: Timer, title: 'QUICK TRACK', desc: 'Start a cardio session immediately.', cta: 'START NOW' },
             ].map((card) => (
               <Link key={card.to} to={card.to}>
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
