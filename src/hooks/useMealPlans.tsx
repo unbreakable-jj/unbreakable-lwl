@@ -27,22 +27,24 @@ export function useMealPlans() {
 
   const activePlan = mealPlans?.find((p) => p.is_active);
 
+  const planIds = mealPlans?.map(p => p.id) || [];
+
   const { data: planItems } = useQuery({
-    queryKey: ['meal-plan-items', activePlan?.id],
+    queryKey: ['meal-plan-items', planIds],
     queryFn: async () => {
-      if (!activePlan) return [];
+      if (!user || planIds.length === 0) return [];
       
       const { data, error } = await supabase
         .from('meal_plan_items')
         .select('*')
-        .eq('meal_plan_id', activePlan.id)
+        .in('meal_plan_id', planIds)
         .order('day_of_week', { ascending: true })
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
       return data as MealPlanItem[];
     },
-    enabled: !!activePlan,
+    enabled: !!user && planIds.length > 0,
   });
 
   // Count active plans
