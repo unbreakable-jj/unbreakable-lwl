@@ -29,9 +29,10 @@ interface U86DailyViewProps {
 const HABIT_CONFIG = [
   { key: 'habit_train', icon: Dumbbell, label: 'TRAIN', desc: 'Complete the full Unbreakable 86 session' },
   { key: 'habit_learn_daily', icon: BookOpen, label: 'LEARN DAILY', desc: '10-20 minutes non-fiction reading' },
-  { key: 'habit_journal', icon: Shield, label: 'HIT YOUR NUMBERS', desc: 'Meet your daily calorie and macro targets' },
+  { key: 'habit_journal', icon: PenLine, label: 'DAILY JOURNAL', desc: 'Reflect on your day — what went well, what was hard, what to improve' },
   { key: 'habit_control_inputs', icon: Droplets, label: 'DAILY WATER TARGET', desc: 'Drink at least 3 litres of water today' },
   { key: 'habit_hard_thing', icon: Zap, label: 'DO THE HARD THING', desc: 'Do one thing that scares you. Talk to a stranger. Start something new.' },
+  { key: 'habit_hit_numbers', icon: Shield, label: 'HIT YOUR NUMBERS', desc: 'Meet your daily calorie and macro targets' },
 ] as const;
 
 export function U86DailyView({ day, program, streak, onUpdate, onComplete, readOnly = false }: U86DailyViewProps) {
@@ -41,6 +42,7 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
   const [sessionOpen, setSessionOpen] = useState(false);
   const [planExpanded, setPlanExpanded] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  const [journalExpanded, setJournalExpanded] = useState(false);
 
   // Parse existing journal entry if structured
   useState(() => {
@@ -51,16 +53,18 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
         if (parsed.hardest) setJournalHardest(parsed.hardest);
         if (parsed.tomorrow) setJournalTomorrow(parsed.tomorrow);
       } catch {
-        // Legacy free text — put it in "went well"
         setJournalWentWell(day.journal_entry);
       }
     }
   });
 
-  const allHabitsComplete = HABIT_CONFIG.every(h => (day as any)[h.key]);
+  const journalComplete = journalWentWell.trim() !== '' && journalHardest.trim() !== '' && journalTomorrow.trim() !== '';
+  const allHabitsComplete = HABIT_CONFIG.every(h => {
+    if (h.key === 'habit_journal') return journalComplete;
+    return (day as any)[h.key];
+  });
   const sessionComplete = day.run_completed && day.strength_completed;
-  const journalFilled = journalWentWell.trim() && journalHardest.trim() && journalTomorrow.trim();
-  const canComplete = allHabitsComplete && sessionComplete && journalFilled;
+  const canComplete = allHabitsComplete && sessionComplete;
 
   const exercises: any[] = Array.isArray(day.exercises) ? day.exercises : [];
   const totalSets = exercises.reduce((acc, ex) => acc + (ex.sets?.length || 0), 0);
@@ -161,11 +165,11 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
             <div className="flex items-center justify-between text-xs font-display tracking-wider">
               <span className="text-muted-foreground">DAY PROGRESS</span>
               <span className="text-primary">
-                {[sessionComplete, allHabitsComplete, journalFilled].filter(Boolean).length}/3 SECTIONS
+                {[sessionComplete, allHabitsComplete].filter(Boolean).length}/2 SECTIONS
               </span>
             </div>
             <Progress 
-              value={([sessionComplete, allHabitsComplete, journalFilled].filter(Boolean).length / 3) * 100} 
+              value={([sessionComplete, allHabitsComplete].filter(Boolean).length / 2) * 100} 
               className="h-1.5" 
             />
           </div>
@@ -338,113 +342,140 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
               DAILY <span className="text-primary">HABITS</span>
             </h3>
             <span className="text-xs font-display tracking-wider text-muted-foreground">
-              {HABIT_CONFIG.filter(h => (day as any)[h.key]).length}/{HABIT_CONFIG.length}
+              {HABIT_CONFIG.filter(h => h.key === 'habit_journal' ? journalComplete : (day as any)[h.key]).length}/{HABIT_CONFIG.length}
             </span>
           </div>
-          {HABIT_CONFIG.map(({ key, icon: Icon, label, desc }) => (
-            <Card
-              key={key}
-              onClick={() => handleHabitToggle(key)}
-              className={cn(
-                'p-4 border transition-all',
-                readOnly ? '' : 'cursor-pointer',
-                (day as any)[key] 
-                  ? 'border-green-500/40 bg-green-500/5' 
-                  : 'border-border/50 hover:border-primary/30'
-              )}
-            >
-              <div className="flex items-center gap-3">
-                <Checkbox
-                  checked={(day as any)[key]}
-                  onCheckedChange={() => handleHabitToggle(key)}
-                  disabled={readOnly}
-                  className="w-5 h-5 border-primary data-[state=checked]:bg-green-500"
-                />
-                <Icon className={cn('w-4 h-4', (day as any)[key] ? 'text-green-500' : 'text-primary/70')} />
-                <div className="flex-1">
-                  <p className="font-display text-xs tracking-[0.15em] text-foreground">{label}</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">{desc}</p>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+          {HABIT_CONFIG.map(({ key, icon: Icon, label, desc }) => {
+            const isJournal = key === 'habit_journal';
+            const isChecked = isJournal ? journalComplete : (day as any)[key];
 
-        {/* Structured Journal */}
-        <div className="space-y-4">
-          <h3 className="font-display text-lg tracking-wider text-foreground">
-            DAILY <span className="text-primary">JOURNAL</span>
-          </h3>
-          
-          {readOnly ? (
-            <Card className="p-4 border border-border/50 space-y-3">
-              {(() => {
-                let parsed = { wentWell: '', hardest: '', tomorrow: '' };
-                try { parsed = JSON.parse(day.journal_entry || '{}'); } catch { parsed.wentWell = day.journal_entry || ''; }
-                return (
-                  <>
-                    {parsed.wentWell && (
-                      <div>
-                        <p className="text-[11px] font-display tracking-wider text-primary mb-1">WHAT WENT WELL</p>
-                        <p className="text-sm text-foreground">{parsed.wentWell}</p>
-                      </div>
+            return (
+              <div key={key}>
+                <Card
+                  onClick={() => {
+                    if (isJournal) {
+                      if (!readOnly) setJournalExpanded(!journalExpanded);
+                    } else {
+                      handleHabitToggle(key);
+                    }
+                  }}
+                  className={cn(
+                    'p-4 border transition-all',
+                    readOnly && !isJournal ? '' : 'cursor-pointer',
+                    isChecked
+                      ? 'border-green-500/40 bg-green-500/5' 
+                      : 'border-border/50 hover:border-primary/30',
+                    isJournal && journalExpanded && !isChecked ? 'border-primary/40' : ''
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      checked={isChecked}
+                      onCheckedChange={() => {
+                        if (!isJournal) handleHabitToggle(key);
+                        else if (!readOnly) setJournalExpanded(!journalExpanded);
+                      }}
+                      disabled={isJournal ? true : readOnly}
+                      className="w-5 h-5 border-primary data-[state=checked]:bg-green-500"
+                    />
+                    <Icon className={cn('w-4 h-4', isChecked ? 'text-green-500' : 'text-primary/70')} />
+                    <div className="flex-1">
+                      <p className="font-display text-xs tracking-[0.15em] text-foreground">{label}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{desc}</p>
+                    </div>
+                    {isJournal && (
+                      journalExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     )}
-                    {parsed.hardest && (
-                      <div>
-                        <p className="text-[11px] font-display tracking-wider text-primary mb-1">WHAT WAS HARDEST</p>
-                        <p className="text-sm text-foreground">{parsed.hardest}</p>
+                  </div>
+                </Card>
+
+                {/* Journal dropdown */}
+                <AnimatePresence>
+                  {isJournal && journalExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="pt-2 pb-1 px-1 space-y-3">
+                        {readOnly ? (
+                          <Card className="p-4 border border-border/50 space-y-3">
+                            {(() => {
+                              let parsed = { wentWell: '', hardest: '', tomorrow: '' };
+                              try { parsed = JSON.parse(day.journal_entry || '{}'); } catch { parsed.wentWell = day.journal_entry || ''; }
+                              return (
+                                <>
+                                  {parsed.wentWell && (
+                                    <div>
+                                      <p className="text-[11px] font-display tracking-wider text-primary mb-1">WHAT WENT WELL</p>
+                                      <p className="text-sm text-foreground">{parsed.wentWell}</p>
+                                    </div>
+                                  )}
+                                  {parsed.hardest && (
+                                    <div>
+                                      <p className="text-[11px] font-display tracking-wider text-primary mb-1">WHAT WAS HARDEST</p>
+                                      <p className="text-sm text-foreground">{parsed.hardest}</p>
+                                    </div>
+                                  )}
+                                  {parsed.tomorrow && (
+                                    <div>
+                                      <p className="text-[11px] font-display tracking-wider text-primary mb-1">WHAT I WILL DO BETTER TOMORROW</p>
+                                      <p className="text-sm text-foreground">{parsed.tomorrow}</p>
+                                    </div>
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </Card>
+                        ) : (
+                          <>
+                            <div>
+                              <label className="text-[11px] font-display tracking-[0.15em] text-primary mb-1.5 block">
+                                WHAT WENT WELL?
+                              </label>
+                              <Textarea
+                                value={journalWentWell}
+                                onChange={e => setJournalWentWell(e.target.value)}
+                                placeholder="Today I..."
+                                rows={2}
+                                className="bg-background border-border/50 text-sm resize-none"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-display tracking-[0.15em] text-primary mb-1.5 block">
+                                WHAT WAS HARDEST?
+                              </label>
+                              <Textarea
+                                value={journalHardest}
+                                onChange={e => setJournalHardest(e.target.value)}
+                                placeholder="I wanted to quit when..."
+                                rows={2}
+                                className="bg-background border-border/50 text-sm resize-none"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-display tracking-[0.15em] text-primary mb-1.5 block">
+                                WHAT WILL I DO BETTER TOMORROW?
+                              </label>
+                              <Textarea
+                                value={journalTomorrow}
+                                onChange={e => setJournalTomorrow(e.target.value)}
+                                placeholder="Tomorrow I will..."
+                                rows={2}
+                                className="bg-background border-border/50 text-sm resize-none"
+                              />
+                            </div>
+                          </>
+                        )}
                       </div>
-                    )}
-                    {parsed.tomorrow && (
-                      <div>
-                        <p className="text-[11px] font-display tracking-wider text-primary mb-1">WHAT I WILL DO BETTER TOMORROW</p>
-                        <p className="text-sm text-foreground">{parsed.tomorrow}</p>
-                      </div>
-                    )}
-                  </>
-                );
-              })()}
-            </Card>
-          ) : (
-            <div className="space-y-3">
-              <div>
-                <label className="text-[11px] font-display tracking-[0.15em] text-primary mb-1.5 block">
-                  WHAT WENT WELL?
-                </label>
-                <Textarea
-                  value={journalWentWell}
-                  onChange={e => setJournalWentWell(e.target.value)}
-                  placeholder="Today I..."
-                  rows={2}
-                  className="bg-background border-border/50 text-sm resize-none"
-                />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-              <div>
-                <label className="text-[11px] font-display tracking-[0.15em] text-primary mb-1.5 block">
-                  WHAT WAS HARDEST?
-                </label>
-                <Textarea
-                  value={journalHardest}
-                  onChange={e => setJournalHardest(e.target.value)}
-                  placeholder="I wanted to quit when..."
-                  rows={2}
-                  className="bg-background border-border/50 text-sm resize-none"
-                />
-              </div>
-              <div>
-                <label className="text-[11px] font-display tracking-[0.15em] text-primary mb-1.5 block">
-                  WHAT WILL I DO BETTER TOMORROW?
-                </label>
-                <Textarea
-                  value={journalTomorrow}
-                  onChange={e => setJournalTomorrow(e.target.value)}
-                  placeholder="Tomorrow I will..."
-                  rows={2}
-                  className="bg-background border-border/50 text-sm resize-none"
-                />
-              </div>
-            </div>
-          )}
+            );
+          })}
         </div>
 
         {/* Coaching Feedback */}
@@ -470,7 +501,7 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
 
             {!canComplete && (
               <p className="text-[11px] text-center text-muted-foreground font-display tracking-wider">
-                COMPLETE SESSION · RUN · ALL HABITS · JOURNAL TO FINISH
+                COMPLETE SESSION · RUN · ALL 6 HABITS TO FINISH
               </p>
             )}
           </div>
