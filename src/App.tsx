@@ -34,6 +34,7 @@ import TrackerMyProgrammes from "./pages/TrackerMyProgrammes";
 import TrackerCreate from "./pages/TrackerCreate";
 import UserProfile from "./pages/UserProfile";
 import Onboarding from "./pages/Onboarding";
+import Unbreakable86 from "./pages/Unbreakable86";
 
 const queryClient = new QueryClient();
 
@@ -74,6 +75,9 @@ const App = () => (
               } />
               <Route path="/programming/logs" element={
                 <ProtectedRoute><ProgrammingLogs /></ProtectedRoute>
+              } />
+              <Route path="/programming/unbreakable-86" element={
+                <ProtectedRoute><Unbreakable86 /></ProtectedRoute>
               } />
               
               {/* Tracker (Movement) routes */}

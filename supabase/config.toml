@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.generate-recipe-images]
 verify_jwt = false
+
+[functions.generate-u86-week]
+verify_jwt = false
