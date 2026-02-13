@@ -8,14 +8,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Timer, Footprints, Zap, Bike, Flame, ArrowRight } from 'lucide-react';
+import { Timer, Footprints, Zap, Bike, Waves, Flame, ArrowRight } from 'lucide-react';
 
-type ActivityType = 'walk' | 'run' | 'cycle' | null;
+type ActivityType = 'walk' | 'run' | 'cycle' | 'row' | null;
 
 const activityOptions = [
   { value: 'walk' as const, label: 'WALK', icon: <Footprints className="w-10 h-10" />, description: 'Low-impact, steady state' },
   { value: 'run' as const, label: 'RUN', icon: <Zap className="w-10 h-10" />, description: 'Build speed & power' },
   { value: 'cycle' as const, label: 'CYCLE', icon: <Bike className="w-10 h-10" />, description: 'Leg power, zero impact' },
+  { value: 'row' as const, label: 'ROW', icon: <Waves className="w-10 h-10" />, description: 'Full body, low impact' },
 ];
 
 export default function TrackerQuickTrack() {
@@ -65,7 +66,7 @@ export default function TrackerQuickTrack() {
 
       <main className="container mx-auto px-4 py-8 md:py-12">
         <div className="max-w-2xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {activityOptions.map((option) => (
               <Card
                 key={option.value}

@@ -83,9 +83,6 @@ const App = () => (
               <Route path="/tracker/create" element={
                 <ProtectedRoute><TrackerCreate /></ProtectedRoute>
               } />
-              <Route path="/tracker/quick-track" element={
-                <ProtectedRoute><TrackerQuickTrack /></ProtectedRoute>
-              } />
               <Route path="/tracker/my-programmes" element={
                 <ProtectedRoute><TrackerMyProgrammes /></ProtectedRoute>
               } />
