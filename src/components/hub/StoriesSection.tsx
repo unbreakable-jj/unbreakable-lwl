@@ -1,18 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useStories, Story } from '@/hooks/useStories';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
-import { supabase } from '@/integrations/supabase/client';
-import { Plus, Globe, Users, Lock, Image, Video, X, ChevronLeft, ChevronRight, Trash2, MoreVertical, Play, Pause, Volume2, VolumeX, Loader2 } from 'lucide-react';
+import { Plus, X, ChevronLeft, ChevronRight, Trash2, MoreVertical, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
-import { compressVideo, generateVideoThumbnail } from '@/lib/videoUtils';
+import { StoryEditor } from './StoryEditor';
+import { StoryTextOverlay, TextOverlayData } from './StoryTextOverlay';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,164 +25,41 @@ export function StoriesSection() {
   const [showViewer, setShowViewer] = useState(false);
   const [activeUserIndex, setActiveUserIndex] = useState(0);
   const [activeStoryIndex, setActiveStoryIndex] = useState(0);
-  const [content, setContent] = useState('');
-  const [visibility, setVisibility] = useState<'public' | 'friends' | 'private'>('public');
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [videoPreview, setVideoPreview] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
-  const imageInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
   const storyVideoRef = useRef<HTMLVideoElement>(null);
 
-  // Auto-progress for story viewer (only for image stories)
+  // Auto-progress for story viewer (only for image/text stories)
   useEffect(() => {
     if (!showViewer) return;
-    
     const currentStory = groupedStories[activeUserIndex]?.stories[activeStoryIndex];
-    if (currentStory?.video_url) return; // Don't auto-progress for videos
-
-    const timer = setTimeout(() => {
-      nextStory();
-    }, 5000);
-
+    if (currentStory?.video_url) return;
+    const timer = setTimeout(() => { nextStory(); }, 5000);
     return () => clearTimeout(timer);
   }, [showViewer, activeUserIndex, activeStoryIndex]);
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be under 5MB');
-      return;
-    }
-
-    setVideoFile(null);
-    setVideoPreview(null);
-    setImageFile(file);
-    const reader = new FileReader();
-    reader.onloadend = () => setImagePreview(reader.result as string);
-    reader.readAsDataURL(file);
-  };
-
-  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    // Allow up to 500MB - compression will reduce to target size
-    if (file.size > 500 * 1024 * 1024) {
-      toast.error('Video must be under 500MB');
-      return;
-    }
-
-    // Warn user if video is large and will be compressed
-    const sizeMB = file.size / (1024 * 1024);
-    if (sizeMB > 20) {
-      toast.info(`Video is ${sizeMB.toFixed(0)}MB - will be compressed during upload`);
-    }
-
-    setImageFile(null);
-    setImagePreview(null);
-    setVideoFile(file);
-    const url = URL.createObjectURL(file);
-    setVideoPreview(url);
-  };
-
-  const clearMedia = () => {
-    setImageFile(null);
-    setImagePreview(null);
-    setVideoFile(null);
-    if (videoPreview) URL.revokeObjectURL(videoPreview);
-    setVideoPreview(null);
-    if (imageInputRef.current) imageInputRef.current.value = '';
-    if (videoInputRef.current) videoInputRef.current.value = '';
-  };
-
-  const handleCreate = async () => {
-    if (!content.trim() && !imageFile && !videoFile) {
-      toast.error('Add some content, image, or video');
-      return;
-    }
-
-    setUploading(true);
-    let imageUrl: string | null = null;
-    let videoUrl: string | null = null;
-
-    if (imageFile) {
-      const ext = imageFile.name.split('.').pop();
-      const path = `${user!.id}/${Date.now()}.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from('post-images')
-        .upload(path, imageFile);
-
-      if (uploadError) {
-        toast.error('Failed to upload image');
-        setUploading(false);
-        return;
-      }
-
-      const { data: urlData } = supabase.storage
-        .from('post-images')
-        .getPublicUrl(path);
-      imageUrl = urlData.publicUrl;
-    }
-
-    if (videoFile) {
-      try {
-        // Stage 1: Compress video if needed
-        setUploadProgress('Compressing video...');
-        const compressedFile = await compressVideo(videoFile, 10, 1080);
-        
-        // Stage 2: Upload video
-        setUploadProgress('Uploading video...');
-        const ext = compressedFile.name.split('.').pop() || 'webm';
-        const path = `stories/${user!.id}/${Date.now()}.${ext}`;
-        const { error: uploadError } = await supabase.storage
-          .from('post-videos')
-          .upload(path, compressedFile);
-
-        if (uploadError) {
-          toast.error('Failed to upload video');
-          setUploading(false);
-          setUploadProgress(null);
-          return;
-        }
-
-        const { data: urlData } = supabase.storage
-          .from('post-videos')
-          .getPublicUrl(path);
-        videoUrl = urlData.publicUrl;
-        setUploadProgress(null);
-      } catch (error) {
-        console.error('Video processing error:', error);
-        toast.error('Failed to process video');
-        setUploading(false);
-        setUploadProgress(null);
-        return;
-      }
-    }
-
+  const handlePublishStory = async (data: {
+    content: string | null;
+    image_url: string | null;
+    video_url: string | null;
+    visibility: string;
+    text_overlays: TextOverlayData[];
+    background_color: string | null;
+  }) => {
     const { error } = await createStory({
-      content: content.trim() || null,
-      image_url: imageUrl,
-      video_url: videoUrl,
-      visibility,
+      content: data.content,
+      image_url: data.image_url,
+      video_url: data.video_url,
+      visibility: data.visibility,
+      text_overlays: data.text_overlays,
+      background_color: data.background_color,
     });
-
-    setUploading(false);
 
     if (error) {
       toast.error('Failed to create story');
     } else {
       toast.success('Story added!');
-      setContent('');
-      clearMedia();
       setShowCreate(false);
     }
   };
@@ -194,7 +68,6 @@ export function StoriesSection() {
     setDeleting(true);
     const { error } = await deleteStory(storyId);
     setDeleting(false);
-    
     if (error) {
       toast.error('Failed to delete story');
     } else {
@@ -252,11 +125,23 @@ export function StoriesSection() {
   const currentStory = currentUserGroup?.stories[activeStoryIndex];
   const isOwnStory = currentStory?.user_id === user?.id;
 
+  // Parse text overlays from story data
+  const getStoryOverlays = (story: Story): TextOverlayData[] => {
+    try {
+      const overlays = (story as any).text_overlays;
+      if (Array.isArray(overlays)) return overlays;
+      return [];
+    } catch { return []; }
+  };
+
+  const getStoryBgColor = (story: Story): string | null => {
+    return (story as any).background_color || null;
+  };
+
   return (
     <>
       {/* Stories Row */}
       <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
-        {/* Add Story Button */}
         {user && (
           <button
             onClick={() => setShowCreate(true)}
@@ -279,7 +164,6 @@ export function StoriesSection() {
           </button>
         )}
 
-        {/* User Stories */}
         {groupedStories.map((group, index) => (
           <button
             key={group.userId}
@@ -307,143 +191,13 @@ export function StoriesSection() {
         )}
       </div>
 
-      {/* Create Story Dialog */}
-      <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <DialogContent className="bg-card border-border max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="font-display text-xl tracking-wide text-center neon-glow-subtle">
-              ADD TO STORY
-            </DialogTitle>
-            <DialogDescription className="text-center text-muted-foreground text-sm">
-              Share a moment that lasts 24 hours
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <Textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="What's on your mind?"
-              className="bg-input border-border min-h-24"
-              maxLength={280}
-            />
-
-            {imagePreview && (
-              <div className="relative">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="w-full h-48 object-cover rounded-lg"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-2 right-2 bg-black/50 hover:bg-black/70"
-                  onClick={clearMedia}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
-
-            {videoPreview && (
-              <div className="relative">
-                <video
-                  src={videoPreview}
-                  controls
-                  className="w-full max-h-[300px] rounded-lg"
-                  style={{ display: 'block' }}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-2 right-2 bg-black/50 hover:bg-black/70"
-                  onClick={clearMedia}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
-
-            {!imagePreview && !videoPreview && (
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => imageInputRef.current?.click()}
-                >
-                  <Image className="w-4 h-4 mr-2" />
-                  Photo
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => videoInputRef.current?.click()}
-                >
-                  <Video className="w-4 h-4 mr-2" />
-                  Video
-                </Button>
-              </div>
-            )}
-
-            <input
-              ref={imageInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleImageSelect}
-            />
-            <input
-              ref={videoInputRef}
-              type="file"
-              accept="video/*"
-              className="hidden"
-              onChange={handleVideoSelect}
-            />
-
-            <Select value={visibility} onValueChange={(v) => setVisibility(v as any)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="public">
-                  <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4" />
-                    Public
-                  </div>
-                </SelectItem>
-                <SelectItem value="friends">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4" />
-                    Friends Only
-                  </div>
-                </SelectItem>
-                <SelectItem value="private">
-                  <div className="flex items-center gap-2">
-                    <Lock className="w-4 h-4" />
-                    Only Me
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button
-              className="w-full font-display tracking-wide"
-              onClick={handleCreate}
-              disabled={uploading || (!content.trim() && !imageFile && !videoFile)}
-            >
-              {uploading && uploadProgress ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  <span className="text-xs">{uploadProgress}</span>
-                </>
-              ) : uploading ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : null}
-              {uploading ? '' : 'SHARE STORY'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Story Editor (fullscreen) */}
+      {showCreate && (
+        <StoryEditor
+          onPublish={handlePublishStory}
+          onClose={() => setShowCreate(false)}
+        />
+      )}
 
       {/* Story Viewer */}
       <AnimatePresence>
@@ -455,23 +209,16 @@ export function StoriesSection() {
             className="fixed inset-0 z-50 bg-black flex items-center justify-center"
           >
             {/* Progress bars */}
-            <div className="absolute top-4 left-4 right-4 flex gap-1">
+            <div className="absolute top-4 left-4 right-4 flex gap-1 z-20">
               {currentUserGroup.stories.map((story, idx) => (
-                <div
-                  key={idx}
-                  className="flex-1 h-1 rounded-full bg-white/30 overflow-hidden"
-                >
+                <div key={idx} className="flex-1 h-1 rounded-full bg-white/30 overflow-hidden">
                   <motion.div
                     className="h-full bg-white"
                     initial={{ width: idx < activeStoryIndex ? '100%' : '0%' }}
-                    animate={{ 
-                      width: idx < activeStoryIndex 
-                        ? '100%' 
-                        : idx === activeStoryIndex 
-                          ? '100%' 
-                          : '0%' 
+                    animate={{
+                      width: idx < activeStoryIndex ? '100%' : idx === activeStoryIndex ? '100%' : '0%'
                     }}
-                    transition={{ 
+                    transition={{
                       duration: idx === activeStoryIndex && !story.video_url ? 5 : 0,
                       ease: 'linear'
                     }}
@@ -481,7 +228,7 @@ export function StoriesSection() {
             </div>
 
             {/* Header */}
-            <div className="absolute top-8 left-4 right-4 flex items-center justify-between">
+            <div className="absolute top-8 left-4 right-4 flex items-center justify-between z-20">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 border border-white/30">
                   <AvatarImage src={currentUserGroup.profile?.avatar_url || undefined} />
@@ -498,16 +245,12 @@ export function StoriesSection() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 {isOwnStory && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-white hover:bg-white/10"
-                      >
+                      <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
                         <MoreVertical className="w-5 h-5" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -523,44 +266,37 @@ export function StoriesSection() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
-                
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-white hover:bg-white/10"
-                  onClick={() => setShowViewer(false)}
-                >
+                <Button variant="ghost" size="icon" className="text-white hover:bg-white/10" onClick={() => setShowViewer(false)}>
                   <X className="w-6 h-6" />
                 </Button>
               </div>
             </div>
 
             {/* Story Content */}
-            <div className="w-full max-w-md px-4">
+            <div
+              className="w-full max-w-md mx-4 aspect-[9/16] rounded-2xl overflow-hidden relative"
+              style={{
+                backgroundColor: getStoryBgColor(currentStory) || '#1C1C1E',
+              }}
+            >
+              {/* Video background */}
               {currentStory.video_url && (
-                <div className="relative">
+                <div className="absolute inset-0">
                   <video
                     ref={storyVideoRef}
                     src={currentStory.video_url}
-                    className="w-full max-h-[60vh] object-contain rounded-lg"
-                    autoPlay
-                    loop
-                    muted={isMuted}
-                    playsInline
+                    className="w-full h-full object-cover"
+                    autoPlay loop muted={isMuted} playsInline
                     onEnded={nextStory}
                   />
-                  <div className="absolute bottom-4 right-4 flex gap-2">
+                  <div className="absolute bottom-4 right-4 flex gap-2 z-10">
                     <Button
-                      variant="secondary"
-                      size="icon"
+                      variant="secondary" size="icon"
                       className="bg-black/50 hover:bg-black/70 text-white h-8 w-8"
                       onClick={() => {
                         if (storyVideoRef.current) {
-                          if (isPlaying) {
-                            storyVideoRef.current.pause();
-                          } else {
-                            storyVideoRef.current.play();
-                          }
+                          if (isPlaying) storyVideoRef.current.pause();
+                          else storyVideoRef.current.play();
                           setIsPlaying(!isPlaying);
                         }
                       }}
@@ -568,8 +304,7 @@ export function StoriesSection() {
                       {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                     </Button>
                     <Button
-                      variant="secondary"
-                      size="icon"
+                      variant="secondary" size="icon"
                       className="bg-black/50 hover:bg-black/70 text-white h-8 w-8"
                       onClick={() => {
                         if (storyVideoRef.current) {
@@ -583,30 +318,41 @@ export function StoriesSection() {
                   </div>
                 </div>
               )}
+
+              {/* Image background */}
               {currentStory.image_url && !currentStory.video_url && (
                 <img
                   src={currentStory.image_url}
                   alt="Story"
-                  className="w-full max-h-[60vh] object-contain rounded-lg"
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
               )}
-              {currentStory.content && (
-                <p className="text-white text-xl text-center mt-6 font-display tracking-wide">
-                  {currentStory.content}
-                </p>
+
+              {/* Text overlays */}
+              {getStoryOverlays(currentStory).map(overlay => (
+                <StoryTextOverlay key={overlay.id} overlay={overlay} />
+              ))}
+
+              {/* Legacy text content (for old stories without overlays) */}
+              {currentStory.content && getStoryOverlays(currentStory).length === 0 && (
+                <div className="absolute inset-0 flex items-center justify-center p-6">
+                  <p className="text-white text-xl text-center font-display tracking-wide">
+                    {currentStory.content}
+                  </p>
+                </div>
               )}
             </div>
 
             {/* Navigation */}
             <button
               onClick={prevStory}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition"
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition z-20"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
             <button
               onClick={nextStory}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition"
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition z-20"
             >
               <ChevronRight className="w-6 h-6" />
             </button>

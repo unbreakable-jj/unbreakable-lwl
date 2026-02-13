@@ -101,6 +101,8 @@ export function useStories() {
     image_url?: string | null;
     video_url?: string | null;
     visibility?: string;
+    text_overlays?: any[];
+    background_color?: string | null;
   }) => {
     if (!user) return { error: new Error('Not authenticated') };
 
@@ -112,7 +114,9 @@ export function useStories() {
         image_url: story.image_url || null,
         video_url: story.video_url || null,
         visibility: story.visibility || 'public',
-      })
+        text_overlays: (story.text_overlays || []) as any,
+        background_color: story.background_color || null,
+      } as any)
       .select()
       .single();
 
