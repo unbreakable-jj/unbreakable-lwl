@@ -3769,8 +3769,9 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     musclesTargeted: { primary: ['Biceps Brachii (especially short head)'], secondary: ['Brachialis'] },
     tempoGuide: '2-1-3-0',
     coachingNotes: 'The preacher machine is the strictest bicep exercise. No swinging, no cheating. Use moderate weight and chase the burn.'
-  }
-};
+  },
+
+
 
 /**
  * Get comprehensive coaching data for an exercise
