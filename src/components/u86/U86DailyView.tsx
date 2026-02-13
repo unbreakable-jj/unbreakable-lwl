@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import {
   Footprints, Dumbbell, CheckCircle2, Play,
-  BookOpen, Brain, Zap, Shield, PenLine, ChevronDown, ChevronUp
+  BookOpen, Zap, Shield, PenLine, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { U86SessionView } from './U86SessionView';
@@ -28,18 +28,18 @@ const HABIT_CONFIG = [
   { key: 'habit_journal', icon: Shield, label: 'HIT YOUR NUMBERS', desc: 'Meet your daily calorie and macro targets' },
   { key: 'habit_control_inputs', icon: PenLine, label: 'DAILY WATER TARGET', desc: 'Drink at least 3 litres of water today' },
   { key: 'habit_hard_thing', icon: Zap, label: 'DO THE HARD THING', desc: 'Do one thing that scares you. Talk to a stranger. Start something new.' },
-  { key: 'habit_identity', icon: Brain, label: 'IDENTITY REFLECTION', desc: '"Today I kept showing up by ______."' },
+  
 ] as const;
 
 export function U86DailyView({ day, program, streak, onUpdate, onComplete, readOnly = false }: U86DailyViewProps) {
   const [journalText, setJournalText] = useState(day.journal_entry || '');
-  const [identityText, setIdentityText] = useState(day.identity_reflection || '');
+  
   const [sessionOpen, setSessionOpen] = useState(false);
   const [planExpanded, setPlanExpanded] = useState(false);
 
   const allHabitsComplete = HABIT_CONFIG.every(h => (day as any)[h.key]);
   const sessionComplete = day.run_completed && day.strength_completed;
-  const canComplete = allHabitsComplete && sessionComplete && journalText.trim() && identityText.trim();
+  const canComplete = allHabitsComplete && sessionComplete && journalText.trim();
 
   const exercises: any[] = Array.isArray(day.exercises) ? day.exercises : [];
   const totalSets = exercises.reduce((acc, ex) => acc + (ex.sets?.length || 0), 0);
@@ -62,7 +62,6 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
     if (readOnly) return;
     onUpdate({
       journal_entry: journalText,
-      identity_reflection: identityText,
       habit_train: true,
     });
     onComplete();
@@ -299,29 +298,6 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
           )}
         </div>
 
-        {/* Identity */}
-        <div className="space-y-3">
-          <h3 className="font-display text-lg tracking-wider text-foreground">
-            <span className="text-primary">IDENTITY</span> REFLECTION
-          </h3>
-          {readOnly ? (
-            <p className="text-sm text-foreground bg-muted/20 rounded-lg p-3">
-              "Today I kept showing up by {day.identity_reflection || '...'}"
-            </p>
-          ) : (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground whitespace-nowrap">"Today I kept showing up by</span>
-              <Textarea
-                value={identityText}
-                onChange={e => setIdentityText(e.target.value)}
-                placeholder="..."
-                rows={1}
-                className="bg-background border-border flex-1"
-              />
-              <span className="text-sm text-muted-foreground">"</span>
-            </div>
-          )}
-        </div>
 
         {/* Complete Day */}
         {!readOnly && (
