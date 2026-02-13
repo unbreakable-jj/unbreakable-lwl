@@ -59,12 +59,13 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
         console.log('Signup result - error:', error);
         if (error) {
           console.error('Sign up error:', error);
-          if (error.message?.includes('already registered')) {
+          const msg = error.message || 'Failed to create account. Please try again.';
+          if (msg.includes('already registered')) {
             toast.error('This email is already registered. Try signing in instead.');
-          } else if (error.message?.includes('password')) {
-            toast.error('Password issue: ' + error.message);
+          } else if (msg.toLowerCase().includes('password') || msg.toLowerCase().includes('weak')) {
+            toast.error('Please choose a stronger password. Try mixing letters, numbers, and symbols.');
           } else {
-            toast.error(error.message || 'Failed to create account. Please try again.');
+            toast.error(msg);
           }
         } else {
           toast.success('Account created! Welcome to the movement.');
