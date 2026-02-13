@@ -2,9 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Wind, Zap, Target, Heart, Volume2, VolumeX, Flame, ArrowRight, Settings } from "lucide-react";
+import { Wind, Zap, Target, Heart, Volume2, VolumeX, Flame, ArrowRight } from "lucide-react";
 import { ThemedLogo } from "@/components/ThemedLogo";
 import { NavigationDrawer } from "@/components/NavigationDrawer";
 import { ThemeToggle } from "@/components/hub/ThemeToggle";
@@ -12,22 +10,12 @@ import { UnifiedFooter } from "@/components/UnifiedFooter";
 import { CountdownOverlay } from "@/components/CountdownOverlay";
 import { getVisibleExercises, BreathingExercise } from "@/lib/breathingExercises";
 import { ImmersiveSessionView } from "@/components/mindset/ImmersiveSessionView";
-import { useBreathingAudio, VoiceType } from "@/hooks/useBreathingAudio";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { useBreathingAudio } from "@/hooks/useBreathingAudio";
+import { useAIPreferences } from "@/hooks/useAIPreferences";
+import { VoiceSettingsSheet } from "@/components/coaching/VoiceSettingsSheet";
 
 type BreathPhase = "idle" | "inhale" | "hold" | "exhale" | "rest" | "complete";
 type ViewState = "selection" | "countdown" | "exercise" | "complete";
-
-const VOICE_OPTIONS = [
-  { value: "male" as VoiceType, label: "Male Voice", description: "Calm, warm guidance" },
-  { value: "female" as VoiceType, label: "Female Voice", description: "Soothing, gentle guidance" },
-];
 
 const heroContent = {
   title: "UNBREAKABLE",
@@ -52,9 +40,11 @@ const MindsetBreathing = () => {
   const [currentCycle, setCurrentCycle] = useState(0);
   const [progress, setProgress] = useState(0);
   
-  const [voiceEnabled, setVoiceEnabled] = useState(true);
-  const [voiceType, setVoiceType] = useState<VoiceType>("male");
-  const [showSettings, setShowSettings] = useState(false);
+  // Use global voice preferences from user_ai_preferences table
+  const { preferences: aiPrefs, updatePreferences } = useAIPreferences();
+  const voiceEnabled = aiPrefs?.voice_feedback_enabled ?? false;
+  const voiceType = (aiPrefs?.voice_gender ?? 'male') as 'male' | 'female';
+  const setVoiceEnabled = (enabled: boolean) => updatePreferences.mutate({ voice_feedback_enabled: enabled });
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
@@ -243,55 +233,7 @@ const MindsetBreathing = () => {
     }
   };
 
-  const SettingsSheet = () => (
-    <Sheet open={showSettings} onOpenChange={setShowSettings}>
-      <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="absolute top-4 right-4">
-          <Settings className="w-5 h-5" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent className="bg-card border-border">
-        <SheetHeader>
-          <SheetTitle className="font-display text-xl tracking-wide text-foreground">
-            VOICE SETTINGS
-          </SheetTitle>
-        </SheetHeader>
-        <div className="space-y-6 mt-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {voiceEnabled ? <Volume2 className="w-5 h-5 text-primary" /> : <VolumeX className="w-5 h-5 text-muted-foreground" />}
-              <Label htmlFor="voice-enabled" className="font-display tracking-wide">VOICE GUIDANCE</Label>
-            </div>
-            <Switch id="voice-enabled" checked={voiceEnabled} onCheckedChange={setVoiceEnabled} />
-          </div>
-          {voiceEnabled && (
-            <div className="space-y-3">
-              <Label className="font-display tracking-wide text-muted-foreground">VOICE TYPE</Label>
-              <div className="space-y-2">
-                {VOICE_OPTIONS.map((option) => (
-                  <Card
-                    key={option.value}
-                    className={`p-4 cursor-pointer transition-all border ${
-                      voiceType === option.value ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
-                    }`}
-                    onClick={() => setVoiceType(option.value)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-display text-foreground tracking-wide">{option.label}</p>
-                        <p className="text-sm text-muted-foreground">{option.description}</p>
-                      </div>
-                      {voiceType === option.value && <div className="w-3 h-3 rounded-full bg-primary" />}
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </SheetContent>
-    </Sheet>
-  );
+  // Voice settings now use the global VoiceSettingsSheet component
 
   // Selection view
   if (view === "selection") {
@@ -308,16 +250,15 @@ const MindsetBreathing = () => {
                 </Link>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" onClick={() => setShowSettings(true)}>
-                  {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-                </Button>
+                <VoiceSettingsSheet />
+
                 <NavigationDrawer />
               </div>
             </div>
           </div>
         </header>
 
-        <SettingsSheet />
+        {/* Voice settings accessed via header icon */}
 
         {/* Hero */}
         <section className="pt-32 pb-12 text-center px-6">
@@ -460,7 +401,7 @@ const MindsetBreathing = () => {
       voiceEnabled={voiceEnabled}
       onToggleVoice={() => {
         if (voiceEnabled) stopAudio();
-        setVoiceEnabled(prev => !prev);
+        setVoiceEnabled(!voiceEnabled);
       }}
       onToggle={toggleBreathing}
       onReset={resetExercise}
