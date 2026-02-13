@@ -27,6 +27,8 @@ import {
 } from '@/lib/exerciseLibrary';
 import { BodyPartIcon, BODY_PART_ICONS } from './BodyPartIcon';
 import { cn } from '@/lib/utils';
+import { findCoachingDataByName } from '@/lib/exerciseCoachingData';
+import { ExerciseCoachingPanel } from './ExerciseCoachingPanel';
 
 interface InlineExerciseLibraryProps {
   onSelectExercise: (exercise: LibraryExercise) => void;
@@ -208,27 +210,40 @@ export function InlineExerciseLibrary({
                             {exercise.description}
                           </p>
 
-                          {/* Tips */}
-                          <div className="bg-surface/50 rounded p-2 border border-primary/10">
-                            <div className="flex items-center gap-1.5 text-primary text-xs font-medium mb-1">
-                              <Lightbulb className="w-3 h-3" />
-                              Tips
-                            </div>
-                            <ul className="text-xs text-muted-foreground space-y-0.5">
-                              {exercise.tips.slice(0, 2).map((tip, i) => (
-                                <li key={i}>• {tip}</li>
-                              ))}
-                            </ul>
-                          </div>
-
-                          {/* Help Hub Link */}
-                          <Link
-                            to={`/help?q=${encodeURIComponent(exercise.name)}`}
-                            className="flex items-center gap-1.5 text-xs text-primary hover:underline"
-                          >
-                            <MessageCircle className="w-3 h-3" />
-                            Coaching tips
-                          </Link>
+                          {/* Full Coaching Panel or Fallback Tips */}
+                          {(() => {
+                            const coaching = findCoachingDataByName(exercise.name);
+                            if (coaching) {
+                              return (
+                                <ExerciseCoachingPanel
+                                  coachingData={coaching}
+                                  exerciseName={exercise.name}
+                                />
+                              );
+                            }
+                            return (
+                              <>
+                                <div className="bg-surface/50 rounded p-2 border border-primary/10">
+                                  <div className="flex items-center gap-1.5 text-primary text-xs font-medium mb-1">
+                                    <Lightbulb className="w-3 h-3" />
+                                    Tips
+                                  </div>
+                                  <ul className="text-xs text-muted-foreground space-y-0.5">
+                                    {exercise.tips.slice(0, 2).map((tip, i) => (
+                                      <li key={i}>• {tip}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                                <Link
+                                  to={`/help?q=${encodeURIComponent(exercise.name)}`}
+                                  className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                                >
+                                  <MessageCircle className="w-3 h-3" />
+                                  Coaching tips
+                                </Link>
+                              </>
+                            );
+                          })()}
                         </div>
                       </CollapsibleContent>
                     </div>

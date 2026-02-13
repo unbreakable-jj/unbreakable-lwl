@@ -31,6 +31,8 @@ import {
 } from '@/lib/exerciseLibrary';
 import { BodyPartIcon, BODY_PART_ICONS } from './BodyPartIcon';
 import { cn } from '@/lib/utils';
+import { findCoachingDataByName } from '@/lib/exerciseCoachingData';
+import { ExerciseCoachingPanel } from './ExerciseCoachingPanel';
 
 interface ScrollableExerciseLibraryProps {
   onSelectExercise: (exercise: LibraryExercise) => void;
@@ -289,35 +291,48 @@ export function ScrollableExerciseLibrary({
                             ))}
                           </div>
 
-                          {/* Tips */}
-                          <div className="bg-surface/50 rounded-lg p-3 border border-primary/10">
-                            <div className="flex items-center gap-2 text-primary text-sm font-medium mb-2">
-                              <Lightbulb className="w-4 h-4" />
-                              Tips
-                            </div>
-                            <ul className="text-sm text-muted-foreground space-y-1">
-                              {exercise.tips.map((tip, i) => (
-                                <li key={i}>• {tip}</li>
-                              ))}
-                            </ul>
-                          </div>
+                          {/* Full Coaching Panel or Fallback */}
+                          {(() => {
+                            const coaching = findCoachingDataByName(exercise.name);
+                            if (coaching) {
+                              return (
+                                <ExerciseCoachingPanel
+                                  coachingData={coaching}
+                                  exerciseName={exercise.name}
+                                />
+                              );
+                            }
+                            return (
+                              <>
+                                <div className="bg-surface/50 rounded-lg p-3 border border-primary/10">
+                                  <div className="flex items-center gap-2 text-primary text-sm font-medium mb-2">
+                                    <Lightbulb className="w-4 h-4" />
+                                    Tips
+                                  </div>
+                                  <ul className="text-sm text-muted-foreground space-y-1">
+                                    {exercise.tips.map((tip, i) => (
+                                      <li key={i}>• {tip}</li>
+                                    ))}
+                                  </ul>
+                                </div>
 
-                          {/* Alternatives */}
-                          {exercise.alternatives.length > 0 && (
-                            <div className="text-sm">
-                              <span className="text-muted-foreground">Alternatives: </span>
-                              <span>{exercise.alternatives.join(', ')}</span>
-                            </div>
-                          )}
+                                {exercise.alternatives.length > 0 && (
+                                  <div className="text-sm">
+                                    <span className="text-muted-foreground">Alternatives: </span>
+                                    <span>{exercise.alternatives.join(', ')}</span>
+                                  </div>
+                                )}
 
-                          {/* Help Hub Link */}
-                          <Link
-                            to={`/help?q=${encodeURIComponent(exercise.name)}`}
-                            className="flex items-center gap-2 text-sm text-primary hover:underline"
-                          >
-                            <MessageCircle className="w-4 h-4" />
-                            Get coaching tips for {exercise.name}
-                          </Link>
+                                <Link
+                                  to={`/help?q=${encodeURIComponent(exercise.name)}`}
+                                  className="flex items-center gap-2 text-sm text-primary hover:underline"
+                                >
+                                  <MessageCircle className="w-4 h-4" />
+                                  Get coaching tips for {exercise.name}
+                                </Link>
+                              </>
+                            );
+                          })()}
                         </div>
                       </CollapsibleContent>
                     </div>
