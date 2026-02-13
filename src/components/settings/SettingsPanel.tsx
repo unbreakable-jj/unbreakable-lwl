@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -26,12 +26,10 @@ import {
   Eye,
   UserPlus,
   Settings,
-  Footprints,
   Dumbbell,
   Share2,
   LogOut,
   Sparkles,
-  ExternalLink,
   Video,
   Volume2,
   Brain,
@@ -39,6 +37,7 @@ import {
 import { useUserSettings, UserSettings } from '@/hooks/useUserSettings';
 import { useAIPreferences } from '@/hooks/useAIPreferences';
 import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 import { CoachingBioForm } from './CoachingBioForm';
 import { BlockedUsersSection } from './BlockedUsersSection';
@@ -46,8 +45,29 @@ import { BlockedUsersSection } from './BlockedUsersSection';
 export function SettingsPanel() {
   const { settings, loading, updateSettings, toggleTheme } = useUserSettings();
   const { preferences: aiPreferences, isLoading: aiLoading, updatePreferences } = useAIPreferences();
+  const { profile, updateProfile } = useProfile();
   const { signOut } = useAuth();
   const [saving, setSaving] = useState(false);
+  const [socialHandles, setSocialHandles] = useState({
+    instagram: '',
+    tiktok: '',
+    facebook: '',
+    twitter: '',
+  });
+  const [socialSaving, setSocialSaving] = useState(false);
+
+
+  // Update social handles when profile loads
+  useEffect(() => {
+    if (profile) {
+      setSocialHandles({
+        instagram: (profile as any).social_instagram || '',
+        tiktok: (profile as any).social_tiktok || '',
+        facebook: (profile as any).social_facebook || '',
+        twitter: (profile as any).social_twitter || '',
+      });
+    }
+  }, [profile]);
 
   if (loading || !settings) {
     return (
@@ -80,9 +100,6 @@ export function SettingsPanel() {
     toast.success('Signed out successfully');
   };
 
-  const handleSocialConnect = (platform: string) => {
-    toast.info(`${platform} integration coming soon`);
-  };
 
   return (
     <div className="space-y-6">
@@ -288,92 +305,79 @@ export function SettingsPanel() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground mb-4">
-            Connect your social accounts to share achievements and posts directly
+            Link your social profiles for sharing. Enter your username or handle.
           </p>
           
           <div className="space-y-3">
-            <Button 
-              variant="outline" 
-              className="w-full justify-between"
-              onClick={() => handleSocialConnect('Facebook')}
-            >
-              <span className="flex items-center gap-2">
-                <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">f</div>
-                Facebook
-              </span>
-              <ExternalLink className="w-4 h-4 text-muted-foreground" />
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="w-full justify-between"
-              onClick={() => handleSocialConnect('Instagram')}
-            >
-              <span className="flex items-center gap-2">
+            <div className="space-y-1.5">
+              <Label className="text-foreground font-medium flex items-center gap-2">
                 <div className="w-5 h-5 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 rounded flex items-center justify-center text-white text-xs font-bold">📷</div>
                 Instagram
-              </span>
-              <ExternalLink className="w-4 h-4 text-muted-foreground" />
-            </Button>
+              </Label>
+              <Input 
+                placeholder="@username" 
+                value={socialHandles.instagram}
+                onChange={(e) => setSocialHandles(prev => ({ ...prev, instagram: e.target.value }))}
+              />
+            </div>
             
-            <Button 
-              variant="outline" 
-              className="w-full justify-between"
-              onClick={() => handleSocialConnect('TikTok')}
-            >
-              <span className="flex items-center gap-2">
-                <div className="w-5 h-5 bg-black rounded flex items-center justify-center text-white text-xs font-bold">♪</div>
-                TikTok
-              </span>
-              <ExternalLink className="w-4 h-4 text-muted-foreground" />
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="w-full justify-between"
-              onClick={() => handleSocialConnect('X')}
-            >
-              <span className="flex items-center gap-2">
-                <div className="w-5 h-5 bg-black rounded flex items-center justify-center text-white text-xs font-bold">𝕏</div>
+            <div className="space-y-1.5">
+              <Label className="text-foreground font-medium flex items-center gap-2">
+                <div className="w-5 h-5 bg-foreground rounded flex items-center justify-center text-background text-xs font-bold">𝕏</div>
                 X (Twitter)
-              </span>
-              <ExternalLink className="w-4 h-4 text-muted-foreground" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+              </Label>
+              <Input 
+                placeholder="@username" 
+                value={socialHandles.twitter}
+                onChange={(e) => setSocialHandles(prev => ({ ...prev, twitter: e.target.value }))}
+              />
+            </div>
+            
+            <div className="space-y-1.5">
+              <Label className="text-foreground font-medium flex items-center gap-2">
+                <div className="w-5 h-5 bg-foreground rounded flex items-center justify-center text-background text-xs font-bold">♪</div>
+                TikTok
+              </Label>
+              <Input 
+                placeholder="@username" 
+                value={socialHandles.tiktok}
+                onChange={(e) => setSocialHandles(prev => ({ ...prev, tiktok: e.target.value }))}
+              />
+            </div>
+            
+            <div className="space-y-1.5">
+              <Label className="text-foreground font-medium flex items-center gap-2">
+                <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">f</div>
+                Facebook
+              </Label>
+              <Input 
+                placeholder="Profile URL or username" 
+                value={socialHandles.facebook}
+                onChange={(e) => setSocialHandles(prev => ({ ...prev, facebook: e.target.value }))}
+              />
+            </div>
 
-      {/* Cardio Tracker Preferences */}
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle className="font-display text-xl tracking-wide flex items-center gap-2">
-            <Footprints className="w-5 h-5" />
-            CARDIO TRACKER
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground mb-2">
-            Configure your cardio tracking preferences
-          </p>
-          
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label className="text-foreground font-medium">Auto-pause</Label>
-              <p className="text-sm text-muted-foreground">
-                Automatically pause when stationary
-              </p>
-            </div>
-            <Switch defaultChecked />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label className="text-foreground font-medium">Audio Cues</Label>
-              <p className="text-sm text-muted-foreground">
-                Voice updates during sessions
-              </p>
-            </div>
-            <Switch defaultChecked />
+            <Button 
+              className="w-full font-display tracking-wide mt-2"
+              disabled={socialSaving}
+              onClick={async () => {
+                setSocialSaving(true);
+                const { error } = await updateProfile({
+                  social_instagram: socialHandles.instagram || null,
+                  social_tiktok: socialHandles.tiktok || null,
+                  social_facebook: socialHandles.facebook || null,
+                  social_twitter: socialHandles.twitter || null,
+                } as any);
+                setSocialSaving(false);
+                if (error) {
+                  toast.error('Failed to save social links');
+                } else {
+                  toast.success('Social links saved');
+                }
+              }}
+            >
+              {socialSaving ? 'SAVING...' : 'SAVE SOCIAL LINKS'}
+            </Button>
           </div>
         </CardContent>
       </Card>

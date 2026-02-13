@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
 
-type CountdownPhase = "welcome" | "power" | "movement" | "fuel" | "mindset" | "pause" | "go";
+type CountdownPhase = "welcome" | "getready" | "power" | "movement" | "fuel" | "mindset" | "pause" | "go";
 
 interface CountdownOverlayProps {
   isActive: boolean;
@@ -21,90 +21,89 @@ export function CountdownOverlay({
   onPlayAudio,
 }: CountdownOverlayProps) {
   const [phase, setPhase] = useState<CountdownPhase>("welcome");
-  const [count, setCount] = useState(startFrom);
 
   // Reset state when becoming active
   useEffect(() => {
     if (isActive) {
       setPhase("welcome");
-      setCount(startFrom);
     }
-  }, [isActive, startFrom]);
+  }, [isActive]);
 
-  // Welcome phase - brief logo display
+  // Welcome phase - logo display
   useEffect(() => {
     if (!isActive || phase !== "welcome") return;
+    const timer = setTimeout(() => {
+      setPhase("getready");
+      onPlayAudio?.("Get ready");
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [isActive, phase, onPlayAudio]);
 
+  // Get Ready phase
+  useEffect(() => {
+    if (!isActive || phase !== "getready") return;
     const timer = setTimeout(() => {
       setPhase("power");
-    }, 1500);
-
+      onPlayAudio?.("Power");
+    }, 2000);
     return () => clearTimeout(timer);
-  }, [isActive, phase]);
+  }, [isActive, phase, onPlayAudio]);
 
   // POWER phase
   useEffect(() => {
     if (!isActive || phase !== "power") return;
-
     const timer = setTimeout(() => {
       setPhase("movement");
+      onPlayAudio?.("Movement");
     }, 1000);
-
     return () => clearTimeout(timer);
-  }, [isActive, phase]);
+  }, [isActive, phase, onPlayAudio]);
 
   // MOVEMENT phase
   useEffect(() => {
     if (!isActive || phase !== "movement") return;
-
     const timer = setTimeout(() => {
       setPhase("fuel");
+      onPlayAudio?.("Fuel");
     }, 1000);
-
     return () => clearTimeout(timer);
-  }, [isActive, phase]);
+  }, [isActive, phase, onPlayAudio]);
 
   // FUEL phase
   useEffect(() => {
     if (!isActive || phase !== "fuel") return;
-
     const timer = setTimeout(() => {
       setPhase("mindset");
+      onPlayAudio?.("Mindset");
     }, 1000);
-
     return () => clearTimeout(timer);
-  }, [isActive, phase]);
+  }, [isActive, phase, onPlayAudio]);
 
   // MINDSET phase
   useEffect(() => {
     if (!isActive || phase !== "mindset") return;
-
     const timer = setTimeout(() => {
       setPhase("pause");
     }, 1000);
-
     return () => clearTimeout(timer);
   }, [isActive, phase]);
 
-  // Pause phase - 1 second pause before GO
+  // Pause phase
   useEffect(() => {
     if (!isActive || phase !== "pause") return;
-
     const timer = setTimeout(() => {
       setPhase("go");
+      onPlayAudio?.("Go!");
     }, 1000);
-
     return () => clearTimeout(timer);
-  }, [isActive, phase]);
+  }, [isActive, phase, onPlayAudio]);
 
-  // Go phase - brief display then complete
+  // Go phase
   useEffect(() => {
     if (!isActive || phase !== "go") return;
-
     const timer = setTimeout(() => {
       onComplete();
     }, 600);
-
     return () => clearTimeout(timer);
   }, [isActive, phase, onComplete]);
 
@@ -126,7 +125,7 @@ export function CountdownOverlay({
           }}
         />
 
-        {/* Welcome Phase - Logo + Exercise Name */}
+        {/* Welcome Phase */}
         {phase === "welcome" && (
           <motion.div
             key="welcome"
@@ -157,27 +156,33 @@ export function CountdownOverlay({
           </motion.div>
         )}
 
-        {/* POWER Phase */}
-        {phase === "power" && (
-          <PowerWord word="POWER" />
+        {/* Get Ready Phase */}
+        {phase === "getready" && (
+          <motion.div
+            key="getready"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.1 }}
+            transition={{ duration: 0.5 }}
+            className="relative z-10 flex flex-col items-center"
+          >
+            <span 
+              className="font-display text-[5rem] md:text-[8rem] leading-none text-foreground tracking-widest"
+              style={{
+                textShadow: "0 0 40px hsl(var(--primary) / 0.5)",
+              }}
+            >
+              GET READY
+            </span>
+          </motion.div>
         )}
 
-        {/* MOVEMENT Phase */}
-        {phase === "movement" && (
-          <PowerWord word="MOVEMENT" />
-        )}
+        {phase === "power" && <PowerWord word="POWER" />}
+        {phase === "movement" && <PowerWord word="MOVEMENT" />}
+        {phase === "fuel" && <PowerWord word="FUEL" />}
+        {phase === "mindset" && <PowerWord word="MINDSET" />}
 
-        {/* FUEL Phase */}
-        {phase === "fuel" && (
-          <PowerWord word="FUEL" />
-        )}
-
-        {/* MINDSET Phase */}
-        {phase === "mindset" && (
-          <PowerWord word="MINDSET" />
-        )}
-
-        {/* Pause Phase - visual breath before GO */}
+        {/* Pause Phase */}
         {phase === "pause" && (
           <motion.div
             key="pause"
@@ -191,19 +196,13 @@ export function CountdownOverlay({
                 scale: [1, 1.2, 1],
                 opacity: [0.4, 0.8, 0.4],
               }}
-              transition={{
-                duration: 1,
-                ease: "easeInOut",
-              }}
+              transition={{ duration: 1, ease: "easeInOut" }}
               className="w-32 h-32 rounded-full bg-primary/20 border-2 border-primary"
-              style={{
-                boxShadow: "0 0 40px hsl(var(--primary) / 0.4)",
-              }}
+              style={{ boxShadow: "0 0 40px hsl(var(--primary) / 0.4)" }}
             />
           </motion.div>
         )}
 
-        {/* Go Phase */}
         {/* Go Phase */}
         {phase === "go" && (
           <motion.div
@@ -216,9 +215,7 @@ export function CountdownOverlay({
           >
             <span 
               className="font-display text-[10rem] md:text-[14rem] leading-none text-primary"
-              style={{
-                textShadow: "0 0 80px hsl(var(--primary) / 0.8)",
-              }}
+              style={{ textShadow: "0 0 80px hsl(var(--primary) / 0.8)" }}
             >
               GO!
             </span>
@@ -229,7 +226,6 @@ export function CountdownOverlay({
   );
 }
 
-// Reusable PowerWord component for POWER/SPEED/MINDSET
 function PowerWord({ word }: { word: string }) {
   return (
     <motion.div
@@ -237,38 +233,21 @@ function PowerWord({ word }: { word: string }) {
       initial={{ scale: 0.3, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       exit={{ scale: 1.3, opacity: 0 }}
-      transition={{ 
-        type: "spring", 
-        stiffness: 200, 
-        damping: 15,
-        duration: 0.5 
-      }}
+      transition={{ type: "spring", stiffness: 200, damping: 15, duration: 0.5 }}
       className="relative z-10 flex flex-col items-center"
     >
-      {/* Outer ring pulse */}
       <motion.div
         animate={{
           scale: [1, 1.6, 1],
           opacity: [0.5, 0, 0.5],
         }}
-        transition={{
-          duration: 0.8,
-          repeat: Infinity,
-          ease: "easeOut",
-        }}
+        transition={{ duration: 0.8, repeat: Infinity, ease: "easeOut" }}
         className="absolute w-56 h-56 rounded-full border-4 border-primary"
-        style={{ 
-          left: "50%", 
-          top: "50%", 
-          transform: "translate(-50%, -50%)" 
-        }}
+        style={{ left: "50%", top: "50%", transform: "translate(-50%, -50%)" }}
       />
-
       <span 
         className="font-display text-[6rem] md:text-[10rem] leading-none text-primary"
-        style={{
-          textShadow: "0 0 60px hsl(var(--primary) / 0.7)",
-        }}
+        style={{ textShadow: "0 0 60px hsl(var(--primary) / 0.7)" }}
       >
         {word}
       </span>
