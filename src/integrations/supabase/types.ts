@@ -937,6 +937,7 @@ export type Database = {
       personal_records: {
         Row: {
           achieved_at: string
+          activity_type: string
           created_at: string
           distance_km: number | null
           distance_type: string
@@ -948,6 +949,7 @@ export type Database = {
         }
         Insert: {
           achieved_at: string
+          activity_type?: string
           created_at?: string
           distance_km?: number | null
           distance_type: string
@@ -959,6 +961,7 @@ export type Database = {
         }
         Update: {
           achieved_at?: string
+          activity_type?: string
           created_at?: string
           distance_km?: number | null
           distance_type?: string

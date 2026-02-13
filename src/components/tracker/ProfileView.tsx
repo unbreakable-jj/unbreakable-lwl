@@ -448,11 +448,13 @@ export function ProfileView() {
               transition={{ delay: 0.1 }}
             >
               <Card className="bg-card border-border p-4 text-center">
-                <Activity className="w-6 h-6 text-primary mx-auto mb-2" />
+                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-2 shadow-[0_0_8px_hsl(var(--primary)/0.3)]">
+                  <Activity className="w-3 h-3 text-primary" />
+                </div>
                 <p className="font-display text-2xl text-foreground tracking-wide">
                   {profile.total_runs}
                 </p>
-                <p className="text-xs text-muted-foreground uppercase tracking-wide">Runs</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Sessions</p>
               </Card>
             </motion.div>
 
@@ -462,7 +464,9 @@ export function ProfileView() {
               transition={{ delay: 0.2 }}
             >
               <Card className="bg-card border-border p-4 text-center">
-                <TrendingUp className="w-6 h-6 text-primary mx-auto mb-2" />
+                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-2 shadow-[0_0_8px_hsl(var(--primary)/0.3)]">
+                  <TrendingUp className="w-3 h-3 text-primary" />
+                </div>
                 <p className="font-display text-2xl text-foreground tracking-wide">
                   {Number(profile.total_distance_km).toFixed(0)}
                 </p>
@@ -476,7 +480,9 @@ export function ProfileView() {
               transition={{ delay: 0.3 }}
             >
               <Card className="bg-card border-border p-4 text-center">
-                <Clock className="w-6 h-6 text-primary mx-auto mb-2" />
+                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-2 shadow-[0_0_8px_hsl(var(--primary)/0.3)]">
+                  <Clock className="w-3 h-3 text-primary" />
+                </div>
                 <p className="font-display text-2xl text-foreground tracking-wide">
                   {formatDuration(profile.total_time_seconds)}
                 </p>
