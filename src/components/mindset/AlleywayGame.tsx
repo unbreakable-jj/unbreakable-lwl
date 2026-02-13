@@ -35,16 +35,16 @@ const THEME_PALETTES: ThemePalette[] = [
     reinforcedBorder: "#ffffff",
     grid: "#1a1a1a", border: "#f97316", text: "#f97316", accent: "#ffffff", scoreText: "#f97316",
   },
-  // 2: White on Black with orange accents
+  // 2: INVERTED — White bg, dark/orange bricks
   {
-    bg: "#0a0a0a", bgGradientEnd: "#0f0f0f",
-    paddle: "#ffffff", paddleGlow: "rgba(255,255,255,0.5)",
-    ball: "#f97316", ballGlow: "rgba(249,115,22,0.6)",
-    brickFill: "#e5e5e5", brickHighlight: "#ffffff", brickShadow: "#a3a3a3", brickGlow: "rgba(255,255,255,0.3)",
+    bg: "#f0f0f0", bgGradientEnd: "#e0e0e0",
+    paddle: "#f97316", paddleGlow: "rgba(249,115,22,0.5)",
+    ball: "#0a0a0a", ballGlow: "rgba(0,0,0,0.4)",
+    brickFill: "#1a1a1a", brickHighlight: "#333333", brickShadow: "#000000", brickGlow: "rgba(0,0,0,0.15)",
     reinforcedBorder: "#f97316",
-    grid: "#1a1a1a", border: "#ffffff", text: "#ffffff", accent: "#f97316", scoreText: "#ffffff",
+    grid: "#d8d8d8", border: "#f97316", text: "#0a0a0a", accent: "#f97316", scoreText: "#0a0a0a",
   },
-  // 3: Deep orange gradient — intense
+  // 3: Deep orange on dark
   {
     bg: "#0c0a09", bgGradientEnd: "#1c1917",
     paddle: "#fb923c", paddleGlow: "rgba(251,146,60,0.6)",
@@ -53,16 +53,16 @@ const THEME_PALETTES: ThemePalette[] = [
     reinforcedBorder: "#ffffff",
     grid: "#1c1917", border: "#ea580c", text: "#fb923c", accent: "#ffffff", scoreText: "#fb923c",
   },
-  // 4: Black bricks on dark with neon orange frame
+  // 4: INVERTED — Light bg, orange bricks on cream
   {
-    bg: "#0a0a0a", bgGradientEnd: "#141414",
-    paddle: "#f97316", paddleGlow: "rgba(249,115,22,0.6)",
+    bg: "#f5f0eb", bgGradientEnd: "#ebe5de",
+    paddle: "#0a0a0a", paddleGlow: "rgba(0,0,0,0.4)",
     ball: "#f97316", ballGlow: "rgba(249,115,22,0.6)",
-    brickFill: "#1a1a1a", brickHighlight: "#2a2a2a", brickShadow: "#000000", brickGlow: "rgba(249,115,22,0.15)",
-    reinforcedBorder: "#f97316",
-    grid: "#111111", border: "#f97316", text: "#f97316", accent: "#ffffff", scoreText: "#f97316",
+    brickFill: "#f97316", brickHighlight: "#fb923c", brickShadow: "#c2410c", brickGlow: "rgba(249,115,22,0.3)",
+    reinforcedBorder: "#0a0a0a",
+    grid: "#e0dbd5", border: "#0a0a0a", text: "#0a0a0a", accent: "#f97316", scoreText: "#f97316",
   },
-  // 5: White bricks, orange paddle — high contrast
+  // 5: White bricks on black — high contrast
   {
     bg: "#0a0a0a", bgGradientEnd: "#111111",
     paddle: "#f97316", paddleGlow: "rgba(249,115,22,0.7)",
@@ -71,14 +71,14 @@ const THEME_PALETTES: ThemePalette[] = [
     reinforcedBorder: "#f97316",
     grid: "#1a1a1a", border: "#f97316", text: "#ffffff", accent: "#f97316", scoreText: "#ffffff",
   },
-  // 6: Neon hot orange — maximum glow
+  // 6: INVERTED — White bg, neon hot orange max glow
   {
-    bg: "#0a0a0a", bgGradientEnd: "#0f0f0f",
-    paddle: "#ff6a00", paddleGlow: "rgba(255,106,0,0.8)",
-    ball: "#ffffff", ballGlow: "rgba(255,255,255,0.6)",
-    brickFill: "#ff6a00", brickHighlight: "#ff8c33", brickShadow: "#cc5500", brickGlow: "rgba(255,106,0,0.5)",
-    reinforcedBorder: "#ffffff",
-    grid: "#151515", border: "#ff6a00", text: "#ff6a00", accent: "#ffffff", scoreText: "#ff6a00",
+    bg: "#f8f8f8", bgGradientEnd: "#eeeeee",
+    paddle: "#ff6a00", paddleGlow: "rgba(255,106,0,0.6)",
+    ball: "#0a0a0a", ballGlow: "rgba(0,0,0,0.4)",
+    brickFill: "#ff6a00", brickHighlight: "#ff8c33", brickShadow: "#cc5500", brickGlow: "rgba(255,106,0,0.4)",
+    reinforcedBorder: "#0a0a0a",
+    grid: "#e0e0e0", border: "#ff6a00", text: "#ff6a00", accent: "#0a0a0a", scoreText: "#ff6a00",
   },
 ];
 
@@ -95,9 +95,9 @@ const BRICK_HEIGHT = 18;
 const BRICK_PADDING = 3;
 const BRICK_TOP_OFFSET = 50;
 
-const INITIAL_BALL_SPEED = 2.4;
-const MAX_BALL_SPEED = 5.0;
-const SPEED_INCREASE_PER_SHIFT = 0.18;
+const INITIAL_BALL_SPEED = 3.6;
+const MAX_BALL_SPEED = 4.6;
+const SPEED_INCREASE_PER_SHIFT = 0.08;
 
 const ROW_REGEN_INTERVAL = 9000;
 const BRICK_DESCENT_INTERVAL = 12000;
