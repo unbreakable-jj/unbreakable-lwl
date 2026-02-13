@@ -1,9 +1,8 @@
-import { motion } from 'framer-motion';
+import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { RotateCcw, Trash2, Flame, Calendar } from 'lucide-react';
+import { RotateCcw, Trash2, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { U86Day, U86Program } from '@/hooks/useUnbreakable86';
 
@@ -16,7 +15,7 @@ interface U86ProgressProps {
   onAbandon: () => void;
 }
 
-export function U86Progress({ program, days, completedDays, streak, onRestart, onAbandon }: U86ProgressProps) {
+export const U86Progress = React.forwardRef<HTMLDivElement, U86ProgressProps>(function U86Progress({ program, days, completedDays, streak, onRestart, onAbandon }, ref) {
   const progressPercent = Math.round((completedDays / 86) * 100);
 
   // Build 86-day grid
@@ -30,7 +29,7 @@ export function U86Progress({ program, days, completedDays, streak, onRestart, o
   });
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div ref={ref} className="max-w-2xl mx-auto space-y-6">
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         <Card className="p-4 text-center border-primary/30 bg-primary/5">
@@ -107,4 +106,4 @@ export function U86Progress({ program, days, completedDays, streak, onRestart, o
       </div>
     </div>
   );
-}
+});
