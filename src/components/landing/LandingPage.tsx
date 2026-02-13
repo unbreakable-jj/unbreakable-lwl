@@ -43,7 +43,7 @@ export function LandingPage({ onSignIn, onSignUp }: LandingPageProps) {
                   className="font-display tracking-wide"
                   onClick={onSignIn}
                 >
-                  SIGN IN
+                  SIGN UP / LOGIN
                 </Button>
                 <NavigationDrawer />
               </div>
