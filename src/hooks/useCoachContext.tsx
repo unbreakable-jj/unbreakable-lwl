@@ -17,6 +17,28 @@ export interface CoachUserContext {
     ageYears: number | null;
     heightCm: number | null;
     weightKg: number | null;
+    gender: string | null;
+    experienceLevel: string | null;
+    trainingGoal: string | null;
+    daysPerWeek: number | null;
+    sessionLengthMinutes: number | null;
+    benchMaxKg: number | null;
+    squatMaxKg: number | null;
+    deadliftMaxKg: number | null;
+    preferredCardio: string | null;
+    fitnessLevel: string | null;
+    raceGoals: string | null;
+    weeklyCardioFrequency: number | null;
+    dietaryPreferences: string | null;
+    nutritionGoal: string | null;
+    allergies: string | null;
+    mealsPerDay: number | null;
+    primaryMotivation: string | null;
+    biggestChallenge: string | null;
+    sleepHours: number | null;
+    sleepQuality: string | null;
+    stressLevel: string | null;
+    injuries: string | null;
   } | null;
   recentWorkouts: {
     date: string;
@@ -157,6 +179,28 @@ export function useCoachContext() {
         ageYears: coachingProfile.age_years,
         heightCm: coachingProfile.height_cm,
         weightKg: coachingProfile.weight_kg,
+        gender: coachingProfile.gender,
+        experienceLevel: coachingProfile.experience_level,
+        trainingGoal: coachingProfile.training_goal,
+        daysPerWeek: coachingProfile.days_per_week,
+        sessionLengthMinutes: coachingProfile.session_length_minutes,
+        benchMaxKg: coachingProfile.bench_max_kg,
+        squatMaxKg: coachingProfile.squat_max_kg,
+        deadliftMaxKg: coachingProfile.deadlift_max_kg,
+        preferredCardio: coachingProfile.preferred_cardio,
+        fitnessLevel: coachingProfile.fitness_level,
+        raceGoals: coachingProfile.race_goals,
+        weeklyCardioFrequency: coachingProfile.weekly_cardio_frequency,
+        dietaryPreferences: coachingProfile.dietary_preferences,
+        nutritionGoal: coachingProfile.nutrition_goal,
+        allergies: coachingProfile.allergies,
+        mealsPerDay: coachingProfile.meals_per_day,
+        primaryMotivation: coachingProfile.primary_motivation,
+        biggestChallenge: coachingProfile.biggest_challenge,
+        sleepHours: coachingProfile.sleep_hours,
+        sleepQuality: coachingProfile.sleep_quality,
+        stressLevel: coachingProfile.stress_level,
+        injuries: coachingProfile.injuries,
       } : null,
       recentWorkouts,
       recentNutrition,
@@ -173,14 +217,50 @@ export function useCoachContext() {
     const parts: string[] = [];
 
     if (context.coachingProfile) {
-      const { ageYears, heightCm, weightKg } = context.coachingProfile;
-      const profileParts: string[] = [];
-      if (ageYears) profileParts.push(`Age: ${ageYears}`);
-      if (heightCm) profileParts.push(`Height: ${heightCm}cm`);
-      if (weightKg) profileParts.push(`Weight: ${weightKg}kg`);
-      if (profileParts.length) {
-        parts.push(`USER STATS: ${profileParts.join(', ')}`);
-      }
+      const cp = context.coachingProfile;
+      const statsParts: string[] = [];
+      if (cp.gender) statsParts.push(`Gender: ${cp.gender}`);
+      if (cp.ageYears) statsParts.push(`Age: ${cp.ageYears}`);
+      if (cp.heightCm) statsParts.push(`Height: ${cp.heightCm}cm`);
+      if (cp.weightKg) statsParts.push(`Weight: ${cp.weightKg}kg`);
+      if (statsParts.length) parts.push(`USER STATS: ${statsParts.join(', ')}`);
+
+      // Power profile
+      const powerParts: string[] = [];
+      if (cp.experienceLevel) powerParts.push(`Level: ${cp.experienceLevel}`);
+      if (cp.trainingGoal) powerParts.push(`Goal: ${cp.trainingGoal}`);
+      if (cp.daysPerWeek) powerParts.push(`${cp.daysPerWeek} days/week`);
+      if (cp.sessionLengthMinutes) powerParts.push(`${cp.sessionLengthMinutes}min sessions`);
+      if (cp.benchMaxKg) powerParts.push(`Bench: ${cp.benchMaxKg}kg`);
+      if (cp.squatMaxKg) powerParts.push(`Squat: ${cp.squatMaxKg}kg`);
+      if (cp.deadliftMaxKg) powerParts.push(`Deadlift: ${cp.deadliftMaxKg}kg`);
+      if (powerParts.length) parts.push(`POWER PROFILE: ${powerParts.join(', ')}`);
+
+      // Movement profile
+      const moveParts: string[] = [];
+      if (cp.fitnessLevel) moveParts.push(`Fitness: ${cp.fitnessLevel}`);
+      if (cp.preferredCardio) moveParts.push(`Cardio: ${cp.preferredCardio}`);
+      if (cp.weeklyCardioFrequency) moveParts.push(`${cp.weeklyCardioFrequency}x/week`);
+      if (cp.raceGoals) moveParts.push(`Goals: ${cp.raceGoals}`);
+      if (moveParts.length) parts.push(`MOVEMENT PROFILE: ${moveParts.join(', ')}`);
+
+      // Fuel profile
+      const fuelParts: string[] = [];
+      if (cp.nutritionGoal) fuelParts.push(`Goal: ${cp.nutritionGoal}`);
+      if (cp.dietaryPreferences) fuelParts.push(`Diet: ${cp.dietaryPreferences}`);
+      if (cp.allergies) fuelParts.push(`Allergies: ${cp.allergies}`);
+      if (cp.mealsPerDay) fuelParts.push(`${cp.mealsPerDay} meals/day`);
+      if (fuelParts.length) parts.push(`FUEL PROFILE: ${fuelParts.join(', ')}`);
+
+      // Mindset profile
+      const mindParts: string[] = [];
+      if (cp.primaryMotivation) mindParts.push(`Motivation: ${cp.primaryMotivation}`);
+      if (cp.biggestChallenge) mindParts.push(`Challenge: ${cp.biggestChallenge}`);
+      if (cp.sleepHours) mindParts.push(`Sleep: ${cp.sleepHours}h (${cp.sleepQuality || 'N/A'})`);
+      if (cp.stressLevel) mindParts.push(`Stress: ${cp.stressLevel}`);
+      if (mindParts.length) parts.push(`MINDSET PROFILE: ${mindParts.join(', ')}`);
+
+      if (cp.injuries) parts.push(`INJURIES/LIMITATIONS: ${cp.injuries}`);
     }
 
     if (context.profile) {

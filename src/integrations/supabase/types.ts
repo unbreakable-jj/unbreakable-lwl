@@ -95,35 +95,104 @@ export type Database = {
       coaching_profiles: {
         Row: {
           age_years: number | null
+          allergies: string | null
+          bench_max_kg: number | null
+          biggest_challenge: string | null
           created_at: string
+          days_per_week: number | null
+          deadlift_max_kg: number | null
+          dietary_preferences: string | null
+          experience_level: string | null
+          fitness_level: string | null
+          gender: string | null
           height_cm: number | null
           id: string
+          injuries: string | null
+          meals_per_day: number | null
+          nutrition_goal: string | null
+          onboarding_completed: boolean
+          preferred_cardio: string | null
           preferred_height_unit: string
           preferred_weight_unit: string
+          primary_motivation: string | null
+          race_goals: string | null
+          session_length_minutes: number | null
+          sleep_hours: number | null
+          sleep_quality: string | null
+          squat_max_kg: number | null
+          stress_level: string | null
+          training_goal: string | null
           updated_at: string
           user_id: string
+          weekly_cardio_frequency: number | null
           weight_kg: number | null
         }
         Insert: {
           age_years?: number | null
+          allergies?: string | null
+          bench_max_kg?: number | null
+          biggest_challenge?: string | null
           created_at?: string
+          days_per_week?: number | null
+          deadlift_max_kg?: number | null
+          dietary_preferences?: string | null
+          experience_level?: string | null
+          fitness_level?: string | null
+          gender?: string | null
           height_cm?: number | null
           id?: string
+          injuries?: string | null
+          meals_per_day?: number | null
+          nutrition_goal?: string | null
+          onboarding_completed?: boolean
+          preferred_cardio?: string | null
           preferred_height_unit?: string
           preferred_weight_unit?: string
+          primary_motivation?: string | null
+          race_goals?: string | null
+          session_length_minutes?: number | null
+          sleep_hours?: number | null
+          sleep_quality?: string | null
+          squat_max_kg?: number | null
+          stress_level?: string | null
+          training_goal?: string | null
           updated_at?: string
           user_id: string
+          weekly_cardio_frequency?: number | null
           weight_kg?: number | null
         }
         Update: {
           age_years?: number | null
+          allergies?: string | null
+          bench_max_kg?: number | null
+          biggest_challenge?: string | null
           created_at?: string
+          days_per_week?: number | null
+          deadlift_max_kg?: number | null
+          dietary_preferences?: string | null
+          experience_level?: string | null
+          fitness_level?: string | null
+          gender?: string | null
           height_cm?: number | null
           id?: string
+          injuries?: string | null
+          meals_per_day?: number | null
+          nutrition_goal?: string | null
+          onboarding_completed?: boolean
+          preferred_cardio?: string | null
           preferred_height_unit?: string
           preferred_weight_unit?: string
+          primary_motivation?: string | null
+          race_goals?: string | null
+          session_length_minutes?: number | null
+          sleep_hours?: number | null
+          sleep_quality?: string | null
+          squat_max_kg?: number | null
+          stress_level?: string | null
+          training_goal?: string | null
           updated_at?: string
           user_id?: string
+          weekly_cardio_frequency?: number | null
           weight_kg?: number | null
         }
         Relationships: []

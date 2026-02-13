@@ -1,0 +1,26 @@
+
+-- Extend coaching_profiles with all onboarding fields
+ALTER TABLE public.coaching_profiles
+  ADD COLUMN IF NOT EXISTS gender text,
+  ADD COLUMN IF NOT EXISTS experience_level text,
+  ADD COLUMN IF NOT EXISTS training_goal text,
+  ADD COLUMN IF NOT EXISTS days_per_week integer,
+  ADD COLUMN IF NOT EXISTS session_length_minutes integer,
+  ADD COLUMN IF NOT EXISTS bench_max_kg numeric,
+  ADD COLUMN IF NOT EXISTS squat_max_kg numeric,
+  ADD COLUMN IF NOT EXISTS deadlift_max_kg numeric,
+  ADD COLUMN IF NOT EXISTS preferred_cardio text,
+  ADD COLUMN IF NOT EXISTS fitness_level text,
+  ADD COLUMN IF NOT EXISTS race_goals text,
+  ADD COLUMN IF NOT EXISTS weekly_cardio_frequency integer,
+  ADD COLUMN IF NOT EXISTS dietary_preferences text,
+  ADD COLUMN IF NOT EXISTS nutrition_goal text,
+  ADD COLUMN IF NOT EXISTS allergies text,
+  ADD COLUMN IF NOT EXISTS meals_per_day integer,
+  ADD COLUMN IF NOT EXISTS primary_motivation text,
+  ADD COLUMN IF NOT EXISTS biggest_challenge text,
+  ADD COLUMN IF NOT EXISTS sleep_hours numeric,
+  ADD COLUMN IF NOT EXISTS sleep_quality text,
+  ADD COLUMN IF NOT EXISTS stress_level text,
+  ADD COLUMN IF NOT EXISTS injuries text,
+  ADD COLUMN IF NOT EXISTS onboarding_completed boolean NOT NULL DEFAULT false;

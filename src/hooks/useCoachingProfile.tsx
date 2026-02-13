@@ -10,6 +10,29 @@ export interface CoachingProfile {
   weight_kg: number | null;
   preferred_height_unit: 'cm' | 'ft_in';
   preferred_weight_unit: 'kg' | 'lb';
+  gender: string | null;
+  experience_level: string | null;
+  training_goal: string | null;
+  days_per_week: number | null;
+  session_length_minutes: number | null;
+  bench_max_kg: number | null;
+  squat_max_kg: number | null;
+  deadlift_max_kg: number | null;
+  preferred_cardio: string | null;
+  fitness_level: string | null;
+  race_goals: string | null;
+  weekly_cardio_frequency: number | null;
+  dietary_preferences: string | null;
+  nutrition_goal: string | null;
+  allergies: string | null;
+  meals_per_day: number | null;
+  primary_motivation: string | null;
+  biggest_challenge: string | null;
+  sleep_hours: number | null;
+  sleep_quality: string | null;
+  stress_level: string | null;
+  injuries: string | null;
+  onboarding_completed: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -34,12 +57,13 @@ export function lbToKg(lb: number): number {
   return Math.round(lb / 2.20462 * 10) / 10;
 }
 
-const defaultProfile: Omit<CoachingProfile, 'id' | 'user_id' | 'created_at' | 'updated_at'> = {
+const defaultProfile: Partial<CoachingProfile> = {
   age_years: null,
   height_cm: null,
   weight_kg: null,
   preferred_height_unit: 'cm',
   preferred_weight_unit: 'kg',
+  onboarding_completed: false,
 };
 
 export function useCoachingProfile() {
