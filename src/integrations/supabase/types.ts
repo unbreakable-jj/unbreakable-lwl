@@ -1124,6 +1124,10 @@ export type Database = {
           id: string
           is_public: boolean
           location: string | null
+          social_facebook: string | null
+          social_instagram: string | null
+          social_tiktok: string | null
+          social_twitter: string | null
           total_distance_km: number | null
           total_runs: number | null
           total_time_seconds: number | null
@@ -1140,6 +1144,10 @@ export type Database = {
           id?: string
           is_public?: boolean
           location?: string | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_tiktok?: string | null
+          social_twitter?: string | null
           total_distance_km?: number | null
           total_runs?: number | null
           total_time_seconds?: number | null
@@ -1156,6 +1164,10 @@ export type Database = {
           id?: string
           is_public?: boolean
           location?: string | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_tiktok?: string | null
+          social_twitter?: string | null
           total_distance_km?: number | null
           total_runs?: number | null
           total_time_seconds?: number | null

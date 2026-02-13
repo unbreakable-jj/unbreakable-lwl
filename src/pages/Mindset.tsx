@@ -182,9 +182,15 @@ const Mindset = () => {
   const selectExercise = useCallback((exercise: BreathingExercise) => {
     setSelectedExercise(exercise);
     
-    // Preload minimal audio phrases
+    // Preload minimal audio phrases including countdown voice
     if (voiceEnabled) {
       preloadAudio([
+        "Get ready",
+        "Power",
+        "Movement",
+        "Fuel",
+        "Mindset",
+        "Go!",
         exercise.scripts.inhale,
         exercise.scripts.hold,
         exercise.scripts.exhale,
