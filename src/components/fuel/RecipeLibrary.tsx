@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useRecipes } from '@/hooks/useRecipes';
+import { useMealPlans } from '@/hooks/useMealPlans';
 import { Recipe, RecipeIngredient, dietaryTagOptions } from '@/lib/fuelTypes';
 import { 
   Plus, 
@@ -20,7 +21,8 @@ import {
   UtensilsCrossed,
   Beef,
   Leaf,
-  Zap
+  Zap,
+  CalendarPlus
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -96,6 +98,7 @@ const DIETARY_TAG_MAP: Record<string, string> = {
 export function RecipeLibrary() {
   const { user } = useAuth();
   const { recipes, myRecipes, favouriteRecipes, isLoading, createRecipe, deleteRecipe, toggleFavourite } = useRecipes();
+  const { mealPlans, addPlanItem } = useMealPlans();
   const { addFoodLog } = useFoodLogs();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -105,6 +108,7 @@ export function RecipeLibrary() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [activePack, setActivePack] = useState('all');
   const [viewingRecipe, setViewingRecipe] = useState<Recipe | null>(null);
+  const [addToPlanRecipe, setAddToPlanRecipe] = useState<Recipe | null>(null);
 
   // Fetch ingredients for the viewed recipe
   const { data: recipeIngredients } = useQuery({
@@ -125,7 +129,6 @@ export function RecipeLibrary() {
   const getFilteredRecipes = () => {
     let filtered = recipes || [];
 
-    // Pack filter
     if (activePack === 'mine') {
       filtered = myRecipes;
     } else if (activePack === 'favourites') {
@@ -134,12 +137,10 @@ export function RecipeLibrary() {
       filtered = filtered.filter((r) => r.pack === activePack);
     }
 
-    // Category filter
     if (activeCategory !== 'all') {
       filtered = filtered.filter((r) => r.category === activeCategory);
     }
 
-    // Search
     if (searchQuery) {
       filtered = filtered.filter((r) =>
         r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -147,7 +148,6 @@ export function RecipeLibrary() {
       );
     }
 
-    // Tag filter
     if (selectedTags.length > 0) {
       filtered = filtered.filter((r) =>
         selectedTags.some((tag) => r.dietary_tags?.includes(tag))
@@ -188,6 +188,31 @@ export function RecipeLibrary() {
     }
   };
 
+  const handleAddToPlan = async (recipe: Recipe, planId: string, dayOfWeek: number, mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack') => {
+    try {
+      await addPlanItem.mutateAsync({
+        meal_plan_id: planId,
+        day_of_week: dayOfWeek,
+        meal_type: mealType,
+        food_name: recipe.name,
+        recipe_id: recipe.id,
+        calories: recipe.calories_per_serving || 0,
+        protein_g: recipe.protein_g || 0,
+        carbs_g: recipe.carbs_g || 0,
+        fat_g: recipe.fat_g || 0,
+        servings: 1,
+        sort_order: 0,
+        notes: null,
+      });
+      toast.success('ADDED TO PLAN ✓', {
+        description: `${recipe.name} added to meal plan`,
+      });
+      setAddToPlanRecipe(null);
+    } catch {
+      toast.error('Failed to add to plan');
+    }
+  };
+
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
@@ -213,41 +238,36 @@ export function RecipeLibrary() {
 
   const filteredRecipes = getFilteredRecipes();
   const totalRecipes = recipes?.length || 0;
+  const uniquePacks = new Set(recipes?.map(r => r.pack).filter(Boolean) || []);
 
   return (
     <div className="space-y-6">
-      {/* HERO HEADER */}
-      <div className="text-center py-6">
-        <h1 className="font-display text-3xl sm:text-4xl tracking-wider">
-          <span className="text-primary neon-glow-subtle">UNBREAKABLE</span>{' '}
-          <span className="text-foreground">RECIPES</span>
-        </h1>
-        <p className="font-display text-xs tracking-[0.3em] text-muted-foreground mt-2">
-          FUEL WITH PURPOSE • KEEP SHOWING UP
-        </p>
-        <div className="flex items-center justify-center gap-4 mt-3">
-          <Badge variant="outline" className="border-primary/40 text-primary font-display text-[10px] tracking-wider">
-            {totalRecipes} RECIPES
-          </Badge>
-          <Badge variant="outline" className="border-primary/40 text-primary font-display text-[10px] tracking-wider">
-            3 PACKS
-          </Badge>
-        </div>
+      {/* HERO HEADER - Neon branded */}
+      <div className="text-center py-8">
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+          <h1 className="font-display text-4xl sm:text-5xl tracking-wider">
+            <span className="text-primary neon-glow">FUEL</span>{' '}
+            <span className="text-foreground">YOUR RESULTS</span>
+          </h1>
+          <p className="font-display text-xs tracking-[0.4em] text-muted-foreground mt-3">
+            LIVE WITHOUT LIMITS • KEEP SHOWING UP
+          </p>
+        </motion.div>
       </div>
 
-      {/* CATEGORY TABS - Large, branded */}
-      <div className="flex overflow-x-auto gap-2 pb-2 -mx-1 px-1 scrollbar-hide">
+      {/* CATEGORY PILLS - Neon pill style */}
+      <div className="flex overflow-x-auto gap-3 pb-3 -mx-1 px-1 scrollbar-hide justify-center flex-wrap">
         {CATEGORY_TABS.map((tab) => (
           <button
             key={tab.value}
             onClick={() => setActiveCategory(tab.value)}
-            className={`flex items-center gap-2 px-5 py-3 rounded-lg font-display text-sm tracking-wider whitespace-nowrap transition-all shrink-0 ${
+            className={`flex items-center gap-2 px-6 py-3 rounded-full font-display text-sm tracking-wider whitespace-nowrap transition-all shrink-0 border ${
               activeCategory === tab.value
-                ? 'bg-primary text-primary-foreground neon-glow-subtle'
-                : 'bg-card border border-border hover:border-primary/50 text-muted-foreground hover:text-foreground'
+                ? 'bg-primary text-primary-foreground border-primary shadow-[0_0_15px_hsl(var(--primary)/0.5),0_0_30px_hsl(var(--primary)/0.25)]'
+                : 'bg-card/80 border-border hover:border-primary/60 text-muted-foreground hover:text-foreground hover:shadow-[0_0_10px_hsl(var(--primary)/0.2)]'
             }`}
           >
-            <span>{tab.icon}</span>
+            <span className="text-base">{tab.icon}</span>
             <span>{tab.label}</span>
           </button>
         ))}
@@ -261,14 +281,13 @@ export function RecipeLibrary() {
             placeholder="Search recipes..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 border-border/60 focus:border-primary bg-card"
+            className="pl-10 border-primary/20 focus:border-primary bg-card/80 focus:shadow-[0_0_10px_hsl(var(--primary)/0.2)]"
           />
         </div>
         
         <div className="flex gap-2 items-center w-full sm:w-auto">
-          {/* Pack Filter */}
           <Select value={activePack} onValueChange={setActivePack}>
-            <SelectTrigger className="w-full sm:w-[200px] border-border/60 bg-card">
+            <SelectTrigger className="w-full sm:w-[200px] border-primary/20 bg-card/80">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -284,7 +303,7 @@ export function RecipeLibrary() {
             variant="outline"
             size="icon"
             onClick={() => setShowFilters(!showFilters)}
-            className={`shrink-0 ${showFilters ? 'border-primary text-primary' : 'border-border/60'}`}
+            className={`shrink-0 ${showFilters ? 'border-primary text-primary shadow-[0_0_10px_hsl(var(--primary)/0.3)]' : 'border-primary/20'}`}
           >
             <Filter className="w-4 h-4" />
           </Button>
@@ -298,7 +317,7 @@ export function RecipeLibrary() {
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="font-display tracking-wide">CREATE RECIPE</DialogTitle>
+                <DialogTitle className="font-display tracking-wide text-primary">CREATE RECIPE</DialogTitle>
               </DialogHeader>
               
               <div className="space-y-4 mt-4">
@@ -431,14 +450,14 @@ export function RecipeLibrary() {
 
       {/* Dietary Filters */}
       {showFilters && (
-        <Card className="p-4 border-primary/20 neon-border-subtle">
-          <p className="text-sm font-display tracking-wider text-muted-foreground mb-3">DIETARY FILTERS</p>
+        <Card className="p-4 border-primary/30 shadow-[0_0_15px_hsl(var(--primary)/0.15)]">
+          <p className="text-sm font-display tracking-wider text-primary mb-3">DIETARY FILTERS</p>
           <div className="flex flex-wrap gap-2">
             {Object.entries(DIETARY_TAG_MAP).map(([code, label]) => (
               <Badge
                 key={code}
                 variant={selectedTags.includes(code) ? 'default' : 'outline'}
-                className={`cursor-pointer text-xs ${selectedTags.includes(code) ? '' : 'border-border/60 hover:border-primary/50'}`}
+                className={`cursor-pointer text-xs ${selectedTags.includes(code) ? '' : 'border-primary/20 hover:border-primary/50'}`}
                 onClick={() => toggleTag(code)}
               >
                 {code} — {label}
@@ -451,7 +470,7 @@ export function RecipeLibrary() {
 
       {/* Pack header when filtering */}
       {activePack !== 'all' && activePack !== 'mine' && activePack !== 'favourites' && (
-        <div className="text-center py-4 border border-primary/20 rounded-lg neon-border-subtle bg-card/50">
+        <div className="text-center py-5 border border-primary/30 rounded-lg bg-card/50 shadow-[0_0_20px_hsl(var(--primary)/0.15)]">
           <div className="flex items-center justify-center gap-2 mb-1">
             {activePack === 'low-carb' ? (
               <Leaf className="w-5 h-5 text-primary" />
@@ -493,7 +512,7 @@ export function RecipeLibrary() {
               animate={{ opacity: 1, y: 0 }}
             >
               <Card 
-                className="cursor-pointer hover:border-primary/50 transition-all h-full neon-border-subtle overflow-hidden group"
+                className="cursor-pointer hover:border-primary/60 transition-all h-full border-primary/15 overflow-hidden group hover:shadow-[0_0_20px_hsl(var(--primary)/0.2)]"
                 onClick={() => setViewingRecipe(recipe)}
               >
                 {/* Recipe Image */}
@@ -513,15 +532,15 @@ export function RecipeLibrary() {
                       <UtensilsCrossed className="w-10 h-10 text-muted-foreground/20" />
                     </div>
                   )}
-                  {/* Pack badge floating */}
+                  {/* Pack badge */}
                   {recipe.pack && (
                     <Badge className="absolute top-2 left-2 text-[10px] bg-primary/90 text-primary-foreground font-display tracking-wider">
                       {recipe.pack === 'low-carb' ? '🥬 LC' : recipe.pack === '5-ingredient' ? '🔥 5-ING' : '💪 HP'}
                     </Badge>
                   )}
-                  {/* Calorie badge floating */}
-                  <div className="absolute bottom-2 right-2 bg-background/80 backdrop-blur-sm rounded-md px-2 py-1">
-                    <span className="font-display text-sm text-primary">{recipe.calories_per_serving || 0}</span>
+                  {/* Calorie badge */}
+                  <div className="absolute bottom-2 right-2 bg-background/90 backdrop-blur-sm rounded-full px-3 py-1 border border-primary/30 shadow-[0_0_8px_hsl(var(--primary)/0.2)]">
+                    <span className="font-display text-sm text-primary neon-glow-subtle">{recipe.calories_per_serving || 0}</span>
                     <span className="text-[10px] text-muted-foreground ml-0.5">kcal</span>
                   </div>
                 </div>
@@ -531,32 +550,46 @@ export function RecipeLibrary() {
                     <h3 className="font-display text-sm tracking-wide line-clamp-2 leading-tight flex-1 min-w-0 pr-2">
                       {recipe.name}
                     </h3>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 -mt-0.5 -mr-2 shrink-0"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleFavourite.mutate(recipe.id);
-                      }}
-                    >
-                      <Star className={`w-4 h-4 ${recipe.is_favourite ? 'text-primary fill-primary' : 'text-muted-foreground'}`} />
-                    </Button>
+                    <div className="flex gap-1 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 -mt-0.5"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setAddToPlanRecipe(recipe);
+                        }}
+                        title="Add to Meal Plan"
+                      >
+                        <CalendarPlus className="w-4 h-4 text-primary/70 hover:text-primary" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 -mt-0.5 -mr-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavourite.mutate(recipe.id);
+                        }}
+                      >
+                        <Star className={`w-4 h-4 ${recipe.is_favourite ? 'text-primary fill-primary' : 'text-muted-foreground'}`} />
+                      </Button>
+                    </div>
                   </div>
                   
                   {/* Time + Servings */}
                   <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-3">
                     <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
+                      <Clock className="w-3 h-3 text-primary/50" />
                       {(recipe.prep_time_minutes || 0) + (recipe.cook_time_minutes || 0)} min
                     </span>
                     <span className="flex items-center gap-1">
-                      <Users className="w-3 h-3" />
+                      <Users className="w-3 h-3 text-primary/50" />
                       {recipe.servings} {recipe.servings === 1 ? 'serving' : 'servings'}
                     </span>
                   </div>
                   
-                  {/* Macro Bar (stacked horizontal) */}
+                  {/* Macro Bar */}
                   <div className="h-1.5 bg-muted rounded-full overflow-hidden flex mb-2">
                     <div className="bg-primary h-full" style={{ width: `${pPct}%` }} />
                     <div className="bg-foreground/40 h-full" style={{ width: `${cPct}%` }} />
@@ -579,16 +612,16 @@ export function RecipeLibrary() {
                     </div>
                   </div>
                   
-                  {/* Dietary Tags - compact */}
+                  {/* Dietary Tags */}
                   {recipe.dietary_tags && recipe.dietary_tags.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-3">
                       {recipe.dietary_tags.slice(0, 5).map((tag) => (
-                        <Badge key={tag} variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-primary/30 text-primary/80">
+                        <Badge key={tag} variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-primary/25 text-primary/80">
                           {tag}
                         </Badge>
                       ))}
                       {recipe.dietary_tags.length > 5 && (
-                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-primary/30 text-primary/80">
+                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-primary/25 text-primary/80">
                           +{recipe.dietary_tags.length - 5}
                         </Badge>
                       )}
@@ -625,6 +658,23 @@ export function RecipeLibrary() {
         </p>
       </div>
 
+      {/* Add to Plan Modal */}
+      <Dialog open={!!addToPlanRecipe} onOpenChange={(open) => !open && setAddToPlanRecipe(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display tracking-wide text-primary">ADD TO MEAL PLAN</DialogTitle>
+          </DialogHeader>
+          {addToPlanRecipe && (
+            <AddToPlanForm
+              recipe={addToPlanRecipe}
+              mealPlans={mealPlans || []}
+              onAdd={handleAddToPlan}
+              onCancel={() => setAddToPlanRecipe(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Recipe Detail Modal */}
       <RecipeDetailModal
         recipe={viewingRecipe}
@@ -632,7 +682,107 @@ export function RecipeLibrary() {
         onClose={() => setViewingRecipe(null)}
         onToggleFavourite={(id) => toggleFavourite.mutate(id)}
         onLogMeal={handleLogMeal}
+        onAddToPlan={(recipe) => {
+          setViewingRecipe(null);
+          setAddToPlanRecipe(recipe);
+        }}
       />
+    </div>
+  );
+}
+
+// Sub-component for Add to Plan form
+function AddToPlanForm({ 
+  recipe, 
+  mealPlans, 
+  onAdd, 
+  onCancel 
+}: { 
+  recipe: Recipe; 
+  mealPlans: any[]; 
+  onAdd: (recipe: Recipe, planId: string, day: number, mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack') => void;
+  onCancel: () => void;
+}) {
+  const [selectedPlan, setSelectedPlan] = useState('');
+  const [selectedDay, setSelectedDay] = useState('0');
+  const [selectedMeal, setSelectedMeal] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('lunch');
+
+  const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+  if (mealPlans.length === 0) {
+    return (
+      <div className="text-center py-6">
+        <CalendarPlus className="w-10 h-10 text-primary/30 mx-auto mb-3" />
+        <p className="text-sm text-muted-foreground mb-1">No meal plans yet</p>
+        <p className="text-xs text-muted-foreground">Create a meal plan first in the Planning tab</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4 mt-2">
+      <div className="p-3 bg-card border border-primary/20 rounded-lg">
+        <p className="font-display text-sm tracking-wide text-primary">{recipe.name}</p>
+        <p className="text-xs text-muted-foreground mt-1">{recipe.calories_per_serving} kcal • P:{recipe.protein_g}g C:{recipe.carbs_g}g F:{recipe.fat_g}g</p>
+      </div>
+
+      <div>
+        <Label className="font-display text-xs tracking-wider">MEAL PLAN</Label>
+        <Select value={selectedPlan} onValueChange={setSelectedPlan}>
+          <SelectTrigger className="mt-1 border-primary/20">
+            <SelectValue placeholder="Select a plan..." />
+          </SelectTrigger>
+          <SelectContent>
+            {mealPlans.map(p => (
+              <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="font-display text-xs tracking-wider">DAY</Label>
+          <Select value={selectedDay} onValueChange={setSelectedDay}>
+            <SelectTrigger className="mt-1 border-primary/20">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {DAYS.map((d, i) => (
+                <SelectItem key={i} value={String(i)}>{d}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="font-display text-xs tracking-wider">MEAL</Label>
+          <Select value={selectedMeal} onValueChange={(v) => setSelectedMeal(v as 'breakfast' | 'lunch' | 'dinner' | 'snack')}>
+            <SelectTrigger className="mt-1 border-primary/20">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="breakfast">Breakfast</SelectItem>
+              <SelectItem value="lunch">Lunch</SelectItem>
+              <SelectItem value="dinner">Dinner</SelectItem>
+              <SelectItem value="snack">Snack</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex gap-3 pt-2">
+        <Button variant="outline" className="flex-1 font-display tracking-wide border-primary/30" onClick={onCancel}>
+          CANCEL
+        </Button>
+        <Button 
+          className="flex-1 font-display tracking-wide" 
+          disabled={!selectedPlan}
+          onClick={() => onAdd(recipe, selectedPlan, parseInt(selectedDay), selectedMeal)}
+        >
+          <CalendarPlus className="w-4 h-4 mr-2" />
+          ADD
+        </Button>
+      </div>
     </div>
   );
 }
