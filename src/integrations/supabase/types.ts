@@ -1300,6 +1300,7 @@ export type Database = {
         Row: {
           calories_per_serving: number | null
           carbs_g: number | null
+          category: string | null
           cook_time_minutes: number | null
           created_at: string
           description: string | null
@@ -1311,6 +1312,7 @@ export type Database = {
           is_favourite: boolean | null
           is_public: boolean | null
           name: string
+          pack: string | null
           prep_time_minutes: number | null
           protein_g: number | null
           servings: number | null
@@ -1320,6 +1322,7 @@ export type Database = {
         Insert: {
           calories_per_serving?: number | null
           carbs_g?: number | null
+          category?: string | null
           cook_time_minutes?: number | null
           created_at?: string
           description?: string | null
@@ -1331,6 +1334,7 @@ export type Database = {
           is_favourite?: boolean | null
           is_public?: boolean | null
           name: string
+          pack?: string | null
           prep_time_minutes?: number | null
           protein_g?: number | null
           servings?: number | null
@@ -1340,6 +1344,7 @@ export type Database = {
         Update: {
           calories_per_serving?: number | null
           carbs_g?: number | null
+          category?: string | null
           cook_time_minutes?: number | null
           created_at?: string
           description?: string | null
@@ -1351,6 +1356,7 @@ export type Database = {
           is_favourite?: boolean | null
           is_public?: boolean | null
           name?: string
+          pack?: string | null
           prep_time_minutes?: number | null
           protein_g?: number | null
           servings?: number | null
