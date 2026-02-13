@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { FullScreenToolView } from '@/components/programming/FullScreenToolView';
 import { CompactRestTimer } from '@/components/programming/CompactRestTimer';
 import { ExerciseCoachingPanel } from '@/components/programming/ExerciseCoachingPanel';
@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
 import {
   ClipboardList, Dumbbell, Check, ChevronDown, ChevronUp, BookOpen
 } from 'lucide-react';
@@ -20,14 +19,14 @@ interface U86SessionViewProps {
   dayNumber: number;
   onUpdateExercises: (exercises: any[]) => void;
   onClose: () => void;
+  readOnly?: boolean;
 }
 
-export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClose }: U86SessionViewProps) {
+export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClose, readOnly = false }: U86SessionViewProps) {
   const [expandedExercise, setExpandedExercise] = useState<number>(0);
   const [showCoachingFor, setShowCoachingFor] = useState<number | null>(null);
   const [showTimer, setShowTimer] = useState(false);
 
-  // Count completed sets
   const totalSets = exercises.reduce((acc, ex) => acc + (ex.sets?.length || 0), 0);
   const completedSets = exercises.reduce((acc, ex) => {
     return acc + (ex.logged || []).filter((s: any) => s.completed).length;
@@ -35,6 +34,7 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
   const progressPercent = totalSets > 0 ? (completedSets / totalSets) * 100 : 0;
 
   const handleSetUpdate = useCallback((exerciseIndex: number, setIndex: number, field: string, value: any) => {
+    if (readOnly) return;
     const updated = exercises.map((ex, ei) => {
       if (ei !== exerciseIndex) return ex;
       const newLogged = (ex.logged || []).map((s: any, si: number) => {
@@ -44,18 +44,17 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
       return { ...ex, logged: newLogged };
     });
     onUpdateExercises(updated);
-  }, [exercises, onUpdateExercises]);
+  }, [exercises, onUpdateExercises, readOnly]);
 
   const handleSetComplete = useCallback((exerciseIndex: number, setIndex: number, completed: boolean) => {
+    if (readOnly) return;
     handleSetUpdate(exerciseIndex, setIndex, 'completed', completed);
-    if (completed) {
-      setShowTimer(true);
-    }
-  }, [handleSetUpdate]);
+    if (completed) setShowTimer(true);
+  }, [handleSetUpdate, readOnly]);
 
   return (
     <FullScreenToolView
-      title={`DAY ${dayNumber} — STRENGTH`}
+      title={`DAY ${dayNumber} — ${readOnly ? 'SESSION LOG' : 'STRENGTH'}`}
       subtitle={`${completedSets}/${totalSets} sets complete`}
       icon={<ClipboardList className="w-5 h-5" />}
       onClose={onClose}
@@ -90,7 +89,6 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
                   exerciseComplete ? 'border-green-500/30 bg-green-500/5' : 'border-border bg-card'
                 )}
               >
-                {/* Exercise Header */}
                 <button
                   onClick={() => setExpandedExercise(isExpanded ? -1 : i)}
                   className="w-full p-4 flex items-center justify-between"
@@ -111,14 +109,8 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
                   </div>
                   <div className="flex items-center gap-3">
                     {exerciseComplete && <Check className="w-5 h-5 text-green-500" />}
-                    <span className="text-sm text-muted-foreground">
-                      {setsComplete}/{sets.length}
-                    </span>
-                    {isExpanded ? (
-                      <ChevronUp className="w-5 h-5 text-muted-foreground" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-muted-foreground" />
-                    )}
+                    <span className="text-sm text-muted-foreground">{setsComplete}/{sets.length}</span>
+                    {isExpanded ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
                   </div>
                 </button>
 
@@ -132,7 +124,6 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
                       className="overflow-hidden"
                     >
                       <div className="px-4 pb-4 space-y-3">
-                        {/* Coaching Toggle */}
                         {coachingData && (
                           <button
                             onClick={() => setShowCoachingFor(showingCoaching ? null : i)}
@@ -166,7 +157,6 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
                           <div className="col-span-2 text-center">DONE</div>
                         </div>
 
-                        {/* Set Rows */}
                         {sets.map((setInfo: any, si: number) => {
                           const logEntry = logged[si] || { reps: null, weight: null, rpe: null, completed: false };
                           return (
@@ -184,43 +174,56 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
                                 </div>
                               </div>
                               <div className="col-span-2">
-                                <Input
-                                  type="number"
-                                  inputMode="numeric"
-                                  placeholder="—"
-                                  value={logEntry.reps ?? ''}
-                                  onChange={(e) => handleSetUpdate(i, si, 'reps', e.target.value ? parseInt(e.target.value) : null)}
-                                  className="h-9 text-center text-sm px-1"
-                                />
+                                {readOnly ? (
+                                  <span className="text-sm text-foreground">{logEntry.reps ?? '—'}</span>
+                                ) : (
+                                  <Input
+                                    type="number"
+                                    inputMode="numeric"
+                                    placeholder="—"
+                                    value={logEntry.reps ?? ''}
+                                    onChange={(e) => handleSetUpdate(i, si, 'reps', e.target.value ? parseInt(e.target.value) : null)}
+                                    className="h-9 text-center text-sm px-1"
+                                  />
+                                )}
                               </div>
                               <div className="col-span-2">
-                                <Input
-                                  type="number"
-                                  inputMode="decimal"
-                                  placeholder="—"
-                                  step="0.5"
-                                  value={logEntry.weight ?? ''}
-                                  onChange={(e) => handleSetUpdate(i, si, 'weight', e.target.value ? parseFloat(e.target.value) : null)}
-                                  className="h-9 text-center text-sm px-1"
-                                />
+                                {readOnly ? (
+                                  <span className="text-sm text-foreground">{logEntry.weight ?? '—'}</span>
+                                ) : (
+                                  <Input
+                                    type="number"
+                                    inputMode="decimal"
+                                    placeholder="—"
+                                    step="0.5"
+                                    value={logEntry.weight ?? ''}
+                                    onChange={(e) => handleSetUpdate(i, si, 'weight', e.target.value ? parseFloat(e.target.value) : null)}
+                                    className="h-9 text-center text-sm px-1"
+                                  />
+                                )}
                               </div>
                               <div className="col-span-2">
-                                <Input
-                                  type="number"
-                                  inputMode="decimal"
-                                  placeholder="—"
-                                  step="0.5"
-                                  min="1"
-                                  max="10"
-                                  value={logEntry.rpe ?? ''}
-                                  onChange={(e) => handleSetUpdate(i, si, 'rpe', e.target.value ? parseFloat(e.target.value) : null)}
-                                  className="h-9 text-center text-sm px-1"
-                                />
+                                {readOnly ? (
+                                  <span className="text-sm text-foreground">{logEntry.rpe ?? '—'}</span>
+                                ) : (
+                                  <Input
+                                    type="number"
+                                    inputMode="decimal"
+                                    placeholder="—"
+                                    step="0.5"
+                                    min="1"
+                                    max="10"
+                                    value={logEntry.rpe ?? ''}
+                                    onChange={(e) => handleSetUpdate(i, si, 'rpe', e.target.value ? parseFloat(e.target.value) : null)}
+                                    className="h-9 text-center text-sm px-1"
+                                  />
+                                )}
                               </div>
                               <div className="col-span-2 flex justify-center">
                                 <Checkbox
                                   checked={logEntry.completed}
                                   onCheckedChange={(checked) => handleSetComplete(i, si, !!checked)}
+                                  disabled={readOnly}
                                   className="h-6 w-6"
                                 />
                               </div>
@@ -238,7 +241,7 @@ export function U86SessionView({ exercises, dayNumber, onUpdateExercises, onClos
       </ScrollArea>
 
       {/* Rest Timer */}
-      {showTimer && (
+      {showTimer && !readOnly && (
         <div className="fixed bottom-0 left-0 right-0 p-4 z-50">
           <CompactRestTimer
             exerciseType="strength"
