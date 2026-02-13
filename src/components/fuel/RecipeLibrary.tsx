@@ -68,10 +68,9 @@ const CATEGORY_TABS = [
   { value: 'all', label: 'ALL', icon: '🔥' },
   { value: 'breakfast', label: 'BREAKFAST', icon: '🌅' },
   { value: 'lunch', label: 'LUNCH', icon: '🥗' },
-  { value: 'dinner', label: 'DINNER', icon: '🍽️' },
-  { value: 'snack', label: 'SNACKS', icon: '⚡' },
-  { value: 'treats', label: 'TREATS', icon: '🍫' },
-  { value: 'smoothie', label: 'SMOOTHIES', icon: '🥤' },
+  { value: 'main', label: 'MAIN', icon: '🍽️' },
+  { value: 'desserts', label: 'DESSERTS', icon: '🍫' },
+  { value: 'shakes', label: 'SHAKES', icon: '🥤' },
 ];
 
 const PACK_OPTIONS = [
