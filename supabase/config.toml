@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.seed-unbreakable-recipes]
 verify_jwt = false
+
+[functions.generate-recipe-images]
+verify_jwt = false
