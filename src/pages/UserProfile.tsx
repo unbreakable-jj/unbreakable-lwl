@@ -302,35 +302,6 @@ export default function UserProfile() {
             </div>
           </Card>
 
-          {/* Stats Card */}
-          {profile.is_public && (
-            <Card className="p-6 border-2 border-border">
-              <h2 className="font-display text-lg tracking-wide text-foreground mb-4">
-                ACTIVITY STATS
-              </h2>
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <Activity className="w-6 h-6 text-primary mx-auto mb-2" />
-                  <p className="text-2xl font-display text-foreground">{totalRuns}</p>
-                  <p className="text-sm text-muted-foreground">Runs</p>
-                </div>
-                <div>
-                  <Trophy className="w-6 h-6 text-primary mx-auto mb-2" />
-                  <p className="text-2xl font-display text-foreground">
-                    {totalKm.toFixed(1)} km
-                  </p>
-                  <p className="text-sm text-muted-foreground">Distance</p>
-                </div>
-                <div>
-                  <Clock className="w-6 h-6 text-primary mx-auto mb-2" />
-                  <p className="text-2xl font-display text-foreground">
-                    {totalHours}h {totalMins}m
-                  </p>
-                  <p className="text-sm text-muted-foreground">Time</p>
-                </div>
-              </div>
-            </Card>
-          )}
 
           {/* Private Profile Notice */}
           {!profile.is_public && !isFriend && (
