@@ -156,7 +156,6 @@ export function ActivityCard({ run, onKudos, onDelete, onToggleComments, onUpdat
             <PostMenu
               isOwner={isOwner}
               commentsEnabled={run.comments_enabled}
-              hasMedia={!!run.map_snapshot_url}
               onDelete={() => onDelete(run.id)}
               onToggleComments={() => onToggleComments(run.id)}
               onEdit={() => setShowEditModal(true)}
@@ -264,8 +263,6 @@ export function ActivityCard({ run, onKudos, onDelete, onToggleComments, onUpdat
             </span>
           </Button>
           <ShareMenu 
-            run={run} 
-            hasMedia={!!run.map_snapshot_url}
             onShareToStory={handleShareToStory}
           />
         </div>

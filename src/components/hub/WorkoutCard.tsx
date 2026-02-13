@@ -133,7 +133,6 @@ export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onUp
             onDelete={() => onDelete(workout.id)}
             onToggleComments={() => onToggleComments(workout.id)}
             commentsEnabled={workout.comments_enabled}
-            hasMedia={false}
             onEdit={() => setShowEditModal(true)}
             onShareToStory={handleShareToStory}
             itemType="workout"
@@ -206,12 +205,6 @@ export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onUp
           </div>
 
           <ShareMenu
-            workout={{
-              day_name: workout.day_name,
-              session_type: workout.session_type,
-              duration_seconds: workout.duration_seconds,
-            }}
-            hasMedia={false}
             onShareToStory={handleShareToStory}
           />
         </div>

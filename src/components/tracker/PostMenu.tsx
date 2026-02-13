@@ -13,7 +13,6 @@ import { DeleteConfirmModal } from './DeleteConfirmModal';
 interface PostMenuProps {
   isOwner: boolean;
   commentsEnabled: boolean;
-  hasMedia: boolean;
   onDelete: () => void;
   onToggleComments: () => void;
   onEdit: () => void;
@@ -24,7 +23,6 @@ interface PostMenuProps {
 export function PostMenu({
   isOwner,
   commentsEnabled,
-  hasMedia,
   onDelete,
   onToggleComments,
   onEdit,
@@ -81,12 +79,10 @@ export function PostMenu({
             <Pencil className="w-4 h-4 mr-2" />
             {getEditLabel()}
           </DropdownMenuItem>
-          {hasMedia && (
-            <DropdownMenuItem onClick={onShareToStory}>
-              <BookImage className="w-4 h-4 mr-2" />
-              Share to Story
-            </DropdownMenuItem>
-          )}
+          <DropdownMenuItem onClick={onShareToStory}>
+            <BookImage className="w-4 h-4 mr-2" />
+            Share to Story
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={onToggleComments}>
             {commentsEnabled ? (
               <>

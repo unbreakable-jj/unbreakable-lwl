@@ -165,7 +165,6 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdate
           <PostMenu
             isOwner={isOwner}
             commentsEnabled={post.comments_enabled}
-            hasMedia={!!(post.image_url || post.video_url)}
             onDelete={() => onDelete(post.id)}
             onToggleComments={() => onToggleComments(post.id)}
             onEdit={() => setShowEditModal(true)}
@@ -275,8 +274,6 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdate
             </span>
           </Button>
           <ShareMenu 
-            post={post} 
-            hasMedia={!!(post.image_url || post.video_url)}
             onShareToStory={handleShareToStory}
           />
         </div>
