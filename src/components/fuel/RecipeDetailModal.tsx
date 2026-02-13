@@ -12,23 +12,21 @@ import {
   ChefHat,
   UtensilsCrossed,
   Zap,
-  Wheat,
-  Droplets,
   BookOpen,
   ShoppingCart,
   CheckCircle2,
 } from 'lucide-react';
 
-const DIETARY_TAG_FULL: Record<string, { label: string; color: string }> = {
-  GF: { label: 'Gluten-Free', color: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
-  DF: { label: 'Dairy-Free', color: 'bg-sky-500/20 text-sky-400 border-sky-500/30' },
-  LC: { label: 'Low-Carb', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
-  HP: { label: 'High Protein', color: 'bg-red-500/20 text-red-400 border-red-500/30' },
-  V: { label: 'Vegetarian', color: 'bg-green-500/20 text-green-400 border-green-500/30' },
-  VG: { label: 'Vegan', color: 'bg-lime-500/20 text-lime-400 border-lime-500/30' },
-  Q: { label: 'Quick', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
-  MP: { label: 'Meal Prep', color: 'bg-violet-500/20 text-violet-400 border-violet-500/30' },
-  N: { label: 'Contains Nuts', color: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
+const DIETARY_TAG_FULL: Record<string, string> = {
+  GF: 'Gluten-Free',
+  DF: 'Dairy-Free',
+  LC: 'Low-Carb',
+  HP: 'High Protein',
+  V: 'Vegetarian',
+  VG: 'Vegan',
+  Q: 'Quick',
+  MP: 'Meal Prep',
+  N: 'Contains Nuts',
 };
 
 interface RecipeDetailModalProps {
@@ -50,12 +48,19 @@ export function RecipeDetailModal({
 
   const totalTime = (recipe.prep_time_minutes || 0) + (recipe.cook_time_minutes || 0);
   const instructions = recipe.instructions?.split('\n').filter(Boolean) || [];
+  const servings = recipe.servings || 1;
 
   // Calculate macro percentages for visual bars
   const totalMacroGrams = (recipe.protein_g || 0) + (recipe.carbs_g || 0) + (recipe.fat_g || 0);
   const proteinPct = totalMacroGrams > 0 ? ((recipe.protein_g || 0) / totalMacroGrams) * 100 : 0;
   const carbsPct = totalMacroGrams > 0 ? ((recipe.carbs_g || 0) / totalMacroGrams) * 100 : 0;
   const fatPct = totalMacroGrams > 0 ? ((recipe.fat_g || 0) / totalMacroGrams) * 100 : 0;
+
+  // Per-serving ingredient calculation
+  const getPerServing = (value: number | null | undefined) => {
+    if (value == null) return null;
+    return Math.round((value / servings) * 10) / 10;
+  };
 
   return (
     <Dialog open={!!recipe} onOpenChange={(open) => !open && onClose()}>
@@ -125,7 +130,7 @@ export function RecipeDetailModal({
                 <Clock className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <p className="font-display text-xs tracking-wide text-muted-foreground">PREP</p>
+                <p className="font-display text-[10px] tracking-wide text-muted-foreground">PREP</p>
                 <p className="font-semibold text-sm">{recipe.prep_time_minutes || 0} min</p>
               </div>
             </div>
@@ -134,7 +139,7 @@ export function RecipeDetailModal({
                 <Flame className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <p className="font-display text-xs tracking-wide text-muted-foreground">COOK</p>
+                <p className="font-display text-[10px] tracking-wide text-muted-foreground">COOK</p>
                 <p className="font-semibold text-sm">{recipe.cook_time_minutes || 0} min</p>
               </div>
             </div>
@@ -143,7 +148,7 @@ export function RecipeDetailModal({
                 <ChefHat className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <p className="font-display text-xs tracking-wide text-muted-foreground">TOTAL</p>
+                <p className="font-display text-[10px] tracking-wide text-muted-foreground">TOTAL</p>
                 <p className="font-semibold text-sm">{totalTime} min</p>
               </div>
             </div>
@@ -152,7 +157,7 @@ export function RecipeDetailModal({
                 <Users className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <p className="font-display text-xs tracking-wide text-muted-foreground">SERVES</p>
+                <p className="font-display text-[10px] tracking-wide text-muted-foreground">SERVES</p>
                 <p className="font-semibold text-sm">{recipe.servings}</p>
               </div>
             </div>
@@ -163,21 +168,18 @@ export function RecipeDetailModal({
             <p className="text-muted-foreground text-sm leading-relaxed">{recipe.description}</p>
           )}
 
-          {/* Dietary Tags - Full Labels */}
+          {/* Dietary Tags */}
           {recipe.dietary_tags && recipe.dietary_tags.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {recipe.dietary_tags.map((tag) => {
-                const tagInfo = DIETARY_TAG_FULL[tag];
-                return (
-                  <Badge
-                    key={tag}
-                    variant="outline"
-                    className={`text-xs font-medium ${tagInfo?.color || ''}`}
-                  >
-                    {tagInfo?.label || tag}
-                  </Badge>
-                );
-              })}
+              {recipe.dietary_tags.map((tag) => (
+                <Badge
+                  key={tag}
+                  variant="outline"
+                  className="text-xs font-medium border-primary/30 text-primary"
+                >
+                  {DIETARY_TAG_FULL[tag] || tag}
+                </Badge>
+              ))}
             </div>
           )}
 
@@ -199,19 +201,16 @@ export function RecipeDetailModal({
                 <p className="text-xs font-display tracking-widest text-muted-foreground">CALORIES</p>
               </div>
 
-              {/* Macro bars */}
+              {/* Macro bars - brand colors only */}
               <div className="space-y-3">
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs font-medium flex items-center gap-1.5">
-                      <Zap className="w-3 h-3 text-red-400" />
-                      Protein
-                    </span>
-                    <span className="font-display text-sm">{recipe.protein_g || 0}g</span>
+                    <span className="text-xs font-medium text-foreground">Protein</span>
+                    <span className="font-display text-sm text-primary">{recipe.protein_g || 0}g</span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-red-400 rounded-full transition-all"
+                      className="h-full bg-primary rounded-full transition-all"
                       style={{ width: `${proteinPct}%` }}
                     />
                   </div>
@@ -219,15 +218,12 @@ export function RecipeDetailModal({
 
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs font-medium flex items-center gap-1.5">
-                      <Wheat className="w-3 h-3 text-amber-400" />
-                      Carbs
-                    </span>
-                    <span className="font-display text-sm">{recipe.carbs_g || 0}g</span>
+                    <span className="text-xs font-medium text-foreground">Carbs</span>
+                    <span className="font-display text-sm text-foreground">{recipe.carbs_g || 0}g</span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-amber-400 rounded-full transition-all"
+                      className="h-full bg-foreground/40 rounded-full transition-all"
                       style={{ width: `${carbsPct}%` }}
                     />
                   </div>
@@ -235,15 +231,12 @@ export function RecipeDetailModal({
 
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs font-medium flex items-center gap-1.5">
-                      <Droplets className="w-3 h-3 text-sky-400" />
-                      Fat
-                    </span>
-                    <span className="font-display text-sm">{recipe.fat_g || 0}g</span>
+                    <span className="text-xs font-medium text-foreground">Fat</span>
+                    <span className="font-display text-sm text-muted-foreground">{recipe.fat_g || 0}g</span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-sky-400 rounded-full transition-all"
+                      className="h-full bg-muted-foreground/50 rounded-full transition-all"
                       style={{ width: `${fatPct}%` }}
                     />
                   </div>
@@ -253,15 +246,15 @@ export function RecipeDetailModal({
               {/* Macro split summary */}
               <div className="flex justify-center gap-6 mt-3 pt-3 border-t border-border/50">
                 <span className="text-[10px] text-muted-foreground">
-                  <span className="inline-block w-2 h-2 rounded-full bg-red-400 mr-1" />
+                  <span className="inline-block w-2 h-2 rounded-full bg-primary mr-1" />
                   {Math.round(proteinPct)}% Protein
                 </span>
                 <span className="text-[10px] text-muted-foreground">
-                  <span className="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1" />
+                  <span className="inline-block w-2 h-2 rounded-full bg-foreground/40 mr-1" />
                   {Math.round(carbsPct)}% Carbs
                 </span>
                 <span className="text-[10px] text-muted-foreground">
-                  <span className="inline-block w-2 h-2 rounded-full bg-sky-400 mr-1" />
+                  <span className="inline-block w-2 h-2 rounded-full bg-muted-foreground/50 mr-1" />
                   {Math.round(fatPct)}% Fat
                 </span>
               </div>
@@ -270,50 +263,60 @@ export function RecipeDetailModal({
 
           <Separator />
 
-          {/* Ingredients */}
+          {/* Ingredients - PER SERVING */}
           <div>
-            <h3 className="font-display text-sm tracking-widest text-muted-foreground mb-4 flex items-center gap-2">
+            <h3 className="font-display text-sm tracking-widest text-muted-foreground mb-1 flex items-center gap-2">
               <ShoppingCart className="w-4 h-4 text-primary" />
               INGREDIENTS
               {ingredients.length > 0 && (
-                <Badge variant="outline" className="ml-auto text-[10px]">
+                <Badge variant="outline" className="ml-auto text-[10px] border-primary/30 text-primary">
                   {ingredients.length} items
                 </Badge>
               )}
             </h3>
+            <p className="text-[11px] text-muted-foreground mb-4 font-display tracking-wide">
+              QUANTITIES SHOWN PER SERVING ({servings} servings total)
+            </p>
 
             {ingredients.length > 0 ? (
               <div className="space-y-0">
-                {ingredients.map((ing, i) => (
-                  <div
-                    key={ing.id}
-                    className={`flex items-start justify-between py-3 ${
-                      i < ingredients.length - 1 ? 'border-b border-border/40' : ''
-                    }`}
-                  >
-                    <div className="flex items-start gap-3 flex-1 min-w-0">
-                      <CheckCircle2 className="w-4 h-4 text-primary/40 mt-0.5 shrink-0" />
-                      <div>
-                        <p className="font-medium text-sm">{ing.name}</p>
-                        {ing.quantity && ing.unit && (
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {ing.quantity} {ing.unit}
-                          </p>
+                {ingredients.map((ing, i) => {
+                  const perServingCal = getPerServing(ing.calories);
+                  const perServingP = getPerServing(ing.protein_g);
+                  const perServingC = getPerServing(ing.carbs_g);
+                  const perServingF = getPerServing(ing.fat_g);
+
+                  return (
+                    <div
+                      key={ing.id}
+                      className={`flex items-start justify-between py-3 ${
+                        i < ingredients.length - 1 ? 'border-b border-border/40' : ''
+                      }`}
+                    >
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <CheckCircle2 className="w-4 h-4 text-primary/40 mt-0.5 shrink-0" />
+                        <div>
+                          <p className="font-medium text-sm text-foreground">{ing.name}</p>
+                          {ing.quantity && ing.unit && (
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {ing.quantity} {ing.unit} <span className="text-primary/60">per serving</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0 ml-4">
+                        {perServingCal != null && (
+                          <p className="text-xs font-display text-primary">{perServingCal} kcal</p>
                         )}
+                        <div className="flex gap-2 text-[10px] text-muted-foreground mt-0.5">
+                          {perServingP != null && <span>P: {perServingP}g</span>}
+                          {perServingC != null && <span>C: {perServingC}g</span>}
+                          {perServingF != null && <span>F: {perServingF}g</span>}
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right shrink-0 ml-4">
-                      {ing.calories != null && (
-                        <p className="text-xs font-display text-primary">{ing.calories} kcal</p>
-                      )}
-                      <div className="flex gap-2 text-[10px] text-muted-foreground mt-0.5">
-                        {ing.protein_g != null && <span>P: {ing.protein_g}g</span>}
-                        {ing.carbs_g != null && <span>C: {ing.carbs_g}g</span>}
-                        {ing.fat_g != null && <span>F: {ing.fat_g}g</span>}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <p className="text-sm text-muted-foreground italic">
