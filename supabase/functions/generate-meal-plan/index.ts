@@ -81,53 +81,20 @@ serve(async (req) => {
       console.error("Failed to fetch recipes:", recipesError);
     }
 
-    // Build recipe catalogue for the AI
+    // Compact recipe catalogue — name,category,macros,ID only to minimize tokens
     const recipeCatalogue = (libraryRecipes || []).map(r => 
-      `- ${r.name} [${r.pack || 'custom'}] (${r.category}) | ${r.calories_per_serving}kcal | P:${r.protein_g}g C:${r.carbs_g}g F:${r.fat_g}g | Tags: ${(r.dietary_tags || []).join(',')} | Prep: ${r.prep_time_minutes}min Cook: ${r.cook_time_minutes}min | ID: ${r.id}`
+      `${r.name}|${r.category}|${r.calories_per_serving}kcal|P${r.protein_g}C${r.carbs_g}F${r.fat_g}|${r.id}`
     ).join('\n');
 
-    const systemPrompt = `You are the UNBREAKABLE NUTRITION COACH. Generate bespoke meal plans using recipes from the UNBREAKABLE Recipe Library.
+    const systemPrompt = `UNBREAKABLE NUTRITION COACH. Build meal plans using ONLY recipes from the library below. Do NOT invent meals — pick from library. Include recipe ID for every selection.
 
-RECIPE LIBRARY (USE THESE RECIPES):
+RECIPE LIBRARY (format: Name|Category|Cals|Macros|ID):
 ${recipeCatalogue}
 
-CRITICAL RULES:
-1. ALWAYS suggest recipes from the library above when possible
-2. Include the recipe ID for every library recipe you suggest
-3. You may suggest custom meals where no library recipe fits, but prioritise library recipes
-4. Each suggested meal must include: name, recipeId (if from library), calories, protein, carbs, fat, and prepNotes
-5. Consider the athlete's training load and adjust calories/macros for training vs rest days
-6. Training days = higher carbs and calories; Rest days = maintain protein, lower calories slightly
+Rules: Prioritize library recipes. Adjust cals for training vs rest days. Higher carbs on training days.
 
-OUTPUT FORMAT (JSON):
-{
-  "planName": "string",
-  "overview": "string describing the plan",
-  "weeklyCalories": number,
-  "weeklyProtein": number,
-  "days": [
-    {
-      "dayNumber": 1,
-      "dayName": "Monday",
-      "isTrainingDay": boolean,
-      "totalCalories": number,
-      "totalProtein": number,
-      "totalCarbs": number,
-      "totalFat": number,
-      "meals": {
-        "breakfast": { "name": "string", "recipeId": "uuid or null", "calories": number, "protein": number, "carbs": number, "fat": number, "prepNotes": "string" },
-        "lunch": { "name": "string", "recipeId": "uuid or null", "calories": number, "protein": number, "carbs": number, "fat": number, "prepNotes": "string" },
-        "dinner": { "name": "string", "recipeId": "uuid or null", "calories": number, "protein": number, "carbs": number, "fat": number, "prepNotes": "string" },
-        "snacks": [{ "name": "string", "recipeId": "uuid or null", "calories": number, "protein": number, "carbs": number, "fat": number }]
-      }
-    }
-  ],
-  "shoppingList": ["string array of key ingredients"],
-  "mealPrepTips": ["string array of batch cooking tips"],
-  "coachNotes": "string with personalized coaching advice"
-}
-
-NEVER generate generic plans. Each plan MUST be unique to this athlete's context and use library recipes.`;
+Return ONLY JSON:
+{"planName":"string","overview":"string","weeklyCalories":0,"weeklyProtein":0,"days":[{"dayNumber":1,"dayName":"Monday","isTrainingDay":true,"totalCalories":0,"totalProtein":0,"totalCarbs":0,"totalFat":0,"meals":{"breakfast":{"name":"string","recipeId":"uuid","calories":0,"protein":0,"carbs":0,"fat":0,"prepNotes":"string"},"lunch":{"name":"string","recipeId":"uuid","calories":0,"protein":0,"carbs":0,"fat":0,"prepNotes":"string"},"dinner":{"name":"string","recipeId":"uuid","calories":0,"protein":0,"carbs":0,"fat":0,"prepNotes":"string"},"snacks":[{"name":"string","recipeId":"uuid","calories":0,"protein":0,"carbs":0,"fat":0}]}}],"shoppingList":["string"],"mealPrepTips":["string"],"coachNotes":"string"}`;
 
     // Build context
     let contextMessage = `ATHLETE CONTEXT:\n`;
