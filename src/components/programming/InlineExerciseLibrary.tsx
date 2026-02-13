@@ -16,6 +16,7 @@ import {
   Lightbulb,
   MessageCircle,
   X,
+  Flame,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
@@ -25,7 +26,7 @@ import {
   LibraryExercise,
   BodyPart,
 } from '@/lib/exerciseLibrary';
-import { BodyPartIcon, BODY_PART_ICONS } from './BodyPartIcon';
+import { BodyPartBadge, BODY_PART_OPTIONS, BODY_PART_LABELS } from './BodyPartBadge';
 import { cn } from '@/lib/utils';
 import { findCoachingDataByName } from '@/lib/exerciseCoachingData';
 import { ExerciseCoachingPanel } from './ExerciseCoachingPanel';
@@ -47,24 +48,20 @@ export function InlineExerciseLibrary({
 
   const filteredExercises = useMemo(() => {
     let exercises = EXERCISE_LIBRARY;
-
     if (searchQuery) {
       exercises = searchExercises(searchQuery);
     } else if (selectedBodyPart !== 'all') {
       exercises = getExercisesByBodyPart(selectedBodyPart);
     }
-
     return exercises;
   }, [searchQuery, selectedBodyPart]);
 
-  // Group exercises by body part for sticky headers
   const groupedExercises = useMemo(() => {
     if (selectedBodyPart !== 'all' || searchQuery) {
       return { [selectedBodyPart === 'all' ? 'results' : selectedBodyPart]: filteredExercises };
     }
-    
     const groups: Record<string, LibraryExercise[]> = {};
-    BODY_PART_ICONS.forEach(({ value }) => {
+    BODY_PART_OPTIONS.forEach(({ value }) => {
       const exercises = filteredExercises.filter((ex) => ex.bodyPart === value);
       if (exercises.length > 0) {
         groups[value] = exercises;
@@ -78,16 +75,16 @@ export function InlineExerciseLibrary({
   }, [onSelectExercise]);
 
   return (
-    <div className={cn('flex flex-col border border-primary/30 rounded-lg bg-card overflow-hidden', className)}>
+    <div className={cn('flex flex-col border border-primary/30 rounded-lg bg-card overflow-hidden neon-border-subtle', className)}>
       {/* Header */}
-      <div className="p-3 border-b border-border bg-primary/5">
+      <div className="p-3 border-b border-primary/20 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="font-display text-sm text-foreground flex items-center gap-2">
-            <span className="text-primary">📚</span>
-            EXERCISE LIBRARY
+          <h4 className="font-display text-sm tracking-wider text-foreground flex items-center gap-2">
+            <Flame className="w-4 h-4 text-primary" />
+            <span className="text-primary neon-glow-subtle">UNBREAKABLE</span> EXERCISE LIBRARY
           </h4>
           {onClose && (
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onClose}>
+            <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={onClose}>
               <X className="w-4 h-4" />
             </Button>
           )}
@@ -95,20 +92,20 @@ export function InlineExerciseLibrary({
 
         {/* Search */}
         <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/60" />
           <Input
-            placeholder="Search exercises..."
+            placeholder="Search 230+ movements..."
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
               setSelectedBodyPart('all');
             }}
-            className="pl-10 h-9 border-primary/40 focus:border-primary"
+            className="pl-10 h-9 border-primary/30 focus:border-primary bg-background/50 font-display text-xs tracking-wide"
           />
         </div>
 
-        {/* Body Part Tabs */}
-        <div className="flex flex-wrap gap-1">
+        {/* Body Part Filter - Letter Badges */}
+        <div className="flex flex-wrap gap-1.5">
           <Button
             variant={selectedBodyPart === 'all' ? 'default' : 'outline'}
             size="sm"
@@ -116,11 +113,14 @@ export function InlineExerciseLibrary({
               setSelectedBodyPart('all');
               setSearchQuery('');
             }}
-            className="h-7 text-xs"
+            className={cn(
+              'h-7 text-xs font-display tracking-wide px-3',
+              selectedBodyPart === 'all' && 'neon-border-subtle'
+            )}
           >
-            All
+            ALL
           </Button>
-          {BODY_PART_ICONS.map(({ value, label, Icon }) => (
+          {BODY_PART_OPTIONS.map(({ value, label, letter }) => (
             <Button
               key={value}
               variant={selectedBodyPart === value ? 'default' : 'outline'}
@@ -130,11 +130,18 @@ export function InlineExerciseLibrary({
                 setSearchQuery('');
               }}
               className={cn(
-                'h-7 text-xs gap-1 px-2',
+                'h-7 text-xs gap-1.5 px-2 font-display tracking-wide',
                 selectedBodyPart === value && 'neon-border-subtle'
               )}
             >
-              <Icon className="w-3 h-3" />
+              <span className={cn(
+                'w-5 h-5 rounded text-[9px] font-bold flex items-center justify-center',
+                selectedBodyPart === value 
+                  ? 'bg-primary-foreground/20 text-primary-foreground' 
+                  : 'bg-primary/15 text-primary'
+              )}>
+                {letter}
+              </span>
               <span className="hidden sm:inline">{label}</span>
             </Button>
           ))}
@@ -150,11 +157,11 @@ export function InlineExerciseLibrary({
               {selectedBodyPart === 'all' && !searchQuery && (
                 <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm py-1.5 px-1 mb-1.5 border-b border-primary/20">
                   <div className="flex items-center gap-2">
-                    <BodyPartIcon bodyPart={bodyPart as BodyPart} size="sm" />
-                    <span className="font-display text-xs text-primary uppercase tracking-wide">
-                      {BODY_PART_ICONS.find(bp => bp.value === bodyPart)?.label || bodyPart}
+                    <BodyPartBadge bodyPart={bodyPart as BodyPart} size="sm" active />
+                    <span className="font-display text-xs text-primary uppercase tracking-wider neon-glow-subtle">
+                      {BODY_PART_LABELS[bodyPart as BodyPart] || bodyPart}
                     </span>
-                    <Badge variant="secondary" className="text-[10px] h-4">
+                    <Badge variant="secondary" className="text-[10px] h-4 font-display">
                       {exercises.length}
                     </Badge>
                   </div>
@@ -176,11 +183,11 @@ export function InlineExerciseLibrary({
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <CollapsibleTrigger asChild>
                             <button className="flex items-center gap-2 flex-1 min-w-0 text-left">
-                              <BodyPartIcon bodyPart={exercise.bodyPart} size="sm" showGlow={false} />
+                              <BodyPartBadge bodyPart={exercise.bodyPart} size="sm" />
                               <div className="min-w-0">
                                 <h5 className="font-medium text-xs truncate">{exercise.name}</h5>
                                 <div className="flex items-center gap-1 mt-0.5">
-                                  <Badge variant="outline" className="text-[9px] h-3.5 capitalize px-1">
+                                  <Badge variant="outline" className="text-[9px] h-3.5 capitalize px-1 font-display">
                                     {exercise.equipment[0]}
                                   </Badge>
                                 </div>
@@ -197,10 +204,10 @@ export function InlineExerciseLibrary({
                         <Button
                           size="sm"
                           onClick={() => handleSelect(exercise)}
-                          className="gap-1 shrink-0 ml-2 h-6 text-xs px-2"
+                          className="gap-1 shrink-0 ml-2 h-6 text-xs px-2 font-display tracking-wide"
                         >
                           <Plus className="w-3 h-3" />
-                          Add
+                          ADD
                         </Button>
                       </div>
 
@@ -209,8 +216,6 @@ export function InlineExerciseLibrary({
                           <p className="text-xs text-muted-foreground pt-2">
                             {exercise.description}
                           </p>
-
-                          {/* Full Coaching Panel or Fallback Tips */}
                           {(() => {
                             const coaching = findCoachingDataByName(exercise.name);
                             if (coaching) {
@@ -223,10 +228,10 @@ export function InlineExerciseLibrary({
                             }
                             return (
                               <>
-                                <div className="bg-surface/50 rounded p-2 border border-primary/10">
-                                  <div className="flex items-center gap-1.5 text-primary text-xs font-medium mb-1">
+                                <div className="bg-primary/5 rounded p-2 border border-primary/10">
+                                  <div className="flex items-center gap-1.5 text-primary text-xs font-display tracking-wide mb-1">
                                     <Lightbulb className="w-3 h-3" />
-                                    Tips
+                                    COACHING TIPS
                                   </div>
                                   <ul className="text-xs text-muted-foreground space-y-0.5">
                                     {exercise.tips.slice(0, 2).map((tip, i) => (
@@ -236,10 +241,10 @@ export function InlineExerciseLibrary({
                                 </div>
                                 <Link
                                   to={`/help?q=${encodeURIComponent(exercise.name)}`}
-                                  className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                                  className="flex items-center gap-1.5 text-xs text-primary hover:underline font-display tracking-wide"
                                 >
                                   <MessageCircle className="w-3 h-3" />
-                                  Coaching tips
+                                  ASK YOUR COACH
                                 </Link>
                               </>
                             );
@@ -254,8 +259,8 @@ export function InlineExerciseLibrary({
           ))}
 
           {filteredExercises.length === 0 && (
-            <div className="text-center py-6 text-muted-foreground text-xs">
-              No exercises found. Try a different search.
+            <div className="text-center py-6 text-muted-foreground text-xs font-display tracking-wide">
+              NO EXERCISES FOUND. TRY A DIFFERENT SEARCH.
             </div>
           )}
         </div>
