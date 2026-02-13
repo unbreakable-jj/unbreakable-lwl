@@ -1,4 +1,5 @@
 import { useCallback, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export type VoiceType = "male" | "female";
 
@@ -40,6 +41,14 @@ export function useBreathingAudio({ voiceType, enabled }: UseBreathingAudioOptio
     pendingRequests.current.add(cacheKey);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+      if (!accessToken) {
+        console.error("No active session for TTS");
+        pendingRequests.current.delete(cacheKey);
+        return null;
+      }
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/breathing-tts`,
         {
@@ -47,7 +56,7 @@ export function useBreathingAudio({ voiceType, enabled }: UseBreathingAudioOptio
           headers: {
             "Content-Type": "application/json",
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({ text, voiceType }),
         }
