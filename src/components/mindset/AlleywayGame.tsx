@@ -130,8 +130,9 @@ interface Particle {
   life: number; maxLife: number; color: string; size: number;
 }
 
-const getTheme = (score: number): ThemePalette => THEME_PALETTES[Math.floor(score / 8) % THEME_PALETTES.length];
-const getBallSpeed = (score: number): number => Math.min(MAX_BALL_SPEED, INITIAL_BALL_SPEED + Math.floor(score / 8) * SPEED_INCREASE_PER_SHIFT);
+const THEME_SHIFT_INTERVAL = 15;
+const getTheme = (score: number): ThemePalette => THEME_PALETTES[Math.floor(score / THEME_SHIFT_INTERVAL) % THEME_PALETTES.length];
+const getBallSpeed = (score: number): number => Math.min(MAX_BALL_SPEED, INITIAL_BALL_SPEED + Math.floor(score / THEME_SHIFT_INTERVAL) * SPEED_INCREASE_PER_SHIFT);
 
 const POWERUP_COLORS: Record<PowerUpType, { bg: string; label: string }> = {
   multiball: { bg: "#f97316", label: "MULTI" },
@@ -567,7 +568,7 @@ const AlleywayGame = () => {
     setGameState("gameover");
     const finalScore = scoreRef.current;
     if (finalScore > highScore) setHighScore(finalScore);
-    if (finalScore > 0) saveScore(finalScore, Math.floor(finalScore / 8));
+    if (finalScore > 0) saveScore(finalScore, Math.floor(finalScore / THEME_SHIFT_INTERVAL));
   }, [highScore, saveScore]);
 
   // --- GAME LOOP ---
@@ -662,8 +663,8 @@ const AlleywayGame = () => {
             spawnParticles(brick.x + brick.width / 2, brick.y + brick.height / 2, theme.brickFill, 12);
             spawnPowerUp(brick.x + brick.width / 2, brick.y + brick.height / 2);
 
-            const oldS = Math.floor((scoreRef.current - 1) / 8);
-            const newS = Math.floor(scoreRef.current / 8);
+            const oldS = Math.floor((scoreRef.current - 1) / THEME_SHIFT_INTERVAL);
+            const newS = Math.floor(scoreRef.current / THEME_SHIFT_INTERVAL);
             if (newS > oldS) {
               setThemeShifts(newS);
               screenShakeRef.current = 10; // theme shift shake
