@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.analyze-nutrition]
 verify_jwt = false
+
+[functions.seed-unbreakable-recipes]
+verify_jwt = false
