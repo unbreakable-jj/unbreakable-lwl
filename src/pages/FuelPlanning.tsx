@@ -27,28 +27,18 @@ export default function FuelPlanning() {
       <MainNavigation />
 
       {/* Hero Section */}
-      <section className="pt-24 pb-12 md:pt-28 md:pb-16 border-b border-border">
+      <section className="pt-24 pb-16 md:pt-28 md:pb-20 border-b border-primary/20">
         <div className="container mx-auto px-4 text-center max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="space-y-6"
-          >
-            <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto neon-glow">
-              <Calendar className="w-10 h-10 text-primary" />
-            </div>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="space-y-6">
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide leading-none">
               <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
               <span className="text-foreground">PLANNING</span>
             </h1>
-            <p className="text-primary font-display text-xl tracking-wide neon-glow-subtle">
-              STRATEGIC NUTRITION
-            </p>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
               Build weekly meal plans to stay consistent and hit your targets. Plan ahead, become{' '}
               <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
             </p>
+            <p className="text-primary font-display text-2xl tracking-wider neon-glow-subtle">#UNBREAKABLEFUEL</p>
           </motion.div>
         </div>
       </section>

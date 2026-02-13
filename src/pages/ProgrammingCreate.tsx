@@ -177,7 +177,7 @@ export default function ProgrammingCreate() {
       <MainNavigation />
 
       {/* Hero */}
-      <section className="pt-24 pb-12 md:pt-28 md:pb-16 border-b border-border">
+      <section className="pt-24 pb-16 md:pt-28 md:pb-20 border-b border-primary/20">
         <div className="container mx-auto px-4 text-center max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -185,21 +185,18 @@ export default function ProgrammingCreate() {
             transition={{ duration: 0.6 }}
             className="space-y-6"
           >
-            <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto neon-glow">
-              <Wrench className="w-10 h-10 text-primary" />
-            </div>
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide leading-none">
+            <h1 className="font-display text-5xl sm:text-6xl md:text-7xl tracking-wide leading-none">
               <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
               <span className="text-foreground">BUILDER</span>
             </h1>
-            <p className="text-primary font-display text-xl tracking-wide neon-glow-subtle">
-              CREATE YOUR TRAINING PROGRAMME
-            </p>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              Choose <span className="text-foreground font-medium">Manual</span> for full customisation or{' '}
-              <span className="text-foreground font-medium">Auto</span> to let your coach build it for you.
+              Choose <span className="text-primary font-medium">Manual</span> for full customisation or{' '}
+              <span className="text-primary font-medium">Auto</span> to let the <span className="text-primary font-semibold">Unbreakable Coach</span> build it for you.
               Train with purpose, become{' '}
               <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
+            </p>
+            <p className="text-primary font-display text-2xl tracking-wider neon-glow-subtle">
+              #UNBREAKABLEPOWER
             </p>
           </motion.div>
         </div>

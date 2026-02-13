@@ -45,7 +45,7 @@ const heroContent = {
   goal: "Develop a mind that stays calm in chaos — focused, present, and",
   goalEmphasis: "UNBREAKABLE",
   goalEnd: ". KEEP SHOWING UP.",
-  hashtag: "#UNBREAKABLEMOVEMENT",
+  hashtag: "#UNBREAKABLEMINDSET",
 };
 
 const Mindset = () => {

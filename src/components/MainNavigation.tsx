@@ -30,6 +30,7 @@ import {
   Heart,
   History,
   MessageCircle,
+  GraduationCap,
 } from 'lucide-react';
 
 // Navigation structure based on current site content
@@ -164,6 +165,18 @@ const NAV_STRUCTURE = [
         href: '/help', 
         description: 'Get personalised guidance on training, nutrition, and mindset',
         icon: MessageCircle 
+      },
+    ],
+  },
+  {
+    title: 'UNIVERSITY',
+    href: '/university',
+    items: [
+      { 
+        title: 'Unbreakable University', 
+        href: '/university', 
+        description: 'Learn the science behind the strength — coming soon',
+        icon: GraduationCap 
       },
     ],
   },

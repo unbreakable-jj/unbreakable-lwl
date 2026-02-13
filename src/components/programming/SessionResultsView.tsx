@@ -148,7 +148,7 @@ export function SessionResultsView({ session, onClose, onViewFeedback }: Session
                     <p className="text-xs text-muted-foreground">
                       {sessionFeedback 
                         ? `Rating: ${sessionFeedback.performance_rating?.replace('_', ' ')}`
-                        : 'Get AI-powered insights on your performance'
+                        : 'Get coaching insights on your performance'
                       }
                     </p>
                   </div>

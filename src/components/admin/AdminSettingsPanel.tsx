@@ -116,8 +116,8 @@ export function AdminSettingsPanel() {
                 <Brain className="w-5 h-5 text-purple-500" />
               </div>
               <div>
-                <Label className="font-medium">AI Coaching</Label>
-                <p className="text-sm text-muted-foreground">AI-powered coaching and feedback</p>
+                <Label className="font-medium">Unbreakable Coaching</Label>
+                <p className="text-sm text-muted-foreground">Coaching-powered feedback and guidance</p>
               </div>
             </div>
             <Switch

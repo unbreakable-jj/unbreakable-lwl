@@ -27,7 +27,7 @@ export default function FuelHistory() {
       <MainNavigation />
 
       {/* Hero Section */}
-      <section className="pt-24 pb-12 md:pt-28 md:pb-16 border-b border-border">
+      <section className="pt-24 pb-16 md:pt-28 md:pb-20 border-b border-primary/20">
         <div className="container mx-auto px-4 text-center max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -35,20 +35,17 @@ export default function FuelHistory() {
             transition={{ duration: 0.6 }}
             className="space-y-6"
           >
-            <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto neon-glow">
-              <History className="w-10 h-10 text-primary" />
-            </div>
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide leading-none">
               <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
               <span className="text-foreground">HISTORY</span>
             </h1>
-            <p className="text-primary font-display text-xl tracking-wide neon-glow-subtle">
-              YOUR NUTRITION JOURNEY
-            </p>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
               Review your past nutrition logs and see how your eating habits have evolved.
               Consistency makes you{' '}
               <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
+            </p>
+            <p className="text-primary font-display text-2xl tracking-wider neon-glow-subtle">
+              #UNBREAKABLEFUEL
             </p>
           </motion.div>
         </div>

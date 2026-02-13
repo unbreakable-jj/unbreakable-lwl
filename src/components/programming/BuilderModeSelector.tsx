@@ -19,27 +19,29 @@ export function BuilderModeSelector({ onSelectMode }: BuilderModeSelectorProps) 
           <Card
             onClick={() => onSelectMode('auto')}
             className={cn(
-              'relative overflow-hidden cursor-pointer p-6 h-full',
-              'border-2 border-primary/30 hover:border-primary',
-              'bg-gradient-to-br from-primary/5 to-transparent',
+              'relative overflow-hidden cursor-pointer p-8 h-full',
+              'border-2 border-primary/40 hover:border-primary',
+              'bg-gradient-to-br from-primary/10 via-primary/5 to-transparent',
               'transition-all duration-300',
-              'neon-border-subtle'
+              'neon-border-subtle shadow-[0_0_20px_hsl(var(--primary)/0.15)]',
+              'hover:shadow-[0_0_30px_hsl(var(--primary)/0.3)]'
             )}
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
             
-            <div className="relative z-10 space-y-4">
-              <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-primary/20 flex items-center justify-center neon-glow">
-                <Sparkles className="w-7 h-7 md:w-8 md:h-8 text-primary" />
+            <div className="relative z-10 space-y-5">
+              <div className="w-16 h-16 md:w-18 md:h-18 rounded-xl bg-primary/20 flex items-center justify-center neon-glow">
+                <Sparkles className="w-8 h-8 md:w-9 md:h-9 text-primary" />
               </div>
               
-              <h3 className="font-display text-xl md:text-2xl text-foreground">
-                AUTO <span className="text-primary neon-glow-subtle">BUILDER</span>
+              <h3 className="font-display text-2xl md:text-3xl text-foreground tracking-wide">
+                <span className="text-primary neon-glow-subtle">UNBREAKABLE</span> AUTO
               </h3>
               
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
                 Answer a few questions about your goals, schedule, and experience. 
-                Let us build a personalised 12-week programme tailored to you.
+                Let the <span className="text-primary font-semibold">Unbreakable Coach</span> build a personalised 12-week programme tailored to you.
               </p>
 
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -47,7 +49,7 @@ export function BuilderModeSelector({ onSelectMode }: BuilderModeSelectorProps) 
                 <span>Includes coaching support & feedback</span>
               </div>
               
-              <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg font-display tracking-wide text-sm">
+              <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-display tracking-wider text-sm shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
                 START AUTO BUILD
                 <ArrowRight className="w-4 h-4" />
               </div>
@@ -63,34 +65,37 @@ export function BuilderModeSelector({ onSelectMode }: BuilderModeSelectorProps) 
           <Card
             onClick={() => onSelectMode('manual')}
             className={cn(
-              'relative overflow-hidden cursor-pointer p-6 h-full',
-              'border-2 border-border hover:border-primary/50',
-              'bg-gradient-to-br from-muted/20 to-transparent',
-              'transition-all duration-300'
+              'relative overflow-hidden cursor-pointer p-8 h-full',
+              'border-2 border-primary/30 hover:border-primary',
+              'bg-gradient-to-br from-primary/10 via-primary/5 to-transparent',
+              'transition-all duration-300',
+              'neon-border-subtle shadow-[0_0_20px_hsl(var(--primary)/0.1)]',
+              'hover:shadow-[0_0_30px_hsl(var(--primary)/0.25)]'
             )}
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-muted/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
             
-            <div className="relative z-10 space-y-4">
-              <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-muted/40 flex items-center justify-center">
-                <Wrench className="w-7 h-7 md:w-8 md:h-8 text-muted-foreground" />
+            <div className="relative z-10 space-y-5">
+              <div className="w-16 h-16 md:w-18 md:h-18 rounded-xl bg-primary/20 flex items-center justify-center neon-glow">
+                <Wrench className="w-8 h-8 md:w-9 md:h-9 text-primary" />
               </div>
               
-              <h3 className="font-display text-xl md:text-2xl text-foreground">
-                MANUAL <span className="text-muted-foreground">BUILDER</span>
+              <h3 className="font-display text-2xl md:text-3xl text-foreground tracking-wide">
+                <span className="text-primary neon-glow-subtle">UNBREAKABLE</span> MANUAL
               </h3>
               
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
                 Full control over your programme. Pick exercises from our comprehensive library, 
                 set your own sets, reps, and progression. Perfect for experienced lifters.
               </p>
 
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Dumbbell className="w-4 h-4 text-primary shrink-0" />
-                <span>150+ exercises with coaching tips</span>
+                <span>230+ exercises with coaching tips</span>
               </div>
               
-              <div className="inline-flex items-center gap-2 bg-muted text-foreground px-5 py-2.5 rounded-lg font-display tracking-wide text-sm">
+              <div className="inline-flex items-center gap-2 bg-primary/20 text-primary border border-primary/40 px-6 py-3 rounded-lg font-display tracking-wider text-sm hover:bg-primary hover:text-primary-foreground transition-all">
                 BUILD MANUALLY
                 <ArrowRight className="w-4 h-4" />
               </div>
