@@ -490,7 +490,7 @@ function SessionCard({
                 className="flex-1 gap-1"
               >
                 <Sparkles className="w-3 h-3" />
-                AI Feedback
+                Coach Feedback
               </Button>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Home, Calculator, Activity, User, LogOut, Settings, Brain, Sparkles, Flame, Dumbbell, Footprints, Apple, Shield } from 'lucide-react';
+import { Menu, X, Home, Calculator, Activity, User, LogOut, Settings, Brain, Sparkles, Flame, Dumbbell, Footprints, Apple, Shield, GraduationCap } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -42,6 +42,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
     { to: '/fuel', label: 'FUEL', icon: Apple },
     { to: '/mindset', label: 'MINDSET', icon: Brain },
     { to: '/help', label: 'COACHING', icon: Flame, highlight: true },
+    { to: '/university', label: 'UNIVERSITY', icon: GraduationCap },
     { to: '/profile', label: 'MY PROFILE', icon: User },
     ...(isAdminOrOwner ? [{ to: '/admin', label: 'ADMIN', icon: Shield, admin: true }] : []),
   ];

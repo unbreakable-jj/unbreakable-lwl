@@ -39,7 +39,7 @@ const heroContent = {
     goal: 'Build a body that\'s strong, mobile, and resilient.',
     goalEmphasis: 'KEEP SHOWING UP',
     goalEnd: '.',
-    hashtag: '#UNBREAKABLEMOVEMENT',
+    hashtag: '#UNBREAKABLEPOWER',
   },
   fuel: {
     title: 'FUEL',
@@ -53,7 +53,7 @@ const heroContent = {
     goal: 'Fuel a body built to last — not just look good.',
     goalEmphasis: 'KEEP SHOWING UP',
     goalEnd: '.',
-    hashtag: '#UNBREAKABLEMOVEMENT',
+    hashtag: '#UNBREAKABLEFUEL',
   },
   speed: {
     title: 'SPEED',

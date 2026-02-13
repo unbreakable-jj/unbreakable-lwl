@@ -36,7 +36,7 @@ export default function Fuel() {
       <MainNavigation />
 
       {/* Hero */}
-      <section className="pt-24 pb-12 md:pt-28 md:pb-16 border-b border-border">
+      <section className="pt-24 pb-16 md:pt-28 md:pb-20 border-b border-primary/20">
         <div className="container mx-auto px-4 text-center max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -48,15 +48,14 @@ export default function Fuel() {
               <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
               <span className="text-foreground">FUEL</span>
             </h1>
-            <p className="text-primary font-display text-xl md:text-2xl tracking-wide neon-glow-subtle">
-              LIVE WITHOUT LIMITS
-            </p>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
               Food is not the enemy — it's the weapon. Track your nutrition, build meal plans, and fuel
               a body built to last. Eat with purpose, become{' '}
-              <span className="text-primary font-semibold">UNBREAKABLE</span>.
+              <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
             </p>
-            <p className="text-primary font-display text-lg neon-glow-subtle">KEEP SHOWING UP.</p>
+            <p className="text-primary font-display text-2xl tracking-wider neon-glow-subtle">
+              #UNBREAKABLEFUEL
+            </p>
           </motion.div>
         </div>
       </section>

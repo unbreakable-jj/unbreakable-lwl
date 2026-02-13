@@ -15,6 +15,7 @@ import Help from "./pages/Help";
 import Inbox from "./pages/Inbox";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import University from "./pages/University";
 
 // New modular sub-pages
 import Profile from "./pages/Profile";
@@ -111,6 +112,11 @@ const App = () => (
               {/* Coaching (Help) */}
               <Route path="/help" element={
                 <ProtectedRoute><Help /></ProtectedRoute>
+              } />
+              
+              {/* University */}
+              <Route path="/university" element={
+                <ProtectedRoute><University /></ProtectedRoute>
               } />
               
               {/* Inbox */}

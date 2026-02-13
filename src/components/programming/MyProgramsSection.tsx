@@ -79,7 +79,7 @@ export function MyProgramsSection() {
         <Dumbbell className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
         <h3 className="font-display text-lg text-foreground mb-2">No saved programmes</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Generate a bespoke programme with AI or build one manually above.
+          Generate a bespoke programme with the Unbreakable Coach or build one manually above.
         </p>
         <ProgrammeCTA variant="default" className="mx-auto" />
       </Card>

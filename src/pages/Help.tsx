@@ -420,13 +420,13 @@ export default function Help() {
             <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
             <span className="text-foreground">COACHING</span>
           </h1>
-          <p className="text-primary font-display text-xl md:text-2xl tracking-wide mt-4 neon-glow-subtle">
-            LIVE WITHOUT LIMITS
-          </p>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg mt-4">
             Your personal coach for training, nutrition, mindset, and beyond.
             Ask anything — become{' '}
-            <span className="text-primary font-semibold">UNBREAKABLE</span>.
+            <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
+          </p>
+          <p className="text-primary font-display text-xl tracking-wider mt-4 neon-glow-subtle">
+            #UNBREAKABLECOACHING
           </p>
         </section>
 
