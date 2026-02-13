@@ -71,9 +71,11 @@ export function ActivityCard({ run, onKudos, onDelete, onToggleComments, onUpdat
 
   const handleShareToStory = async () => {
     // Share run map snapshot if available
-    const storyData: { image_url?: string; content?: string; visibility: string } = {
+    const storyData: { image_url?: string; content?: string; visibility: string; text_overlays: any[]; background_color: string | null } = {
       visibility: 'public',
       content: `🏃 ${run.title || 'Run'} - ${run.distance_km.toFixed(2)}km in ${formatDuration(run.duration_seconds)}`,
+      text_overlays: [],
+      background_color: '#1C1C1E',
     };
 
     if (run.map_snapshot_url) {

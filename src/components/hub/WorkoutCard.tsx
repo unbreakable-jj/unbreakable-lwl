@@ -63,6 +63,8 @@ export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onUp
     const storyData = {
       visibility: 'public',
       content: `💪 ${workout.day_name} - ${workout.session_type} • Week ${workout.week_number}\n⏱️ ${formatDuration(workout.duration_seconds)} • ${workout.sets_completed || 0} sets`,
+      text_overlays: [],
+      background_color: '#1C1C1E',
     };
 
     const { error } = await createStory(storyData);
