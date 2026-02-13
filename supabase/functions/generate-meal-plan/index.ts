@@ -24,53 +24,12 @@ interface UserContext {
   chatContext?: string;
 }
 
-const systemPrompt = `You are the UNBREAKABLE NUTRITION COACH. Generate bespoke meal plans tailored to each athlete's unique needs.
-
-WHEN GENERATING MEAL PLANS:
-1. Create a 7-day meal plan with breakfast, lunch, dinner, and snacks
-2. Each meal must include: name, calories, protein, carbs, fat, and brief prep notes
-3. Consider the athlete's training load and adjust calories/macros accordingly
-4. Training days = higher carbs and calories
-5. Rest days = slightly lower calories, maintain protein
-6. Include practical, real-food options that can be prepped in batches
-
-OUTPUT FORMAT (JSON):
-{
-  "planName": "string",
-  "overview": "string describing the plan",
-  "weeklyCalories": number,
-  "weeklyProtein": number,
-  "days": [
-    {
-      "dayNumber": 1,
-      "dayName": "Monday",
-      "isTrainingDay": boolean,
-      "totalCalories": number,
-      "totalProtein": number,
-      "totalCarbs": number,
-      "totalFat": number,
-      "meals": {
-        "breakfast": { "name": "string", "calories": number, "protein": number, "carbs": number, "fat": number, "prepNotes": "string" },
-        "lunch": { "name": "string", "calories": number, "protein": number, "carbs": number, "fat": number, "prepNotes": "string" },
-        "dinner": { "name": "string", "calories": number, "protein": number, "carbs": number, "fat": number, "prepNotes": "string" },
-        "snacks": [{ "name": "string", "calories": number, "protein": number, "carbs": number, "fat": number }]
-      }
-    }
-  ],
-  "shoppingList": ["string array of key ingredients"],
-  "mealPrepTips": ["string array of batch cooking tips"],
-  "coachNotes": "string with personalized coaching advice"
-}
-
-NEVER generate generic plans. Each plan MUST be unique to this athlete's context.`;
-
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Verify authentication
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return new Response(
@@ -111,7 +70,66 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Build context for AI
+    // Fetch all public recipes from the library to use as source
+    const { data: libraryRecipes, error: recipesError } = await supabase
+      .from('recipes')
+      .select('id, name, category, pack, calories_per_serving, protein_g, carbs_g, fat_g, dietary_tags, prep_time_minutes, cook_time_minutes, servings')
+      .eq('is_public', true)
+      .order('name');
+
+    if (recipesError) {
+      console.error("Failed to fetch recipes:", recipesError);
+    }
+
+    // Build recipe catalogue for the AI
+    const recipeCatalogue = (libraryRecipes || []).map(r => 
+      `- ${r.name} [${r.pack || 'custom'}] (${r.category}) | ${r.calories_per_serving}kcal | P:${r.protein_g}g C:${r.carbs_g}g F:${r.fat_g}g | Tags: ${(r.dietary_tags || []).join(',')} | Prep: ${r.prep_time_minutes}min Cook: ${r.cook_time_minutes}min | ID: ${r.id}`
+    ).join('\n');
+
+    const systemPrompt = `You are the UNBREAKABLE NUTRITION COACH. Generate bespoke meal plans using recipes from the UNBREAKABLE Recipe Library.
+
+RECIPE LIBRARY (USE THESE RECIPES):
+${recipeCatalogue}
+
+CRITICAL RULES:
+1. ALWAYS suggest recipes from the library above when possible
+2. Include the recipe ID for every library recipe you suggest
+3. You may suggest custom meals where no library recipe fits, but prioritise library recipes
+4. Each suggested meal must include: name, recipeId (if from library), calories, protein, carbs, fat, and prepNotes
+5. Consider the athlete's training load and adjust calories/macros for training vs rest days
+6. Training days = higher carbs and calories; Rest days = maintain protein, lower calories slightly
+
+OUTPUT FORMAT (JSON):
+{
+  "planName": "string",
+  "overview": "string describing the plan",
+  "weeklyCalories": number,
+  "weeklyProtein": number,
+  "days": [
+    {
+      "dayNumber": 1,
+      "dayName": "Monday",
+      "isTrainingDay": boolean,
+      "totalCalories": number,
+      "totalProtein": number,
+      "totalCarbs": number,
+      "totalFat": number,
+      "meals": {
+        "breakfast": { "name": "string", "recipeId": "uuid or null", "calories": number, "protein": number, "carbs": number, "fat": number, "prepNotes": "string" },
+        "lunch": { "name": "string", "recipeId": "uuid or null", "calories": number, "protein": number, "carbs": number, "fat": number, "prepNotes": "string" },
+        "dinner": { "name": "string", "recipeId": "uuid or null", "calories": number, "protein": number, "carbs": number, "fat": number, "prepNotes": "string" },
+        "snacks": [{ "name": "string", "recipeId": "uuid or null", "calories": number, "protein": number, "carbs": number, "fat": number }]
+      }
+    }
+  ],
+  "shoppingList": ["string array of key ingredients"],
+  "mealPrepTips": ["string array of batch cooking tips"],
+  "coachNotes": "string with personalized coaching advice"
+}
+
+NEVER generate generic plans. Each plan MUST be unique to this athlete's context and use library recipes.`;
+
+    // Build context
     let contextMessage = `ATHLETE CONTEXT:\n`;
     
     if (userContext.goals) {
@@ -139,10 +157,9 @@ serve(async (req) => {
 
     contextMessage += `\nREQUEST: ${prompt}`;
 
-    // Determine if we need full JSON or conversational response
     const outputInstruction = requestType === 'suggestions' 
-      ? 'Provide helpful meal suggestions in a conversational format. Be specific and practical.'
-      : 'Generate a complete meal plan in the JSON format specified above. Respond ONLY with valid JSON.';
+      ? 'Provide helpful meal suggestions in a conversational format. Reference specific recipes from the library by name. Be specific and practical.'
+      : 'Generate a complete meal plan in the JSON format specified above. Use library recipes where possible. Respond ONLY with valid JSON.';
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -195,7 +212,6 @@ serve(async (req) => {
     // For full plans, parse JSON and save to database
     let mealPlan;
     try {
-      // Extract JSON from response (handle markdown code blocks)
       const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/) || content.match(/\{[\s\S]*\}/);
       const jsonStr = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : content;
       mealPlan = JSON.parse(jsonStr);
@@ -227,69 +243,35 @@ serve(async (req) => {
       throw new Error("Failed to save meal plan");
     }
 
-    // Save meal plan items for each day
+    // Save meal plan items with recipe_id links
     const planItems = [];
     for (const day of mealPlan.days || []) {
       const dayIndex = day.dayNumber - 1;
       
-      if (day.meals?.breakfast) {
+      const addMeal = (meal: any, mealType: string) => {
+        if (!meal) return;
         planItems.push({
           user_id: userContext.userId,
           meal_plan_id: savedPlan.id,
           day_of_week: dayIndex,
-          meal_type: 'breakfast',
-          food_name: day.meals.breakfast.name,
-          calories: day.meals.breakfast.calories,
-          protein_g: day.meals.breakfast.protein,
-          carbs_g: day.meals.breakfast.carbs,
-          fat_g: day.meals.breakfast.fat,
-          notes: day.meals.breakfast.prepNotes,
+          meal_type: mealType,
+          food_name: meal.name,
+          recipe_id: meal.recipeId || null,
+          calories: meal.calories,
+          protein_g: meal.protein,
+          carbs_g: meal.carbs,
+          fat_g: meal.fat,
+          notes: meal.prepNotes || null,
         });
-      }
-      
-      if (day.meals?.lunch) {
-        planItems.push({
-          user_id: userContext.userId,
-          meal_plan_id: savedPlan.id,
-          day_of_week: dayIndex,
-          meal_type: 'lunch',
-          food_name: day.meals.lunch.name,
-          calories: day.meals.lunch.calories,
-          protein_g: day.meals.lunch.protein,
-          carbs_g: day.meals.lunch.carbs,
-          fat_g: day.meals.lunch.fat,
-          notes: day.meals.lunch.prepNotes,
-        });
-      }
-      
-      if (day.meals?.dinner) {
-        planItems.push({
-          user_id: userContext.userId,
-          meal_plan_id: savedPlan.id,
-          day_of_week: dayIndex,
-          meal_type: 'dinner',
-          food_name: day.meals.dinner.name,
-          calories: day.meals.dinner.calories,
-          protein_g: day.meals.dinner.protein,
-          carbs_g: day.meals.dinner.carbs,
-          fat_g: day.meals.dinner.fat,
-          notes: day.meals.dinner.prepNotes,
-        });
-      }
+      };
+
+      addMeal(day.meals?.breakfast, 'breakfast');
+      addMeal(day.meals?.lunch, 'lunch');
+      addMeal(day.meals?.dinner, 'dinner');
       
       if (day.meals?.snacks) {
         for (const snack of day.meals.snacks) {
-          planItems.push({
-            user_id: userContext.userId,
-            meal_plan_id: savedPlan.id,
-            day_of_week: dayIndex,
-            meal_type: 'snack',
-            food_name: snack.name,
-            calories: snack.calories,
-            protein_g: snack.protein,
-            carbs_g: snack.carbs,
-            fat_g: snack.fat,
-          });
+          addMeal(snack, 'snack');
         }
       }
     }
@@ -309,7 +291,7 @@ serve(async (req) => {
       plan: mealPlan,
       savedToHub: true,
       planId: savedPlan.id,
-      message: `Your "${mealPlan.planName}" meal plan is ready in your Fuel hub!`,
+      message: `Your "${mealPlan.planName}" meal plan is ready in your Fuel hub! Review and confirm the suggested recipes.`,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

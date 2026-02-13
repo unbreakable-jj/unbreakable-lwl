@@ -15,6 +15,7 @@ import {
   BookOpen,
   ShoppingCart,
   CheckCircle2,
+  CalendarPlus,
 } from 'lucide-react';
 
 const DIETARY_TAG_FULL: Record<string, string> = {
@@ -35,6 +36,7 @@ interface RecipeDetailModalProps {
   onClose: () => void;
   onToggleFavourite: (id: string) => void;
   onLogMeal: (recipe: Recipe) => void;
+  onAddToPlan?: (recipe: Recipe) => void;
 }
 
 export function RecipeDetailModal({
@@ -43,6 +45,7 @@ export function RecipeDetailModal({
   onClose,
   onToggleFavourite,
   onLogMeal,
+  onAddToPlan,
 }: RecipeDetailModalProps) {
   if (!recipe) return null;
 
@@ -50,17 +53,17 @@ export function RecipeDetailModal({
   const instructions = recipe.instructions?.split('\n').filter(Boolean) || [];
   const servings = recipe.servings || 1;
 
-  // Calculate macro percentages for visual bars
   const totalMacroGrams = (recipe.protein_g || 0) + (recipe.carbs_g || 0) + (recipe.fat_g || 0);
   const proteinPct = totalMacroGrams > 0 ? ((recipe.protein_g || 0) / totalMacroGrams) * 100 : 0;
   const carbsPct = totalMacroGrams > 0 ? ((recipe.carbs_g || 0) / totalMacroGrams) * 100 : 0;
   const fatPct = totalMacroGrams > 0 ? ((recipe.fat_g || 0) / totalMacroGrams) * 100 : 0;
 
-  // Per-serving ingredient calculation
   const getPerServing = (value: number | null | undefined) => {
     if (value == null) return null;
     return Math.round((value / servings) * 10) / 10;
   };
+
+  const packLabel = recipe.pack === 'low-carb' ? 'LOW-CARB' : recipe.pack === '5-ingredient' ? '5-INGREDIENT' : 'HIGH PROTEIN';
 
   return (
     <Dialog open={!!recipe} onOpenChange={(open) => !open && onClose()}>
@@ -86,8 +89,8 @@ export function RecipeDetailModal({
           {/* Floating badges */}
           <div className="absolute top-4 left-4 flex gap-2">
             {recipe.pack && (
-              <Badge className="bg-primary/90 text-primary-foreground font-display tracking-wider text-xs backdrop-blur-sm">
-                {recipe.pack === 'low-carb' ? '🥬 LOW-CARB' : '💪 HIGH PROTEIN'}
+              <Badge className="bg-primary/90 text-primary-foreground font-display tracking-wider text-xs backdrop-blur-sm shadow-[0_0_10px_hsl(var(--primary)/0.3)]">
+                {recipe.pack === 'low-carb' ? '🥬' : recipe.pack === '5-ingredient' ? '🔥' : '💪'} {packLabel}
               </Badge>
             )}
             {recipe.category && (
@@ -116,7 +119,7 @@ export function RecipeDetailModal({
             </h2>
             {recipe.pack && (
               <p className="text-xs font-display tracking-widest text-primary mt-1 neon-glow-subtle">
-                UNBREAKABLE {recipe.pack === 'low-carb' ? 'LOW-CARB' : 'HIGH PROTEIN'} PACK
+                UNBREAKABLE {packLabel} PACK
               </p>
             )}
           </div>
@@ -125,42 +128,22 @@ export function RecipeDetailModal({
         <div className="p-5 space-y-6">
           {/* Quick Stats Row */}
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-sm">
-              <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center">
-                <Clock className="w-4 h-4 text-primary" />
+            {[
+              { icon: Clock, label: 'PREP', value: `${recipe.prep_time_minutes || 0} min` },
+              { icon: Flame, label: 'COOK', value: `${recipe.cook_time_minutes || 0} min` },
+              { icon: ChefHat, label: 'TOTAL', value: `${totalTime} min` },
+              { icon: Users, label: 'SERVES', value: `${recipe.servings}` },
+            ].map(({ icon: Icon, label, value }) => (
+              <div key={label} className="flex items-center gap-2 text-sm">
+                <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center border border-primary/20">
+                  <Icon className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <p className="font-display text-[10px] tracking-wide text-muted-foreground">{label}</p>
+                  <p className="font-semibold text-sm">{value}</p>
+                </div>
               </div>
-              <div>
-                <p className="font-display text-[10px] tracking-wide text-muted-foreground">PREP</p>
-                <p className="font-semibold text-sm">{recipe.prep_time_minutes || 0} min</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center">
-                <Flame className="w-4 h-4 text-primary" />
-              </div>
-              <div>
-                <p className="font-display text-[10px] tracking-wide text-muted-foreground">COOK</p>
-                <p className="font-semibold text-sm">{recipe.cook_time_minutes || 0} min</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center">
-                <ChefHat className="w-4 h-4 text-primary" />
-              </div>
-              <div>
-                <p className="font-display text-[10px] tracking-wide text-muted-foreground">TOTAL</p>
-                <p className="font-semibold text-sm">{totalTime} min</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center">
-                <Users className="w-4 h-4 text-primary" />
-              </div>
-              <div>
-                <p className="font-display text-[10px] tracking-wide text-muted-foreground">SERVES</p>
-                <p className="font-semibold text-sm">{recipe.servings}</p>
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* Description */}
@@ -183,7 +166,7 @@ export function RecipeDetailModal({
             </div>
           )}
 
-          <Separator />
+          <Separator className="bg-primary/10" />
 
           {/* Nutrition Breakdown */}
           <div>
@@ -192,8 +175,7 @@ export function RecipeDetailModal({
               NUTRITION PER SERVING
             </h3>
 
-            <Card className="p-4 border-primary/20 neon-border-subtle">
-              {/* Calorie highlight */}
+            <Card className="p-4 border-primary/25 shadow-[0_0_15px_hsl(var(--primary)/0.1)]">
               <div className="text-center mb-4">
                 <p className="font-display text-4xl text-primary neon-glow-subtle">
                   {recipe.calories_per_serving || 0}
@@ -201,49 +183,24 @@ export function RecipeDetailModal({
                 <p className="text-xs font-display tracking-widest text-muted-foreground">CALORIES</p>
               </div>
 
-              {/* Macro bars - brand colors only */}
               <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs font-medium text-foreground">Protein</span>
-                    <span className="font-display text-sm text-primary">{recipe.protein_g || 0}g</span>
+                {[
+                  { label: 'Protein', value: recipe.protein_g, pct: proteinPct, color: 'bg-primary' },
+                  { label: 'Carbs', value: recipe.carbs_g, pct: carbsPct, color: 'bg-foreground/40' },
+                  { label: 'Fat', value: recipe.fat_g, pct: fatPct, color: 'bg-muted-foreground/50' },
+                ].map(({ label, value, pct, color }) => (
+                  <div key={label}>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs font-medium text-foreground">{label}</span>
+                      <span className="font-display text-sm text-primary">{value || 0}g</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div className={`h-full ${color} rounded-full transition-all`} style={{ width: `${pct}%` }} />
+                    </div>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary rounded-full transition-all"
-                      style={{ width: `${proteinPct}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs font-medium text-foreground">Carbs</span>
-                    <span className="font-display text-sm text-foreground">{recipe.carbs_g || 0}g</span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-foreground/40 rounded-full transition-all"
-                      style={{ width: `${carbsPct}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs font-medium text-foreground">Fat</span>
-                    <span className="font-display text-sm text-muted-foreground">{recipe.fat_g || 0}g</span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-muted-foreground/50 rounded-full transition-all"
-                      style={{ width: `${fatPct}%` }}
-                    />
-                  </div>
-                </div>
+                ))}
               </div>
 
-              {/* Macro split summary */}
               <div className="flex justify-center gap-6 mt-3 pt-3 border-t border-border/50">
                 <span className="text-[10px] text-muted-foreground">
                   <span className="inline-block w-2 h-2 rounded-full bg-primary mr-1" />
@@ -261,9 +218,9 @@ export function RecipeDetailModal({
             </Card>
           </div>
 
-          <Separator />
+          <Separator className="bg-primary/10" />
 
-          {/* Ingredients - PER SERVING */}
+          {/* Ingredients */}
           <div>
             <h3 className="font-display text-sm tracking-widest text-muted-foreground mb-1 flex items-center gap-2">
               <ShoppingCart className="w-4 h-4 text-primary" />
@@ -325,9 +282,9 @@ export function RecipeDetailModal({
             )}
           </div>
 
-          <Separator />
+          <Separator className="bg-primary/10" />
 
-          {/* Method / Instructions */}
+          {/* Method */}
           {instructions.length > 0 && (
             <div>
               <h3 className="font-display text-sm tracking-widest text-muted-foreground mb-4 flex items-center gap-2">
@@ -355,33 +312,43 @@ export function RecipeDetailModal({
             </div>
           )}
 
-          <Separator />
+          <Separator className="bg-primary/10" />
 
-          {/* UNBREAKABLE Branding Footer */}
+          {/* UNBREAKABLE Footer */}
           <div className="text-center py-2">
             <p className="font-display text-xs tracking-[0.3em] text-primary/60 neon-glow-subtle">
-              FUEL WITH PURPOSE • KEEP SHOWING UP
+              FUEL YOUR RESULTS • KEEP SHOWING UP
             </p>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-2 pb-1 sticky bottom-0 bg-background/95 backdrop-blur-sm -mx-5 px-5 border-t border-border/50">
+          <div className="flex gap-2 pt-2 pb-1 sticky bottom-0 bg-background/95 backdrop-blur-sm -mx-5 px-5 border-t border-border/50">
             <Button
               className="flex-1 font-display tracking-wide h-12"
               onClick={() => onLogMeal(recipe)}
             >
               <Flame className="w-5 h-5 mr-2" />
-              LOG THIS MEAL
+              LOG MEAL
             </Button>
+            {onAddToPlan && (
+              <Button
+                variant="outline"
+                className="font-display tracking-wide h-12 border-primary/40 text-primary hover:bg-primary/10 hover:shadow-[0_0_10px_hsl(var(--primary)/0.2)]"
+                onClick={() => onAddToPlan(recipe)}
+              >
+                <CalendarPlus className="w-5 h-5 mr-2" />
+                ADD TO PLAN
+              </Button>
+            )}
             <Button
               variant="outline"
-              className="flex-1 font-display tracking-wide h-12 border-primary/40 text-primary hover:bg-primary/10"
+              size="icon"
+              className="h-12 w-12 border-primary/40 text-primary hover:bg-primary/10"
               onClick={() => onToggleFavourite(recipe.id)}
             >
               <Star
-                className={`w-5 h-5 mr-2 ${recipe.is_favourite ? 'fill-primary' : ''}`}
+                className={`w-5 h-5 ${recipe.is_favourite ? 'fill-primary' : ''}`}
               />
-              {recipe.is_favourite ? 'SAVED' : 'SAVE RECIPE'}
             </Button>
           </div>
         </div>
