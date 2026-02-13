@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Pause, Play, RotateCcw, Share2 } from "lucide-react";
+import { ChevronLeft, Pause, Play, RotateCcw, Share2, Volume2, VolumeX } from "lucide-react";
 import { BreathingVisual } from "./BreathingVisual";
 
 type BreathPhase = "idle" | "inhale" | "hold" | "exhale" | "rest" | "complete";
@@ -14,6 +14,8 @@ interface ImmersiveSessionViewProps {
   isActive: boolean;
   isComplete: boolean;
   closingMessage?: string;
+  voiceEnabled: boolean;
+  onToggleVoice: () => void;
   onToggle: () => void;
   onReset: () => void;
   onShare: () => void;
@@ -28,6 +30,8 @@ export function ImmersiveSessionView({
   isActive,
   isComplete,
   closingMessage,
+  voiceEnabled,
+  onToggleVoice,
   onToggle,
   onReset,
   onShare,
@@ -110,6 +114,16 @@ export function ImmersiveSessionView({
           className="w-12 h-12 rounded-full border-muted-foreground/30"
         >
           <ChevronLeft className="w-5 h-5" />
+        </Button>
+
+        {/* Voice mute toggle */}
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={onToggleVoice}
+          className="w-12 h-12 rounded-full border-muted-foreground/30"
+        >
+          {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
         </Button>
 
         {!isComplete ? (
