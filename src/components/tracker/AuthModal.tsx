@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,15 +10,21 @@ import { toast } from 'sonner';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  defaultMode?: 'signin' | 'signup';
 }
 
-export function AuthModal({ isOpen, onClose }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModalProps) {
   const { signIn, signUp } = useAuth();
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [mode, setMode] = useState<'signin' | 'signup'>(defaultMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Sync mode when defaultMode changes
+  useEffect(() => {
+    setMode(defaultMode);
+  }, [defaultMode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

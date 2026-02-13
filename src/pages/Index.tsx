@@ -24,6 +24,7 @@ const Index = () => {
   const [showActionMenu, setShowActionMenu] = useState(false);
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authDefaultMode, setAuthDefaultMode] = useState<'signin' | 'signup'>('signin');
   const [showUserSearch, setShowUserSearch] = useState(false);
   const [showFriendRequests, setShowFriendRequests] = useState(false);
   const [showFriendsList, setShowFriendsList] = useState(false);
@@ -114,8 +115,11 @@ const Index = () => {
   // Not logged in - show landing page
   return (
     <>
-      <LandingPage onSignIn={() => setShowAuthModal(true)} />
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      <LandingPage 
+        onSignIn={() => { setAuthDefaultMode('signin'); setShowAuthModal(true); }}
+        onSignUp={() => { setAuthDefaultMode('signup'); setShowAuthModal(true); }}
+      />
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} defaultMode={authDefaultMode} />
     </>
   );
 };

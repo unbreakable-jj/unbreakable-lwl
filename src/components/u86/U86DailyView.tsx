@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { U86SessionView } from './U86SessionView';
-import { WorkoutFeedbackPanel } from '@/components/programming/WorkoutFeedbackPanel';
 import { VideoToolView } from '@/components/programming/VideoToolView';
 import type { U86Day, U86Program } from '@/hooks/useUnbreakable86';
 
@@ -29,10 +28,10 @@ interface U86DailyViewProps {
 const HABIT_CONFIG = [
   { key: 'habit_train', icon: Dumbbell, label: 'TRAIN', desc: 'Complete the full Unbreakable 86 session' },
   { key: 'habit_learn_daily', icon: BookOpen, label: 'LEARN DAILY', desc: '10-20 minutes non-fiction reading' },
-  { key: 'habit_journal', icon: PenLine, label: 'DAILY JOURNAL', desc: 'Reflect on your day — what went well, what was hard, what to improve' },
   { key: 'habit_control_inputs', icon: Droplets, label: 'DAILY WATER TARGET', desc: 'Drink at least 3 litres of water today' },
   { key: 'habit_hard_thing', icon: Zap, label: 'DO THE HARD THING', desc: 'Do one thing that scares you. Talk to a stranger. Start something new.' },
   { key: 'habit_hit_numbers', icon: Shield, label: 'HIT YOUR NUMBERS', desc: 'Meet your daily calorie and macro targets' },
+  { key: 'habit_journal', icon: PenLine, label: 'DAILY JOURNAL', desc: 'Reflect on your day — what went well, what was hard, what to improve' },
 ] as const;
 
 export function U86DailyView({ day, program, streak, onUpdate, onComplete, readOnly = false }: U86DailyViewProps) {
@@ -478,13 +477,6 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
           })}
         </div>
 
-        {/* Coaching Feedback */}
-        <div className="space-y-3">
-          <h3 className="font-display text-lg tracking-wider text-foreground">
-            UNBREAKABLE <span className="text-primary">COACHING</span>
-          </h3>
-          <WorkoutFeedbackPanel exerciseLogs={exerciseLogs} />
-        </div>
 
         {/* Complete Day */}
         {!readOnly && (
