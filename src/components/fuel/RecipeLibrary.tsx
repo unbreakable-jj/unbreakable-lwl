@@ -178,7 +178,10 @@ export function RecipeLibrary() {
         logged_at: new Date().toISOString(),
         recipe_id: recipe.id,
       });
-      toast.success(`${recipe.name} logged as a meal`);
+      toast.success('LOGGED ✓', {
+        description: `${recipe.name} added to your tracker`,
+        duration: 3000,
+      });
     } catch {
       toast.error('Failed to log meal');
     }
@@ -517,23 +520,23 @@ export function RecipeLibrary() {
                       
                       {/* Macro Bar (stacked horizontal) */}
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden flex mb-2">
-                        <div className="bg-red-400 h-full" style={{ width: `${pPct}%` }} />
-                        <div className="bg-amber-400 h-full" style={{ width: `${cPct}%` }} />
-                        <div className="bg-sky-400 h-full" style={{ width: `${fPct}%` }} />
+                        <div className="bg-primary h-full" style={{ width: `${pPct}%` }} />
+                        <div className="bg-foreground/40 h-full" style={{ width: `${cPct}%` }} />
+                        <div className="bg-muted-foreground/50 h-full" style={{ width: `${fPct}%` }} />
                       </div>
 
                       {/* Macro Values */}
                       <div className="grid grid-cols-3 gap-2 text-center text-[11px]">
                         <div>
-                          <span className="font-semibold text-red-400">{recipe.protein_g || 0}g</span>
+                          <span className="font-semibold text-primary">{recipe.protein_g || 0}g</span>
                           <span className="text-muted-foreground ml-0.5">P</span>
                         </div>
                         <div>
-                          <span className="font-semibold text-amber-400">{recipe.carbs_g || 0}g</span>
+                          <span className="font-semibold text-foreground">{recipe.carbs_g || 0}g</span>
                           <span className="text-muted-foreground ml-0.5">C</span>
                         </div>
                         <div>
-                          <span className="font-semibold text-sky-400">{recipe.fat_g || 0}g</span>
+                          <span className="font-semibold text-muted-foreground">{recipe.fat_g || 0}g</span>
                           <span className="text-muted-foreground ml-0.5">F</span>
                         </div>
                       </div>
