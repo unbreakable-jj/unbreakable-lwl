@@ -28,6 +28,66 @@ interface ProgramRequest {
   gender?: string;
 }
 
+// Full exercise library for AI reference — exercises MUST come from this list
+const EXERCISE_LIBRARY_REFERENCE = `
+CRITICAL RULE: You MUST ONLY use exercises from this library. Do NOT invent or auto-generate exercise names.
+
+AVAILABLE EXERCISES BY BODY PART:
+
+CHEST:
+- Barbell: Flat Bench Press, Incline Bench Press, Decline Bench Press, Close Grip Bench Press, Floor Press
+- Dumbbell: Dumbbell Bench Press, Incline Dumbbell Press, Decline Dumbbell Press, Dumbbell Flyes, Incline Dumbbell Flyes, Squeeze Press, Dumbbell Pullovers
+- Bodyweight: Push Ups, Wide Push Ups, Decline Push Ups, Diamond Push Ups, Archer Push Ups, Chest Dips
+- Cable: Cable Flyes, High Cable Flyes, Low Cable Flyes, Cable Crossovers
+- Machine: Chest Press Machine, Pec Deck, Smith Machine Bench Press
+
+BACK:
+- Barbell: Conventional Deadlift, Sumo Deadlift, Bent Over Row, Pendlay Row, Barbell Shrug
+- Dumbbell: Single Arm Dumbbell Row, Dumbbell Bent Over Row, Dumbbell Pullovers, Dumbbell Shrug
+- Bodyweight: Pull Ups, Chin Ups, Inverted Rows, Scapular Pull Ups
+- Cable: Lat Pulldown, Seated Cable Row, Face Pulls, Straight Arm Pulldown, Single Arm Cable Row
+- Machine: Machine Lat Pulldown, Seated Row Machine, T-Bar Row, Assisted Pull Up Machine
+
+SHOULDERS:
+- Barbell: Overhead Press, Push Press, Barbell Upright Row, Behind Neck Press
+- Dumbbell: Dumbbell Overhead Press, Lateral Raises, Front Raises, Rear Delt Flyes, Arnold Press, Dumbbell Upright Row
+- Bodyweight: Pike Push Ups, Handstand Push Ups
+- Cable: Cable Lateral Raises, Cable Front Raises, Cable Face Pulls, Cable Upright Row
+- Machine: Machine Shoulder Press, Reverse Pec Deck, Lateral Raise Machine
+
+LEGS:
+- Barbell: Back Squat, Front Squat, Romanian Deadlift, Barbell Lunges, Hip Thrust, Zercher Squat, Good Morning
+- Dumbbell: Goblet Squat, Dumbbell Romanian Deadlift, Dumbbell Lunges, Dumbbell Step Ups, Dumbbell Bulgarian Split Squat
+- Bodyweight: Bodyweight Squats, Walking Lunges, Bulgarian Split Squats, Jump Squats, Pistol Squats, Calf Raises
+- Machine: Leg Press, Leg Extension, Leg Curl, Hack Squat, Machine Calf Raises, Smith Machine Squat, Pendulum Squat
+
+ARMS:
+- Barbell: Barbell Curl, EZ Bar Curl, Skull Crushers, Close Grip Bench Press, Barbell Preacher Curl
+- Dumbbell: Dumbbell Bicep Curl, Hammer Curl, Concentration Curl, Incline Dumbbell Curl, Dumbbell Tricep Kickback, Overhead Dumbbell Extension
+- Cable: Cable Curl, Rope Curl, Tricep Pushdown, Rope Pushdown, Overhead Cable Extension, Bayesian Curl
+- Machine: Preacher Curl Machine, Tricep Dip Machine
+- Bodyweight: Dips, Chin Ups, Diamond Push Ups
+
+CORE:
+- Front Plank, Side Plank, Dead Bug, Hanging Leg Raise, Cable Woodchops, Russian Twists, Mountain Climbers, Ab Wheel Rollout, Crunches, Lying Leg Raises, Pallof Press, Bird Dog
+
+GLUTES:
+- Barbell Hip Thrust, Dumbbell Hip Thrust, Glute Bridge, Cable Kickbacks, Cable Pull Through, Frog Pumps
+
+CARDIO/CONDITIONING:
+- Treadmill Run, Rowing Machine, Stationary Bike, Jump Rope, Burpees, Battle Ropes, Sled Push, Farmers Walk, Kettlebell Swings
+
+EXERCISE ENTRY STANDARD (every exercise in the programme MUST include):
+1. Exercise Name (exact match from list above)
+2. Equipment Required
+3. Sets, Reps, Intensity (RPE or load guidance)
+4. Rest periods
+5. Coaching notes (2-4 action cues)
+6. Regressions for intermediate/advanced exercises
+7. Progressions for beginner/intermediate exercises
+`;
+
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -108,6 +168,10 @@ serve(async (req) => {
     if (gender) fitnessContext += `\nGender: ${gender}`;
 
     const systemPrompt = `You are an elite strength and conditioning coach. Create a concise 12-week training program template.
+
+CRITICAL RULE: You MUST ONLY use exercises from the approved Unbreakable Exercise Library below. Do NOT invent or auto-generate exercise names. Every exercise in your programme must be an exact match from this list.
+
+${EXERCISE_LIBRARY_REFERENCE}
 
 Periodization:
 - Phase 1 (Weeks 1-4): Foundation - higher volume, moderate intensity
