@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 import { 
   TrendingUp, Calendar, Clock, Zap, Target, Award, Activity,
-  Dumbbell, Timer, CheckCircle2, Footprints, Bike, Flame, Waves, Droplets, Mountain,
+  Dumbbell, Timer, CheckCircle2, Footprints, Bike, Flame, Waves,
 } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, subWeeks, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -18,16 +18,13 @@ const ACTIVITY_CONFIG: Record<CardioActivityType, { label: string; icon: typeof 
   walk: { label: 'WALK', icon: Footprints, emoji: '🚶' },
   run: { label: 'RUN', icon: Timer, emoji: '🏃' },
   cycle: { label: 'CYCLE', icon: Bike, emoji: '🚴' },
-  rowing: { label: 'ROW', icon: Waves, emoji: '🚣' },
-  swimming: { label: 'SWIM', icon: Droplets, emoji: '🏊' },
-  hiking: { label: 'HIKE', icon: Mountain, emoji: '🥾' },
-  hiit: { label: 'HIIT', icon: Zap, emoji: '⚡' },
+  row: { label: 'ROW', icon: Waves, emoji: '🚣' },
 };
 
 function CardioSubStats({ runs, activityType }: { runs: any[]; activityType: CardioActivityType }) {
   const filteredRuns = useMemo(() => {
     return runs.filter(r => {
-      const type = r.activity_type || (r.notes && ['walk', 'run', 'cycle', 'rowing', 'swimming', 'hiking', 'hiit'].includes(r.notes) ? r.notes : 'run');
+      const type = r.activity_type || (r.notes && ['walk', 'run', 'cycle', 'row'].includes(r.notes) ? r.notes : 'run');
       return type === activityType;
     });
   }, [runs, activityType]);

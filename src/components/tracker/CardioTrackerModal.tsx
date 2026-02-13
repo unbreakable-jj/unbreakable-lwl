@@ -16,17 +16,17 @@ import { useAuth } from '@/hooks/useAuth';
 import { MedalCheckStats } from '@/lib/medalDefinitions';
 // import { getCategoryLabel, TROPHY_ICONS } from '@/lib/trophyDefinitions'; // Trophy system hidden for now
 import { toast } from 'sonner';
-import { Play, Square, Pause, Timer, Globe, Users, Lock, Footprints, Bike, Edit3, Waves, Droplets, Mountain, Zap } from 'lucide-react';
+import { Play, Square, Pause, Timer, Globe, Users, Lock, Footprints, Bike, Edit3, Waves } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CountdownOverlay } from '@/components/CountdownOverlay';
 
 interface CardioTrackerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialActivity?: 'walk' | 'run' | 'cycle' | 'rowing' | 'swimming' | 'hiking' | 'hiit';
+  initialActivity?: 'walk' | 'run' | 'cycle' | 'row';
 }
 
-type ActivityType = 'walk' | 'run' | 'cycle' | 'rowing' | 'swimming' | 'hiking' | 'hiit';
+type ActivityType = 'walk' | 'run' | 'cycle' | 'row';
 type EntryMode = 'live' | 'manual';
 
 interface Position {
@@ -59,30 +59,9 @@ const ACTIVITY_CONFIG = {
     bgColor: 'bg-primary/10',
     borderColor: 'border-primary/30'
   },
-  rowing: { 
+  row: { 
     label: 'ROW', 
     icon: Waves, 
-    color: 'text-primary',
-    bgColor: 'bg-primary/10',
-    borderColor: 'border-primary/30'
-  },
-  swimming: { 
-    label: 'SWIM', 
-    icon: Droplets, 
-    color: 'text-primary',
-    bgColor: 'bg-primary/10',
-    borderColor: 'border-primary/30'
-  },
-  hiking: { 
-    label: 'HIKE', 
-    icon: Mountain, 
-    color: 'text-primary',
-    bgColor: 'bg-primary/10',
-    borderColor: 'border-primary/30'
-  },
-  hiit: { 
-    label: 'HIIT', 
-    icon: Zap, 
     color: 'text-primary',
     bgColor: 'bg-primary/10',
     borderColor: 'border-primary/30'
@@ -672,7 +651,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                       : 'Log a completed session manually'}
                   </p>
                   
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {(Object.keys(ACTIVITY_CONFIG) as ActivityType[]).map((type) => {
                       const cfg = ACTIVITY_CONFIG[type];
                       const Icon = cfg.icon;
