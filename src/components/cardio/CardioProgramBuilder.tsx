@@ -12,6 +12,8 @@ import {
   Footprints, 
   Zap, 
   Bike, 
+  Waves,
+  Droplets,
   ArrowRight, 
   ArrowLeft,
   Target,
@@ -56,6 +58,8 @@ export function CardioProgramBuilder({ onProgramGenerated, onCancel }: CardioPro
     { value: 'walk', label: 'WALK', icon: <Footprints className="w-8 h-8" /> },
     { value: 'run', label: 'RUN', icon: <Zap className="w-8 h-8" /> },
     { value: 'cycle', label: 'CYCLE', icon: <Bike className="w-8 h-8" /> },
+    { value: 'row', label: 'ROW', icon: <Waves className="w-8 h-8" /> },
+    { value: 'swim', label: 'SWIM', icon: <Droplets className="w-8 h-8" /> },
   ];
 
   const goalOptions: { value: CardioGoal; icon: React.ReactNode }[] = [

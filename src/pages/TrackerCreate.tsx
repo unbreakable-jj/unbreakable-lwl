@@ -22,6 +22,7 @@ import {
   Zap, 
   Bike, 
   Waves,
+  Droplets,
   ArrowLeft,
   ArrowRight,
   TrendingUp,
@@ -75,6 +76,7 @@ export default function TrackerCreate() {
     { value: 'run', label: 'RUN', icon: <Zap className="w-10 h-10" />, description: 'Build speed & power' },
     { value: 'cycle', label: 'CYCLE', icon: <Bike className="w-10 h-10" />, description: 'Leg power, zero impact' },
     { value: 'row', label: 'ROW', icon: <Waves className="w-10 h-10" />, description: 'Full body, low impact' },
+    { value: 'swim', label: 'SWIM', icon: <Droplets className="w-10 h-10" />, description: 'Full body, zero impact' },
   ];
 
   const goalOptions: { value: CardioGoal; icon: React.ReactNode }[] = [
@@ -474,7 +476,7 @@ export default function TrackerCreate() {
               BUILD YOUR MOVEMENT PROGRAMME
             </p>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              Build a personalised 12-week cardio programme for Walk, Run, Cycle, or Row.
+              Build a personalised 12-week cardio programme for Walk, Run, Cycle, Row, or Swim.
               Every step forward makes you{' '}
               <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
             </p>

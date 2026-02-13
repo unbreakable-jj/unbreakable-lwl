@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 import { 
   TrendingUp, Calendar, Clock, Zap, Target, Award, Activity,
-  Dumbbell, Timer, CheckCircle2, Footprints, Bike, Flame, Waves,
+  Dumbbell, Timer, CheckCircle2, Footprints, Bike, Flame, Waves, Droplets,
 } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, subWeeks, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -19,12 +19,13 @@ const ACTIVITY_CONFIG: Record<CardioActivityType, { label: string; icon: typeof 
   run: { label: 'RUN', icon: Timer, emoji: '🏃' },
   cycle: { label: 'CYCLE', icon: Bike, emoji: '🚴' },
   row: { label: 'ROW', icon: Waves, emoji: '🚣' },
+  swim: { label: 'SWIM', icon: Droplets, emoji: '🏊' },
 };
 
 function CardioSubStats({ runs, activityType }: { runs: any[]; activityType: CardioActivityType }) {
   const filteredRuns = useMemo(() => {
     return runs.filter(r => {
-      const type = r.activity_type || (r.notes && ['walk', 'run', 'cycle', 'row'].includes(r.notes) ? r.notes : 'run');
+      const type = r.activity_type || (r.notes && ['walk', 'run', 'cycle', 'row', 'swim'].includes(r.notes) ? r.notes : 'run');
       return type === activityType;
     });
   }, [runs, activityType]);
