@@ -6,7 +6,7 @@ import { useMedals } from '@/hooks/useMedals';
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
-import { Clock, TrendingUp, Zap, Timer, Dumbbell, Footprints, Bike, Crosshair, Waves, Droplets, Mountain } from 'lucide-react';
+import { Clock, TrendingUp, Zap, Timer, Dumbbell, Footprints, Bike, Crosshair, Waves } from 'lucide-react';
 import { CardioActivityType } from '@/hooks/useRuns';
 
 // Big 5 lifts + bodyweight exercises for records
@@ -28,10 +28,7 @@ const CARDIO_ACTIVITY_CONFIG: Record<CardioActivityType, { label: string; icon: 
   walk: { label: 'WALK', icon: Footprints },
   run: { label: 'RUN', icon: Timer },
   cycle: { label: 'CYCLE', icon: Bike },
-  rowing: { label: 'ROW', icon: Waves },
-  swimming: { label: 'SWIM', icon: Droplets },
-  hiking: { label: 'HIKE', icon: Mountain },
-  hiit: { label: 'HIIT', icon: Zap },
+  row: { label: 'ROW', icon: Waves },
 };
 
 interface StrengthRecord {
