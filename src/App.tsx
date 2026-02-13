@@ -33,6 +33,7 @@ import TrackerQuickTrack from "./pages/TrackerQuickTrack";
 import TrackerMyProgrammes from "./pages/TrackerMyProgrammes";
 import TrackerCreate from "./pages/TrackerCreate";
 import UserProfile from "./pages/UserProfile";
+import Onboarding from "./pages/Onboarding";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,9 @@ const App = () => (
             <Routes>
               {/* Index handles both logged-in hub and logged-out landing */}
               <Route path="/" element={<Index />} />
+              
+              {/* Onboarding wizard - mandatory for new users */}
+              <Route path="/onboarding" element={<Onboarding />} />
               
               {/* Profile - dedicated page */}
               <Route path="/profile" element={
