@@ -218,6 +218,7 @@ export function StoryEditor({ onPublish, onClose }: StoryEditorProps) {
         text_overlays: overlays,
         background_color: bgType === 'color' ? bgColor : null,
       });
+      toast.success('Story published! 🎉');
     } catch (err) {
       toast.error('Failed to publish story');
       console.error(err);

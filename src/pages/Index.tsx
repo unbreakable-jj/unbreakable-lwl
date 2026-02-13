@@ -5,7 +5,7 @@ import { UnifiedFeed } from '@/components/hub/UnifiedFeed';
 import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
 import { RecordActionMenu } from '@/components/hub/RecordActionMenu';
 import { AuthModal } from '@/components/tracker/AuthModal';
-import { FriendsWidget } from '@/components/tracker/FriendsWidget';
+
 import { UserSearchModal } from '@/components/tracker/UserSearchModal';
 import { FriendRequestsModal } from '@/components/tracker/FriendRequestsModal';
 import { FriendsListModal } from '@/components/tracker/FriendsListModal';
@@ -65,10 +65,6 @@ const Index = () => {
               )}
             </div>
 
-            {/* Desktop Sidebar */}
-            <div className="hidden lg:block w-80 space-y-6">
-              <FriendsWidget />
-            </div>
           </div>
         </main>
 
