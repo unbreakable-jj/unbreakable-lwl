@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { calculateBMR, calculateTDEE, calculateTargetCalories, calculateMacros, type ActivityLevel, type Goal, type MacroSplit } from '@/lib/fuelCalculations';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -127,6 +128,61 @@ export default function Onboarding() {
         }, { onConflict: 'user_id' });
 
       if (error) throw error;
+
+      // Auto-calculate nutrition goals from onboarding data
+      try {
+        if (data.age_years && data.height_cm && data.weight_kg && data.gender) {
+          const genderForCalc = data.gender.toLowerCase() === 'male' ? 'male' : 'female';
+          
+          // Map fitness level to activity multiplier
+          const activityMap: Record<string, ActivityLevel> = {
+            'Sedentary': 'sedentary',
+            'Lightly Active': 'light',
+            'Active': 'moderate',
+            'Very Active': 'very',
+            'Athlete': 'extreme',
+          };
+          const activityLevel = activityMap[data.fitness_level] || 'moderate';
+
+          // Map nutrition goal
+          const goalMap: Record<string, Goal> = {
+            'Bulk': 'build',
+            'Cut': 'lose',
+            'Maintain': 'maintain',
+            'Recomp': 'recomp',
+            'Performance': 'maintain',
+          };
+          const goal = goalMap[data.nutrition_goal] || 'maintain';
+
+          // Pick macro split based on goal
+          const splitMap: Record<string, MacroSplit> = {
+            'Bulk': 'high_protein',
+            'Cut': 'high_protein',
+            'Maintain': 'balanced',
+            'Recomp': 'high_protein',
+            'Performance': 'high_protein',
+          };
+          const macroSplit = splitMap[data.nutrition_goal] || 'balanced';
+
+          const bmr = calculateBMR(genderForCalc, data.weight_kg, data.height_cm, data.age_years);
+          const tdee = calculateTDEE(bmr, activityLevel);
+          const targetCalories = Math.round(calculateTargetCalories(tdee, goal));
+          const macros = calculateMacros(targetCalories, macroSplit);
+
+          await supabase
+            .from('nutrition_goals')
+            .upsert({
+              user_id: user.id,
+              daily_calories: targetCalories,
+              daily_protein_g: macros.protein,
+              daily_carbs_g: macros.carbs,
+              daily_fat_g: macros.fat,
+            }, { onConflict: 'user_id' });
+        }
+      } catch (nutritionErr) {
+        console.error('Auto-fill nutrition goals error:', nutritionErr);
+        // Non-critical — don't block onboarding
+      }
 
       toast({ title: 'Welcome to UNBREAKABLE! 💪', description: 'Your coach profile is set up and ready.' });
       navigate('/', { replace: true });
