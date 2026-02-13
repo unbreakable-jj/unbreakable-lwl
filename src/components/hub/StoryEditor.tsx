@@ -66,6 +66,12 @@ export function StoryEditor({ onPublish, onClose }: StoryEditorProps) {
   const [initialPinchDistance, setInitialPinchDistance] = useState<number | null>(null);
   const [initialScale, setInitialScale] = useState(1);
 
+  // Toolbar drag state
+  const [toolbarPos, setToolbarPos] = useState<{ x: number; y: number } | null>(null);
+  const [isDraggingToolbar, setIsDraggingToolbar] = useState(false);
+  const toolbarDragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
+  const toolbarRef = useRef<HTMLDivElement>(null);
+
   const [visibility, setVisibility] = useState<'public' | 'friends' | 'private'>('public');
   const [publishing, setPublishing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
@@ -414,44 +420,67 @@ export function StoryEditor({ onPublish, onClose }: StoryEditorProps) {
         </div>
       )}
 
-      {/* Bottom icon toolbar — Instagram-style */}
-      <div className="absolute bottom-0 left-0 right-0 z-30 pb-[env(safe-area-inset-bottom,8px)]">
-        <div className="flex items-center justify-evenly py-3 px-2">
-          <button
-            className="flex flex-col items-center gap-0.5 text-white/80 active:scale-95 transition-transform"
-            onClick={(e) => { e.stopPropagation(); addTextOverlay(); }}
-          >
-            <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center">
+      {/* Draggable icon toolbar */}
+      <div
+        ref={toolbarRef}
+        className="absolute z-30"
+        style={toolbarPos
+          ? { left: toolbarPos.x, top: toolbarPos.y }
+          : { bottom: 'env(safe-area-inset-bottom, 8px)', left: '50%', transform: 'translateX(-50%)' }
+        }
+        onPointerDown={(e) => {
+          // Only start drag from the handle area
+          if (!(e.target as HTMLElement).closest('[data-toolbar-handle]')) return;
+          e.stopPropagation();
+          e.preventDefault();
+          const el = toolbarRef.current;
+          if (!el) return;
+          const rect = el.getBoundingClientRect();
+          const currentX = toolbarPos?.x ?? rect.left;
+          const currentY = toolbarPos?.y ?? rect.top;
+          setIsDraggingToolbar(true);
+          toolbarDragRef.current = { startX: e.clientX, startY: e.clientY, originX: currentX, originY: currentY };
+          (e.target as HTMLElement).setPointerCapture(e.pointerId);
+        }}
+        onPointerMove={(e) => {
+          if (!isDraggingToolbar || !toolbarDragRef.current) return;
+          e.stopPropagation();
+          const dx = e.clientX - toolbarDragRef.current.startX;
+          const dy = e.clientY - toolbarDragRef.current.startY;
+          const newX = Math.max(0, Math.min(window.innerWidth - 240, toolbarDragRef.current.originX + dx));
+          const newY = Math.max(0, Math.min(window.innerHeight - 80, toolbarDragRef.current.originY + dy));
+          setToolbarPos({ x: newX, y: newY });
+        }}
+        onPointerUp={(e) => {
+          e.stopPropagation();
+          setIsDraggingToolbar(false);
+          toolbarDragRef.current = null;
+        }}
+      >
+        {/* Drag handle */}
+        <div data-toolbar-handle className="flex justify-center py-1 cursor-grab active:cursor-grabbing" style={{ touchAction: 'none' }}>
+          <div className="w-8 h-1 rounded-full bg-white/30" />
+        </div>
+        <div className="flex items-center gap-3 bg-black/60 backdrop-blur-md rounded-full px-4 py-2">
+          <button className="text-white/80 active:scale-90 transition-transform" onClick={(e) => { e.stopPropagation(); addTextOverlay(); }}>
+            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
               <Type className="w-5 h-5" />
             </div>
-            <span className="text-[10px] font-display tracking-wide">TEXT</span>
           </button>
-          <button
-            className="flex flex-col items-center gap-0.5 text-white/80 active:scale-95 transition-transform"
-            onClick={(e) => { e.stopPropagation(); imageInputRef.current?.click(); }}
-          >
-            <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center">
+          <button className="text-white/80 active:scale-90 transition-transform" onClick={(e) => { e.stopPropagation(); imageInputRef.current?.click(); }}>
+            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
               <Image className="w-5 h-5" />
             </div>
-            <span className="text-[10px] font-display tracking-wide">PHOTO</span>
           </button>
-          <button
-            className="flex flex-col items-center gap-0.5 text-white/80 active:scale-95 transition-transform"
-            onClick={(e) => { e.stopPropagation(); videoInputRef.current?.click(); }}
-          >
-            <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center">
+          <button className="text-white/80 active:scale-90 transition-transform" onClick={(e) => { e.stopPropagation(); videoInputRef.current?.click(); }}>
+            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
               <Video className="w-5 h-5" />
             </div>
-            <span className="text-[10px] font-display tracking-wide">VIDEO</span>
           </button>
-          <button
-            className={`flex flex-col items-center gap-0.5 active:scale-95 transition-transform ${showBgPicker ? 'text-white' : 'text-white/80'}`}
-            onClick={(e) => { e.stopPropagation(); setShowBgPicker(!showBgPicker); setShowStyleTray(false); setSelectedId(null); }}
-          >
-            <div className={`w-11 h-11 rounded-full flex items-center justify-center ${showBgPicker ? 'bg-white/25' : 'bg-white/10'}`}>
+          <button className={`active:scale-90 transition-transform ${showBgPicker ? 'text-white' : 'text-white/80'}`} onClick={(e) => { e.stopPropagation(); setShowBgPicker(!showBgPicker); setShowStyleTray(false); setSelectedId(null); }}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${showBgPicker ? 'bg-white/25' : 'bg-white/10'}`}>
               <Palette className="w-5 h-5" />
             </div>
-            <span className="text-[10px] font-display tracking-wide">BG</span>
           </button>
         </div>
       </div>
