@@ -13,6 +13,7 @@ export interface PersonalRecord {
   run_id: string | null;
   achieved_at: string;
   created_at: string;
+  activity_type: string;
 }
 
 export function usePersonalRecords() {
@@ -52,6 +53,7 @@ export function usePersonalRecords() {
     distance_km: number;
     duration_seconds: number;
     started_at: string;
+    activity_type?: string;
   }): Promise<{ distanceType: string; isNewPR: boolean }[]> => {
     if (!user) return [];
 
@@ -59,10 +61,11 @@ export function usePersonalRecords() {
     if (!matchingDistance) return [];
 
     const pacePerKmSeconds = Math.round(run.duration_seconds / run.distance_km);
+    const activityType = run.activity_type || 'run';
     const results: { distanceType: string; isNewPR: boolean }[] = [];
 
-    // Check if there's an existing PR for this distance
-    const existingPR = records.find(r => r.distance_type === matchingDistance.type);
+    // Check if there's an existing PR for this distance AND activity type
+    const existingPR = records.find(r => r.distance_type === matchingDistance.type && r.activity_type === activityType);
 
     if (!existingPR || (existingPR.time_seconds && run.duration_seconds < existingPR.time_seconds)) {
       // This is a new PR!
@@ -90,7 +93,8 @@ export function usePersonalRecords() {
             pace_per_km_seconds: pacePerKmSeconds,
             run_id: run.id,
             achieved_at: run.started_at,
-          });
+            activity_type: activityType,
+          } as any);
       }
 
       results.push({ distanceType: matchingDistance.type, isNewPR: true });

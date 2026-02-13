@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePersonalRecords } from '@/hooks/usePersonalRecords';
@@ -6,37 +6,62 @@ import { useMedals } from '@/hooks/useMedals';
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
-import { Trophy, Medal, Clock, TrendingUp, Zap, Timer, Dumbbell } from 'lucide-react';
+import { Clock, TrendingUp, Zap, Timer, Dumbbell, Footprints, Bike, Crosshair } from 'lucide-react';
+import { CardioActivityType } from '@/hooks/useRuns';
 
 // Big 5 lifts + bodyweight exercises for records
 const STRENGTH_EXERCISES = [
-  { name: 'Bench Press', icon: '🏋️', aliases: ['bench'] },
-  { name: 'Squat', icon: '🦵', aliases: ['squat', 'back squat', 'front squat'] },
-  { name: 'Deadlift', icon: '💪', aliases: ['deadlift', 'sumo deadlift'] },
-  { name: 'Overhead Press', icon: '🙆', aliases: ['ohp', 'shoulder press', 'military press'] },
-  { name: 'Barbell Row', icon: '🚣', aliases: ['bent over row', 'barbell row', 'pendlay row'] },
+  { name: 'Bench Press', aliases: ['bench'] },
+  { name: 'Squat', aliases: ['squat', 'back squat', 'front squat'] },
+  { name: 'Deadlift', aliases: ['deadlift', 'sumo deadlift'] },
+  { name: 'Overhead Press', aliases: ['ohp', 'shoulder press', 'military press'] },
+  { name: 'Barbell Row', aliases: ['bent over row', 'barbell row', 'pendlay row'] },
 ];
 
 const BODYWEIGHT_EXERCISES = [
-  { name: 'Pull-ups', icon: '🔝', aliases: ['pull up', 'pull-up', 'pullup'] },
-  { name: 'Chin-ups', icon: '💪', aliases: ['chin up', 'chin-up', 'chinup'] },
-  { name: 'Press-ups', icon: '🫸', aliases: ['push up', 'push-up', 'pushup', 'press up', 'press-up', 'pressup'] },
+  { name: 'Pull-ups', aliases: ['pull up', 'pull-up', 'pullup'] },
+  { name: 'Chin-ups', aliases: ['chin up', 'chin-up', 'chinup'] },
+  { name: 'Press-ups', aliases: ['push up', 'push-up', 'pushup', 'press up', 'press-up', 'pressup'] },
 ];
+
+const CARDIO_ACTIVITY_CONFIG: Record<CardioActivityType, { label: string; icon: typeof Footprints }> = {
+  walk: { label: 'WALK', icon: Footprints },
+  run: { label: 'RUN', icon: Timer },
+  cycle: { label: 'CYCLE', icon: Bike },
+};
 
 interface StrengthRecord {
   exerciseName: string;
-  icon: string;
   isBodyweight: boolean;
   records: Array<{ weight: number; reps: number; date: string; rank: 1 | 2 | 3; estimated1RM: number }>;
+}
+
+function NeonTarget({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+  const dims = size === 'sm' ? 'w-8 h-8' : size === 'lg' ? 'w-14 h-14' : 'w-12 h-12';
+  const iconSize = size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-7 h-7' : 'w-6 h-6';
+  return (
+    <div className={`${dims} rounded-full bg-primary/20 flex items-center justify-center shadow-[0_0_15px_hsl(var(--primary)/0.4)]`}>
+      <Crosshair className={`${iconSize} text-primary`} />
+    </div>
+  );
 }
 
 export function CombinedRecordsView() {
   const { getAllPRsWithLabels, loading: prsLoading } = usePersonalRecords();
   const { getAllMedalsWithStatus, loading: medalsLoading } = useMedals();
   const { sessions, isLoading: workoutsLoading } = useWorkoutSessions();
+  const [cardioSub, setCardioSub] = useState<CardioActivityType>('run');
 
   const prs = getAllPRsWithLabels();
   const allMedals = getAllMedalsWithStatus();
+
+  // Filter PRs by selected cardio activity type
+  const filteredPRs = useMemo(() => {
+    return prs.map(pr => ({
+      ...pr,
+      record: pr.record && (pr.record as any).activity_type === cardioSub ? pr.record : undefined,
+    }));
+  }, [prs, cardioSub]);
 
   // Calculate strength records from workout sessions
   const strengthRecords = useMemo((): StrengthRecord[] => {
@@ -49,7 +74,6 @@ export function CombinedRecordsView() {
         if (!log.completed || !log.actual_reps) return;
         const normalizedName = log.exercise_name.toLowerCase();
 
-        // Check Big 5
         for (const ex of STRENGTH_EXERCISES) {
           if (normalizedName.includes(ex.name.toLowerCase()) || ex.aliases.some(a => normalizedName.includes(a))) {
             if (!log.weight_kg) continue;
@@ -59,7 +83,6 @@ export function CombinedRecordsView() {
           }
         }
 
-        // Check bodyweight
         for (const ex of BODYWEIGHT_EXERCISES) {
           if (normalizedName.includes(ex.name.toLowerCase()) || ex.aliases.some(a => normalizedName.includes(a))) {
             if (!recordsByExercise[ex.name]) recordsByExercise[ex.name] = [];
@@ -89,7 +112,7 @@ export function CombinedRecordsView() {
           rank: (index + 1) as 1 | 2 | 3,
         }));
 
-      return { exerciseName: exercise.name, icon: exercise.icon, isBodyweight: exercise.isBodyweight, records: sortedLifts };
+      return { exerciseName: exercise.name, isBodyweight: exercise.isBodyweight, records: sortedLifts };
     });
   }, [sessions]);
 
@@ -113,21 +136,16 @@ export function CombinedRecordsView() {
   const unearnedMedals = allMedals.filter(m => !m.earned);
 
   const categoryLabels: Record<string, string> = {
-    distance: 'Distance',
-    streak: 'Streaks',
-    pace: 'Speed',
-    milestone: 'Milestones',
-    special: 'Special',
-    strength: 'Strength',
-    cardio: 'Cardio',
+    distance: 'Distance', streak: 'Streaks', pace: 'Speed',
+    milestone: 'Milestones', special: 'Special', strength: 'Strength', cardio: 'Cardio',
   };
 
   const categoryIcons: Record<string, React.ReactNode> = {
     distance: <TrendingUp className="w-4 h-4" />,
     streak: <Clock className="w-4 h-4" />,
     pace: <Zap className="w-4 h-4" />,
-    milestone: <Trophy className="w-4 h-4" />,
-    special: <Medal className="w-4 h-4" />,
+    milestone: <Crosshair className="w-4 h-4 text-primary" />,
+    special: <Crosshair className="w-4 h-4 text-primary" />,
     strength: <Dumbbell className="w-4 h-4" />,
     cardio: <Timer className="w-4 h-4" />,
   };
@@ -155,19 +173,40 @@ export function CombinedRecordsView() {
             STRENGTH
           </TabsTrigger>
           <TabsTrigger value="medals" className="font-display tracking-wide text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
-            <Medal className="w-4 h-4 mr-1" />
+            <Crosshair className="w-4 h-4 mr-1 text-primary" />
             TROPHIES
           </TabsTrigger>
         </TabsList>
 
         {/* Cardio PRs */}
         <TabsContent value="cardio" className="space-y-4 mt-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          {/* Activity sub-selector */}
+          <div className="flex gap-2">
+            {(['walk', 'run', 'cycle'] as CardioActivityType[]).map(type => {
+              const config = CARDIO_ACTIVITY_CONFIG[type];
+              return (
+                <button
+                  key={type}
+                  onClick={() => setCardioSub(type)}
+                  className={`flex-1 flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-all font-display tracking-wide text-sm ${
+                    cardioSub === type
+                      ? 'border-primary bg-primary/10 text-primary shadow-[0_0_15px_hsl(var(--primary)/0.3)]'
+                      : 'border-border bg-card text-muted-foreground hover:border-primary/40'
+                  }`}
+                >
+                  <config.icon className="w-5 h-5" />
+                  <span>{config.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} key={cardioSub}>
             <h3 className="font-display text-lg text-foreground mb-3 tracking-wide">
-              PERSONAL <span className="text-primary">RECORDS</span>
+              {CARDIO_ACTIVITY_CONFIG[cardioSub].label} <span className="text-primary">RECORDS</span>
             </h3>
             <div className="grid gap-3">
-              {prs.map((pr, index) => (
+              {filteredPRs.map((pr, index) => (
                 <motion.div
                   key={pr.type}
                   initial={{ opacity: 0, x: -20 }}
@@ -183,13 +222,13 @@ export function CombinedRecordsView() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div
-                          className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                            pr.record ? 'bg-primary/20 text-primary shadow-[0_0_10px_hsl(var(--primary)/0.3)]' : 'bg-secondary text-muted-foreground'
-                          }`}
-                        >
-                          {pr.record ? <span className="text-2xl">🥇</span> : <Trophy className="w-6 h-6" />}
-                        </div>
+                        {pr.record ? (
+                          <NeonTarget />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center">
+                            <Crosshair className="w-6 h-6 text-muted-foreground" />
+                          </div>
+                        )}
                         <div>
                           <p className="font-display text-lg text-foreground tracking-wide">{pr.label}</p>
                           {pr.record ? (
@@ -303,8 +342,8 @@ export function CombinedRecordsView() {
 
           {earnedMedals.length === 0 && (
             <div className="text-center py-12">
-              <Medal className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-              <p className="text-muted-foreground">
+              <NeonTarget size="lg" />
+              <p className="text-muted-foreground mt-4">
                 No trophies earned yet. Start training to unlock achievements!
               </p>
             </div>
@@ -328,8 +367,8 @@ function ExerciseRecordCard({
     >
       <Card className="p-4 bg-card border-primary/20 border-l-4 border-l-primary neon-border-subtle">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shadow-[0_0_10px_hsl(var(--primary)/0.2)]">
-            <span className="text-xl">{exercise.icon}</span>
+          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shadow-[0_0_10px_hsl(var(--primary)/0.3)]">
+            <Crosshair className="w-5 h-5 text-primary" />
           </div>
           <h4 className="font-display text-lg text-foreground tracking-wide">
             {exercise.exerciseName.toUpperCase()}
