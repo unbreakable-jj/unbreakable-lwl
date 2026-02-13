@@ -276,7 +276,7 @@ export function StoryEditor({ onPublish, onClose }: StoryEditorProps) {
   }, [videoPreview]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col">
+    <div className="fixed inset-0 z-[60] bg-black flex flex-col">
       {/* Top bar */}
       <div className="flex items-center justify-between p-4 z-20">
         <Button variant="ghost" size="icon" className="text-white hover:bg-white/10" onClick={onClose}>
