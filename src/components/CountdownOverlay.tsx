@@ -88,22 +88,22 @@ export function CountdownOverlay({
     return () => clearTimeout(timer);
   }, [isActive, phase]);
 
-  // Pause phase
+  // Pause phase — 2s pause before GO
   useEffect(() => {
     if (!isActive || phase !== "pause") return;
     const timer = setTimeout(() => {
       setPhase("go");
       onPlayAudio?.("Go!");
-    }, 1000);
+    }, 2000);
     return () => clearTimeout(timer);
   }, [isActive, phase, onPlayAudio]);
 
-  // Go phase
+  // Go phase — 2s pause after GO before session starts
   useEffect(() => {
     if (!isActive || phase !== "go") return;
     const timer = setTimeout(() => {
       onComplete();
-    }, 600);
+    }, 2000);
     return () => clearTimeout(timer);
   }, [isActive, phase, onComplete]);
 

@@ -693,6 +693,11 @@ const Mindset = () => {
       isActive={isActive}
       isComplete={view === "complete"}
       closingMessage={selectedExercise?.scripts.closing}
+      voiceEnabled={voiceEnabled}
+      onToggleVoice={() => {
+        if (voiceEnabled) stopAudio();
+        setVoiceEnabled(prev => !prev);
+      }}
       onToggle={toggleBreathing}
       onReset={resetExercise}
       onShare={handleShare}
