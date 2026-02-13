@@ -11,11 +11,11 @@ import { useProfile } from '@/hooks/useProfile';
 import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import { useUserRuns } from '@/hooks/useRuns';
 import { useAuth } from '@/hooks/useAuth';
-import { useTrophies } from '@/hooks/useTrophies';
+// import { useTrophies } from '@/hooks/useTrophies'; // Trophy system hidden for now
 import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import { MyProgramsSection } from '@/components/programming/MyProgramsSection';
-import { TrophyCase, TrophyCountsBadge } from '@/components/tracker/TrophyCase';
+// import { TrophyCase, TrophyCountsBadge } from '@/components/tracker/TrophyCase'; // Trophy system hidden for now
 import { CombinedStatsView } from '@/components/tracker/CombinedStatsView';
 import { CombinedRecordsView } from '@/components/tracker/CombinedRecordsView';
 import { SettingsPanel } from '@/components/settings/SettingsPanel';
@@ -48,7 +48,7 @@ export function ProfileView() {
   const { profile, updateProfile, refetch } = useProfile();
   const { uploadAvatar, removeAvatar, uploading } = useAvatarUpload();
   const { runs } = useUserRuns(user?.id);
-  const { getTrophyCounts } = useTrophies();
+  // const { getTrophyCounts } = useTrophies(); // Trophy system hidden for now
   const { activeProgram } = useTrainingPrograms();
   const { sessions } = useWorkoutSessions();
   const [isEditing, setIsEditing] = useState(false);
@@ -62,7 +62,7 @@ export function ProfileView() {
   });
   const [saving, setSaving] = useState(false);
   const [activeProfileTab, setActiveProfileTab] = useState<'overview' | 'stats' | 'records' | 'settings'>('overview');
-  const trophyCounts = getTrophyCounts();
+  // const trophyCounts = getTrophyCounts(); // Trophy system hidden for now
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const normalizeUsernameInput = (raw: string) => {
@@ -379,16 +379,7 @@ export function ProfileView() {
                     <span>{profile.location}</span>
                   </div>
                 )}
-                {/* Trophy counts badge */}
-                {(trophyCounts.gold > 0 || trophyCounts.silver > 0 || trophyCounts.bronze > 0) && (
-                  <div className="mt-3">
-                    <TrophyCountsBadge 
-                      gold={trophyCounts.gold} 
-                      silver={trophyCounts.silver} 
-                      bronze={trophyCounts.bronze} 
-                    />
-                  </div>
-                )}
+                {/* Trophy counts badge - hidden for now */}
               </>
             )}
 
@@ -546,8 +537,7 @@ export function ProfileView() {
             )}
           </Card>
 
-          {/* Trophy Case */}
-          <TrophyCase />
+          {/* Trophy Case - hidden for now */}
         </TabsContent>
 
         <TabsContent value="stats" className="mt-6">

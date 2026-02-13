@@ -10,11 +10,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRuns } from '@/hooks/useRuns';
 import { usePersonalRecords } from '@/hooks/usePersonalRecords';
 import { useMedals } from '@/hooks/useMedals';
-import { useTrophies } from '@/hooks/useTrophies';
+// import { useTrophies } from '@/hooks/useTrophies'; // Trophy system hidden for now
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
 import { MedalCheckStats } from '@/lib/medalDefinitions';
-import { getCategoryLabel, TROPHY_ICONS } from '@/lib/trophyDefinitions';
+// import { getCategoryLabel, TROPHY_ICONS } from '@/lib/trophyDefinitions'; // Trophy system hidden for now
 import { toast } from 'sonner';
 import { Play, Square, Pause, Timer, Globe, Users, Lock, Footprints, Bike, Edit3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -65,7 +65,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   const { createRun } = useRuns();
   const { checkAndUpdatePRs } = usePersonalRecords();
   const { checkAndAwardMedals } = useMedals();
-  const { checkAndAwardTrophies } = useTrophies();
+  // const { checkAndAwardTrophies } = useTrophies(); // Trophy system hidden for now
   const { profile } = useProfile();
   const { user } = useAuth();
   
@@ -425,27 +425,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       }, newPRs.length > 0 ? 1500 : 500);
     }
 
-    const awardedTrophies = await checkAndAwardTrophies({
-      id: runData.id,
-      user_id: user!.id,
-      distance_km: runData.distance_km,
-      duration_seconds: runData.duration_seconds,
-      started_at: runData.started_at,
-      pace_per_km_seconds: runData.pace_per_km_seconds,
-    });
-
-    if (awardedTrophies.length > 0) {
-      triggerConfetti();
-      setTimeout(() => {
-        awardedTrophies.forEach((trophy, index) => {
-          setTimeout(() => {
-            toast.success(`${TROPHY_ICONS[trophy.rank]} ${getCategoryLabel(trophy.category)}`, {
-              description: `You're #${trophy.rank} in this category!`,
-            });
-          }, index * 800);
-        });
-      }, (newPRs.length > 0 ? 1500 : 500) + (newMedals.length * 800));
-    }
+    // Trophy system hidden for now
   };
 
   const handleSave = async () => {
