@@ -18,9 +18,10 @@ import {
 
 interface LandingPageProps {
   onSignIn: () => void;
+  onSignUp: () => void;
 }
 
-export function LandingPage({ onSignIn }: LandingPageProps) {
+export function LandingPage({ onSignIn, onSignUp }: LandingPageProps) {
   return (
     <SwipeNavigationWrapper>
       <div className="min-h-screen bg-background">
@@ -98,7 +99,7 @@ export function LandingPage({ onSignIn }: LandingPageProps) {
             <Button
               size="lg"
               className="font-display text-lg tracking-wide px-12 py-6"
-              onClick={onSignIn}
+              onClick={onSignUp}
             >
               <Sparkles className="w-5 h-5 mr-2" />
               START YOUR JOURNEY
@@ -348,9 +349,9 @@ export function LandingPage({ onSignIn }: LandingPageProps) {
               <Button
                 size="lg"
                 className="font-display text-xl tracking-wide px-12 py-7"
-                onClick={onSignIn}
+                onClick={onSignUp}
               >
-                SIGN IN TO GET STARTED
+                SIGN UP TO GET STARTED
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
 
