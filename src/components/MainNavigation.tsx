@@ -75,6 +75,12 @@ const NAV_STRUCTURE = [
         description: 'View saved programmes, track progress, and log workouts',
         icon: BookOpen 
       },
+      { 
+        title: 'Unbreakable 86', 
+        href: '/programming/unbreakable-86', 
+        description: '86-day discipline programme — run, strength, habits, mindset',
+        icon: Flame 
+      },
     ],
   },
   {
