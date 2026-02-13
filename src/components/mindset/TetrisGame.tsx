@@ -160,10 +160,13 @@ const TetrisGame = () => {
 
   const { saveScore, topScores, userBest, refetch } = useTetrisScores();
 
-  // Responsive scaling
+  // Responsive scaling — fill available width
   const [scale, setScale] = useState(1);
   useEffect(() => {
-    const updateScale = () => setScale(Math.min((window.innerWidth - 120) / (CANVAS_WIDTH + 120), 1));
+    const updateScale = () => {
+      const maxW = Math.min(window.innerWidth - 32, 500);
+      setScale(Math.min(maxW / CANVAS_WIDTH, 1.2));
+    };
     updateScale();
     window.addEventListener("resize", updateScale);
     return () => window.removeEventListener("resize", updateScale);
@@ -588,141 +591,175 @@ const TetrisGame = () => {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full max-w-xl mx-auto">
-      {/* Score Header */}
-      <div className="flex items-center justify-between w-full px-2">
-        <div className="text-left">
-          <p className="font-display text-xs tracking-wider text-muted-foreground">SCORE</p>
-          <p className="font-display text-3xl tracking-wide text-primary">{score}</p>
+    <div className="flex flex-col items-center w-full max-w-xl mx-auto">
+      {/* ─── Inline HUD: Score · Next · Level · Lines · Best ─── */}
+      <div className="flex items-center justify-between w-full px-2 mb-3 gap-2">
+        <div className="text-left flex-1">
+          <p className="font-display text-[10px] tracking-wider text-muted-foreground">SCORE</p>
+          <p className="font-display text-2xl sm:text-3xl tracking-wide text-primary leading-none">{score}</p>
         </div>
-        <div className="text-center">
-          <p className="font-display text-xs tracking-wider text-muted-foreground">LEVEL</p>
-          <p className="font-display text-2xl tracking-wide" style={{ color: theme.text }}>{level}</p>
+        <div className="flex flex-col items-center">
+          <p className="font-display text-[10px] tracking-wider text-muted-foreground mb-1">NEXT</p>
+          <canvas ref={nextCanvasRef} width={80} height={60} className="rounded border border-border" />
         </div>
-        <div className="text-right">
-          <p className="font-display text-xs tracking-wider text-muted-foreground">LINES</p>
-          <p className="font-display text-2xl tracking-wide text-primary">{linesCleared}</p>
+        <div className="text-center flex-1">
+          <p className="font-display text-[10px] tracking-wider text-muted-foreground">LEVEL</p>
+          <p className="font-display text-xl sm:text-2xl tracking-wide leading-none" style={{ color: theme.text }}>{level}</p>
+        </div>
+        <div className="text-center flex-1">
+          <p className="font-display text-[10px] tracking-wider text-muted-foreground">LINES</p>
+          <p className="font-display text-xl sm:text-2xl tracking-wide text-primary leading-none">{linesCleared}</p>
+        </div>
+        <div className="text-right flex-1">
+          <p className="font-display text-[10px] tracking-wider text-muted-foreground">BEST</p>
+          <p className="font-display text-lg sm:text-xl tracking-wide text-primary leading-none">{Math.max(highScore, userBest || 0)}</p>
         </div>
       </div>
 
-      {/* Game area */}
-      <div className="flex gap-4 items-start" style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}>
-        {/* Main board */}
-        <div className="relative">
-          <canvas
-            ref={canvasRef}
-            width={CANVAS_WIDTH}
-            height={CANVAS_HEIGHT}
-            className="rounded-lg"
-            style={{ touchAction: "none" }}
-          />
+      {/* ─── Game Board (fills available width) ─── */}
+      <div className="relative w-full flex justify-center" style={{ maxWidth: CANVAS_WIDTH * scale }}>
+        <canvas
+          ref={canvasRef}
+          width={CANVAS_WIDTH}
+          height={CANVAS_HEIGHT}
+          className="rounded-lg w-full"
+          style={{ touchAction: "none", maxWidth: CANVAS_WIDTH, height: "auto", aspectRatio: `${CANVAS_WIDTH}/${CANVAS_HEIGHT}` }}
+        />
 
-          {/* Overlays */}
-          <AnimatePresence>
-            {gameState === "idle" && (
-              <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="absolute inset-0 flex flex-col items-center justify-center rounded-lg"
-                style={{ background: "rgba(0,0,0,0.85)" }}
-              >
-                <p className="font-display text-4xl text-primary tracking-wide neon-glow-subtle mb-2">TETRIS</p>
-                <p className="font-display text-lg text-foreground tracking-wide mb-1">UNBREAKABLE</p>
-                <p className="font-display text-xs text-muted-foreground tracking-wide mb-6">EDITION</p>
-                <Button onClick={startGame} className="font-display tracking-wide gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-                  <Play className="w-4 h-4" /> START
+        {/* Overlays */}
+        <AnimatePresence>
+          {gameState === "idle" && (
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 flex flex-col items-center justify-center rounded-lg"
+              style={{ background: "rgba(0,0,0,0.85)" }}
+            >
+              <p className="font-display text-4xl sm:text-5xl text-primary tracking-wide neon-glow-subtle mb-2">TETRIS</p>
+              <p className="font-display text-lg text-foreground tracking-wide mb-1">UNBREAKABLE</p>
+              <p className="font-display text-xs text-muted-foreground tracking-wide mb-6">EDITION</p>
+              <Button onClick={startGame} size="lg" className="font-display text-lg tracking-wide gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6">
+                <Play className="w-5 h-5" /> START GAME
+              </Button>
+              <p className="text-xs text-muted-foreground mt-4 font-display tracking-wide">
+                ARROWS / WASD · SPACE = HARD DROP
+              </p>
+            </motion.div>
+          )}
+
+          {gameState === "paused" && (
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 flex flex-col items-center justify-center rounded-lg"
+              style={{ background: "rgba(0,0,0,0.85)" }}
+            >
+              <p className="font-display text-3xl text-primary tracking-wide neon-glow-subtle mb-6">PAUSED</p>
+              <Button onClick={togglePause} size="lg" className="font-display text-lg tracking-wide gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6">
+                <Play className="w-5 h-5" /> RESUME
+              </Button>
+            </motion.div>
+          )}
+
+          {gameState === "gameover" && (
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 flex flex-col items-center justify-center rounded-lg"
+              style={{ background: "rgba(0,0,0,0.9)" }}
+            >
+              <p className="font-display text-3xl text-primary tracking-wide neon-glow-subtle mb-2">GAME OVER</p>
+              <p className="font-display text-5xl text-foreground tracking-wide mb-1">{score}</p>
+              <p className="font-display text-sm text-muted-foreground tracking-wide mb-1">
+                LEVEL {level} · {linesCleared} LINES
+              </p>
+              <p className="font-display text-xs text-primary tracking-wide mb-6">
+                BEST: {Math.max(highScore, userBest || 0)}
+              </p>
+              <div className="flex gap-3">
+                <Button onClick={startGame} size="lg" className="font-display tracking-wide gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-5">
+                  <RotateCcw className="w-5 h-5" /> PLAY AGAIN
                 </Button>
-                <p className="text-[10px] text-muted-foreground mt-4 font-display tracking-wide">
-                  ARROWS / WASD · SPACE = HARD DROP
-                </p>
-              </motion.div>
-            )}
-
-            {gameState === "paused" && (
-              <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="absolute inset-0 flex flex-col items-center justify-center rounded-lg"
-                style={{ background: "rgba(0,0,0,0.85)" }}
-              >
-                <p className="font-display text-3xl text-primary tracking-wide neon-glow-subtle mb-6">PAUSED</p>
-                <Button onClick={togglePause} className="font-display tracking-wide gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-                  <Play className="w-4 h-4" /> RESUME
+                <Button onClick={() => { refetch(); setShowLeaderboard(true); }} variant="outline" size="lg" className="font-display tracking-wide gap-2 px-6 py-5">
+                  <Trophy className="w-5 h-5" /> BOARD
                 </Button>
-              </motion.div>
-            )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
-            {gameState === "gameover" && (
-              <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="absolute inset-0 flex flex-col items-center justify-center rounded-lg"
-                style={{ background: "rgba(0,0,0,0.9)" }}
-              >
-                <p className="font-display text-3xl text-primary tracking-wide neon-glow-subtle mb-2">GAME OVER</p>
-                <p className="font-display text-5xl text-foreground tracking-wide mb-1">{score}</p>
-                <p className="font-display text-sm text-muted-foreground tracking-wide mb-1">
-                  LEVEL {level} · {linesCleared} LINES
-                </p>
-                <p className="font-display text-xs text-primary tracking-wide mb-6">
-                  BEST: {Math.max(highScore, userBest || 0)}
-                </p>
-                <div className="flex gap-3">
-                  <Button onClick={startGame} className="font-display tracking-wide gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-                    <RotateCcw className="w-4 h-4" /> AGAIN
-                  </Button>
-                  <Button onClick={() => { refetch(); setShowLeaderboard(true); }} variant="outline" className="font-display tracking-wide gap-2">
-                    <Trophy className="w-4 h-4" /> BOARD
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Side panel — next piece */}
-        <div className="flex flex-col gap-3">
-          <div>
-            <p className="font-display text-xs tracking-wider text-muted-foreground mb-1">NEXT</p>
-            <canvas ref={nextCanvasRef} width={100} height={80} className="rounded-lg border border-border" />
+      {/* ─── Controls: D-pad left · Actions right ─── */}
+      <div className="w-full mt-4 px-2">
+        <div className="flex items-center justify-between gap-4">
+          {/* LEFT: D-pad movement */}
+          <div className="grid grid-cols-3 gap-1.5 shrink-0">
+            <div />
+            <Button
+              variant="outline"
+              className="h-14 w-14 sm:h-12 sm:w-14 border-2 border-border hover:border-primary active:bg-primary active:text-primary-foreground transition-all"
+              onClick={softDrop}
+              aria-label="Soft drop"
+            >
+              <ArrowUp className="w-6 h-6 rotate-180" />
+            </Button>
+            <div />
+            <Button
+              variant="outline"
+              className="h-14 w-14 sm:h-12 sm:w-14 border-2 border-border hover:border-primary active:bg-primary active:text-primary-foreground transition-all"
+              onClick={moveLeft}
+              aria-label="Move left"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </Button>
+            <div className="h-14 w-14 sm:h-12 sm:w-14" />
+            <Button
+              variant="outline"
+              className="h-14 w-14 sm:h-12 sm:w-14 border-2 border-border hover:border-primary active:bg-primary active:text-primary-foreground transition-all"
+              onClick={moveRight}
+              aria-label="Move right"
+            >
+              <ArrowRight className="w-6 h-6" />
+            </Button>
           </div>
-          <div>
-            <p className="font-display text-xs tracking-wider text-muted-foreground">BEST</p>
-            <p className="font-display text-xl text-primary">{Math.max(highScore, userBest || 0)}</p>
+
+          {/* CENTER: Pause + Leaderboard */}
+          <div className="flex flex-col gap-2 items-center">
+            {gameState === "playing" && (
+              <Button onClick={togglePause} variant="outline" size="sm" className="font-display text-xs tracking-wide gap-1 h-10 px-4">
+                <Pause className="w-4 h-4" /> PAUSE
+              </Button>
+            )}
+            <Button onClick={() => { refetch(); setShowLeaderboard(true); }} variant="ghost" size="sm" className="font-display text-[10px] tracking-wide gap-1 h-8 text-muted-foreground">
+              <Trophy className="w-3 h-3" /> BOARD
+            </Button>
+          </div>
+
+          {/* RIGHT: Rotate + Hard Drop */}
+          <div className="flex flex-col gap-2 shrink-0">
+            <Button
+              variant="outline"
+              className="h-14 w-28 sm:h-12 sm:w-28 border-2 border-primary/50 hover:border-primary text-primary font-display text-sm tracking-wide gap-2 active:bg-primary active:text-primary-foreground transition-all"
+              onClick={rotatePiece}
+              aria-label="Rotate piece"
+            >
+              <RotateCcw className="w-5 h-5" /> ROTATE
+            </Button>
+            <Button
+              className="h-14 w-28 sm:h-12 sm:w-28 bg-primary text-primary-foreground font-display text-sm tracking-wide gap-2 hover:bg-primary/90 active:scale-95 transition-all"
+              onClick={hardDrop}
+              aria-label="Hard drop"
+            >
+              <ArrowDown className="w-5 h-5" /> DROP
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center gap-3 flex-wrap justify-center">
-        {gameState === "playing" && (
-          <Button onClick={togglePause} variant="outline" size="sm" className="font-display text-xs tracking-wide gap-1">
-            <Pause className="w-3 h-3" /> PAUSE
-          </Button>
-        )}
-        <Button onClick={() => { refetch(); setShowLeaderboard(true); }} variant="outline" size="sm" className="font-display text-xs tracking-wide gap-1">
-          <Trophy className="w-3 h-3" /> LEADERBOARD
-        </Button>
-      </div>
-
-      {/* D-pad for mobile */}
-      <div className="grid grid-cols-3 gap-1 w-36 sm:hidden">
-        <div />
-        <Button variant="outline" size="icon" className="h-11 w-full" onClick={rotatePiece}>
-          <ArrowUp className="w-5 h-5" />
-        </Button>
-        <div />
-        <Button variant="outline" size="icon" className="h-11 w-full" onClick={moveLeft}>
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <Button variant="outline" size="icon" className="h-11 w-full" onClick={hardDrop}>
-          <ArrowDown className="w-5 h-5 text-primary" />
-        </Button>
-        <Button variant="outline" size="icon" className="h-11 w-full" onClick={moveRight}>
-          <ArrowRight className="w-5 h-5" />
-        </Button>
-        <div />
-        <Button variant="outline" size="sm" className="h-9 w-full font-display text-[10px]" onClick={softDrop}>
-          SOFT ↓
-        </Button>
-        <div />
+      {/* Keyboard hints (desktop) */}
+      <div className="hidden sm:flex items-center gap-4 mt-3 text-[10px] text-muted-foreground font-display tracking-wider">
+        <span>← → MOVE</span>
+        <span>↑ ROTATE</span>
+        <span>↓ SOFT DROP</span>
+        <span>SPACE HARD DROP</span>
+        <span>P PAUSE</span>
       </div>
     </div>
   );
