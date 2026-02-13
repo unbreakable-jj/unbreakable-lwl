@@ -27,7 +27,7 @@ const HABIT_CONFIG = [
   { key: 'habit_learn_daily', icon: BookOpen, label: 'LEARN DAILY', desc: '10-20 minutes non-fiction reading' },
   { key: 'habit_journal', icon: Shield, label: 'HIT YOUR NUMBERS', desc: 'Meet your daily calorie and macro targets' },
   { key: 'habit_control_inputs', icon: PenLine, label: 'DAILY WATER TARGET', desc: 'Drink at least 3 litres of water today' },
-  { key: 'habit_hard_thing', icon: Zap, label: 'DO THE HARD THING', desc: 'One deliberately uncomfortable action completed' },
+  { key: 'habit_hard_thing', icon: Zap, label: 'DO THE HARD THING', desc: 'Do one thing that scares you. Talk to a stranger. Start something new.' },
   { key: 'habit_identity', icon: Brain, label: 'IDENTITY REFLECTION', desc: '"Today I kept showing up by ______."' },
 ] as const;
 
