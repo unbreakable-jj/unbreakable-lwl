@@ -144,7 +144,7 @@ export function StoriesSection() {
       <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
         {user && (
           <button
-            onClick={() => setShowCreate(true)}
+            onClick={(e) => { e.stopPropagation(); setShowCreate(true); }}
             className="flex flex-col items-center gap-2 flex-shrink-0 group"
           >
             <div className="relative">
@@ -164,7 +164,10 @@ export function StoriesSection() {
           </button>
         )}
 
-        {groupedStories.map((group, index) => (
+        {groupedStories.map((group, index) => {
+          // Skip current user's stories in the row — they use the "+" button
+          if (group.userId === user?.id) return null;
+          return (
           <button
             key={group.userId}
             onClick={() => openViewer(index)}
@@ -182,7 +185,8 @@ export function StoriesSection() {
               {group.profile?.display_name?.split(' ')[0] || 'User'}
             </span>
           </button>
-        ))}
+          );
+        })}
 
         {loading && (
           <div className="flex items-center justify-center w-16 h-16">
