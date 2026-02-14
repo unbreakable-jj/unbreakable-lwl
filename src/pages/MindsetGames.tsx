@@ -17,10 +17,10 @@ type ViewState = "selection" | "snake" | "alleyway" | "tetris";
 const heroContent = {
   title: "UNBREAKABLE",
   titleAccent: "FOCUS",
-  tagline: "TRAIN YOUR REACTIONS",
+  tagline: "SWITCH OFF THE WORLD. SWITCH ON YOUR MIND.",
   intro: "Focus isn't talent — it's a",
   emphasis: "TRAINED SKILL",
-  description: "These games aren't just entertainment. They're designed to sharpen hand-eye coordination, reaction speed, and sustained attention under pressure. Auto-scaling difficulty means you're always at your edge.",
+  description: "These games are your escape from the noise — a place to switch off from the world and switch on the cognitive skills that separate good from elite. Every session sharpens hand-eye coordination, reaction speed, and sustained attention under pressure. Auto-scaling difficulty keeps you right at your edge, always growing, never coasting.",
   goal: "Compete on the global leaderboard. Push your reactions faster, your focus deeper, and your resilience",
   goalEmphasis: "UNBREAKABLE",
   goalEnd: ". KEEP SHOWING UP.",
@@ -209,9 +209,9 @@ const MindsetGames = () => {
                   <p className="text-xs text-primary font-display">UNBREAKABLE EDITION</p>
                 </div>
               </div>
-              <p className="text-primary font-display text-sm tracking-wide mb-3">SHARPEN YOUR REACTIONS</p>
+              <p className="text-primary font-display text-sm tracking-wide mb-3">HUNT. ADAPT. SURVIVE.</p>
               <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                Classic snake with a twist — colours shift every 5 points as difficulty auto-scales. Compete on the global leaderboard.
+                The world fades. Your instincts sharpen. Every turn is a split-second decision — react too slow and it's over. Colours shift, speed climbs, and only relentless focus keeps you alive. This is where reflexes become razor-sharp.
               </p>
               <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border">
                 <span>Endless mode</span>
@@ -232,9 +232,9 @@ const MindsetGames = () => {
                   <p className="text-xs text-primary font-display">UNBREAKABLE EDITION</p>
                 </div>
               </div>
-              <p className="text-primary font-display text-sm tracking-wide mb-3">BREAK THROUGH BARRIERS</p>
+              <p className="text-primary font-display text-sm tracking-wide mb-3">DESTROY WHAT'S IN YOUR WAY</p>
               <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                Classic brick-breaker reimagined — themes invert every 15 blocks, bricks regenerate endlessly.
+                Walls go up. You smash them down. Every barrier broken builds momentum — then the world flips and you adapt or fall. Precision, timing, and relentless aggression. Nothing stands between you and the leaderboard.
               </p>
               <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border">
                 <span>Endless mode</span>
@@ -255,9 +255,9 @@ const MindsetGames = () => {
                   <p className="text-xs text-primary font-display">UNBREAKABLE EDITION</p>
                 </div>
               </div>
-              <p className="text-primary font-display text-sm tracking-wide mb-3">STACK UNDER PRESSURE</p>
+              <p className="text-primary font-display text-sm tracking-wide mb-3">ORDER FROM CHAOS</p>
               <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                Classic block-stacking reimagined — themes invert every 15 lines, speed escalates with level.
+                The pieces fall faster. The pressure builds. Your job is to find clarity in the chaos — stack clean, think ahead, and stay composed when everything accelerates. Mental discipline under fire. This is focus training at its purest.
               </p>
               <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border">
                 <span>Endless mode</span>
