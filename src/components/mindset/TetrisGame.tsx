@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Play, Pause, Trophy, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from "lucide-react";
+import { RotateCcw, Play, Pause, Trophy, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Timer } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTetrisScores } from "@/hooks/useTetrisScores";
 import { TetrisLeaderboard } from "./TetrisLeaderboard";
@@ -145,6 +145,10 @@ const getLevel = (linesCleared: number): number => Math.floor(linesCleared / 10)
 const getDropInterval = (level: number): number =>
   Math.max(MIN_DROP_INTERVAL, INITIAL_DROP_INTERVAL - (level - 1) * SPEED_FACTOR);
 
+// ─── Session timer ───
+const SESSION_TIMER_SECONDS = 15 * 60;
+const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
+
 // ─── Particles ───
 interface Particle {
   x: number; y: number; dx: number; dy: number;
@@ -172,6 +176,9 @@ const TetrisGame = () => {
   const [highScore, setHighScore] = useState(0);
   const [gameState, setGameState] = useState<"idle" | "playing" | "paused" | "gameover">("idle");
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [sessionTimeLeft, setSessionTimeLeft] = useState(SESSION_TIMER_SECONDS);
+  const [timerActive, setTimerActive] = useState(true);
+  const [timerExpired, setTimerExpired] = useState(false);
 
   const { saveScore, topScores, userBest, refetch } = useTetrisScores();
 
@@ -186,6 +193,14 @@ const TetrisGame = () => {
     window.addEventListener("resize", updateScale);
     return () => window.removeEventListener("resize", updateScale);
   }, []);
+
+  // Session timer
+  useEffect(() => {
+    if (gameState !== "playing" || !timerActive) return;
+    if (sessionTimeLeft <= 0) { setTimerExpired(true); setTimerActive(false); return; }
+    const id = setInterval(() => setSessionTimeLeft(t => { if (t <= 1) { setTimerExpired(true); setTimerActive(false); return 0; } return t - 1; }), 1000);
+    return () => clearInterval(id);
+  }, [gameState, timerActive, sessionTimeLeft]);
 
   const spawnParticles = useCallback((y: number, color: string) => {
     for (let x = 0; x < COLS; x++) {
@@ -468,6 +483,7 @@ const TetrisGame = () => {
     nextPieceRef.current = randomPiece();
     scoreRef.current = 0; linesClearedRef.current = 0; levelRef.current = 1;
     setScore(0); setLinesCleared(0); setLevel(1);
+    setSessionTimeLeft(SESSION_TIMER_SECONDS); setTimerExpired(false); setTimerActive(true);
     particlesRef.current = []; screenShakeRef.current = 0;
     setGameState("playing");
   }, []);
@@ -607,6 +623,29 @@ const TetrisGame = () => {
 
   return (
     <div className="flex flex-col items-center w-full max-w-xl mx-auto select-none">
+      {/* Session Timer */}
+      <div className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border w-full justify-between transition-colors mb-3 ${
+        timerExpired ? "border-[#ff4500] bg-[#ff4500]/10" : "border-primary/30 bg-card/80"
+      }`}>
+        <div className="flex items-center gap-2">
+          <Timer className={`w-4 h-4 ${timerExpired ? "text-[#ff4500] animate-pulse" : "text-primary"}`} />
+          <span className={`font-display text-xl tracking-wider ${timerExpired ? "text-[#ff4500]" : "text-foreground"}`}>
+            {timerExpired ? "TIME'S UP!" : formatTime(sessionTimeLeft)}
+          </span>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            if (timerExpired) { setSessionTimeLeft(SESSION_TIMER_SECONDS); setTimerExpired(false); setTimerActive(true); }
+            else setTimerActive(!timerActive);
+          }}
+          className="font-display text-xs tracking-wide text-primary hover:text-primary"
+        >
+          {timerExpired ? <><RotateCcw className="w-3 h-3 mr-1" />RESET</> : timerActive ? <><Pause className="w-3 h-3 mr-1" />PAUSE</> : <><Play className="w-3 h-3 mr-1" />RESUME</>}
+        </Button>
+      </div>
+
       {/* ─── Top bar: Pause · Score · Next · Level · Lines · Best · Leaderboard ─── */}
       <div className="flex items-center justify-between w-full px-2 mb-3 gap-1">
         {/* Pause / Leaderboard - LEFT of HUD */}
@@ -704,6 +743,9 @@ const TetrisGame = () => {
               <p className="font-display text-sm text-muted-foreground tracking-wide mb-1">
                 LEVEL {level} · {linesCleared} LINES
               </p>
+              {SESSION_TIMER_SECONDS - sessionTimeLeft > 0 && (
+                <p className="text-xs text-white/40 mb-1">Played for {formatTime(SESSION_TIMER_SECONDS - sessionTimeLeft)}</p>
+              )}
               <p className="font-display text-xs text-primary tracking-wide mb-6">
                 BEST: {Math.max(highScore, userBest || 0)}
               </p>
