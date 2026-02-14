@@ -727,8 +727,7 @@ const TetrisGame = () => {
           <div className="grid grid-cols-3 gap-1 shrink-0">
             <div />
             <Button
-              variant="outline"
-              className="h-16 w-16 sm:h-14 sm:w-16 border-2 border-border hover:border-primary active:bg-primary active:text-primary-foreground transition-all rounded-xl"
+              className="h-16 w-16 sm:h-14 sm:w-16 bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 transition-all rounded-xl shadow-md"
               onPointerDown={softDrop}
               aria-label="Soft drop"
             >
@@ -736,8 +735,7 @@ const TetrisGame = () => {
             </Button>
             <div />
             <Button
-              variant="outline"
-              className="h-16 w-16 sm:h-14 sm:w-16 border-2 border-border hover:border-primary active:bg-primary active:text-primary-foreground transition-all rounded-xl"
+              className="h-16 w-16 sm:h-14 sm:w-16 bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 transition-all rounded-xl shadow-md"
               onPointerDown={moveLeft}
               aria-label="Move left"
             >
@@ -745,8 +743,7 @@ const TetrisGame = () => {
             </Button>
             <div className="h-16 w-16 sm:h-14 sm:w-16" />
             <Button
-              variant="outline"
-              className="h-16 w-16 sm:h-14 sm:w-16 border-2 border-border hover:border-primary active:bg-primary active:text-primary-foreground transition-all rounded-xl"
+              className="h-16 w-16 sm:h-14 sm:w-16 bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 transition-all rounded-xl shadow-md"
               onPointerDown={moveRight}
               aria-label="Move right"
             >
@@ -754,11 +751,10 @@ const TetrisGame = () => {
             </Button>
           </div>
 
-          {/* RIGHT: Rotate + Hard Drop (large, stacked) */}
+          {/* RIGHT: Rotate + Hard Drop */}
           <div className="flex flex-col gap-2 shrink-0">
             <Button
-              variant="outline"
-              className="h-[72px] w-32 sm:h-16 sm:w-32 border-2 border-primary/50 hover:border-primary text-primary font-display text-base tracking-wide gap-2 active:bg-primary active:text-primary-foreground transition-all rounded-xl"
+              className="h-[72px] w-32 sm:h-16 sm:w-32 bg-primary text-primary-foreground font-display text-base tracking-wide gap-2 hover:bg-primary/90 active:scale-95 transition-all rounded-xl shadow-md"
               onPointerDown={rotatePiece}
               aria-label="Rotate piece"
             >
