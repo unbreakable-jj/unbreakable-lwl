@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Play, Pause, Trophy, Timer } from "lucide-react";
+import { RotateCcw, Play, Pause, Trophy } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAlleywayScores } from "@/hooks/useAlleywayScores";
 import { AlleywayLeaderboard } from "./AlleywayLeaderboard";
@@ -108,7 +108,7 @@ const POWERUP_SPEED = 1.5;
 const POWERUP_SIZE = 18;
 const POWERUP_DURATION = 8000;
 
-const SESSION_TIMER_SECONDS = 15 * 60;
+
 
 type PowerUpType = "multiball" | "wide" | "fireball";
 
@@ -188,9 +188,6 @@ const AlleywayGame = () => {
   const [gameState, setGameState] = useState<"idle" | "playing" | "paused" | "gameover">("idle");
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [themeShifts, setThemeShifts] = useState(0);
-  const [sessionTimeLeft, setSessionTimeLeft] = useState(SESSION_TIMER_SECONDS);
-  const [timerActive, setTimerActive] = useState(true);
-  const [timerExpired, setTimerExpired] = useState(false);
   const [activePowerUpDisplay, setActivePowerUpDisplay] = useState<PowerUpType[]>([]);
   const [combo, setCombo] = useState(0);
 
@@ -207,17 +204,6 @@ const AlleywayGame = () => {
   const scaledWidth = CANVAS_WIDTH * scale;
   const scaledHeight = CANVAS_HEIGHT * scale;
 
-  // Session timer
-  useEffect(() => {
-    if (gameState !== "playing" || !timerActive) return;
-    const interval = setInterval(() => {
-      setSessionTimeLeft((prev) => {
-        if (prev <= 1) { setTimerExpired(true); return 0; }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [gameState, timerActive]);
 
   const getCurrentPaddleWidth = useCallback(() => {
     const wideExpiry = activePowerUpsRef.current.get("wide");
@@ -767,8 +753,6 @@ const AlleywayGame = () => {
     comboRef.current = 0;
     setScore(0); setCombo(0);
     setThemeShifts(0);
-    setSessionTimeLeft(SESSION_TIMER_SECONDS);
-    setTimerExpired(false); setTimerActive(true);
     setActivePowerUpDisplay([]);
     activePowerUpsRef.current.clear();
     powerUpsRef.current = [];
@@ -874,31 +858,6 @@ const AlleywayGame = () => {
 
   return (
     <div className="flex flex-col items-center gap-3 w-full max-w-lg mx-auto">
-      {/* Session Timer */}
-      <div className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border w-full justify-between transition-colors ${
-        timerExpired
-          ? "border-[#ff4500] bg-[#ff4500]/10"
-          : "border-primary/30 bg-card/80"
-      }`}>
-        <div className="flex items-center gap-2">
-          <Timer className={`w-4 h-4 ${timerExpired ? "text-[#ff4500] animate-pulse" : "text-primary"}`} />
-          <span className={`font-display text-xl tracking-wider ${timerExpired ? "text-[#ff4500]" : "text-foreground"}`}>
-            {timerExpired ? "TIME'S UP!" : formatTime(sessionTimeLeft)}
-          </span>
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            if (timerExpired) { setSessionTimeLeft(SESSION_TIMER_SECONDS); setTimerExpired(false); setTimerActive(true); }
-            else setTimerActive(!timerActive);
-          }}
-          className="font-display text-xs tracking-wide text-primary hover:text-primary"
-        >
-          {timerExpired ? <><RotateCcw className="w-3 h-3 mr-1" />RESET</> : timerActive ? <><Pause className="w-3 h-3 mr-1" />PAUSE</> : <><Play className="w-3 h-3 mr-1" />RESUME</>}
-        </Button>
-      </div>
-
       {/* Score Header */}
       <div className="flex items-center justify-between w-full px-1">
         <div className="text-left">
@@ -990,10 +949,7 @@ const AlleywayGame = () => {
               <p className="font-display text-2xl text-primary tracking-wider mb-2" style={{ textShadow: "0 0 20px rgba(249,115,22,0.5)" }}>GAME OVER</p>
               <p className="font-display text-6xl tracking-wide text-white mb-1">{score}</p>
               <p className="text-xs text-white/50 font-display tracking-wide mb-1">LEVEL {themeShifts + 1}{themeShifts > 0 ? ` · ${getLevelMessage(themeShifts)}` : ""}</p>
-              {SESSION_TIMER_SECONDS - sessionTimeLeft > 0 && (
-                <p className="text-xs text-white/40 mb-5">Played for {formatTime(SESSION_TIMER_SECONDS - sessionTimeLeft)}</p>
-              )}
-              <div className="flex gap-3">
+              <div className="flex gap-3 mt-4">
                 <Button onClick={startGame} className="font-display tracking-widest gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6">
                   <RotateCcw className="w-4 h-4" /> AGAIN
                 </Button>
