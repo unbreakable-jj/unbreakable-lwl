@@ -149,6 +149,32 @@ const getDropInterval = (level: number): number =>
 const SESSION_TIMER_SECONDS = 15 * 60;
 const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
 
+const LEVEL_MESSAGES = [
+  "STAY HUNGRY",
+  "NO LIMITS",
+  "LOCKED IN",
+  "RELENTLESS",
+  "ZERO QUIT",
+  "UNSTOPPABLE",
+  "ELITE FOCUS",
+  "BORN FOR THIS",
+  "NO DAYS OFF",
+  "KEEP RISING",
+  "PURE GRIT",
+  "UNBREAKABLE",
+  "ON FIRE",
+  "NEXT LEVEL",
+  "ALL IN",
+  "NEVER SETTLE",
+  "BEAST MODE",
+  "OWN IT",
+  "DIG DEEPER",
+  "PROVE THEM WRONG",
+];
+
+const getLevelMessage = (level: number): string =>
+  level > 1 ? LEVEL_MESSAGES[(level - 2) % LEVEL_MESSAGES.length] : "";
+
 // ─── Particles ───
 interface Particle {
   x: number; y: number; dx: number; dy: number;
@@ -675,9 +701,19 @@ const TetrisGame = () => {
           <p className="font-display text-[10px] tracking-wider text-muted-foreground mb-1">NEXT</p>
           <canvas ref={nextCanvasRef} width={80} height={60} className="rounded border border-border" />
         </div>
-        <div className="text-center flex-1 min-w-0">
-          <p className="font-display text-[10px] tracking-wider text-muted-foreground">LVL</p>
-          <p className="font-display text-lg sm:text-xl tracking-wide leading-none" style={{ color: theme.text }}>{level}</p>
+        <div className="flex flex-col items-center shrink-0">
+          <p className="font-display text-[10px] tracking-wider text-muted-foreground mb-1">LEVEL</p>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={level}
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              className="px-3 py-1.5 rounded font-display text-xs tracking-wide text-center min-w-[80px]"
+              style={{ background: theme.border, color: theme.bg === "#0a0a0a" || theme.bg === "#0c0a09" ? "#fff" : "#0a0a0a" }}
+            >
+              {getLevelMessage(level) || `${level}`}
+            </motion.div>
+          </AnimatePresence>
         </div>
         <div className="text-center flex-1 min-w-0">
           <p className="font-display text-[10px] tracking-wider text-muted-foreground">LINES</p>
@@ -741,7 +777,7 @@ const TetrisGame = () => {
               <p className="font-display text-3xl text-primary tracking-wide neon-glow-subtle mb-2">GAME OVER</p>
               <p className="font-display text-5xl text-foreground tracking-wide mb-1">{score}</p>
               <p className="font-display text-sm text-muted-foreground tracking-wide mb-1">
-                LEVEL {level} · {linesCleared} LINES
+                LEVEL {level}{getLevelMessage(level) ? ` · ${getLevelMessage(level)}` : ""} · {linesCleared} LINES
               </p>
               {SESSION_TIMER_SECONDS - sessionTimeLeft > 0 && (
                 <p className="text-xs text-white/40 mb-1">Played for {formatTime(SESSION_TIMER_SECONDS - sessionTimeLeft)}</p>

@@ -37,6 +37,32 @@ const MIN_SPEED = 80;
 const SPEED_DECREASE_PER_POINT = 1.5;
 const SESSION_TIMER_SECONDS = 15 * 60;
 
+const LEVEL_MESSAGES = [
+  "STAY HUNGRY",
+  "NO LIMITS",
+  "LOCKED IN",
+  "RELENTLESS",
+  "ZERO QUIT",
+  "UNSTOPPABLE",
+  "ELITE FOCUS",
+  "BORN FOR THIS",
+  "NO DAYS OFF",
+  "KEEP RISING",
+  "PURE GRIT",
+  "UNBREAKABLE",
+  "ON FIRE",
+  "NEXT LEVEL",
+  "ALL IN",
+  "NEVER SETTLE",
+  "BEAST MODE",
+  "OWN IT",
+  "DIG DEEPER",
+  "PROVE THEM WRONG",
+];
+
+const getLevelMessage = (shifts: number): string =>
+  shifts > 0 ? LEVEL_MESSAGES[(shifts - 1) % LEVEL_MESSAGES.length] : "";
+
 const getTheme = (score: number): ThemePalette => THEME_PALETTES[Math.floor(score / 5) % THEME_PALETTES.length];
 const getSpeed = (score: number): number => Math.max(MIN_SPEED, INITIAL_SPEED - score * SPEED_DECREASE_PER_POINT);
 const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
@@ -338,18 +364,18 @@ const SnakeGame = () => {
           <p className="font-display text-xl sm:text-2xl tracking-wide text-primary leading-none">{score}</p>
         </div>
 
-        {/* Theme shift badge */}
+        {/* Motivational badge */}
         <div className="flex flex-col items-center shrink-0">
-          <p className="font-display text-[10px] tracking-wider text-muted-foreground mb-1">SHIFT</p>
+          <p className="font-display text-[10px] tracking-wider text-muted-foreground mb-1">LEVEL</p>
           <AnimatePresence mode="wait">
             <motion.div
               key={themeShifts}
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
-              className="px-3 py-1.5 rounded font-display text-sm tracking-wide"
+              className="px-3 py-1.5 rounded font-display text-xs tracking-wide text-center min-w-[80px]"
               style={{ background: theme.border, color: theme.bg }}
             >
-              ×{themeShifts}
+              {themeShifts > 0 ? getLevelMessage(themeShifts) : `${themeShifts + 1}`}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -421,7 +447,7 @@ const SnakeGame = () => {
               <p className="font-display text-3xl text-primary tracking-wide neon-glow-subtle mb-2">GAME OVER</p>
               <p className="font-display text-5xl text-foreground tracking-wide mb-1">{score}</p>
               <p className="font-display text-sm text-muted-foreground tracking-wide mb-1">
-                {themeShifts > 0 ? `${themeShifts} THEME SHIFT${themeShifts > 1 ? "S" : ""}` : "NO THEME SHIFTS"}
+                LEVEL {themeShifts + 1}{themeShifts > 0 ? ` · ${getLevelMessage(themeShifts)}` : ""}
               </p>
               {SESSION_TIMER_SECONDS - sessionTimeLeft > 0 && (
                 <p className="text-xs text-white/40 mb-1">Played for {formatTime(SESSION_TIMER_SECONDS - sessionTimeLeft)}</p>
