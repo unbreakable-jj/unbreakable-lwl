@@ -134,6 +134,32 @@ const THEME_SHIFT_INTERVAL = 15;
 const getTheme = (score: number): ThemePalette => THEME_PALETTES[Math.floor(score / THEME_SHIFT_INTERVAL) % THEME_PALETTES.length];
 const getBallSpeed = (score: number): number => Math.min(MAX_BALL_SPEED, INITIAL_BALL_SPEED + Math.floor(score / THEME_SHIFT_INTERVAL) * SPEED_INCREASE_PER_SHIFT);
 
+const LEVEL_MESSAGES = [
+  "STAY HUNGRY",
+  "NO LIMITS",
+  "LOCKED IN",
+  "RELENTLESS",
+  "ZERO QUIT",
+  "UNSTOPPABLE",
+  "ELITE FOCUS",
+  "BORN FOR THIS",
+  "NO DAYS OFF",
+  "KEEP RISING",
+  "PURE GRIT",
+  "UNBREAKABLE",
+  "ON FIRE",
+  "NEXT LEVEL",
+  "ALL IN",
+  "NEVER SETTLE",
+  "BEAST MODE",
+  "OWN IT",
+  "DIG DEEPER",
+  "PROVE THEM WRONG",
+];
+
+const getLevelMessage = (shifts: number): string =>
+  shifts > 0 ? LEVEL_MESSAGES[(shifts - 1) % LEVEL_MESSAGES.length] : "";
+
 const POWERUP_COLORS: Record<PowerUpType, { bg: string; label: string }> = {
   multiball: { bg: "#f97316", label: "MULTI" },
   wide: { bg: "#ffffff", label: "WIDE" },
@@ -888,9 +914,9 @@ const AlleywayGame = () => {
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 exit={{ scale: 0 }}
-                className="px-3 py-1 rounded font-display text-xs tracking-wider bg-primary text-primary-foreground"
+                className="px-3 py-1 rounded font-display text-xs tracking-wider bg-primary text-primary-foreground min-w-[80px] text-center"
               >
-                LEVEL {themeShifts + 1}
+                {getLevelMessage(themeShifts) || `LEVEL ${themeShifts + 1}`}
               </motion.div>
             )}
           </AnimatePresence>
@@ -963,7 +989,7 @@ const AlleywayGame = () => {
             >
               <p className="font-display text-2xl text-primary tracking-wider mb-2" style={{ textShadow: "0 0 20px rgba(249,115,22,0.5)" }}>GAME OVER</p>
               <p className="font-display text-6xl tracking-wide text-white mb-1">{score}</p>
-              <p className="text-xs text-white/50 font-display tracking-wide mb-1">LEVEL {themeShifts + 1}</p>
+              <p className="text-xs text-white/50 font-display tracking-wide mb-1">LEVEL {themeShifts + 1}{themeShifts > 0 ? ` · ${getLevelMessage(themeShifts)}` : ""}</p>
               {SESSION_TIMER_SECONDS - sessionTimeLeft > 0 && (
                 <p className="text-xs text-white/40 mb-5">Played for {formatTime(SESSION_TIMER_SECONDS - sessionTimeLeft)}</p>
               )}
