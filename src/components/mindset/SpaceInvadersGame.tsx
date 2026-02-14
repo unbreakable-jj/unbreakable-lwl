@@ -10,6 +10,8 @@ interface Invader { x: number; y: number; alive: boolean; type: number; }
 interface Bullet { x: number; y: number; }
 interface EnemyBullet { x: number; y: number; }
 interface Particle { x: number; y: number; dx: number; dy: number; life: number; maxLife: number; color: string; size: number; }
+interface BarrierBlock { x: number; y: number; hp: number; }
+interface PowerUp { x: number; y: number; type: "shield" | "multishot"; life: number; }
 
 interface ThemePalette {
   bg: string; ship: string; shipGlow: string; bullet: string;
@@ -17,7 +19,7 @@ interface ThemePalette {
   enemyBullet: string; grid: string; border: string; text: string; accent: string;
 }
 
-// --- Themes cycling every 5 waves ---
+// --- Themes cycling every wave ---
 const THEME_PALETTES: ThemePalette[] = [
   { bg: "#0a0a0a", ship: "#f97316", shipGlow: "rgba(249,115,22,0.6)", bullet: "#ffffff", invader1: "#f97316", invader2: "#fb923c", invader3: "#ea580c", enemyBullet: "#ff4500", grid: "#1a1a1a", border: "#f97316", text: "#f97316", accent: "#ffffff" },
   { bg: "#f0f0f0", ship: "#f97316", shipGlow: "rgba(249,115,22,0.4)", bullet: "#0a0a0a", invader1: "#0a0a0a", invader2: "#1a1a1a", invader3: "#333333", enemyBullet: "#f97316", grid: "#d8d8d8", border: "#f97316", text: "#0a0a0a", accent: "#f97316" },
@@ -42,8 +44,22 @@ const INVADER_ROWS = 5;
 const INVADER_PADDING = 8;
 const INVADER_TOP_OFFSET = 40;
 const SHIP_Y = CANVAS_HEIGHT - 40;
-const FIRE_COOLDOWN = 250; // ms
-const WAVE_SHIFT_INTERVAL = 1; // every wave = theme shift
+const FIRE_COOLDOWN = 250;
+
+// Barrier constants
+const BARRIER_BLOCK_SIZE = 6;
+const BARRIER_COLS = 6;
+const BARRIER_ROWS = 4;
+const BARRIER_Y = SHIP_Y - 60;
+const NUM_BARRIERS = 3;
+const BARRIER_MAX_HP = 3;
+
+// Power-up constants
+const POWERUP_SIZE = 14;
+const POWERUP_SPEED = 1.5;
+const POWERUP_DROP_CHANCE = 0.20;
+const SHIELD_DURATION = 180; // frames (~3s)
+const MULTISHOT_DURATION = 300; // frames (~5s)
 
 const LEVEL_MESSAGES = [
   "STAY HUNGRY", "NO LIMITS", "LOCKED IN", "RELENTLESS", "ZERO QUIT",
@@ -66,15 +82,19 @@ const SpaceInvadersGame = () => {
   const enemyBulletsRef = useRef<EnemyBullet[]>([]);
   const invadersRef = useRef<Invader[]>([]);
   const particlesRef = useRef<Particle[]>([]);
+  const barriersRef = useRef<BarrierBlock[]>([]);
+  const powerUpsRef = useRef<PowerUp[]>([]);
   const scoreRef = useRef(0);
   const waveRef = useRef(0);
-  const invaderDirRef = useRef(1); // 1 = right, -1 = left
+  const invaderDirRef = useRef(1);
   const invaderSpeedRef = useRef(0.4);
   const invaderDropRef = useRef(false);
   const lastFireRef = useRef(0);
   const livesRef = useRef(3);
   const keysRef = useRef<Set<string>>(new Set());
   const screenShakeRef = useRef(0);
+  const shieldActiveRef = useRef(0);
+  const multishotActiveRef = useRef(0);
 
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
@@ -82,6 +102,7 @@ const SpaceInvadersGame = () => {
   const [lives, setLives] = useState(3);
   const [gameState, setGameState] = useState<"idle" | "playing" | "paused" | "gameover">("idle");
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [activePowerUp, setActivePowerUp] = useState<string | null>(null);
 
   const { saveScore, topScores, userBest, refetch } = useSpaceInvadersScores();
 
@@ -105,6 +126,25 @@ const SpaceInvadersGame = () => {
     }
   }, []);
 
+  const createBarriers = useCallback(() => {
+    const blocks: BarrierBlock[] = [];
+    const totalBarrierWidth = BARRIER_COLS * BARRIER_BLOCK_SIZE;
+    const spacing = CANVAS_WIDTH / (NUM_BARRIERS + 1);
+    for (let b = 0; b < NUM_BARRIERS; b++) {
+      const bx = spacing * (b + 1) - totalBarrierWidth / 2;
+      for (let row = 0; row < BARRIER_ROWS; row++) {
+        for (let col = 0; col < BARRIER_COLS; col++) {
+          blocks.push({
+            x: bx + col * BARRIER_BLOCK_SIZE,
+            y: BARRIER_Y + row * BARRIER_BLOCK_SIZE,
+            hp: BARRIER_MAX_HP,
+          });
+        }
+      }
+    }
+    return blocks;
+  }, []);
+
   const createWave = useCallback((waveNum: number) => {
     const invaders: Invader[] = [];
     const totalWidth = INVADER_COLS * (INVADER_SIZE + INVADER_PADDING) - INVADER_PADDING;
@@ -124,6 +164,7 @@ const SpaceInvadersGame = () => {
     invaderSpeedRef.current = 0.4 + waveNum * 0.12;
     invaderDropRef.current = false;
     enemyBulletsRef.current = [];
+    powerUpsRef.current = [];
   }, []);
 
   const draw = useCallback(() => {
@@ -165,23 +206,19 @@ const SpaceInvadersGame = () => {
       ctx.shadowBlur = 8;
       ctx.fillStyle = color;
 
-      // Draw invader shape based on type
       const cx = inv.x + INVADER_SIZE / 2;
       const cy = inv.y + INVADER_SIZE / 2;
       const s = INVADER_SIZE / 2;
 
       if (inv.type === 2) {
-        // Top row: diamond
         ctx.beginPath();
         ctx.moveTo(cx, cy - s); ctx.lineTo(cx + s, cy); ctx.lineTo(cx, cy + s); ctx.lineTo(cx - s, cy);
         ctx.closePath(); ctx.fill();
       } else if (inv.type === 1) {
-        // Mid rows: rounded rect
         ctx.beginPath();
         ctx.roundRect(inv.x + 2, inv.y + 2, INVADER_SIZE - 4, INVADER_SIZE - 4, 4);
         ctx.fill();
       } else {
-        // Bottom rows: circle
         ctx.beginPath();
         ctx.arc(cx, cy, s - 2, 0, Math.PI * 2);
         ctx.fill();
@@ -194,11 +231,76 @@ const SpaceInvadersGame = () => {
       ctx.beginPath(); ctx.arc(cx + 4, cy - 2, 2, 0, Math.PI * 2); ctx.fill();
     });
 
+    // Barriers
+    barriersRef.current.forEach((block) => {
+      const hpRatio = block.hp / BARRIER_MAX_HP;
+      const alpha = 0.3 + hpRatio * 0.7;
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = theme.accent;
+      ctx.fillRect(block.x, block.y, BARRIER_BLOCK_SIZE, BARRIER_BLOCK_SIZE);
+      if (hpRatio < 1) {
+        // Damage cracks
+        ctx.fillStyle = theme.bg;
+        if (block.hp <= 1) {
+          ctx.fillRect(block.x + 1, block.y + 1, 2, 2);
+          ctx.fillRect(block.x + 3, block.y + 3, 2, 2);
+        } else if (block.hp <= 2) {
+          ctx.fillRect(block.x + 2, block.y + 2, 2, 2);
+        }
+      }
+    });
+    ctx.globalAlpha = 1;
+
+    // Power-ups
+    powerUpsRef.current.forEach((pu) => {
+      const pulse = Math.sin(Date.now() * 0.01) * 0.3 + 0.7;
+      ctx.globalAlpha = pulse;
+      if (pu.type === "shield") {
+        ctx.fillStyle = "#3b82f6";
+        ctx.shadowColor = "#3b82f6";
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(pu.x + POWERUP_SIZE / 2, pu.y + POWERUP_SIZE / 2, POWERUP_SIZE / 2, 0, Math.PI * 2);
+        ctx.fill();
+        // S letter
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 10px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("S", pu.x + POWERUP_SIZE / 2, pu.y + POWERUP_SIZE / 2 + 3);
+      } else {
+        ctx.fillStyle = "#ef4444";
+        ctx.shadowColor = "#ef4444";
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(pu.x + POWERUP_SIZE / 2, pu.y + POWERUP_SIZE / 2, POWERUP_SIZE / 2, 0, Math.PI * 2);
+        ctx.fill();
+        // M letter
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 10px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("M", pu.x + POWERUP_SIZE / 2, pu.y + POWERUP_SIZE / 2 + 3);
+      }
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
+    });
+
     // Player ship
     const sx = shipXRef.current;
     ctx.shadowColor = theme.shipGlow;
     ctx.shadowBlur = 15;
     ctx.fillStyle = theme.ship;
+
+    // Shield glow
+    if (shieldActiveRef.current > 0) {
+      ctx.shadowColor = "#3b82f6";
+      ctx.shadowBlur = 25;
+      ctx.strokeStyle = "#3b82f6";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(sx + SHIP_WIDTH / 2, SHIP_Y + SHIP_HEIGHT / 2, SHIP_WIDTH / 2 + 6, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
     ctx.beginPath();
     ctx.moveTo(sx + SHIP_WIDTH / 2, SHIP_Y);
     ctx.lineTo(sx + SHIP_WIDTH, SHIP_Y + SHIP_HEIGHT);
@@ -215,6 +317,14 @@ const SpaceInvadersGame = () => {
     ctx.lineTo(sx + SHIP_WIDTH / 2 - 6, SHIP_Y + SHIP_HEIGHT - 2);
     ctx.closePath();
     ctx.fill();
+
+    // Multishot indicator
+    if (multishotActiveRef.current > 0) {
+      ctx.fillStyle = "#ef444466";
+      ctx.beginPath();
+      ctx.arc(sx + SHIP_WIDTH / 2, SHIP_Y - 4, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     // Player bullets
     ctx.shadowColor = theme.bullet;
@@ -281,6 +391,18 @@ const SpaceInvadersGame = () => {
     if (finalScore > 0) saveScore(finalScore, finalWave);
   }, [highScore, saveScore]);
 
+  const fireBullets = useCallback(() => {
+    const sx = shipXRef.current;
+    const cx = sx + SHIP_WIDTH / 2;
+    if (multishotActiveRef.current > 0) {
+      bulletsRef.current.push({ x: cx, y: SHIP_Y - 2 });
+      bulletsRef.current.push({ x: cx - 12, y: SHIP_Y + 2 });
+      bulletsRef.current.push({ x: cx + 12, y: SHIP_Y + 2 });
+    } else {
+      bulletsRef.current.push({ x: cx, y: SHIP_Y - 2 });
+    }
+  }, []);
+
   const gameLoop = useCallback(() => {
     if (gameState !== "playing") return;
 
@@ -294,7 +416,7 @@ const SpaceInvadersGame = () => {
     const now = performance.now();
     if (keysRef.current.has("fire") && now - lastFireRef.current > FIRE_COOLDOWN) {
       lastFireRef.current = now;
-      bulletsRef.current.push({ x: shipXRef.current + SHIP_WIDTH / 2, y: SHIP_Y - 2 });
+      fireBullets();
     }
 
     // Move player bullets
@@ -317,23 +439,37 @@ const SpaceInvadersGame = () => {
       });
     }
 
-    // Check if invaders reached bottom
+    // Check if invaders reached barriers/bottom
     if (invadersRef.current.some(inv => inv.alive && inv.y + INVADER_SIZE >= SHIP_Y)) {
       gameOver();
       return;
     }
 
-    // Enemy fire
+    // Enemy fire — 2x base, scales with waves
     const aliveInvaders = invadersRef.current.filter(inv => inv.alive);
-    const fireChance = 0.008 + waveRef.current * 0.002;
+    const fireChance = 0.016 + waveRef.current * 0.004;
     if (aliveInvaders.length > 0 && Math.random() < fireChance) {
       const shooter = aliveInvaders[Math.floor(Math.random() * aliveInvaders.length)];
       enemyBulletsRef.current.push({ x: shooter.x + INVADER_SIZE / 2, y: shooter.y + INVADER_SIZE });
     }
 
     // Move enemy bullets
-    enemyBulletsRef.current.forEach(b => b.y += ENEMY_BULLET_SPEED + waveRef.current * 0.15);
+    enemyBulletsRef.current.forEach(b => b.y += ENEMY_BULLET_SPEED + waveRef.current * 0.2);
     enemyBulletsRef.current = enemyBulletsRef.current.filter(b => b.y < CANVAS_HEIGHT + 10);
+
+    // Move power-ups
+    powerUpsRef.current.forEach(pu => { pu.y += POWERUP_SPEED; pu.life--; });
+    powerUpsRef.current = powerUpsRef.current.filter(pu => pu.y < CANVAS_HEIGHT + 20 && pu.life > 0);
+
+    // Decrement power-up timers
+    if (shieldActiveRef.current > 0) {
+      shieldActiveRef.current--;
+      if (shieldActiveRef.current <= 0) setActivePowerUp(null);
+    }
+    if (multishotActiveRef.current > 0) {
+      multishotActiveRef.current--;
+      if (multishotActiveRef.current <= 0) setActivePowerUp(null);
+    }
 
     // Player bullet → invader collision
     bulletsRef.current.forEach((bullet) => {
@@ -344,7 +480,7 @@ const SpaceInvadersGame = () => {
           bullet.y > inv.y && bullet.y < inv.y + INVADER_SIZE
         ) {
           inv.alive = false;
-          bullet.y = -100; // mark for removal
+          bullet.y = -100;
           const points = (inv.type + 1) * 10;
           scoreRef.current += points;
           setScore(scoreRef.current);
@@ -357,15 +493,71 @@ const SpaceInvadersGame = () => {
           if (remaining > 0) {
             invaderSpeedRef.current = (0.4 + waveRef.current * 0.12) * (1 + (INVADER_COLS * INVADER_ROWS - remaining) * 0.02);
           }
+
+          // Power-up drop chance
+          if (Math.random() < POWERUP_DROP_CHANCE) {
+            const type = Math.random() < 0.5 ? "shield" : "multishot";
+            powerUpsRef.current.push({
+              x: inv.x + INVADER_SIZE / 2 - POWERUP_SIZE / 2,
+              y: inv.y + INVADER_SIZE / 2,
+              type,
+              life: 600,
+            });
+          }
         }
       });
     });
     bulletsRef.current = bulletsRef.current.filter(b => b.y > -BULLET_HEIGHT);
 
+    // Player bullet → barrier collision
+    bulletsRef.current.forEach((bullet) => {
+      for (let i = barriersRef.current.length - 1; i >= 0; i--) {
+        const block = barriersRef.current[i];
+        if (
+          bullet.x >= block.x && bullet.x <= block.x + BARRIER_BLOCK_SIZE &&
+          bullet.y >= block.y && bullet.y <= block.y + BARRIER_BLOCK_SIZE
+        ) {
+          block.hp--;
+          bullet.y = -100;
+          if (block.hp <= 0) {
+            spawnParticles(block.x + BARRIER_BLOCK_SIZE / 2, block.y + BARRIER_BLOCK_SIZE / 2, "#888888", 4);
+            barriersRef.current.splice(i, 1);
+          }
+          break;
+        }
+      }
+    });
+    bulletsRef.current = bulletsRef.current.filter(b => b.y > -BULLET_HEIGHT);
+
+    // Enemy bullet → barrier collision
+    enemyBulletsRef.current = enemyBulletsRef.current.filter((bullet) => {
+      for (let i = barriersRef.current.length - 1; i >= 0; i--) {
+        const block = barriersRef.current[i];
+        if (
+          bullet.x >= block.x && bullet.x <= block.x + BARRIER_BLOCK_SIZE &&
+          bullet.y >= block.y && bullet.y <= block.y + BARRIER_BLOCK_SIZE
+        ) {
+          block.hp--;
+          if (block.hp <= 0) {
+            spawnParticles(block.x + BARRIER_BLOCK_SIZE / 2, block.y + BARRIER_BLOCK_SIZE / 2, "#888888", 4);
+            barriersRef.current.splice(i, 1);
+          }
+          return false;
+        }
+      }
+      return true;
+    });
+
     // Enemy bullet → player collision
     const sx = shipXRef.current;
     enemyBulletsRef.current = enemyBulletsRef.current.filter((b) => {
       if (b.x >= sx && b.x <= sx + SHIP_WIDTH && b.y >= SHIP_Y && b.y <= SHIP_Y + SHIP_HEIGHT) {
+        if (shieldActiveRef.current > 0) {
+          // Shield absorbs the hit
+          spawnParticles(sx + SHIP_WIDTH / 2, SHIP_Y + SHIP_HEIGHT / 2, "#3b82f6", 8);
+          screenShakeRef.current = 3;
+          return false;
+        }
         livesRef.current--;
         setLives(livesRef.current);
         spawnParticles(sx + SHIP_WIDTH / 2, SHIP_Y + SHIP_HEIGHT / 2, theme.ship, 12);
@@ -379,11 +571,45 @@ const SpaceInvadersGame = () => {
       return true;
     });
 
+    // Power-up → player collision
+    powerUpsRef.current = powerUpsRef.current.filter((pu) => {
+      const px = pu.x + POWERUP_SIZE / 2;
+      const py = pu.y + POWERUP_SIZE / 2;
+      if (px >= sx && px <= sx + SHIP_WIDTH && py >= SHIP_Y && py <= SHIP_Y + SHIP_HEIGHT + 10) {
+        if (pu.type === "shield") {
+          shieldActiveRef.current = SHIELD_DURATION;
+          setActivePowerUp("SHIELD");
+        } else {
+          multishotActiveRef.current = MULTISHOT_DURATION;
+          setActivePowerUp("MULTI-SHOT");
+        }
+        spawnParticles(px, py, pu.type === "shield" ? "#3b82f6" : "#ef4444", 12);
+        return false;
+      }
+      return true;
+    });
+
+    // Invader → barrier collision (invaders destroy barrier blocks)
+    invadersRef.current.forEach((inv) => {
+      if (!inv.alive) return;
+      for (let i = barriersRef.current.length - 1; i >= 0; i--) {
+        const block = barriersRef.current[i];
+        if (
+          inv.x + INVADER_SIZE > block.x && inv.x < block.x + BARRIER_BLOCK_SIZE &&
+          inv.y + INVADER_SIZE > block.y && inv.y < block.y + BARRIER_BLOCK_SIZE
+        ) {
+          barriersRef.current.splice(i, 1);
+        }
+      }
+    });
+
     // Check wave cleared
     if (invadersRef.current.every(inv => !inv.alive)) {
       waveRef.current++;
       setWave(waveRef.current);
       createWave(waveRef.current);
+      // Rebuild barriers each wave
+      barriersRef.current = createBarriers();
     }
 
     // Particles
@@ -392,7 +618,7 @@ const SpaceInvadersGame = () => {
 
     draw();
     animFrameRef.current = requestAnimationFrame(gameLoop);
-  }, [gameState, draw, gameOver, spawnParticles, createWave]);
+  }, [gameState, draw, gameOver, spawnParticles, createWave, createBarriers, fireBullets]);
 
   useEffect(() => {
     if (gameState === "playing") {
@@ -407,9 +633,13 @@ const SpaceInvadersGame = () => {
     shipXRef.current = CANVAS_WIDTH / 2 - SHIP_WIDTH / 2;
     bulletsRef.current = []; enemyBulletsRef.current = [];
     particlesRef.current = []; screenShakeRef.current = 0;
+    shieldActiveRef.current = 0; multishotActiveRef.current = 0;
+    setActivePowerUp(null);
+    barriersRef.current = createBarriers();
+    powerUpsRef.current = [];
     createWave(0);
     setGameState("playing");
-  }, [createWave]);
+  }, [createWave, createBarriers]);
 
   const togglePause = useCallback(() => {
     if (gameState === "playing") {
@@ -450,8 +680,7 @@ const SpaceInvadersGame = () => {
     return () => { window.removeEventListener("keydown", down); window.removeEventListener("keyup", up); };
   }, [gameState, startGame, togglePause]);
 
-  // Touch controls for canvas swipe
-  const touchStartRef = useRef<{ x: number } | null>(null);
+  // Touch controls for canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -461,11 +690,10 @@ const SpaceInvadersGame = () => {
       const rect = canvas.getBoundingClientRect();
       const relX = (e.touches[0].clientX - rect.left) / scale;
       shipXRef.current = Math.max(0, Math.min(CANVAS_WIDTH - SHIP_WIDTH, relX - SHIP_WIDTH / 2));
-      // Auto-fire on touch
       const now = performance.now();
       if (now - lastFireRef.current > FIRE_COOLDOWN) {
         lastFireRef.current = now;
-        bulletsRef.current.push({ x: shipXRef.current + SHIP_WIDTH / 2, y: SHIP_Y - 2 });
+        fireBullets();
       }
     };
     const onStart = (e: TouchEvent) => {
@@ -476,13 +704,13 @@ const SpaceInvadersGame = () => {
       const now = performance.now();
       if (now - lastFireRef.current > FIRE_COOLDOWN) {
         lastFireRef.current = now;
-        bulletsRef.current.push({ x: shipXRef.current + SHIP_WIDTH / 2, y: SHIP_Y - 2 });
+        fireBullets();
       }
     };
     canvas.addEventListener("touchmove", onMove, { passive: false });
     canvas.addEventListener("touchstart", onStart, { passive: true });
     return () => { canvas.removeEventListener("touchmove", onMove); canvas.removeEventListener("touchstart", onStart); };
-  }, [gameState, scale]);
+  }, [gameState, scale, fireBullets]);
 
   // Initial draw
   useEffect(() => {
@@ -539,6 +767,20 @@ const SpaceInvadersGame = () => {
             >
               {wave > 0 ? getLevelMessage(wave) : `${wave + 1}`}
             </motion.div>
+          </AnimatePresence>
+          {/* Active power-up indicator */}
+          <AnimatePresence>
+            {activePowerUp && (
+              <motion.p
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="font-display text-[9px] tracking-wider mt-1"
+                style={{ color: activePowerUp === "SHIELD" ? "#3b82f6" : "#ef4444" }}
+              >
+                {activePowerUp}
+              </motion.p>
+            )}
           </AnimatePresence>
         </div>
 
@@ -647,7 +889,7 @@ const SpaceInvadersGame = () => {
               const now = performance.now();
               if (now - lastFireRef.current > FIRE_COOLDOWN && gameState === "playing") {
                 lastFireRef.current = now;
-                bulletsRef.current.push({ x: shipXRef.current + SHIP_WIDTH / 2, y: SHIP_Y - 2 });
+                fireBullets();
               }
             }}
             onPointerUp={() => keysRef.current.delete("fire")}
