@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Play, Pause, Trophy, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Timer } from "lucide-react";
+import { RotateCcw, Play, Pause, Trophy, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSnakeScores } from "@/hooks/useSnakeScores";
 import { SnakeLeaderboard } from "./SnakeLeaderboard";
@@ -35,7 +35,7 @@ const GRID_SIZE = 20;
 const INITIAL_SPEED = 200;
 const MIN_SPEED = 80;
 const SPEED_DECREASE_PER_POINT = 1.5;
-const SESSION_TIMER_SECONDS = 15 * 60;
+
 
 const LEVEL_MESSAGES = [
   "STAY HUNGRY",
@@ -65,7 +65,7 @@ const getLevelMessage = (shifts: number): string =>
 
 const getTheme = (score: number): ThemePalette => THEME_PALETTES[Math.floor(score / 5) % THEME_PALETTES.length];
 const getSpeed = (score: number): number => Math.max(MIN_SPEED, INITIAL_SPEED - score * SPEED_DECREASE_PER_POINT);
-const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
+
 
 const SnakeGame = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -81,9 +81,6 @@ const SnakeGame = () => {
   const [gameState, setGameState] = useState<"idle" | "playing" | "paused" | "gameover">("idle");
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [themeShifts, setThemeShifts] = useState(0);
-  const [sessionTimeLeft, setSessionTimeLeft] = useState(SESSION_TIMER_SECONDS);
-  const [timerActive, setTimerActive] = useState(true);
-  const [timerExpired, setTimerExpired] = useState(false);
 
   const { saveScore, topScores, userBest, refetch } = useSnakeScores();
 
@@ -100,13 +97,6 @@ const SnakeGame = () => {
   }, []);
   const canvasSize = cellSize * GRID_SIZE;
 
-  // Session timer
-  useEffect(() => {
-    if (gameState !== "playing" || !timerActive) return;
-    if (sessionTimeLeft <= 0) { setTimerExpired(true); setTimerActive(false); return; }
-    const id = setInterval(() => setSessionTimeLeft(t => { if (t <= 1) { setTimerExpired(true); setTimerActive(false); return 0; } return t - 1; }), 1000);
-    return () => clearInterval(id);
-  }, [gameState, timerActive, sessionTimeLeft]);
 
   const spawnFood = useCallback(() => {
     const snake = snakeRef.current;
@@ -222,9 +212,6 @@ const SnakeGame = () => {
     scoreRef.current = 0;
     setScore(0);
     setThemeShifts(0);
-    setSessionTimeLeft(SESSION_TIMER_SECONDS);
-    setTimerExpired(false);
-    setTimerActive(true);
     spawnFood();
     setGameState("playing");
     draw();
@@ -315,29 +302,6 @@ const SnakeGame = () => {
 
   return (
     <div className="flex flex-col items-center w-full max-w-xl mx-auto select-none">
-      {/* Session Timer */}
-      <div className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border w-full justify-between transition-colors mb-3 ${
-        timerExpired ? "border-[#ff4500] bg-[#ff4500]/10" : "border-primary/30 bg-card/80"
-      }`}>
-        <div className="flex items-center gap-2">
-          <Timer className={`w-4 h-4 ${timerExpired ? "text-[#ff4500] animate-pulse" : "text-primary"}`} />
-          <span className={`font-display text-xl tracking-wider ${timerExpired ? "text-[#ff4500]" : "text-foreground"}`}>
-            {timerExpired ? "TIME'S UP!" : formatTime(sessionTimeLeft)}
-          </span>
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            if (timerExpired) { setSessionTimeLeft(SESSION_TIMER_SECONDS); setTimerExpired(false); setTimerActive(true); }
-            else setTimerActive(!timerActive);
-          }}
-          className="font-display text-xs tracking-wide text-primary hover:text-primary"
-        >
-          {timerExpired ? <><RotateCcw className="w-3 h-3 mr-1" />RESET</> : timerActive ? <><Pause className="w-3 h-3 mr-1" />PAUSE</> : <><Play className="w-3 h-3 mr-1" />RESUME</>}
-        </Button>
-      </div>
-
       {/* ─── Inline HUD ─── */}
       <div className="flex items-center justify-between w-full px-2 mb-3 gap-1">
         {/* Pause / Leaderboard */}
@@ -449,9 +413,6 @@ const SnakeGame = () => {
               <p className="font-display text-sm text-muted-foreground tracking-wide mb-1">
                 LEVEL {themeShifts + 1}{themeShifts > 0 ? ` · ${getLevelMessage(themeShifts)}` : ""}
               </p>
-              {SESSION_TIMER_SECONDS - sessionTimeLeft > 0 && (
-                <p className="text-xs text-white/40 mb-1">Played for {formatTime(SESSION_TIMER_SECONDS - sessionTimeLeft)}</p>
-              )}
               <p className="font-display text-xs text-primary tracking-wide mb-6">
                 BEST: {Math.max(highScore, userBest || 0)}
               </p>
