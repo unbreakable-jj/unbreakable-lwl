@@ -117,8 +117,23 @@ const getGhostY = (board: Board, piece: Piece): number => {
   return gy;
 };
 
+// 7-bag randomizer: ensures every piece appears once before repeating
+const bagRef = { current: [] as number[] };
+
+const fillBag = () => {
+  const indices = [0, 1, 2, 3, 4, 5, 6];
+  // Fisher-Yates shuffle
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  bagRef.current = indices;
+};
+
 const randomPiece = (): Piece => {
-  const t = TETROMINOES[Math.floor(Math.random() * TETROMINOES.length)];
+  if (bagRef.current.length === 0) fillBag();
+  const idx = bagRef.current.pop()!;
+  const t = TETROMINOES[idx];
   return { shape: t.shape.map(r => [...r]), id: t.id, x: Math.floor(COLS / 2) - Math.floor(t.shape[0].length / 2), y: -1 };
 };
 
@@ -591,32 +606,51 @@ const TetrisGame = () => {
   }
 
   return (
-    <div className="flex flex-col items-center w-full max-w-xl mx-auto">
-      {/* ─── Inline HUD: Score · Next · Level · Lines · Best ─── */}
-      <div className="flex items-center justify-between w-full px-2 mb-3 gap-2">
-        <div className="text-left flex-1">
-          <p className="font-display text-[10px] tracking-wider text-muted-foreground">SCORE</p>
-          <p className="font-display text-2xl sm:text-3xl tracking-wide text-primary leading-none">{score}</p>
+    <div className="flex flex-col items-center w-full max-w-xl mx-auto select-none">
+      {/* ─── Top bar: Pause · Score · Next · Level · Lines · Best · Leaderboard ─── */}
+      <div className="flex items-center justify-between w-full px-2 mb-3 gap-1">
+        {/* Pause / Leaderboard - LEFT of HUD */}
+        <div className="flex flex-col gap-1 shrink-0">
+          {gameState === "playing" ? (
+            <Button onClick={togglePause} variant="outline" size="sm" className="font-display text-[10px] tracking-wide gap-1 h-8 px-3 border-border">
+              <Pause className="w-3.5 h-3.5" /> PAUSE
+            </Button>
+          ) : gameState === "paused" ? (
+            <Button onClick={togglePause} variant="outline" size="sm" className="font-display text-[10px] tracking-wide gap-1 h-8 px-3 border-primary text-primary">
+              <Play className="w-3.5 h-3.5" /> RESUME
+            </Button>
+          ) : (
+            <div className="h-8 w-16" />
+          )}
+          <Button onClick={() => { refetch(); setShowLeaderboard(true); }} variant="ghost" size="sm" className="font-display text-[9px] tracking-wide gap-1 h-6 text-muted-foreground px-2">
+            <Trophy className="w-3 h-3" /> BOARD
+          </Button>
         </div>
-        <div className="flex flex-col items-center">
+
+        {/* Stats */}
+        <div className="text-center flex-1 min-w-0">
+          <p className="font-display text-[10px] tracking-wider text-muted-foreground">SCORE</p>
+          <p className="font-display text-xl sm:text-2xl tracking-wide text-primary leading-none">{score}</p>
+        </div>
+        <div className="flex flex-col items-center shrink-0">
           <p className="font-display text-[10px] tracking-wider text-muted-foreground mb-1">NEXT</p>
           <canvas ref={nextCanvasRef} width={80} height={60} className="rounded border border-border" />
         </div>
-        <div className="text-center flex-1">
-          <p className="font-display text-[10px] tracking-wider text-muted-foreground">LEVEL</p>
-          <p className="font-display text-xl sm:text-2xl tracking-wide leading-none" style={{ color: theme.text }}>{level}</p>
+        <div className="text-center flex-1 min-w-0">
+          <p className="font-display text-[10px] tracking-wider text-muted-foreground">LVL</p>
+          <p className="font-display text-lg sm:text-xl tracking-wide leading-none" style={{ color: theme.text }}>{level}</p>
         </div>
-        <div className="text-center flex-1">
+        <div className="text-center flex-1 min-w-0">
           <p className="font-display text-[10px] tracking-wider text-muted-foreground">LINES</p>
-          <p className="font-display text-xl sm:text-2xl tracking-wide text-primary leading-none">{linesCleared}</p>
+          <p className="font-display text-lg sm:text-xl tracking-wide text-primary leading-none">{linesCleared}</p>
         </div>
-        <div className="text-right flex-1">
+        <div className="text-right shrink-0">
           <p className="font-display text-[10px] tracking-wider text-muted-foreground">BEST</p>
-          <p className="font-display text-lg sm:text-xl tracking-wide text-primary leading-none">{Math.max(highScore, userBest || 0)}</p>
+          <p className="font-display text-base sm:text-lg tracking-wide text-primary leading-none">{Math.max(highScore, userBest || 0)}</p>
         </div>
       </div>
 
-      {/* ─── Game Board (fills available width) ─── */}
+      {/* ─── Game Board ─── */}
       <div className="relative w-full flex justify-center" style={{ maxWidth: CANVAS_WIDTH * scale }}>
         <canvas
           ref={canvasRef}
@@ -686,68 +720,56 @@ const TetrisGame = () => {
         </AnimatePresence>
       </div>
 
-      {/* ─── Controls: D-pad left · Actions right ─── */}
-      <div className="w-full mt-4 px-2">
-        <div className="flex items-center justify-between gap-4">
-          {/* LEFT: D-pad movement */}
-          <div className="grid grid-cols-3 gap-1.5 shrink-0">
+      {/* ─── Controls: D-pad left · Action buttons right ─── */}
+      <div className="w-full mt-4 px-1">
+        <div className="flex items-center justify-between gap-3">
+          {/* LEFT: D-pad */}
+          <div className="grid grid-cols-3 gap-1 shrink-0">
             <div />
             <Button
               variant="outline"
-              className="h-14 w-14 sm:h-12 sm:w-14 border-2 border-border hover:border-primary active:bg-primary active:text-primary-foreground transition-all"
-              onClick={softDrop}
+              className="h-16 w-16 sm:h-14 sm:w-16 border-2 border-border hover:border-primary active:bg-primary active:text-primary-foreground transition-all rounded-xl"
+              onPointerDown={softDrop}
               aria-label="Soft drop"
             >
-              <ArrowUp className="w-6 h-6 rotate-180" />
+              <ArrowUp className="w-7 h-7 rotate-180" />
             </Button>
             <div />
             <Button
               variant="outline"
-              className="h-14 w-14 sm:h-12 sm:w-14 border-2 border-border hover:border-primary active:bg-primary active:text-primary-foreground transition-all"
-              onClick={moveLeft}
+              className="h-16 w-16 sm:h-14 sm:w-16 border-2 border-border hover:border-primary active:bg-primary active:text-primary-foreground transition-all rounded-xl"
+              onPointerDown={moveLeft}
               aria-label="Move left"
             >
-              <ArrowLeft className="w-6 h-6" />
+              <ArrowLeft className="w-7 h-7" />
             </Button>
-            <div className="h-14 w-14 sm:h-12 sm:w-14" />
+            <div className="h-16 w-16 sm:h-14 sm:w-16" />
             <Button
               variant="outline"
-              className="h-14 w-14 sm:h-12 sm:w-14 border-2 border-border hover:border-primary active:bg-primary active:text-primary-foreground transition-all"
-              onClick={moveRight}
+              className="h-16 w-16 sm:h-14 sm:w-16 border-2 border-border hover:border-primary active:bg-primary active:text-primary-foreground transition-all rounded-xl"
+              onPointerDown={moveRight}
               aria-label="Move right"
             >
-              <ArrowRight className="w-6 h-6" />
+              <ArrowRight className="w-7 h-7" />
             </Button>
           </div>
 
-          {/* CENTER: Pause + Leaderboard */}
-          <div className="flex flex-col gap-2 items-center">
-            {gameState === "playing" && (
-              <Button onClick={togglePause} variant="outline" size="sm" className="font-display text-xs tracking-wide gap-1 h-10 px-4">
-                <Pause className="w-4 h-4" /> PAUSE
-              </Button>
-            )}
-            <Button onClick={() => { refetch(); setShowLeaderboard(true); }} variant="ghost" size="sm" className="font-display text-[10px] tracking-wide gap-1 h-8 text-muted-foreground">
-              <Trophy className="w-3 h-3" /> BOARD
-            </Button>
-          </div>
-
-          {/* RIGHT: Rotate + Hard Drop */}
+          {/* RIGHT: Rotate + Hard Drop (large, stacked) */}
           <div className="flex flex-col gap-2 shrink-0">
             <Button
               variant="outline"
-              className="h-14 w-28 sm:h-12 sm:w-28 border-2 border-primary/50 hover:border-primary text-primary font-display text-sm tracking-wide gap-2 active:bg-primary active:text-primary-foreground transition-all"
-              onClick={rotatePiece}
+              className="h-[72px] w-32 sm:h-16 sm:w-32 border-2 border-primary/50 hover:border-primary text-primary font-display text-base tracking-wide gap-2 active:bg-primary active:text-primary-foreground transition-all rounded-xl"
+              onPointerDown={rotatePiece}
               aria-label="Rotate piece"
             >
-              <RotateCcw className="w-5 h-5" /> ROTATE
+              <RotateCcw className="w-6 h-6" /> ROTATE
             </Button>
             <Button
-              className="h-14 w-28 sm:h-12 sm:w-28 bg-primary text-primary-foreground font-display text-sm tracking-wide gap-2 hover:bg-primary/90 active:scale-95 transition-all"
-              onClick={hardDrop}
+              className="h-[72px] w-32 sm:h-16 sm:w-32 bg-primary text-primary-foreground font-display text-base tracking-wide gap-2 hover:bg-primary/90 active:scale-95 transition-all rounded-xl shadow-lg"
+              onPointerDown={hardDrop}
               aria-label="Hard drop"
             >
-              <ArrowDown className="w-5 h-5" /> DROP
+              <ArrowDown className="w-6 h-6" /> DROP
             </Button>
           </div>
         </div>
