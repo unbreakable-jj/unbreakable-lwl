@@ -111,7 +111,7 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
       }));
 
       await startSession.mutateAsync({
-        programId: program.id,
+        programId: null as any,
         weekNumber: Math.ceil(day.day_number / 7),
         dayName: `Day ${day.day_number}`,
         sessionType: `U86 Day ${day.day_number} - Strength`,
