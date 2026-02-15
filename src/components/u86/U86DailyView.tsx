@@ -9,11 +9,12 @@ import { Progress } from '@/components/ui/progress';
 import {
   Footprints, Dumbbell, CheckCircle2, Play,
   BookOpen, Zap, Shield, PenLine, ChevronDown, ChevronUp,
-  Video, Sparkles, Droplets
+  Video, Sparkles, Droplets, Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { U86SessionView } from './U86SessionView';
+import { ActiveWorkoutModal } from '@/components/programming/ActiveWorkoutModal';
 import { VideoToolView } from '@/components/programming/VideoToolView';
+import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import type { U86Day, U86Program } from '@/hooks/useUnbreakable86';
 
 interface U86DailyViewProps {
@@ -38,10 +39,19 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
   const [journalWentWell, setJournalWentWell] = useState('');
   const [journalHardest, setJournalHardest] = useState('');
   const [journalTomorrow, setJournalTomorrow] = useState('');
-  const [sessionOpen, setSessionOpen] = useState(false);
   const [planExpanded, setPlanExpanded] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
   const [journalExpanded, setJournalExpanded] = useState(false);
+  const [showWorkoutModal, setShowWorkoutModal] = useState(false);
+  const [isStartingSession, setIsStartingSession] = useState(false);
+
+  const {
+    activeSession,
+    startSession,
+    updateExerciseLog,
+    completeSession,
+    cancelSession,
+  } = useWorkoutSessions();
 
   // Parse existing journal entry if structured
   useState(() => {
@@ -72,14 +82,94 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
   }, 0);
   const strengthProgress = totalSets > 0 ? Math.round((completedSets / totalSets) * 100) : 0;
 
+  // Check if there's an active U86 session
+  const hasActiveU86Session = !!activeSession && activeSession.session_type?.startsWith('U86 Day');
+
   const handleHabitToggle = (key: string) => {
     if (readOnly) return;
     onUpdate({ [key]: !(day as any)[key] } as any);
   };
 
-  const handleExercisesUpdate = (updatedExercises: any[]) => {
-    if (readOnly) return;
-    onUpdate({ exercises: updatedExercises } as any);
+  const handleStartSession = async () => {
+    if (isStartingSession || readOnly) return;
+    setIsStartingSession(true);
+
+    try {
+      // If there's already an active U86 session, just open the modal
+      if (hasActiveU86Session) {
+        setShowWorkoutModal(true);
+        setIsStartingSession(false);
+        return;
+      }
+
+      // Create a proper workout session from U86 exercises
+      const exercisesForSession = exercises.map(ex => ({
+        name: ex.name,
+        equipment: ex.equipment || 'bodyweight',
+        sets: ex.sets?.length || 3,
+        reps: ex.sets?.[0]?.targetReps || '8-12',
+      }));
+
+      await startSession.mutateAsync({
+        programId: program.id,
+        weekNumber: Math.ceil(day.day_number / 7),
+        dayName: `Day ${day.day_number}`,
+        sessionType: `U86 Day ${day.day_number} - Strength`,
+        exercises: exercisesForSession,
+      });
+
+      setShowWorkoutModal(true);
+    } catch (error) {
+      console.error('Failed to start U86 session:', error);
+    } finally {
+      setIsStartingSession(false);
+    }
+  };
+
+  const handleCompleteWorkout = (notes?: string, visibility?: 'public' | 'friends' | 'private') => {
+    if (!activeSession) return;
+
+    // Complete the workout session in the workout system
+    completeSession.mutate({
+      sessionId: activeSession.id,
+      notes,
+      visibility,
+    });
+
+    // Sync exercise log data back to U86 day exercises
+    if (activeSession.exercise_logs) {
+      const updatedExercises = exercises.map(ex => {
+        const matchingLogs = activeSession.exercise_logs?.filter(
+          log => log.exercise_name === ex.name
+        ) || [];
+
+        if (matchingLogs.length > 0) {
+          const logged = matchingLogs.map(log => ({
+            reps: log.actual_reps,
+            weight: log.weight_kg,
+            rpe: log.rpe,
+            completed: log.completed,
+          }));
+          return { ...ex, logged };
+        }
+        return ex;
+      });
+
+      onUpdate({
+        exercises: updatedExercises,
+        strength_completed: true,
+      } as any);
+    } else {
+      onUpdate({ strength_completed: true });
+    }
+
+    setShowWorkoutModal(false);
+  };
+
+  const handleCancelWorkout = () => {
+    if (!activeSession) return;
+    cancelSession.mutate(activeSession.id);
+    setShowWorkoutModal(false);
   };
 
   const buildJournalJson = () => JSON.stringify({
@@ -97,34 +187,8 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
     onComplete();
   };
 
-  // Build exercise logs array for feedback panel
-  const exerciseLogs = exercises.map(ex => ({
-    exercise_name: ex.name,
-    equipment: ex.equipment || 'bodyweight',
-    sets: (ex.logged || []).map((l: any, i: number) => ({
-      set_number: i + 1,
-      actual_reps: l.reps,
-      weight_kg: l.weight,
-      rpe: l.rpe,
-      completed: l.completed,
-    })),
-  }));
-
   return (
     <>
-      {/* Full-screen session view */}
-      <AnimatePresence>
-        {sessionOpen && (
-          <U86SessionView
-            exercises={exercises}
-            dayNumber={day.day_number}
-            onUpdateExercises={handleExercisesUpdate}
-            onClose={() => setSessionOpen(false)}
-            readOnly={readOnly}
-          />
-        )}
-      </AnimatePresence>
-
       {/* Video tool */}
       <AnimatePresence>
         {showVideo && (
@@ -134,6 +198,18 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
           />
         )}
       </AnimatePresence>
+
+      {/* Active Workout Modal - Full coaching experience */}
+      {activeSession && (
+        <ActiveWorkoutModal
+          session={activeSession}
+          onUpdateLog={(logId, data) => updateExerciseLog.mutate({ logId, ...data })}
+          onComplete={handleCompleteWorkout}
+          onCancel={handleCancelWorkout}
+          open={showWorkoutModal}
+          onOpenChange={setShowWorkoutModal}
+        />
+      )}
 
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Day Header */}
@@ -281,12 +357,17 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
 
           <div className="flex gap-2">
             <Button
-              onClick={() => setSessionOpen(true)}
+              onClick={readOnly ? () => {} : handleStartSession}
               className="flex-1 gap-2 font-display tracking-wider"
               size="lg"
+              disabled={isStartingSession || readOnly}
             >
-              <Play className="w-5 h-5" />
-              {readOnly ? 'VIEW SESSION LOG' : completedSets > 0 ? 'CONTINUE SESSION' : 'START SESSION'}
+              {isStartingSession ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Play className="w-5 h-5" />
+              )}
+              {readOnly ? 'VIEW SESSION LOG' : hasActiveU86Session ? 'CONTINUE SESSION' : completedSets > 0 ? 'CONTINUE SESSION' : 'START SESSION'}
             </Button>
             {!readOnly && (
               <Button
