@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useBlockedUsers } from './useBlockedUsers';
+import { useFriends } from './useFriends';
 export interface FeedRun {
   id: string;
   user_id: string;
@@ -87,6 +88,7 @@ const ITEMS_PER_PAGE = 15;
 export function useUnifiedFeed() {
   const { user } = useAuth();
   const { blockedUsers } = useBlockedUsers();
+  const { friends } = useFriends();
   const [runs, setRuns] = useState<(FeedRun & FeedItemBase)[]>([]);
   const [posts, setPosts] = useState<(FeedPost & FeedItemBase)[]>([]);
   const [workouts, setWorkouts] = useState<(FeedWorkout & FeedItemBase)[]>([]);
@@ -327,15 +329,25 @@ export function useUnifiedFeed() {
   const feedItems = useMemo((): FeedItem[] => {
     // Get blocked user IDs for filtering
     const blockedIds = new Set(blockedUsers.map(b => b.blocked_id));
+    // Get friend user IDs for client-side visibility filtering
+    const friendIds = new Set(friends.map(f => f.user_id));
+
+    // Client-side visibility filter (defense-in-depth on top of RLS)
+    const isVisible = (item: { user_id: string; visibility: string }) => {
+      if (item.user_id === user?.id) return true; // Own content always visible
+      if (item.visibility === 'private') return false; // Private = author only
+      if (item.visibility === 'friends' && !friendIds.has(item.user_id)) return false; // Friends-only requires friendship
+      return true; // Public is visible to all
+    };
     
     const items: FeedItem[] = [
-      ...runs.filter(run => !blockedIds.has(run.user_id)).map((run) => ({ type: 'run' as const, data: run })),
-      ...posts.filter(post => !blockedIds.has(post.user_id)).map((post) => ({ type: 'post' as const, data: post })),
-      ...workouts.filter(workout => !blockedIds.has(workout.user_id)).map((workout) => ({ type: 'workout' as const, data: workout })),
-      ...milestones.filter(milestone => !blockedIds.has(milestone.user_id)).map((milestone) => ({ type: 'milestone' as const, data: milestone })),
+      ...runs.filter(run => !blockedIds.has(run.user_id) && isVisible(run)).map((run) => ({ type: 'run' as const, data: run })),
+      ...posts.filter(post => !blockedIds.has(post.user_id) && isVisible(post)).map((post) => ({ type: 'post' as const, data: post })),
+      ...workouts.filter(workout => !blockedIds.has(workout.user_id) && isVisible(workout)).map((workout) => ({ type: 'workout' as const, data: workout })),
+      ...milestones.filter(milestone => !blockedIds.has(milestone.user_id) && isVisible(milestone)).map((milestone) => ({ type: 'milestone' as const, data: milestone })),
     ];
     return items.sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime());
-  }, [runs, posts, workouts, milestones, blockedUsers]);
+  }, [runs, posts, workouts, milestones, blockedUsers, friends, user]);
 
   // Kudos toggles
   const toggleRunKudos = async (runId: string) => {
