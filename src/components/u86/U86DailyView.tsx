@@ -9,11 +9,10 @@ import { Progress } from '@/components/ui/progress';
 import {
   Footprints, Dumbbell, CheckCircle2, Play,
   BookOpen, Zap, Shield, PenLine, ChevronDown, ChevronUp,
-  Video, Sparkles, Droplets, Loader2
+  Sparkles, Droplets, Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ActiveWorkoutModal } from '@/components/programming/ActiveWorkoutModal';
-import { VideoToolView } from '@/components/programming/VideoToolView';
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import type { U86Day, U86Program } from '@/hooks/useUnbreakable86';
 
@@ -40,7 +39,6 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
   const [journalHardest, setJournalHardest] = useState('');
   const [journalTomorrow, setJournalTomorrow] = useState('');
   const [planExpanded, setPlanExpanded] = useState(false);
-  const [showVideo, setShowVideo] = useState(false);
   const [journalExpanded, setJournalExpanded] = useState(false);
   const [showWorkoutModal, setShowWorkoutModal] = useState(false);
   const [isStartingSession, setIsStartingSession] = useState(false);
@@ -189,16 +187,6 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
 
   return (
     <>
-      {/* Video tool */}
-      <AnimatePresence>
-        {showVideo && (
-          <VideoToolView
-            exerciseName={`U86 Day ${day.day_number}`}
-            onClose={() => setShowVideo(false)}
-          />
-        )}
-      </AnimatePresence>
-
       {/* Active Workout Modal - Full coaching experience */}
       {activeSession && (
         <ActiveWorkoutModal
@@ -355,31 +343,19 @@ export function U86DailyView({ day, program, streak, onUpdate, onComplete, readO
             )}
           </AnimatePresence>
 
-          <div className="flex gap-2">
-            <Button
-              onClick={readOnly ? () => {} : handleStartSession}
-              className="flex-1 gap-2 font-display tracking-wider"
-              size="lg"
-              disabled={isStartingSession || readOnly}
-            >
-              {isStartingSession ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <Play className="w-5 h-5" />
-              )}
-              {readOnly ? 'VIEW SESSION LOG' : hasActiveU86Session ? 'CONTINUE SESSION' : completedSets > 0 ? 'CONTINUE SESSION' : 'START SESSION'}
-            </Button>
-            {!readOnly && (
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => setShowVideo(true)}
-                className="gap-2 border-primary/20 hover:border-primary/40"
-              >
-                <Video className="w-5 h-5" />
-              </Button>
+          <Button
+            onClick={readOnly ? () => {} : handleStartSession}
+            className="w-full gap-2 font-display tracking-wider"
+            size="lg"
+            disabled={isStartingSession || readOnly}
+          >
+            {isStartingSession ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Play className="w-5 h-5" />
             )}
-          </div>
+            {readOnly ? 'VIEW SESSION LOG' : hasActiveU86Session ? 'CONTINUE SESSION' : completedSets > 0 ? 'CONTINUE SESSION' : 'START SESSION'}
+          </Button>
         </Card>
 
         {/* Run Section */}
