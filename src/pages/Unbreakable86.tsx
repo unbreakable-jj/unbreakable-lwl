@@ -10,6 +10,7 @@ import { U86Agreement } from '@/components/u86/U86Agreement';
 import { U86DailyView } from '@/components/u86/U86DailyView';
 import { U86Progress } from '@/components/u86/U86Progress';
 import { U86Completion } from '@/components/u86/U86Completion';
+import { HeroScriptFailure } from '@/components/u86/HeroScriptFailure';
 
 export default function Unbreakable86() {
   const {
@@ -20,6 +21,7 @@ export default function Unbreakable86() {
 
   const [activeTab, setActiveTab] = useState<'today' | 'progress'>('today');
   const [generating, setGenerating] = useState(false);
+  const [showHeroFailure, setShowHeroFailure] = useState(false);
 
   // Auto-generate week when needed OR auto-reset old format data
   useEffect(() => {
@@ -76,7 +78,7 @@ export default function Unbreakable86() {
     }
   }, [program?.id, program?.current_day, program?.last_generated_week, program?.status, days]);
 
-  // Auto-restart if a day was missed (check if started_at + current_day < today)
+  // Hero Script Failure: detect missed day and show popup
   useEffect(() => {
     if (!program || program.status !== 'active' || !program.started_at) return;
 
@@ -85,11 +87,17 @@ export default function Unbreakable86() {
     const daysSinceStart = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
     const expectedDay = daysSinceStart + 1;
 
-    // If user is behind by more than 1 day, they missed a day — auto restart
-    if (expectedDay > program.current_day + 1 && program.restart_enabled) {
-      restartProgram.mutate(program.id);
+    // If user is behind by more than 1 day, they missed a day
+    if (expectedDay > (program.current_day || 1) + 1) {
+      setShowHeroFailure(true);
     }
   }, [program?.id, program?.started_at, program?.current_day, program?.status]);
+
+  const handleHeroRestart = () => {
+    if (!program) return;
+    setShowHeroFailure(false);
+    restartProgram.mutate(program.id);
+  };
 
   const handleSetupComplete = async (config: any) => {
     await createProgram.mutateAsync(config);
@@ -131,6 +139,13 @@ export default function Unbreakable86() {
     <div className="min-h-screen bg-background">
       <MainNavigation />
 
+      {/* Hero Script Failure Overlay */}
+      <AnimatePresence>
+        {showHeroFailure && (
+          <HeroScriptFailure onRestart={handleHeroRestart} />
+        )}
+      </AnimatePresence>
+
       {/* Hero */}
       <section className="pt-24 pb-10 md:pt-28 md:pb-14 border-b border-primary/10">
         <div className="container mx-auto px-4 text-center max-w-3xl">
@@ -146,15 +161,17 @@ export default function Unbreakable86() {
 
             <div className="max-w-2xl mx-auto space-y-3 text-left sm:text-center">
               <p className="text-muted-foreground text-sm leading-relaxed">
-                86 consecutive days. No rest days. No excuses. Progressive overload
-                built around the <span className="text-primary font-semibold">Big 5</span> — Squat, Bench,
-                Deadlift, Overhead Press and Row — plus Pull ups and Push ups. Strength first,
-                then run from <span className="text-primary font-semibold">1 km to 5 km daily</span>.
+                86 consecutive days. No rest days. No excuses. A/B split alternating daily —{' '}
+                <span className="text-primary font-semibold">Session A</span>: Squat, Bench, OHP, Press-ups + 3 accessories.{' '}
+                <span className="text-primary font-semibold">Session B</span>: Deadlift, Row, Curls, Pull-ups + 3 accessories.
+                7 exercises per session. Strength first, then run from{' '}
+                <span className="text-primary font-semibold">1 km to 5 km</span>.
               </p>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 Delivered <span className="text-foreground font-semibold">7 days at a time</span>,
-                remapped weekly to your performance, equipment and level. 8 compound exercises.
-                5 non negotiable habits. Lift before you run. Discipline before motivation.
+                with exercise variations rotated weekly to match your level, equipment and goals.
+                Miss a single day, exercise or habit and the{' '}
+                <span className="text-destructive font-semibold">entire programme restarts</span>.
               </p>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 This is not a workout plan. This is a system built to prove what you are capable of
