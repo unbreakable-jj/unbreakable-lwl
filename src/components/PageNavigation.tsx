@@ -7,7 +7,7 @@ import { useCallback } from 'react';
 const NAV_FLOW = [
   { path: '/', label: 'HOME' },
   { path: '/calculators', label: 'CALCULATORS' },
-  { path: '/programming', label: 'UNBREAKABLE' },
+  { path: '/programming', label: 'POWER' },
   { path: '/tracker', label: 'MOVEMENT' },
   { path: '/fuel', label: 'FUEL' },
   { path: '/help', label: 'COACHING' },

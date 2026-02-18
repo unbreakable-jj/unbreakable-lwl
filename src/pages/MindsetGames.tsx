@@ -2,7 +2,7 @@ import { useState, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Gamepad2, Zap, Flame, ArrowRight, Blocks, Rocket } from "lucide-react";
+import { Gamepad2, Zap, Flame, ArrowRight, Blocks } from "lucide-react";
 import { ThemedLogo } from "@/components/ThemedLogo";
 import { NavigationDrawer } from "@/components/NavigationDrawer";
 import { ThemeToggle } from "@/components/hub/ThemeToggle";
@@ -11,9 +11,8 @@ import { UnifiedFooter } from "@/components/UnifiedFooter";
 const SnakeGame = lazy(() => import("@/components/mindset/SnakeGame"));
 const AlleywayGame = lazy(() => import("@/components/mindset/AlleywayGame"));
 const TetrisGame = lazy(() => import("@/components/mindset/TetrisGame"));
-const SpaceInvadersGame = lazy(() => import("@/components/mindset/SpaceInvadersGame"));
 
-type ViewState = "selection" | "snake" | "alleyway" | "tetris" | "spaceinvaders";
+type ViewState = "selection" | "snake" | "alleyway" | "tetris";
 
 const heroContent = {
   title: "UNBREAKABLE",
@@ -139,41 +138,8 @@ const MindsetGames = () => {
     );
   }
 
-  if (view === "spaceinvaders") {
-    return (
-      <div className="min-h-screen bg-background">
-        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
-          <div className="container mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <ThemeToggle />
-                <Link to="/" className="flex items-center gap-3">
-                  <ThemedLogo />
-                  <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">UNBREAKABLE</span>
-                </Link>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="font-display text-xs tracking-wide" onClick={() => setView("selection")}>
-                  ← BACK
-                </Button>
-                <NavigationDrawer />
-              </div>
-            </div>
-          </div>
-        </header>
-        <main className="container mx-auto px-6 pt-28 pb-12">
-          <Suspense fallback={
-            <div className="flex items-center justify-center py-20">
-              <p className="font-display text-primary tracking-wide animate-pulse">LOADING...</p>
-            </div>
-          }>
-            <SpaceInvadersGame />
-          </Suspense>
-        </main>
-        <UnifiedFooter className="mt-16" />
-      </div>
-    );
-  }
+
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -302,28 +268,8 @@ const MindsetGames = () => {
               </div>
             </Card>
 
-            <Card
-              className="bg-card border-2 border-primary/30 neon-border-subtle border-l-4 border-l-primary p-6 cursor-pointer hover:bg-muted/50 transition-all group"
-              onClick={() => setView("spaceinvaders")}
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
-                  <Rocket className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-display text-xl text-foreground tracking-wide">SPACE INVADERS</h3>
-                  <p className="text-xs text-primary font-display">UNBREAKABLE EDITION</p>
-                </div>
-              </div>
-              <p className="text-primary font-display text-sm tracking-wide mb-3">DEFEND. DESTROY. DOMINATE.</p>
-              <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                They keep coming. Wave after wave. Your trigger finger and split-second positioning are all that stand between survival and annihilation. Track multiple threats, prioritise targets, and never stop moving. This is pressure — and you thrive in it.
-              </p>
-              <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border">
-                <span>Wave-based</span>
-                <span>Global leaderboard</span>
-              </div>
-            </Card>
+
+
           </div>
         </div>
       </main>
