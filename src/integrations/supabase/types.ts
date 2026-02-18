@@ -1955,152 +1955,6 @@ export type Database = {
         }
         Relationships: []
       }
-      unbreakable_86_days: {
-        Row: {
-          completed_at: string | null
-          created_at: string
-          day_completed: boolean
-          day_number: number
-          exercises: Json
-          habit_control_inputs: boolean
-          habit_hard_thing: boolean
-          habit_identity: boolean
-          habit_journal: boolean
-          habit_learn_daily: boolean
-          habit_train: boolean
-          id: string
-          identity_reflection: string | null
-          journal_entry: string | null
-          program_id: string
-          run_completed: boolean
-          run_distance_km: number
-          run_notes: string | null
-          run_time_seconds: number | null
-          strength_completed: boolean
-          strength_time_minutes: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          completed_at?: string | null
-          created_at?: string
-          day_completed?: boolean
-          day_number: number
-          exercises?: Json
-          habit_control_inputs?: boolean
-          habit_hard_thing?: boolean
-          habit_identity?: boolean
-          habit_journal?: boolean
-          habit_learn_daily?: boolean
-          habit_train?: boolean
-          id?: string
-          identity_reflection?: string | null
-          journal_entry?: string | null
-          program_id: string
-          run_completed?: boolean
-          run_distance_km: number
-          run_notes?: string | null
-          run_time_seconds?: number | null
-          strength_completed?: boolean
-          strength_time_minutes: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          completed_at?: string | null
-          created_at?: string
-          day_completed?: boolean
-          day_number?: number
-          exercises?: Json
-          habit_control_inputs?: boolean
-          habit_hard_thing?: boolean
-          habit_identity?: boolean
-          habit_journal?: boolean
-          habit_learn_daily?: boolean
-          habit_train?: boolean
-          id?: string
-          identity_reflection?: string | null
-          journal_entry?: string | null
-          program_id?: string
-          run_completed?: boolean
-          run_distance_km?: number
-          run_notes?: string | null
-          run_time_seconds?: number | null
-          strength_completed?: boolean
-          strength_time_minutes?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "unbreakable_86_days_program_id_fkey"
-            columns: ["program_id"]
-            isOneToOne: false
-            referencedRelation: "unbreakable_86_programs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      unbreakable_86_programs: {
-        Row: {
-          completed_at: string | null
-          created_at: string
-          current_day: number
-          equipment: string[]
-          fitness_level: string
-          goal_emphasis: string | null
-          id: string
-          injuries: string | null
-          last_generated_week: number
-          restart_count: number
-          restart_enabled: boolean
-          running_ability: string
-          started_at: string | null
-          status: string
-          training_environment: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          completed_at?: string | null
-          created_at?: string
-          current_day?: number
-          equipment?: string[]
-          fitness_level: string
-          goal_emphasis?: string | null
-          id?: string
-          injuries?: string | null
-          last_generated_week?: number
-          restart_count?: number
-          restart_enabled?: boolean
-          running_ability: string
-          started_at?: string | null
-          status?: string
-          training_environment: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          completed_at?: string | null
-          created_at?: string
-          current_day?: number
-          equipment?: string[]
-          fitness_level?: string
-          goal_emphasis?: string | null
-          id?: string
-          injuries?: string | null
-          last_generated_week?: number
-          restart_count?: number
-          restart_enabled?: boolean
-          running_ability?: string
-          started_at?: string | null
-          status?: string
-          training_environment?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       user_ai_preferences: {
         Row: {
           auto_progression_enabled: boolean | null
@@ -2553,7 +2407,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "owner" | "admin" | "user"
+      app_role: "dev" | "coach" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2681,7 +2535,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["owner", "admin", "user"],
+      app_role: ["dev", "coach", "user"],
     },
   },
 } as const

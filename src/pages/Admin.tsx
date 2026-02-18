@@ -11,7 +11,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState('users');
-  const { isOwner, role } = useUserRole();
+  const { isOwner, role } = useUserRole(); // isOwner = isDev in new naming
 
   return (
     <AdminProtectedRoute>
@@ -26,7 +26,7 @@ export default function Admin() {
             </div>
             <div>
               <h1 className="font-display text-2xl text-foreground tracking-wide">
-                ADMIN DASHBOARD
+                DEV DASHBOARD
               </h1>
               <p className="text-sm text-muted-foreground">
                 Logged in as <span className="text-primary font-medium uppercase">{role}</span>

@@ -76,10 +76,10 @@ export function AdminUsersPanel() {
 
   const getRoleBadge = (role?: AppRole) => {
     switch (role) {
-      case 'owner':
-        return <Badge className="bg-yellow-500/20 text-yellow-600 border-yellow-500/30"><Crown className="w-3 h-3 mr-1" />Owner</Badge>;
-      case 'admin':
-        return <Badge className="bg-blue-500/20 text-blue-600 border-blue-500/30"><ShieldCheck className="w-3 h-3 mr-1" />Admin</Badge>;
+      case 'dev':
+        return <Badge className="bg-yellow-500/20 text-yellow-600 border-yellow-500/30"><Crown className="w-3 h-3 mr-1" />Dev</Badge>;
+      case 'coach':
+        return <Badge className="bg-blue-500/20 text-blue-600 border-blue-500/30"><ShieldCheck className="w-3 h-3 mr-1" />Coach</Badge>;
       default:
         return <Badge variant="secondary"><User className="w-3 h-3 mr-1" />User</Badge>;
     }
@@ -238,8 +238,8 @@ export function AdminUsersPanel() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="user">User</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="owner">Owner</SelectItem>
+              <SelectItem value="coach">Coach</SelectItem>
+              <SelectItem value="dev">Dev</SelectItem>
             </SelectContent>
           </Select>
           <DialogFooter>

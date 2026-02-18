@@ -42,8 +42,8 @@ export function AdminProtectedRoute({ children, requireOwner = false }: AdminPro
           <p className="text-muted-foreground mb-6">
             You don't have permission to access this area. 
             {requireOwner 
-              ? ' Owner access is required.'
-              : ' Admin or Owner access is required.'}
+              ? ' Dev access is required.'
+              : ' Coach or Dev access is required.'}
           </p>
           <a 
             href="/"
