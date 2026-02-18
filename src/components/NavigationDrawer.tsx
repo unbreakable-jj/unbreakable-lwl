@@ -37,14 +37,14 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
   const navLinks = [
     { to: '/', label: 'HOME', icon: Home },
     { to: '/calculators', label: 'CALCULATORS', icon: Calculator },
-    { to: '/programming', label: 'POWER', icon: Dumbbell },
+    { to: '/programming', label: 'UNBREAKABLE', icon: Dumbbell },
     { to: '/tracker', label: 'MOVEMENT', icon: Footprints },
     { to: '/fuel', label: 'FUEL', icon: Apple },
     { to: '/mindset', label: 'MINDSET', icon: Brain },
     { to: '/help', label: 'COACHING', icon: Flame, highlight: true },
     { to: '/university', label: 'UNIVERSITY', icon: GraduationCap },
     { to: '/profile', label: 'MY PROFILE', icon: User },
-    ...(isAdminOrOwner ? [{ to: '/admin', label: 'ADMIN', icon: Shield, admin: true }] : []),
+    ...(isAdminOrOwner ? [{ to: '/admin', label: 'DEV', icon: Shield, admin: true }] : []),
   ];
 
   const isActive = (path: string) => location.pathname === path;

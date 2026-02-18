@@ -12,6 +12,7 @@ import { SessionResultsView } from './SessionResultsView';
 import { AIFeedbackView } from './AIFeedbackView';
 import { ProgressMetricsView } from './ProgressMetricsView';
 import { CompactRestTimer } from './CompactRestTimer';
+import { DailyHabitDiary, HabitState } from './DailyHabitDiary';
 import { ExerciseCoachingPanel } from './ExerciseCoachingPanel';
 import { 
   Square, 
@@ -57,6 +58,14 @@ export function ActiveWorkoutModal({
   const [sessionNotes, setSessionNotes] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'friends' | 'private'>('public');
   const [showExercises, setShowExercises] = useState(false);
+  const [habits, setHabits] = useState<HabitState>({
+    train: false,
+    learnDaily: false,
+    water: false,
+    doTheHardThing: false,
+    hitYourNumbers: false,
+    journal: '',
+  });
   const [expandedExercise, setExpandedExercise] = useState<string | null>(null);
 
   const exerciseLogs = session.exercise_logs || [];
@@ -336,6 +345,9 @@ export function ActiveWorkoutModal({
             hasNotes={!!sessionNotes}
             isCompleted={isCompleted}
           />
+
+          {/* Daily 6 Habit Diary */}
+          <DailyHabitDiary habits={habits} onChange={setHabits} compact />
 
           {/* Action Buttons */}
           <div className="flex gap-2 pt-4 border-t border-border">

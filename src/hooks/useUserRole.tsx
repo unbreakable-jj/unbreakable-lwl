@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
-export type AppRole = 'owner' | 'admin' | 'user';
+export type AppRole = 'dev' | 'coach' | 'user';
 
 interface UserRoleState {
   role: AppRole | null;
@@ -42,12 +42,12 @@ export function useUserRole() {
 
     try {
       // First check if user has owner role
-      const { data: ownerData } = await supabase
-        .rpc('has_role', { _user_id: user.id, _role: 'owner' });
+      const { data: devData } = await supabase
+        .rpc('has_role', { _user_id: user.id, _role: 'dev' });
 
-      if (ownerData) {
+      if (devData) {
         setState({
-          role: 'owner',
+          role: 'dev',
           isOwner: true,
           isAdmin: false,
           isAdminOrOwner: true,
@@ -56,13 +56,13 @@ export function useUserRole() {
         return;
       }
 
-      // Check for admin role
-      const { data: adminData } = await supabase
-        .rpc('has_role', { _user_id: user.id, _role: 'admin' });
+      // Check for coach role
+      const { data: coachData } = await supabase
+        .rpc('has_role', { _user_id: user.id, _role: 'coach' });
 
-      if (adminData) {
+      if (coachData) {
         setState({
-          role: 'admin',
+          role: 'coach',
           isOwner: false,
           isAdmin: true,
           isAdminOrOwner: true,

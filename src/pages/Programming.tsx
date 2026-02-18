@@ -9,7 +9,6 @@ import {
   BookOpen,
   ArrowRight,
   Flame,
-  Shield
 } from 'lucide-react';
 
 export default function Programming() {
@@ -27,8 +26,7 @@ export default function Programming() {
             className="space-y-6"
           >
             <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wide leading-none">
-              <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
-              <span className="text-foreground">POWER</span>
+              <span className="text-primary neon-glow-subtle">UNBREAKABLE</span>
             </h1>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
               Build bespoke training programmes tailored to your goals. Execute with precision.
@@ -92,32 +90,6 @@ export default function Programming() {
                     </p>
                     <div className="inline-flex items-center gap-2 text-muted-foreground font-display tracking-wider text-sm group-hover:gap-3 group-hover:text-primary transition-all">
                       VIEW PROGRAMMES
-                      <ArrowRight className="w-4 h-4" />
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            </Link>
-
-            {/* UNBREAKABLE 86 Card */}
-            <Link to="/programming/unbreakable-86">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Card className="relative overflow-hidden p-8 h-full border-2 border-primary/50 hover:border-primary bg-gradient-to-br from-primary/15 via-primary/10 to-transparent transition-all duration-300 neon-border-subtle group shadow-[0_0_25px_hsl(var(--primary)/0.2)] hover:shadow-[0_0_40px_hsl(var(--primary)/0.35)]">
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-primary/15 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
-                  <div className="relative z-10 space-y-4">
-                    <div className="w-16 h-16 rounded-xl bg-primary/20 flex items-center justify-center neon-glow">
-                      <Shield className="w-8 h-8 text-primary" />
-                    </div>
-                    <h3 className="font-display text-2xl text-foreground tracking-wide">
-                      <span className="text-primary neon-glow-subtle">UNBREAKABLE</span> 86
-                    </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      86 days. No rest days. Run + Strength + 6 daily habits.
-                      A structured discipline programme that proves who you are.
-                    </p>
-                    <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-display tracking-wider text-sm shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
-                      BEGIN THE CHALLENGE
                       <ArrowRight className="w-4 h-4" />
                     </div>
                   </div>

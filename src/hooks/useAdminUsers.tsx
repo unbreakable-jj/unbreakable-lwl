@@ -197,11 +197,11 @@ export function useAdminUsers() {
       if (role !== 'user') {
         const { error } = await supabase
           .from('user_roles')
-          .insert({
+          .insert([{
             user_id: targetUserId,
             role,
             assigned_by: user.id,
-          });
+          }]);
 
         if (error) throw error;
       }
