@@ -60,7 +60,7 @@ const NAV_STRUCTURE = [
     ],
   },
   {
-    title: 'UNBREAKABLE',
+    title: 'POWER',
     href: '/programming',
     items: [
       { 

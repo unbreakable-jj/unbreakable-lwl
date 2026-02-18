@@ -37,7 +37,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
   const navLinks = [
     { to: '/', label: 'HOME', icon: Home },
     { to: '/calculators', label: 'CALCULATORS', icon: Calculator },
-    { to: '/programming', label: 'UNBREAKABLE', icon: Dumbbell },
+    { to: '/programming', label: 'POWER', icon: Dumbbell },
     { to: '/tracker', label: 'MOVEMENT', icon: Footprints },
     { to: '/fuel', label: 'FUEL', icon: Apple },
     { to: '/mindset', label: 'MINDSET', icon: Brain },
