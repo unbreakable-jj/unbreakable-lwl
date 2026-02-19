@@ -5,6 +5,7 @@ import { useUserRole, AppRole } from './useUserRole';
 import { toast } from 'sonner';
 import type { Json } from '@/integrations/supabase/types';
 
+
 export interface AdminUser {
   user_id: string;
   email: string | null;
@@ -234,6 +235,29 @@ export function useAdminUsers() {
     return suspendUser(targetUserId, `Global Block: ${reason}`, true);
   }, [user, isAdminOrOwner, suspendUser]);
 
+  const deleteUser = useCallback(async (targetUserId: string) => {
+    if (!user || !isOwner) {
+      toast.error('Only Devs can delete users');
+      return { error: new Error('Unauthorized') };
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-delete-user', {
+        body: { target_user_id: targetUserId },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast.success('User permanently deleted');
+      return { error: null };
+    } catch (error: any) {
+      console.error('Error deleting user:', error);
+      toast.error(error.message || 'Failed to delete user');
+      return { error };
+    }
+  }, [user, isOwner]);
+
   return {
     users,
     loading,
@@ -243,5 +267,6 @@ export function useAdminUsers() {
     liftSuspension,
     assignRole,
     globalBlockUser,
+    deleteUser,
   };
 }

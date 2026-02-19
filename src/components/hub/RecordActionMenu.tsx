@@ -1,13 +1,8 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
-import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
-import { Timer, Dumbbell, AlertCircle, Footprints } from 'lucide-react';
+import { Dumbbell, Footprints, ClipboardCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
 
 interface RecordActionMenuProps {
   isOpen: boolean;
@@ -17,9 +12,6 @@ interface RecordActionMenuProps {
 
 export function RecordActionMenu({ isOpen, onClose, onOpenRunModal }: RecordActionMenuProps) {
   const navigate = useNavigate();
-  const { activeProgram } = useTrainingPrograms();
-  const { activeSession } = useWorkoutSessions();
-  const [showNoProgramWarning, setShowNoProgramWarning] = useState(false);
 
   const handleCardioTracker = () => {
     onClose();
@@ -27,69 +19,14 @@ export function RecordActionMenu({ isOpen, onClose, onOpenRunModal }: RecordActi
   };
 
   const handleProgrammeTracking = () => {
-    if (activeSession) {
-      // Resume active session - navigate to programming page
-      toast.info('Resuming your active workout session');
-      onClose();
-      navigate('/programming');
-      return;
-    }
-
-    if (!activeProgram) {
-      setShowNoProgramWarning(true);
-      return;
-    }
-
-    // Has program, navigate to it
     onClose();
-    navigate('/programming');
+    navigate('/programming/my-programmes');
   };
 
-  const handleGoToProgramming = () => {
-    setShowNoProgramWarning(false);
+  const handleHabitTracker = () => {
     onClose();
-    navigate('/programming');
+    navigate('/habits');
   };
-
-  if (showNoProgramWarning) {
-    return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="bg-card border-border max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="font-display text-xl text-foreground tracking-wide text-center">
-              NO PROGRAMME SELECTED
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="flex justify-center">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <AlertCircle className="w-8 h-8 text-primary" />
-              </div>
-            </div>
-            <p className="text-center text-muted-foreground">
-              You don't have an active training programme. Create or select one to start tracking workouts.
-            </p>
-            <div className="flex flex-col gap-2">
-              <Button 
-                className="w-full font-display tracking-wide"
-                onClick={handleGoToProgramming}
-              >
-                <Dumbbell className="w-4 h-4 mr-2" />
-                GO TO PROGRAMMING
-              </Button>
-              <Button 
-                variant="outline"
-                className="w-full font-display tracking-wide"
-                onClick={() => setShowNoProgramWarning(false)}
-              >
-                BACK
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -133,14 +70,26 @@ export function RecordActionMenu({ isOpen, onClose, onOpenRunModal }: RecordActi
                   <Dumbbell className="w-8 h-8 text-primary" />
                 </div>
                 <h3 className="font-display text-xl text-foreground tracking-wide mb-1">PROGRAMME TRACKING</h3>
-                <p className="text-sm text-muted-foreground">
-                  {activeSession 
-                    ? 'Resume active session' 
-                    : activeProgram 
-                      ? `From: ${activeProgram.name}`
-                      : 'Start from your programme'
-                  }
-                </p>
+                <p className="text-sm text-muted-foreground">Start from your library</p>
+              </div>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Card 
+              className="cursor-pointer transition-all border-2 border-primary/30 hover:border-primary hover:bg-primary/10 neon-border-subtle"
+              onClick={handleHabitTracker}
+            >
+              <div className="p-6 text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 neon-border-subtle">
+                  <ClipboardCheck className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="font-display text-xl text-foreground tracking-wide mb-1">HABIT TRACKER</h3>
+                <p className="text-sm text-muted-foreground">Track your Daily 6</p>
               </div>
             </Card>
           </motion.div>

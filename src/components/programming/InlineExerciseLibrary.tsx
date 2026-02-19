@@ -120,29 +120,22 @@ export function InlineExerciseLibrary({
           >
             ALL
           </Button>
-          {BODY_PART_OPTIONS.map(({ value, label, letter }) => (
+          {BODY_PART_OPTIONS.map(({ value, label }) => (
             <Button
               key={value}
-              variant={selectedBodyPart === value ? 'default' : 'outline'}
               size="sm"
               onClick={() => {
                 setSelectedBodyPart(value);
                 setSearchQuery('');
               }}
               className={cn(
-                'h-7 text-xs gap-1.5 px-2 font-display tracking-wide',
-                selectedBodyPart === value && 'neon-border-subtle'
+                'h-7 text-xs px-3 font-display tracking-wide',
+                selectedBodyPart === value 
+                  ? 'bg-primary text-primary-foreground neon-border-subtle hover:bg-primary/90' 
+                  : 'bg-card text-foreground border border-border hover:bg-muted'
               )}
             >
-              <span className={cn(
-                'w-5 h-5 rounded text-[9px] font-bold flex items-center justify-center',
-                selectedBodyPart === value 
-                  ? 'bg-primary-foreground/20 text-primary-foreground' 
-                  : 'bg-primary/15 text-primary'
-              )}>
-                {letter}
-              </span>
-              <span className="hidden sm:inline">{label}</span>
+              {label.toUpperCase()}
             </Button>
           ))}
         </div>

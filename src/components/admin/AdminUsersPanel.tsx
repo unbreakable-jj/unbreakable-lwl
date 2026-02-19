@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, MoreVertical, UserX, ShieldCheck, ShieldOff, Crown, User } from 'lucide-react';
+import { Search, MoreVertical, UserX, ShieldCheck, ShieldOff, Crown, User, Trash2, Pause } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,10 +31,12 @@ export function AdminUsersPanel() {
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [suspendDialogOpen, setSuspendDialogOpen] = useState(false);
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [suspendReason, setSuspendReason] = useState('');
   const [newRole, setNewRole] = useState<AppRole>('user');
+  const [deleting, setDeleting] = useState(false);
   
-  const { users, loading, totalCount, fetchUsers, suspendUser, liftSuspension, assignRole } = useAdminUsers();
+  const { users, loading, totalCount, fetchUsers, suspendUser, liftSuspension, assignRole, deleteUser } = useAdminUsers();
   const { isOwner } = useUserRole();
 
   useEffect(() => {
@@ -65,6 +67,18 @@ export function AdminUsersPanel() {
     setRoleDialogOpen(false);
     setSelectedUser(null);
     fetchUsers(search);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!selectedUser) return;
+    setDeleting(true);
+    const result = await deleteUser(selectedUser.user_id);
+    setDeleting(false);
+    if (!result.error) {
+      setDeleteDialogOpen(false);
+      setSelectedUser(null);
+      fetchUsers(search);
+    }
   };
 
   const getInitials = (user: AdminUser) => {
@@ -188,6 +202,17 @@ export function AdminUsersPanel() {
                           <Crown className="w-4 h-4 mr-2" />
                           Change Role
                         </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setDeleteDialogOpen(true);
+                          }}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete User
+                        </DropdownMenuItem>
                       </>
                     )}
                   </DropdownMenuContent>
@@ -248,6 +273,26 @@ export function AdminUsersPanel() {
             </Button>
             <Button onClick={handleRoleChange}>
               Update Role
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display text-destructive">DELETE USER PERMANENTLY</DialogTitle>
+            <DialogDescription>
+              This will permanently delete <strong>{selectedUser?.display_name || selectedUser?.username}</strong> and all their data. This action cannot be undone. The user can re-register later.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteUser} disabled={deleting}>
+              {deleting ? 'Deleting...' : 'Delete Permanently'}
             </Button>
           </DialogFooter>
         </DialogContent>
