@@ -49,7 +49,7 @@ export function BodyPartBadge({
         'rounded font-display font-bold flex items-center justify-center shrink-0 tracking-wide',
         active 
           ? 'bg-primary text-primary-foreground shadow-[0_0_8px_hsl(var(--primary)/0.5)]' 
-          : 'bg-primary/15 text-primary border border-primary/30',
+          : 'bg-muted/50 text-foreground border border-border',
         className
       )}
     >

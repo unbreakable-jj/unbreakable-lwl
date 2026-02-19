@@ -34,7 +34,7 @@ import TrackerMyProgrammes from "./pages/TrackerMyProgrammes";
 import TrackerCreate from "./pages/TrackerCreate";
 import UserProfile from "./pages/UserProfile";
 import Onboarding from "./pages/Onboarding";
-
+import Habits from "./pages/Habits";
 
 const queryClient = new QueryClient();
 
@@ -136,6 +136,11 @@ const App = () => (
               
               {/* User Profile - Public profile viewing */}
               <Route path="/user/:userId" element={<UserProfile />} />
+              
+              {/* Habits */}
+              <Route path="/habits" element={
+                <ProtectedRoute><Habits /></ProtectedRoute>
+              } />
               
               {/* Admin Dashboard - Hidden, role-protected */}
               <Route path="/admin" element={<Admin />} />
