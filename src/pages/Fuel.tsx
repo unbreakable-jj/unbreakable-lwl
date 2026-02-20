@@ -53,6 +53,9 @@ export default function Fuel() {
               a body built to last. Eat with purpose, become{' '}
               <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
             </p>
+            <p className="text-muted-foreground/70 text-xs max-w-xl mx-auto italic">
+              All Unbreakable meals and nutrition info are for reference only. Be sure to log and track actual ingredients used via the barcode scanner for accurate results.
+            </p>
             <p className="text-primary font-display text-2xl tracking-wider neon-glow-subtle">
               #UNBREAKABLEFUEL
             </p>

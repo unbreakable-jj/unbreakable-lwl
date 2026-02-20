@@ -75,8 +75,8 @@ export default function TrackerQuickTrack() {
                 onClick={() => handleActivitySelect(option.value)}
               >
                 <CardContent className="p-8 text-center">
-                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                    <div className="text-primary">{option.icon}</div>
+                  <div className="w-20 h-20 rounded-full bg-muted/30 dark:bg-muted/20 flex items-center justify-center mx-auto mb-4 border border-border">
+                    <div className="text-foreground dark:text-foreground/80">{option.icon}</div>
                   </div>
                   <h3 className="font-display text-2xl tracking-wide mb-2">{option.label}</h3>
                   <p className="text-sm text-muted-foreground">{option.description}</p>

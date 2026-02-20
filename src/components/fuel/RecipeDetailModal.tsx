@@ -184,10 +184,10 @@ export function RecipeDetailModal({
               </div>
 
               <div className="space-y-3">
-                {[
+              {[
                   { label: 'Protein', value: recipe.protein_g, pct: proteinPct, color: 'bg-primary' },
-                  { label: 'Carbs', value: recipe.carbs_g, pct: carbsPct, color: 'bg-foreground/40' },
-                  { label: 'Fat', value: recipe.fat_g, pct: fatPct, color: 'bg-muted-foreground/50' },
+                  { label: 'Carbs', value: recipe.carbs_g, pct: carbsPct, color: 'bg-muted-foreground/50' },
+                  { label: 'Fat', value: recipe.fat_g, pct: fatPct, color: 'bg-foreground/70 dark:bg-foreground/50' },
                 ].map(({ label, value, pct, color }) => (
                   <div key={label}>
                     <div className="flex justify-between items-center mb-1">
@@ -207,11 +207,11 @@ export function RecipeDetailModal({
                   {Math.round(proteinPct)}% Protein
                 </span>
                 <span className="text-[10px] text-muted-foreground">
-                  <span className="inline-block w-2 h-2 rounded-full bg-foreground/40 mr-1" />
+                  <span className="inline-block w-2 h-2 rounded-full bg-muted-foreground/50 mr-1" />
                   {Math.round(carbsPct)}% Carbs
                 </span>
                 <span className="text-[10px] text-muted-foreground">
-                  <span className="inline-block w-2 h-2 rounded-full bg-muted-foreground/50 mr-1" />
+                  <span className="inline-block w-2 h-2 rounded-full bg-foreground/70 dark:bg-foreground/50 mr-1" />
                   {Math.round(fatPct)}% Fat
                 </span>
               </div>
@@ -256,7 +256,8 @@ export function RecipeDetailModal({
                           <p className="font-medium text-sm text-foreground">{ing.name}</p>
                           {ing.quantity && ing.unit && (
                             <p className="text-xs text-muted-foreground mt-0.5">
-                              {ing.quantity} {ing.unit} <span className="text-primary/60">per serving</span>
+                              {Math.round((ing.quantity / servings) * 10) / 10} {ing.unit} <span className="text-primary/60">per serving</span>
+                              <span className="text-muted-foreground/50"> · {ing.quantity} {ing.unit} total</span>
                             </p>
                           )}
                         </div>
