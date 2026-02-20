@@ -28,6 +28,7 @@ interface DailyHabitDiaryProps {
   habits: HabitState;
   onChange: (habits: HabitState) => void;
   compact?: boolean;
+  readOnly?: boolean;
 }
 
 const HABITS = [
@@ -38,7 +39,7 @@ const HABITS = [
   { key: 'hitYourNumbers' as const, label: 'HIT YOUR NUMBERS', description: 'Meet your nutrition targets', icon: Target },
 ];
 
-export function DailyHabitDiary({ habits, onChange, compact = false }: DailyHabitDiaryProps) {
+export function DailyHabitDiary({ habits, onChange, compact = false, readOnly = false }: DailyHabitDiaryProps) {
   const [isOpen, setIsOpen] = useState(!compact);
   
   const completedCount = HABITS.filter(h => habits[h.key]).length + (habits.journal.trim().length > 0 ? 1 : 0);
@@ -46,6 +47,7 @@ export function DailyHabitDiary({ habits, onChange, compact = false }: DailyHabi
   const allComplete = completedCount === totalCount;
 
   const toggleHabit = (key: keyof Omit<HabitState, 'journal'>) => {
+    if (readOnly) return;
     onChange({ ...habits, [key]: !habits[key] });
   };
 
@@ -108,8 +110,9 @@ export function DailyHabitDiary({ habits, onChange, compact = false }: DailyHabi
               <Textarea
                 placeholder="Reflect on your day... What went well? What can improve?"
                 value={habits.journal}
-                onChange={(e) => onChange({ ...habits, journal: e.target.value })}
+                onChange={(e) => !readOnly && onChange({ ...habits, journal: e.target.value })}
                 className="min-h-[80px] text-sm bg-muted/20 border-border"
+                readOnly={readOnly}
               />
             </div>
           </div>

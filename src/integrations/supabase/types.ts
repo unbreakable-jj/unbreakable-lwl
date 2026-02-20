@@ -288,6 +288,48 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_habits: {
+        Row: {
+          created_at: string
+          do_the_hard_thing: boolean
+          habit_date: string
+          hit_your_numbers: boolean
+          id: string
+          journal: string
+          learn_daily: boolean
+          train: boolean
+          updated_at: string
+          user_id: string
+          water: boolean
+        }
+        Insert: {
+          created_at?: string
+          do_the_hard_thing?: boolean
+          habit_date?: string
+          hit_your_numbers?: boolean
+          id?: string
+          journal?: string
+          learn_daily?: boolean
+          train?: boolean
+          updated_at?: string
+          user_id: string
+          water?: boolean
+        }
+        Update: {
+          created_at?: string
+          do_the_hard_thing?: boolean
+          habit_date?: string
+          hit_your_numbers?: boolean
+          id?: string
+          journal?: string
+          learn_daily?: boolean
+          train?: boolean
+          updated_at?: string
+          user_id?: string
+          water?: boolean
+        }
+        Relationships: []
+      }
       exercise_logs: {
         Row: {
           actual_reps: number | null

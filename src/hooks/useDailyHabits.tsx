@@ -1,0 +1,94 @@
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { HabitState } from '@/components/programming/DailyHabitDiary';
+import { format, addDays, subDays } from 'date-fns';
+
+const DEFAULT_HABITS: HabitState = {
+  train: false,
+  learnDaily: false,
+  water: false,
+  doTheHardThing: false,
+  hitYourNumbers: false,
+  journal: '',
+};
+
+export function useDailyHabits() {
+  const { user } = useAuth();
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [habits, setHabits] = useState<HabitState>(DEFAULT_HABITS);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const dateStr = format(selectedDate, 'yyyy-MM-dd');
+  const isToday = dateStr === format(new Date(), 'yyyy-MM-dd');
+
+  const fetchHabits = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
+    const { data } = await supabase
+      .from('daily_habits')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('habit_date', dateStr)
+      .maybeSingle();
+
+    if (data) {
+      setHabits({
+        train: data.train,
+        learnDaily: data.learn_daily,
+        water: data.water,
+        doTheHardThing: data.do_the_hard_thing,
+        hitYourNumbers: data.hit_your_numbers,
+        journal: data.journal || '',
+      });
+    } else {
+      setHabits(DEFAULT_HABITS);
+    }
+    setLoading(false);
+  }, [user, dateStr]);
+
+  useEffect(() => {
+    fetchHabits();
+  }, [fetchHabits]);
+
+  const saveHabits = useCallback(async (newHabits: HabitState) => {
+    if (!user) return;
+    setHabits(newHabits);
+    setSaving(true);
+
+    await supabase
+      .from('daily_habits')
+      .upsert({
+        user_id: user.id,
+        habit_date: dateStr,
+        train: newHabits.train,
+        learn_daily: newHabits.learnDaily,
+        water: newHabits.water,
+        do_the_hard_thing: newHabits.doTheHardThing,
+        hit_your_numbers: newHabits.hitYourNumbers,
+        journal: newHabits.journal,
+      }, { onConflict: 'user_id,habit_date' });
+
+    setSaving(false);
+  }, [user, dateStr]);
+
+  const goToPreviousDay = () => setSelectedDate(prev => subDays(prev, 1));
+  const goToNextDay = () => {
+    if (!isToday) setSelectedDate(prev => addDays(prev, 1));
+  };
+  const goToToday = () => setSelectedDate(new Date());
+
+  return {
+    habits,
+    saveHabits,
+    selectedDate,
+    dateStr,
+    isToday,
+    loading,
+    saving,
+    goToPreviousDay,
+    goToNextDay,
+    goToToday,
+  };
+}

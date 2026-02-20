@@ -1,21 +1,32 @@
-import { useState } from 'react';
 import { PageHeader } from '@/components/PageHeader';
-import { DailyHabitDiary, HabitState } from '@/components/programming/DailyHabitDiary';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DailyHabitDiary } from '@/components/programming/DailyHabitDiary';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CheckCircle2, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { format, isToday as checkIsToday } from 'date-fns';
+import { useDailyHabits } from '@/hooks/useDailyHabits';
 
 const Habits = () => {
-  const [habits, setHabits] = useState<HabitState>({
-    train: false,
-    learnDaily: false,
-    water: false,
-    doTheHardThing: false,
-    hitYourNumbers: false,
-    journal: '',
-  });
+  const {
+    habits,
+    saveHabits,
+    selectedDate,
+    isToday,
+    loading,
+    saving,
+    goToPreviousDay,
+    goToNextDay,
+    goToToday,
+  } = useDailyHabits();
 
-  const completedCount = [habits.train, habits.learnDaily, habits.water, habits.doTheHardThing, habits.hitYourNumbers, habits.journal.trim().length > 0].filter(Boolean).length;
+  const completedCount = [
+    habits.train,
+    habits.learnDaily,
+    habits.water,
+    habits.doTheHardThing,
+    habits.hitYourNumbers,
+    habits.journal.trim().length > 0,
+  ].filter(Boolean).length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -30,7 +41,46 @@ const Habits = () => {
           </Badge>
         </div>
 
-        <DailyHabitDiary habits={habits} onChange={setHabits} compact={false} />
+        {/* Date Navigation */}
+        <div className="flex items-center justify-center gap-3">
+          <Button variant="ghost" size="icon" onClick={goToPreviousDay}>
+            <ChevronLeft className="w-5 h-5" />
+          </Button>
+          <button
+            onClick={goToToday}
+            className="font-display text-sm tracking-wide text-foreground min-w-[140px] text-center"
+          >
+            {isToday ? 'TODAY' : format(selectedDate, 'EEE, d MMM yyyy')}
+          </button>
+          <Button variant="ghost" size="icon" onClick={goToNextDay} disabled={isToday}>
+            <ChevronRight className="w-5 h-5" />
+          </Button>
+        </div>
+
+        {saving && (
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="w-3 h-3 animate-spin" /> Saving...
+          </div>
+        )}
+
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+          </div>
+        ) : (
+          <DailyHabitDiary
+            habits={habits}
+            onChange={saveHabits}
+            compact={false}
+            readOnly={!isToday}
+          />
+        )}
+
+        {!isToday && !loading && (
+          <p className="text-center text-xs text-muted-foreground">
+            Viewing past entry — tap TODAY to return
+          </p>
+        )}
       </main>
     </div>
   );
