@@ -415,21 +415,27 @@ export function FoodTracker() {
               <p className="text-xs text-muted-foreground mb-1">Protein</p>
               <p className="font-display text-lg text-primary">{Math.round(dailySummary.totalProtein)}g</p>
               {goals?.daily_protein_g && (
-                <Progress value={Math.min(proteinProgress, 100)} className="h-1 mt-2" />
+                <div className="h-1 mt-2 bg-secondary rounded-full overflow-hidden">
+                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${Math.min(proteinProgress, 100)}%` }} />
+                </div>
               )}
             </div>
             <div className="text-center p-3 bg-muted/30 rounded-lg">
               <p className="text-xs text-muted-foreground mb-1">Carbs</p>
-              <p className="font-display text-lg text-primary">{Math.round(dailySummary.totalCarbs)}g</p>
+              <p className="font-display text-lg text-muted-foreground">{Math.round(dailySummary.totalCarbs)}g</p>
               {goals?.daily_carbs_g && (
-                <Progress value={Math.min(carbsProgress, 100)} className="h-1 mt-2" />
+                <div className="h-1 mt-2 bg-secondary rounded-full overflow-hidden">
+                  <div className="h-full bg-muted-foreground/50 rounded-full transition-all" style={{ width: `${Math.min(carbsProgress, 100)}%` }} />
+                </div>
               )}
             </div>
             <div className="text-center p-3 bg-muted/30 rounded-lg">
               <p className="text-xs text-muted-foreground mb-1">Fat</p>
-              <p className="font-display text-lg text-primary">{Math.round(dailySummary.totalFat)}g</p>
+              <p className="font-display text-lg text-foreground dark:text-foreground/90">{Math.round(dailySummary.totalFat)}g</p>
               {goals?.daily_fat_g && (
-                <Progress value={Math.min(fatProgress, 100)} className="h-1 mt-2" />
+                <div className="h-1 mt-2 bg-secondary rounded-full overflow-hidden">
+                  <div className="h-full bg-foreground/70 dark:bg-foreground/50 rounded-full transition-all" style={{ width: `${Math.min(fatProgress, 100)}%` }} />
+                </div>
               )}
             </div>
           </div>
