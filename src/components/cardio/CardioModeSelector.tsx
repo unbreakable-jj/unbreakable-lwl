@@ -43,14 +43,14 @@ export function CardioModeSelector({ onSelectMode }: CardioModeSelectorProps) {
 
             <div className="flex items-center gap-3 mb-4">
               <div className="flex -space-x-2">
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border-2 border-background">
-                  <Footprints className="w-4 h-4 text-primary" />
+                <div className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center border-2 border-background">
+                  <Footprints className="w-4 h-4 text-foreground/70" />
                 </div>
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border-2 border-background">
-                  <Zap className="w-4 h-4 text-primary" />
+                <div className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center border-2 border-background">
+                  <Zap className="w-4 h-4 text-foreground/70" />
                 </div>
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border-2 border-background">
-                  <Bike className="w-4 h-4 text-primary" />
+                <div className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center border-2 border-background">
+                  <Bike className="w-4 h-4 text-foreground/70" />
                 </div>
               </div>
               <span className="text-xs text-muted-foreground">Walk • Run • Cycle • Row • Swim</span>

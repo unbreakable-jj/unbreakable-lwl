@@ -185,14 +185,14 @@ export function RecipeDetailModal({
 
               <div className="space-y-3">
               {[
-                  { label: 'Protein', value: recipe.protein_g, pct: proteinPct, color: 'bg-primary' },
-                  { label: 'Carbs', value: recipe.carbs_g, pct: carbsPct, color: 'bg-muted-foreground/50' },
-                  { label: 'Fat', value: recipe.fat_g, pct: fatPct, color: 'bg-foreground/70 dark:bg-foreground/50' },
-                ].map(({ label, value, pct, color }) => (
+                  { label: 'Protein', value: recipe.protein_g, pct: proteinPct, color: 'bg-primary', textColor: 'text-primary' },
+                  { label: 'Carbs', value: recipe.carbs_g, pct: carbsPct, color: 'bg-muted-foreground/50', textColor: 'text-muted-foreground' },
+                  { label: 'Fat', value: recipe.fat_g, pct: fatPct, color: 'bg-foreground/70 dark:bg-foreground/50', textColor: 'text-foreground' },
+                ].map(({ label, value, pct, color, textColor }) => (
                   <div key={label}>
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-xs font-medium text-foreground">{label}</span>
-                      <span className="font-display text-sm text-primary">{value || 0}g</span>
+                      <span className={`font-display text-sm ${textColor}`}>{value || 0}g</span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div className={`h-full ${color} rounded-full transition-all`} style={{ width: `${pct}%` }} />

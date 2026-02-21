@@ -58,11 +58,11 @@ export function FuelResults({ result }: FuelResultsProps) {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Wheat className="w-5 h-5 text-primary" />
+                  <Wheat className="w-5 h-5 text-muted-foreground" />
                   <span className="font-display text-xl text-foreground tracking-wide">Carbohydrates</span>
                 </div>
                 <div className="text-right">
-                  <span className="font-display text-2xl text-primary">{result.carbs}g</span>
+                  <span className="font-display text-2xl text-muted-foreground">{result.carbs}g</span>
                   <span className="text-muted-foreground ml-2 text-sm">{result.carbPercent}%</span>
                 </div>
               </div>
@@ -73,11 +73,11 @@ export function FuelResults({ result }: FuelResultsProps) {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Droplets className="w-5 h-5 text-primary" />
+                  <Droplets className="w-5 h-5 text-foreground/70" />
                   <span className="font-display text-xl text-foreground tracking-wide">Fat</span>
                 </div>
                 <div className="text-right">
-                  <span className="font-display text-2xl text-primary">{result.fat}g</span>
+                  <span className="font-display text-2xl text-foreground">{result.fat}g</span>
                   <span className="text-muted-foreground ml-2 text-sm">{result.fatPercent}%</span>
                 </div>
               </div>

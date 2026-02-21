@@ -138,7 +138,7 @@ export function CardioProgramBuilder({ onProgramGenerated, onCancel }: CardioPro
                   onClick={() => setFormData({ ...formData, activityType: option.value })}
                 >
                   <CardContent className="p-6 text-center">
-                    <div className={`mx-auto mb-3 ${formData.activityType === option.value ? 'text-primary' : 'text-muted-foreground'}`}>
+                    <div className={`mx-auto mb-3 transition-colors ${formData.activityType === option.value ? 'text-primary drop-shadow-[0_0_8px_hsl(var(--primary)/0.6)]' : 'text-foreground/70'}`}>
                       {option.icon}
                     </div>
                     <p className="font-display tracking-wide">{option.label}</p>

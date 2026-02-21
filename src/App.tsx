@@ -29,7 +29,6 @@ import FuelRecipes from "./pages/FuelRecipes";
 import FuelPlanning from "./pages/FuelPlanning";
 import FuelFoods from "./pages/FuelFoods";
 import FuelMyFuel from "./pages/FuelMyFuel";
-import TrackerQuickTrack from "./pages/TrackerQuickTrack";
 import TrackerMyProgrammes from "./pages/TrackerMyProgrammes";
 import TrackerCreate from "./pages/TrackerCreate";
 import UserProfile from "./pages/UserProfile";
