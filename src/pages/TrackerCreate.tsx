@@ -275,7 +275,7 @@ export default function TrackerCreate() {
                         onClick={() => setFormData({ ...formData, activityType: option.value })}
                       >
                         <CardContent className="p-6 text-center">
-                          <div className={`mx-auto mb-3 ${formData.activityType === option.value ? 'text-primary' : 'text-foreground dark:text-foreground/80'}`}>{option.icon}</div>
+                          <div className={`mx-auto mb-3 transition-colors ${formData.activityType === option.value ? 'text-primary drop-shadow-[0_0_8px_hsl(var(--primary)/0.6)]' : 'text-foreground/70'}`}>{option.icon}</div>
                           <h3 className="font-display text-xl tracking-wide">{option.label}</h3>
                           <p className="text-sm text-muted-foreground mt-1">{option.description}</p>
                         </CardContent>
