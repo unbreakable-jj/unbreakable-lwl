@@ -1,26 +1,19 @@
 import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useSessionPlanners, SessionPlanner } from '@/hooks/useSessionPlanners';
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import { TrainingProgram } from '@/hooks/useTrainingPrograms';
 import { ActiveWorkoutModal } from './ActiveWorkoutModal';
-import { format, parseISO, isToday, isPast, addDays, startOfWeek } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import {
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
   Play,
   Check,
-  X,
   Dumbbell,
   Loader2,
   Target,
-  ChevronDown,
   ArrowLeft,
 } from 'lucide-react';
 
@@ -39,10 +32,8 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
     cancelSession 
   } = useWorkoutSessions();
   
-  const [currentWeekStart, setCurrentWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [showWorkoutModal, setShowWorkoutModal] = useState(false);
   const [isStartingSession, setIsStartingSession] = useState(false);
-  const [showCalendar, setShowCalendar] = useState(false);
 
   // Find next pending session
   const nextSession = useMemo(() => {
@@ -62,34 +53,6 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
     const total = planners.length;
     return { completed, total, percentage: Math.round((completed / total) * 100) };
   }, [planners]);
-
-  // Get week days for calendar view
-  const weekDays = useMemo(() => {
-    return Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i));
-  }, [currentWeekStart]);
-
-  // Get planners for current week view
-  const weekPlanners = useMemo(() => {
-    return (planners || []).filter(p => {
-      if (!p.scheduled_date) return false;
-      const date = parseISO(p.scheduled_date);
-      return weekDays.some(d => 
-        d.getFullYear() === date.getFullYear() && 
-        d.getMonth() === date.getMonth() && 
-        d.getDate() === date.getDate()
-      );
-    });
-  }, [planners, weekDays]);
-
-  const getPlannerForDay = (date: Date): SessionPlanner | undefined => {
-    return weekPlanners.find(p => {
-      if (!p.scheduled_date) return false;
-      const pDate = parseISO(p.scheduled_date);
-      return date.getFullYear() === pDate.getFullYear() && 
-             date.getMonth() === pDate.getMonth() && 
-             date.getDate() === pDate.getDate();
-    });
-  };
 
   const handleStartSession = async (planner: SessionPlanner) => {
     if (isStartingSession) return;
@@ -246,78 +209,45 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
         </Card>
       )}
 
-      {/* Week Calendar - Collapsible */}
-      <Collapsible open={showCalendar} onOpenChange={setShowCalendar}>
-        <Card className="border border-border bg-card">
-          <CollapsibleTrigger className="w-full p-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary" />
-              <span className="font-display text-foreground tracking-wide">
-                WEEK SCHEDULE
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-xs">
-                {weekPlanners.filter(p => p.status === 'completed').length}/{weekPlanners.length} done
-              </Badge>
-              <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showCalendar ? 'rotate-180' : ''}`} />
-            </div>
-          </CollapsibleTrigger>
-
-          <CollapsibleContent>
-            <CardContent className="pt-0 pb-4">
-              {/* Week Navigation */}
-              <div className="flex items-center justify-between mb-4">
-                <Button variant="ghost" size="icon" onClick={() => setCurrentWeekStart(addDays(currentWeekStart, -7))}>
-                  <ChevronLeft className="w-5 h-5" />
-                </Button>
-                <span className="text-sm text-muted-foreground">
-                  {format(currentWeekStart, 'MMM d')} - {format(addDays(currentWeekStart, 6), 'MMM d, yyyy')}
-                </span>
-                <Button variant="ghost" size="icon" onClick={() => setCurrentWeekStart(addDays(currentWeekStart, 7))}>
-                  <ChevronRight className="w-5 h-5" />
-                </Button>
-              </div>
-
-              {/* Day Grid */}
-              <div className="grid grid-cols-7 gap-2">
-                {weekDays.map((day) => {
-                  const planner = getPlannerForDay(day);
-                  const isCurrentDay = isToday(day);
-                  const isPastDay = isPast(day) && !isCurrentDay;
-
-                  return (
-                    <div key={day.toISOString()} className="space-y-1">
-                      <div className={`text-center text-xs font-medium py-1 rounded ${
-                        isCurrentDay ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
-                      }`}>
-                        {format(day, 'EEE')}
-                        <div className="text-sm font-bold">{format(day, 'd')}</div>
-                      </div>
-                      
-                      {planner ? (
-                        <SessionDayCard
-                          planner={planner}
-                          isToday={isCurrentDay}
-                          isPast={isPastDay}
-                          onStart={() => handleStartSession(planner)}
-                          onComplete={() => markComplete.mutate(planner.id)}
-                          onSkip={() => markSkipped.mutate(planner.id)}
-                          isStarting={isStartingSession}
-                        />
-                      ) : (
-                        <Card className="p-2 border border-dashed border-border bg-card/50 min-h-[60px] flex items-center justify-center">
-                          <span className="text-xs text-muted-foreground">Rest</span>
-                        </Card>
-                      )}
+      {/* Session History */}
+      {planners && planners.filter(p => p.status === 'completed').length > 0 && (
+        <Card className="border border-border bg-card p-5">
+          <h3 className="font-display text-foreground tracking-wide mb-4 flex items-center gap-2">
+            <Check className="w-5 h-5 text-primary" />
+            COMPLETED SESSIONS
+          </h3>
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {planners
+              .filter(p => p.status === 'completed')
+              .sort((a, b) => {
+                if (!a.scheduled_date || !b.scheduled_date) return 0;
+                return new Date(b.scheduled_date).getTime() - new Date(a.scheduled_date).getTime();
+              })
+              .map(p => (
+                <div
+                  key={p.id}
+                  className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                      <Check className="w-4 h-4 text-green-500" />
                     </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </CollapsibleContent>
+                    <div>
+                      <p className="font-display text-sm text-foreground">{p.session_type}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Week {p.week_number}, Day {p.day_number}
+                        {p.scheduled_date && ` • ${format(parseISO(p.scheduled_date), 'MMM d')}`}
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="text-xs text-green-500 border-green-500/50">
+                    Done
+                  </Badge>
+                </div>
+              ))}
+          </div>
         </Card>
-      </Collapsible>
+      )}
 
       {/* Active Workout Modal */}
       {activeSession && (
@@ -331,88 +261,5 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
         />
       )}
     </div>
-  );
-}
-
-function SessionDayCard({
-  planner,
-  isToday,
-  isPast,
-  onStart,
-  onComplete,
-  onSkip,
-  isStarting,
-}: {
-  planner: SessionPlanner;
-  isToday: boolean;
-  isPast: boolean;
-  onStart: () => void;
-  onComplete: () => void;
-  onSkip: () => void;
-  isStarting: boolean;
-}) {
-  const statusColors = {
-    pending: isToday ? 'border-primary bg-primary/10' : 'border-border bg-card',
-    completed: 'border-green-500 bg-green-500/10',
-    skipped: 'border-muted bg-muted/10',
-  };
-
-  return (
-    <Card className={`p-2 border ${statusColors[planner.status]} min-h-[60px]`}>
-      <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <Badge 
-            variant="outline" 
-            className={`text-[9px] px-1 py-0 ${
-              planner.status === 'completed' ? 'border-green-500 text-green-500' :
-              planner.status === 'skipped' ? 'border-muted text-muted-foreground' :
-              'border-primary text-primary'
-            }`}
-          >
-            {planner.status === 'completed' && <Check className="w-2 h-2 mr-0.5" />}
-            {planner.status === 'skipped' && <X className="w-2 h-2 mr-0.5" />}
-            {planner.status}
-          </Badge>
-        </div>
-        
-        <p className="text-[10px] font-medium text-foreground line-clamp-1">
-          {planner.session_type}
-        </p>
-        
-        {planner.status === 'pending' && (isToday || isPast) && (
-          <div className="flex gap-0.5 pt-0.5">
-            <Button
-              variant="default"
-              size="sm"
-              className="h-5 text-[9px] flex-1 px-1"
-              onClick={onStart}
-              disabled={isStarting}
-            >
-              {isStarting ? <Loader2 className="w-2 h-2 animate-spin" /> : <Play className="w-2 h-2" />}
-            </Button>
-            {isPast && (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-5 text-[9px] px-1"
-                  onClick={onComplete}
-                >
-                  <Check className="w-2 h-2" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-5 text-[9px] px-1"
-                  onClick={onSkip}
-                >
-                  <X className="w-2 h-2" />
-                </Button>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-    </Card>
   );
 }
