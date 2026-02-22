@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNutritionGoals } from '@/hooks/useNutritionGoals';
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
@@ -122,13 +123,20 @@ export function useAIMealPlan() {
         chatContext: additionalContext?.chatContext,
       };
 
+      // Get the user's session token
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      if (!accessToken) {
+        throw new Error('Not authenticated');
+      }
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-meal-plan`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({
             userContext,
