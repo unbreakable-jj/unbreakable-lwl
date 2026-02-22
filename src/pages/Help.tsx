@@ -432,6 +432,20 @@ export default function Help() {
                     : 'UNBREAKABLE COACH'}
                 </h2>
               </div>
+              {currentConversationId && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  onClick={() => {
+                    if (currentConversationId) {
+                      deleteConversation(currentConversationId);
+                    }
+                  }}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              )}
               <ProfileButton />
             </div>
 
