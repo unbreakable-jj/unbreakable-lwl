@@ -7,6 +7,7 @@ import { useSessionPlanners, SessionPlanner } from '@/hooks/useSessionPlanners';
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import { TrainingProgram } from '@/hooks/useTrainingPrograms';
 import { ActiveWorkoutModal } from './ActiveWorkoutModal';
+import { SessionResultsView } from './SessionResultsView';
 import { format, parseISO } from 'date-fns';
 import {
   Play,
@@ -15,6 +16,9 @@ import {
   Loader2,
   Target,
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  Trophy,
 } from 'lucide-react';
 
 interface ProgrammeExecutionViewProps {
@@ -25,6 +29,7 @@ interface ProgrammeExecutionViewProps {
 export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionViewProps) {
   const { planners, isLoading: plannersLoading, markComplete, markSkipped } = useSessionPlanners(program.id);
   const { 
+    sessions,
     activeSession, 
     startSession, 
     updateExerciseLog, 
@@ -34,6 +39,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
   
   const [showWorkoutModal, setShowWorkoutModal] = useState(false);
   const [isStartingSession, setIsStartingSession] = useState(false);
+  const [viewingResultIndex, setViewingResultIndex] = useState<number | null>(null);
 
   // Find next pending session
   const nextSession = useMemo(() => {
@@ -53,6 +59,14 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
     const total = planners.length;
     return { completed, total, percentage: Math.round((completed / total) * 100) };
   }, [planners]);
+
+  // Get completed sessions for this programme (sorted newest first)
+  const completedSessions = useMemo(() => {
+    if (!sessions) return [];
+    return sessions
+      .filter(s => s.program_id === program.id && s.status === 'completed')
+      .sort((a, b) => new Date(b.ended_at || b.started_at).getTime() - new Date(a.ended_at || a.started_at).getTime());
+  }, [sessions, program.id]);
 
   const handleStartSession = async (planner: SessionPlanner) => {
     if (isStartingSession) return;
@@ -209,44 +223,93 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
         </Card>
       )}
 
-      {/* Session History */}
-      {planners && planners.filter(p => p.status === 'completed').length > 0 && (
+      {/* Session History Cycling */}
+      {completedSessions.length > 0 && (
         <Card className="border border-border bg-card p-5">
-          <h3 className="font-display text-foreground tracking-wide mb-4 flex items-center gap-2">
-            <Check className="w-5 h-5 text-primary" />
-            COMPLETED SESSIONS
-          </h3>
-          <div className="space-y-2 max-h-64 overflow-y-auto">
-            {planners
-              .filter(p => p.status === 'completed')
-              .sort((a, b) => {
-                if (!a.scheduled_date || !b.scheduled_date) return 0;
-                return new Date(b.scheduled_date).getTime() - new Date(a.scheduled_date).getTime();
-              })
-              .map(p => (
-                <div
-                  key={p.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                      <Check className="w-4 h-4 text-green-500" />
-                    </div>
-                    <div>
-                      <p className="font-display text-sm text-foreground">{p.session_type}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Week {p.week_number}, Day {p.day_number}
-                        {p.scheduled_date && ` • ${format(parseISO(p.scheduled_date), 'MMM d')}`}
-                      </p>
-                    </div>
-                  </div>
-                  <Badge variant="outline" className="text-xs text-green-500 border-green-500/50">
-                    Done
-                  </Badge>
-                </div>
-              ))}
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-display text-foreground tracking-wide flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-primary" />
+              PREVIOUS RESULTS
+            </h3>
+            <span className="text-xs text-muted-foreground">
+              {(viewingResultIndex ?? 0) + 1} of {completedSessions.length}
+            </span>
           </div>
+          
+          {/* Current result preview */}
+          {(() => {
+            const idx = viewingResultIndex ?? 0;
+            const session = completedSessions[idx];
+            if (!session) return null;
+            const completedSets = (session.exercise_logs || []).filter(l => l.completed).length;
+            const totalSets = (session.exercise_logs || []).length;
+            return (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
+                  <div>
+                    <p className="font-display text-sm text-foreground">{session.session_type}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {session.day_name} • {format(new Date(session.ended_at || session.started_at), 'MMM d, yyyy')}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {completedSets}/{totalSets} sets completed
+                      {session.duration_seconds && ` • ${Math.floor(session.duration_seconds / 60)} min`}
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="font-display tracking-wide text-xs"
+                    onClick={() => setViewingResultIndex(idx)}
+                  >
+                    VIEW RESULTS
+                  </Button>
+                </div>
+
+                {/* Arrow navigation */}
+                <div className="flex items-center justify-center gap-4">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    disabled={idx <= 0}
+                    onClick={() => setViewingResultIndex(Math.max(0, idx - 1))}
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </Button>
+                  <div className="flex gap-1">
+                    {completedSessions.map((_, i) => (
+                      <div
+                        key={i}
+                        className={`w-2 h-2 rounded-full transition-colors cursor-pointer ${
+                          i === idx ? 'bg-primary' : 'bg-muted-foreground/30'
+                        }`}
+                        onClick={() => setViewingResultIndex(i)}
+                      />
+                    ))}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    disabled={idx >= completedSessions.length - 1}
+                    onClick={() => setViewingResultIndex(Math.min(completedSessions.length - 1, idx + 1))}
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </Button>
+                </div>
+              </div>
+            );
+          })()}
         </Card>
+      )}
+
+      {/* Session Results Full View */}
+      {viewingResultIndex !== null && completedSessions[viewingResultIndex] && (
+        <SessionResultsView
+          session={completedSessions[viewingResultIndex]}
+          onClose={() => setViewingResultIndex(null)}
+        />
       )}
 
       {/* Active Workout Modal */}
