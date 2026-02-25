@@ -118,17 +118,40 @@ serve(async (req) => {
       enhancedSystemPrompt += `\n\n[CURRENT USER DATA]\n${userContext}`;
     }
 
-    // Process messages to include media references
-    const processedMessages = messages.map((msg: any) => {
-      if (msg.role === 'user' && mediaUrls && mediaUrls.length > 0) {
-        // For the most recent user message, include media context
-        const mediaContext = mediaUrls.map((media: { type: string; url: string }) => 
-          `[User attached ${media.type}: ${media.url}]`
-        ).join('\n');
+    // Process messages to include media as proper multimodal content parts
+    // so the AI model can actually SEE videos and images
+    const processedMessages = messages.map((msg: any, index: number) => {
+      // Only attach media to the last user message
+      const isLastUserMessage = index === messages.length - 1 && msg.role === 'user';
+      
+      if (isLastUserMessage && mediaUrls && mediaUrls.length > 0) {
+        const contentParts: any[] = [
+          { type: 'text', text: msg.content }
+        ];
+        
+        for (const media of mediaUrls) {
+          if (media.type === 'video' || media.url?.match(/\.(mp4|mov|webm|avi)(\?|$)/i)) {
+            // Send video as a proper multimodal video_url part
+            contentParts.push({
+              type: 'video_url',
+              video_url: { url: media.url }
+            });
+            contentParts.push({
+              type: 'text',
+              text: `[VIDEO ANALYSIS INSTRUCTION: Watch this video carefully. Identify the EXACT movement being performed before giving any feedback. Do NOT assume it is a barbell or weighted exercise unless you can clearly see weights. Common bodyweight movements include: Push Ups, Pull Ups, Bodyweight Squats, Lunges, Dips, Planks. Only use exercise names from the approved library.]`
+            });
+          } else {
+            // Send image as a proper multimodal image_url part
+            contentParts.push({
+              type: 'image_url',
+              image_url: { url: media.url }
+            });
+          }
+        }
         
         return {
           role: msg.role,
-          content: `${msg.content}\n\n${mediaContext}`,
+          content: contentParts,
         };
       }
       return msg;
