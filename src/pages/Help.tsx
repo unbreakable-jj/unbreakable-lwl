@@ -327,8 +327,7 @@ export default function Help() {
     }
 
     if (selectedMedia) {
-      const tempId = `temp_${Date.now()}`;
-      setMessagesWithMedia(prev => new Map(prev).set(tempId, selectedMedia));
+      setMessagesWithMedia(prev => new Map(prev).set(`content:${messageContent}`, selectedMedia));
     }
     sendMessage(messageContent, { mediaAttachments });
     setInput(''); setSelectedMedia(null);
@@ -359,11 +358,10 @@ export default function Help() {
   const handleViewInHub = (plan: GeneratedPlanInfo) => { navigate(plan.type === 'programme' ? '/programming' : '/fuel'); };
 
   const isAnyGenerating = isGenerating || isMealPlanGenerating;
-  const enrichedMessages: MessageWithMedia[] = messages.map((msg, idx) => {
-    const mediaEntry = Array.from(messagesWithMedia.entries()).find(
-      ([key]) => key.includes(msg.id) || (msg.role === 'user' && idx === messages.length - 2)
-    );
-    return { ...msg, media: mediaEntry?.[1] };
+  const enrichedMessages: MessageWithMedia[] = messages.map((msg) => {
+    if (msg.role !== 'user') return { ...msg };
+    const mediaEntry = messagesWithMedia.get(`content:${msg.content}`);
+    return { ...msg, media: mediaEntry };
   });
 
   const hasMessages = enrichedMessages.length > 0;
