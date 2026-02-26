@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -6,8 +8,10 @@ import { Progress } from '@/components/ui/progress';
 import { useMealPlans } from '@/hooks/useMealPlans';
 import { useFoodLogs } from '@/hooks/useFoodLogs';
 import { useNutritionGoals } from '@/hooks/useNutritionGoals';
-import { MealType, mealTypeLabels, dayLabels } from '@/lib/fuelTypes';
+import { useRecipes } from '@/hooks/useRecipes';
+import { MealType, mealTypeLabels, dayLabels, RecipeIngredient } from '@/lib/fuelTypes';
 import { NutritionCoachCTA } from './NutritionCoachCTA';
+import { RecipeDetailModal } from './RecipeDetailModal';
 import { 
   Calendar,
   ChevronLeft,
@@ -18,7 +22,8 @@ import {
   Moon,
   Cookie,
   Target,
-  Flame
+  Flame,
+  BookOpen
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -38,10 +43,31 @@ export function MealPlanExecutionView({ planId, onBack }: MealPlanExecutionViewP
   const { mealPlans, planItems } = useMealPlans();
   const { dailySummary, addFoodLog } = useFoodLogs();
   const { goals } = useNutritionGoals();
+  const { recipes: allRecipes, toggleFavourite } = useRecipes();
   const [selectedDay, setSelectedDay] = useState(new Date().getDay());
+  const [viewingRecipeId, setViewingRecipeId] = useState<string | null>(null);
   
   const plan = mealPlans?.find(p => p.id === planId);
   const allItems = planItems || [];
+  
+  // Find recipe for modal
+  const viewingRecipe = viewingRecipeId ? (allRecipes || []).find(r => r.id === viewingRecipeId) || null : null;
+  
+  // Fetch ingredients for the viewed recipe
+  const { data: recipeIngredients } = useQuery({
+    queryKey: ['recipe-ingredients', viewingRecipeId],
+    queryFn: async () => {
+      if (!viewingRecipeId) return [];
+      const { data, error } = await supabase
+        .from('recipe_ingredients')
+        .select('*')
+        .eq('recipe_id', viewingRecipeId)
+        .order('sort_order');
+      if (error) throw error;
+      return data as RecipeIngredient[];
+    },
+    enabled: !!viewingRecipeId,
+  });
   
   // Get items for this specific plan
   const getPlanItems = (dayIndex: number) => {
@@ -234,18 +260,31 @@ export function MealPlanExecutionView({ planId, onBack }: MealPlanExecutionViewP
                               </p>
                             )}
                           </div>
-                          {!logged && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="ml-2"
-                              onClick={() => handleLogMeal(item)}
-                              disabled={addFoodLog.isPending}
-                            >
-                              <Plus className="w-4 h-4 mr-1" />
-                              Log
-                            </Button>
-                          )}
+                          <div className="flex flex-col gap-1 ml-2 shrink-0">
+                            {item.recipe_id && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 text-xs gap-1 text-primary"
+                                onClick={() => setViewingRecipeId(item.recipe_id!)}
+                              >
+                                <BookOpen className="w-3 h-3" />
+                                Recipe
+                              </Button>
+                            )}
+                            {!logged && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7"
+                                onClick={() => handleLogMeal(item)}
+                                disabled={addFoodLog.isPending}
+                              >
+                                <Plus className="w-4 h-4 mr-1" />
+                                Log
+                              </Button>
+                            )}
+                          </div>
                         </motion.div>
                       );
                     })}
@@ -276,6 +315,30 @@ export function MealPlanExecutionView({ planId, onBack }: MealPlanExecutionViewP
           }
         }}
       />
+
+      {/* Recipe Detail Modal */}
+      {viewingRecipe && (
+        <RecipeDetailModal
+          recipe={viewingRecipe}
+          ingredients={recipeIngredients || []}
+          onClose={() => setViewingRecipeId(null)}
+          onToggleFavourite={(id) => toggleFavourite.mutate(id)}
+          onLogMeal={(recipe) => {
+            addFoodLog.mutateAsync({
+              food_name: recipe.name,
+              calories: recipe.calories_per_serving || 0,
+              protein_g: recipe.protein_g,
+              carbs_g: recipe.carbs_g,
+              fat_g: recipe.fat_g,
+              meal_type: 'dinner' as MealType,
+              servings: 1,
+              logged_at: new Date().toISOString(),
+              recipe_id: recipe.id,
+            });
+            setViewingRecipeId(null);
+          }}
+        />
+      )}
     </div>
   );
 }
