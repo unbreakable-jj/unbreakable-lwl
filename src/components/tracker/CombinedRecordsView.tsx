@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePersonalRecords } from '@/hooks/usePersonalRecords';
-import { useMedals } from '@/hooks/useMedals';
+// import { useMedals } from '@/hooks/useMedals'; // Trophy system hidden for now
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import { DeleteConfirmModal } from '@/components/tracker/DeleteConfirmModal';
 import { format, parseISO } from 'date-fns';
@@ -53,7 +53,7 @@ function NeonTarget({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
 
 export function CombinedRecordsView() {
   const { getAllPRsWithLabels, records, resetPR, resetAllPRsForActivity, loading: prsLoading } = usePersonalRecords();
-  const { getAllMedalsWithStatus, loading: medalsLoading } = useMedals();
+  // const { getAllMedalsWithStatus, loading: medalsLoading } = useMedals(); // Trophy system hidden for now
   const { sessions, isLoading: workoutsLoading } = useWorkoutSessions();
   const [cardioSub, setCardioSub] = useState<CardioActivityType>('run');
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; label: string } | null>(null);
@@ -61,7 +61,7 @@ export function CombinedRecordsView() {
   const [deleting, setDeleting] = useState(false);
 
   const prs = getAllPRsWithLabels();
-  const allMedals = getAllMedalsWithStatus();
+  // const allMedals = getAllMedalsWithStatus(); // Trophy system hidden for now
 
   // Filter PRs by selected cardio activity type
   const filteredPRs = useMemo(() => {
@@ -171,8 +171,9 @@ export function CombinedRecordsView() {
     setDeleteAllTarget(null);
   };
 
-  const earnedMedals = allMedals.filter(m => m.earned);
-  const unearnedMedals = allMedals.filter(m => !m.earned);
+  // Trophy system hidden for now
+  // const earnedMedals = allMedals.filter(m => m.earned);
+  // const unearnedMedals = allMedals.filter(m => !m.earned);
 
   const categoryLabels: Record<string, string> = {
     distance: 'Distance', streak: 'Streaks', pace: 'Speed',
@@ -189,7 +190,7 @@ export function CombinedRecordsView() {
     cardio: <Timer className="w-4 h-4" />,
   };
 
-  const loading = prsLoading || medalsLoading || workoutsLoading;
+  const loading = prsLoading || workoutsLoading;
 
   if (loading) {
     return (
@@ -202,7 +203,7 @@ export function CombinedRecordsView() {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="cardio" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-background border-2 border-primary/30">
+        <TabsList className="grid w-full grid-cols-2 bg-background border-2 border-primary/30">
           <TabsTrigger value="cardio" className="font-display tracking-wide text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
             <Timer className="w-4 h-4 mr-1" />
             CARDIO
@@ -210,10 +211,6 @@ export function CombinedRecordsView() {
           <TabsTrigger value="strength" className="font-display tracking-wide text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
             <Dumbbell className="w-4 h-4 mr-1" />
             STRENGTH
-          </TabsTrigger>
-          <TabsTrigger value="medals" className="font-display tracking-wide text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
-            <Crosshair className="w-4 h-4 mr-1 text-primary" />
-            TROPHIES
           </TabsTrigger>
         </TabsList>
 
@@ -345,76 +342,7 @@ export function CombinedRecordsView() {
           </motion.div>
         </TabsContent>
 
-        {/* Trophies/Medals */}
-        <TabsContent value="medals" className="space-y-6 mt-4">
-          {earnedMedals.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <h3 className="font-display text-lg text-foreground mb-3 tracking-wide">
-                EARNED <span className="text-primary">({earnedMedals.length}/{allMedals.length})</span>
-              </h3>
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                {earnedMedals.map((medal, index) => (
-                  <motion.div
-                    key={medal.code}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.03 }}
-                  >
-                    <Card className="p-3 bg-card border-2 border-primary/30 text-center group relative neon-border-subtle">
-                      <div className="text-3xl mb-1 medal-unlocked">{medal.icon}</div>
-                      <p className="font-display text-xs text-foreground tracking-wide line-clamp-2">{medal.name}</p>
-                      {medal.earned && (
-                        <p className="text-[10px] text-muted-foreground mt-1">
-                          {format(parseISO(medal.earned.earned_at), 'MMM d')}
-                        </p>
-                      )}
-                    </Card>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          {Object.keys(categoryLabels).map((category) => {
-            const categoryMedals = unearnedMedals.filter(m => m.category === category);
-            if (categoryMedals.length === 0) return null;
-            return (
-              <motion.div key={category} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="text-muted-foreground">{categoryIcons[category]}</div>
-                  <h3 className="font-display text-sm text-muted-foreground tracking-wide">
-                    {categoryLabels[category].toUpperCase()}
-                  </h3>
-                </div>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                  {categoryMedals.map((medal, index) => (
-                    <motion.div
-                      key={medal.code}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.02 }}
-                    >
-                      <Card className="p-3 bg-background border border-border text-center">
-                        <div className="text-3xl mb-1 medal-locked grayscale">{medal.icon}</div>
-                        <p className="font-display text-xs text-muted-foreground tracking-wide line-clamp-2">{medal.name}</p>
-                        <p className="text-[10px] text-muted-foreground mt-1">Locked</p>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            );
-          })}
-
-          {earnedMedals.length === 0 && (
-            <div className="text-center py-12">
-              <NeonTarget size="lg" />
-              <p className="text-muted-foreground mt-4">
-                No trophies earned yet. Start training to unlock achievements!
-              </p>
-            </div>
-          )}
-        </TabsContent>
+        {/* Trophy system hidden for now */}
       </Tabs>
 
       {/* Delete single PR confirmation */}
