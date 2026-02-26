@@ -25,8 +25,10 @@ export interface ProgramFormData {
 }
 
 export interface Exercise {
+  id?: string;
   name: string;
-  equipment: 'barbell' | 'dumbbell' | 'bodyweight' | 'running';
+  bodyPart?: string;
+  equipment: 'barbell' | 'dumbbell' | 'bodyweight' | 'running' | 'machine' | 'cable' | 'kettlebell' | 'bands' | 'cardio';
   sets: number | string;
   reps: string;
   intensity: string;

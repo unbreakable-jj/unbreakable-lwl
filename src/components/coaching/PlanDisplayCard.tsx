@@ -87,7 +87,10 @@ export function PlanDisplayCard({
                 YOUR {isProgramme ? 'PROGRAMME' : 'MEAL PLAN'} IS READY
               </span>
             </div>
-            <h3 className="font-display text-base tracking-wide text-foreground truncate">
+            <p className="text-[10px] text-muted-foreground italic mt-0.5">
+              Built for you. Stay patient with it.
+            </p>
+            <h3 className="font-display text-lg tracking-wide text-foreground leading-snug mt-1">
               {planName}
             </h3>
           </div>
@@ -99,15 +102,15 @@ export function PlanDisplayCard({
           )}
         </div>
 
-        {/* Overview - Truncated */}
+        {/* Overview */}
         {overview && (
-          <p className="text-xs text-muted-foreground line-clamp-2">
+          <p className="text-xs text-muted-foreground line-clamp-4 mt-1 leading-relaxed">
             {overview}
           </p>
         )}
 
         {/* Summary Stats */}
-        <div className="flex items-center gap-3 text-xs">
+        <div className="flex items-center gap-4 text-xs py-1">
           <div className="flex items-center gap-1.5">
             <Calendar className="w-3.5 h-3.5 text-primary" />
             <span>{summary.primary}</span>
