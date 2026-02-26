@@ -39,7 +39,7 @@ import { useAIPreferences } from '@/hooks/useAIPreferences';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
-import { CoachingBioForm } from './CoachingBioForm';
+
 import { BlockedUsersSection } from './BlockedUsersSection';
 
 export function SettingsPanel() {
@@ -329,8 +329,7 @@ export function SettingsPanel() {
         </CardContent>
       </Card>
 
-      {/* Coaching Bio - Age/Height/Weight for personalisation */}
-      <CoachingBioForm />
+      {/* Coaching Bio moved to Profile → Overview */}
 
       {/* Coaching Settings */}
       <Card className="bg-card border-border">

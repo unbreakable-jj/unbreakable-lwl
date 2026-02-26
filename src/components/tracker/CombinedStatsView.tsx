@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
@@ -152,6 +153,9 @@ function CardioSubStats({ runs, activityType, onViewRecords }: { runs: any[]; ac
         </div>
       </Card>
 
+      {/* Session History Browser */}
+      <SessionHistoryBrowser sessions={filteredRuns} activityLabel={config.label} />
+
       {/* View Records link */}
       {onViewRecords && (
         <div className="flex justify-center">
@@ -163,6 +167,80 @@ function CardioSubStats({ runs, activityType, onViewRecords }: { runs: any[]; ac
         </div>
       )}
     </div>
+  );
+}
+
+// ─── Session History Browser ────────────────────────────────────────────────
+function SessionHistoryBrowser({ sessions, activityLabel }: { sessions: any[]; activityLabel: string }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const sorted = useMemo(() => [...sessions].sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime()), [sessions]);
+
+  if (sorted.length === 0) return null;
+
+  const session = sorted[currentIndex];
+  const formatPace = (s: number) => {
+    if (!s || !isFinite(s)) return '--:--';
+    return `${Math.floor(s / 60)}:${(Math.round(s % 60)).toString().padStart(2, '0')}`;
+  };
+  const formatDur = (s: number) => {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
+  };
+
+  return (
+    <Card className="bg-card border-primary/20 p-5 neon-border-subtle">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-display text-lg text-foreground tracking-wide">
+          {activityLabel} <span className="text-primary">HISTORY</span>
+        </h3>
+        <span className="text-xs text-muted-foreground">
+          {currentIndex + 1} / {sorted.length}
+        </span>
+      </div>
+      
+      <div className="space-y-3">
+        <p className="font-medium text-foreground">{session.title || `${activityLabel} Session`}</p>
+        <p className="text-xs text-muted-foreground">
+          {format(parseISO(session.started_at), 'EEE, d MMM yyyy · h:mm a')}
+        </p>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="text-center p-2 rounded-lg bg-muted/30">
+            <p className="font-display text-lg text-foreground">{Number(session.distance_km).toFixed(2)}</p>
+            <p className="text-[10px] text-muted-foreground uppercase">KM</p>
+          </div>
+          <div className="text-center p-2 rounded-lg bg-muted/30">
+            <p className="font-display text-lg text-foreground">{formatDur(session.duration_seconds)}</p>
+            <p className="text-[10px] text-muted-foreground uppercase">TIME</p>
+          </div>
+          <div className="text-center p-2 rounded-lg bg-muted/30">
+            <p className="font-display text-lg text-foreground">{formatPace(session.pace_per_km_seconds)}</p>
+            <p className="text-[10px] text-muted-foreground uppercase">PACE /KM</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mt-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
+          disabled={currentIndex === 0}
+          className="h-8 w-8"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setCurrentIndex(Math.min(sorted.length - 1, currentIndex + 1))}
+          disabled={currentIndex === sorted.length - 1}
+          className="h-8 w-8"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </Button>
+      </div>
+    </Card>
   );
 }
 

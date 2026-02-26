@@ -397,6 +397,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       distance_km: runData.distance_km,
       duration_seconds: runData.duration_seconds,
       started_at: runData.started_at,
+      activity_type: activity || 'run',
     });
 
     const totalRuns = (profile?.total_runs || 0) + 1;
