@@ -1,120 +1,104 @@
 
-
-# Profile Tracker System Overhaul
+# AI Programme Builder: Exercise Library Integration, Editor Fix, and Programme Card Polish
 
 ## Overview
-Upgrade the profile's tracking system: add PR reset capability, clean up the overview tab, ensure all 5 cardio types are tracked in PRs and stats, and build the best possible consistency tracker for workouts.
+Three issues to fix:
+
+1. **AI chat programme builder uses generic exercise data** instead of the existing EXERCISE_LIBRARY (with IDs, body parts, equipment, defaults, tips, alternatives, movement patterns). The generated programme JSON needs exercises linked to library IDs so the full coaching data (from exerciseCoachingData.ts) works when users execute sessions.
+
+2. **EDIT PLAN button in chat only shows yes/no prompts** about the programme title -- it doesn't let users actually edit exercises or programme content. The AIPlanReviewModal needs a proper inline editor.
+
+3. **Programme title and description in PlanDisplayCard need better spacing/layout** and the Scouse coaching tone should come through in the overview text.
 
 ---
 
-## 1. Reset/Save Personal Records
+## Changes
 
-**File: `src/components/tracker/CombinedRecordsView.tsx`**
+### 1. Exercise Library Integration in generate-ai-programme
 
-Add a reset button per individual PR record and a "Reset All" option per activity type:
-- Each PR card gets a small trash/reset icon button
-- Clicking shows a confirmation dialog ("Reset your 5K PR?")
-- On confirm, deletes the record from `personal_records` table
-- Add a "Reset All [ACTIVITY] PRs" button at the bottom of each cardio sub-tab
+**File: `supabase/functions/generate-ai-programme/index.ts`**
 
-**File: `src/hooks/usePersonalRecords.tsx`**
+The current `EXERCISE_NAMES` constant is a flat string of names. The AI returns exercise names like "Back Squat" but these aren't linked to library IDs (like `back-squat`), which means the generated programme can't connect to coaching data, body part metadata, or alternatives.
 
-Add two new functions:
-- `resetPR(recordId: string)` -- deletes a single PR from the database
-- `resetAllPRsForActivity(activityType: string)` -- deletes all PRs matching the activity type
+**Fix:**
+- Update the EXERCISE_NAMES constant to include the library ID alongside each name, formatted as `id:Name`. Example: `back-squat:Back Squat,front-squat:Front Squat,...`
+- Update the system prompt to instruct the AI to return exercises with an `id` field matching the library ID, plus `bodyPart` and `equipment` fields
+- Update the JSON schema in the prompt so each exercise includes: `{"id":"back-squat","name":"Back Squat","bodyPart":"legs","equipment":"barbell","sets":4,"reps":"6-8","intensity":"RPE 7","rest":"3 min","notes":"..."}`
 
-Need a database migration to add DELETE policy for `personal_records` (currently missing -- users can INSERT and UPDATE but not DELETE).
+**Post-processing step (in the edge function):**
+After receiving the AI response, add a validation step that:
+- Checks each exercise name against the library
+- If an exercise has no `id` or a wrong one, attempts fuzzy matching against the known list
+- Logs warnings for any exercises that couldn't be matched
 
-**Database migration:**
-```sql
-CREATE POLICY "Users can delete their own records"
-ON public.personal_records FOR DELETE
-USING (auth.uid() = user_id);
-```
+This ensures the generated programme data is fully compatible with the existing `ActiveWorkoutModal`, `SessionLoggingView`, and `ExerciseCoachingPanel` which all look up exercises by name or ID.
 
----
+### 2. Fix the EDIT PLAN Modal (AIPlanReviewModal)
 
-## 2. Clean Up Overview Tab
+**File: `src/components/ai/AIPlanReviewModal.tsx`**
 
-**File: `src/components/tracker/ProfileView.tsx`**
+Current problem: The "review" step shows the programme title and a collapsed schedule, but the "edit" step only shows generic yes/no prompts like "Would you like to swap any exercises?" with no actual way to do so.
 
-Remove from the overview tab:
-- The "RECENT ACTIVITY" card (lines 500-539) -- the session list showing recent runs
-- Keep the 3 quick stat cards (Sessions, km, Time) at the top
-- Keep "MY PROGRAMMES" section
+**Fix -- replace the guided prompts with an inline editor:**
 
-This makes the overview tab a clean summary: identity + quick stats + programmes only.
+In the `review` step:
+- Show each workout day expanded with its exercises listed
+- Each exercise row gets an "X" button to remove it and a "swap" button that opens the existing `ScrollableExerciseLibrary` inline
+- Programme name and overview become editable text fields
+- Phase names and notes become editable
 
----
+In the `edit` step (when user clicks MAKE ADJUSTMENTS):
+- Enable editing mode on the same view (inline text inputs, swap buttons active)
+- Add an "Add Exercise" button per day that opens the exercise library picker
+- Selected exercises from the library automatically populate with the correct ID, body part, equipment, default sets/reps
 
-## 3. Cardio PRs: All 5 Activity Types
+Remove the generic yes/no prompt flow entirely -- it doesn't provide real editing capability.
 
-**File: `src/components/tracker/CombinedRecordsView.tsx`**
+### 3. Programme Card Layout and Tone
 
-Currently the cardio sub-selector only shows Walk, Run, Cycle (line 187). Update to include all 5 types: Walk, Run, Cycle, Row, Swim.
+**File: `src/components/coaching/PlanDisplayCard.tsx`**
 
-Change:
-```typescript
-{(['walk', 'run', 'cycle'] as CardioActivityType[]).map(type => {
-```
-To:
-```typescript
-{(Object.keys(CARDIO_ACTIVITY_CONFIG) as CardioActivityType[]).map(type => {
-```
+Current issues:
+- Title and overview are cramped (title truncated, overview line-clamped to 2 lines)
+- No coaching personality in the presentation
 
-This uses the already-defined `CARDIO_ACTIVITY_CONFIG` which includes all 5 types.
+**Fix:**
+- Give the programme name more breathing room: increase text size to `text-lg`, remove `truncate`, allow wrapping
+- Give the overview more space: increase from `line-clamp-2` to `line-clamp-4`, add `mt-2` spacing
+- Add a subtle coaching tagline below the "YOUR PROGRAMME IS READY" header, e.g. "Built for you. Stay patient with it." in muted text
+- Improve the summary stats layout with slightly more padding
 
----
+**File: `supabase/functions/generate-ai-programme/index.ts`**
 
-## 4. Stats Tab: Cardio Linked to Session Records
-
-**File: `src/components/tracker/CombinedStatsView.tsx`**
-
-The cardio stats sub-selector already shows all 5 types (line 267). Stats are already computed per activity type from runs data. This is working correctly.
-
-Enhancement: Add a "View Records" link button at the bottom of each cardio stats view that switches to the Records tab's cardio section with the same activity type pre-selected. This requires lifting the tab state or using a callback.
-
-**Implementation:** Add an optional `onViewRecords` prop to `CombinedStatsView` that triggers a tab switch in the parent `ProfileView`.
+Update the system prompt's tone instructions to tell the AI to write the `programName` and `overview` fields with the established Scouse coaching tone:
+- Programme names should be direct and purposeful (e.g. "12-Week Strength Foundation" not "Your Custom Strength Programme")
+- Overview should read like a coach talking to their athlete: "Right, here's the plan. We're building a solid foundation over 12 weeks..." -- measured, grounded, no hype
 
 ---
 
-## 5. Workout Stats: Programme Consistency Tracker
+## Technical Details
 
-**File: `src/components/tracker/CombinedStatsView.tsx`**
+### Files to modify:
 
-Rework the Workouts tab to focus on programme consistency rather than raw volume:
+1. **`supabase/functions/generate-ai-programme/index.ts`**
+   - Expand EXERCISE_NAMES to include library IDs and body parts
+   - Update JSON schema in system prompt to require `id`, `bodyPart`, `equipment` per exercise
+   - Add post-parse validation that fuzzy-matches exercise names to library IDs
+   - Update tone instructions for programName and overview fields
 
-Remove:
-- "Sets Completed" stat card
+2. **`src/components/ai/AIPlanReviewModal.tsx`**
+   - Replace generic yes/no prompt flow with inline exercise editor
+   - Import and integrate `ScrollableExerciseLibrary` for exercise swapping
+   - Make programme name, overview, and exercise details editable inline
+   - Keep the 3-step flow (review -> edit -> confirm) but make edit actually functional
 
-Replace with:
-- **Programme Adherence %** -- sessions completed vs sessions planned (based on active programme's days_per_week)
-- **Current Streak** (already exists, keep it)
-- **Total Workouts** (keep)
-- **Total Time** (keep)
-- **Avg Duration** (keep)
-- **Weekly Attendance** chart (already exists, keep it)
-- **Programme Progress** -- a progress bar showing current_week out of total weeks for the active programme
+3. **`src/components/coaching/PlanDisplayCard.tsx`**
+   - Improve title/overview spacing and sizing
+   - Add coaching tone tagline
+   - Better visual hierarchy
 
----
+4. **`src/lib/programTypes.ts`**
+   - Add optional `id` and `bodyPart` fields to the `Exercise` interface so the type system supports the enriched data
 
-## 6. PR Tab Linked to Trackers
-
-Ensure the Records tab properly links to data sources:
-- **Cardio PRs** already pull from `personal_records` table which is populated by the cardio tracker (`usePersonalRecords.checkAndUpdatePRs`). This works for all activity types since `activity_type` is stored on each record.
-- **Strength PRs** already pull from `exercise_logs` via `workout_sessions`. This is working.
-- No changes needed here beyond the 5-type fix in point 3.
-
----
-
-## Files to Modify
-
-1. `src/hooks/usePersonalRecords.tsx` -- Add `resetPR` and `resetAllPRsForActivity` functions
-2. `src/components/tracker/CombinedRecordsView.tsx` -- Add reset buttons with confirmation, expand cardio selector to all 5 types
-3. `src/components/tracker/ProfileView.tsx` -- Remove recent activity section from overview tab, add cross-tab navigation support
-4. `src/components/tracker/CombinedStatsView.tsx` -- Remove total sets, add programme adherence %, add programme progress bar, add "View Records" link
-
-## Database Migration
-
-Add DELETE policy for `personal_records` table so users can reset their PRs.
-
+### No database changes required
+All changes are to the edge function prompt, client-side UI, and type definitions.
