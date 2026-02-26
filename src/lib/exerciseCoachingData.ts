@@ -3769,6 +3769,241 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     musclesTargeted: { primary: ['Biceps Brachii (especially short head)'], secondary: ['Brachialis'] },
     tempoGuide: '2-1-3-0',
     coachingNotes: 'The preacher machine is the strictest bicep exercise. No swinging, no cheating. Use moderate weight and chase the burn.'
+  },
+
+  'barbell-pullover': {
+    exerciseType: 'accessory',
+    purpose: 'The barbell pullover stretches the chest and lats through a massive overhead arc. It\'s an old-school movement that expands the ribcage and develops both the chest and the lats depending on arm bend. Slight bend = more chest, straighter arms = more lats.',
+    phases: [
+      { name: 'Setup', description: 'Lie across or along a flat bench', cues: ['Lie flat or across bench with upper back supported', 'Hold barbell with narrow grip above chest', 'Slight bend in elbows — lock this angle', 'Feet flat on floor, core engaged'] },
+      { name: 'The Arc (Lowering)', description: 'Lower bar behind head in a controlled arc', cues: ['Lower bar behind head in a sweeping arc', 'Feel deep stretch through chest and lats', 'Stop when arms are roughly in line with ears', 'Maintain the elbow bend — don\'t straighten'] },
+      { name: 'The Pull (Return)', description: 'Pull bar back over chest', cues: ['Pull bar back over chest using the same arc', 'Squeeze the chest as bar returns to start', 'Control throughout — no swinging', 'Don\'t let bar go past chest level at top'] }
+    ],
+    breathing: { inhale: 'As bar goes behind your head — big rib-expanding breath', exhale: 'As you pull the bar back over your chest' },
+    commonMistakes: [
+      { mistake: 'Going too deep — shoulder strain', correction: 'Only go as far as comfortable — build range over time' },
+      { mistake: 'Straightening arms — turns into lat focus', correction: 'Maintain slight elbow bend for chest emphasis' },
+      { mistake: 'Using too much weight', correction: 'This is a stretch and squeeze exercise — moderate weight, full range' },
+      { mistake: 'Lifting hips off bench', correction: 'Keep hips down if lying flat, or brace core if lying across bench' }
+    ],
+    musclesTargeted: { primary: ['Pectoralis Major', 'Latissimus Dorsi'], secondary: ['Serratus Anterior', 'Triceps (long head)'] },
+    tempoGuide: '3-1-2-0 (slow arc back, brief stretch, controlled return)',
+    coachingNotes: 'The pullover is a classic chest expander that Arnold swore by. It stretches the ribcage and hits muscles other pressing movements can\'t reach. Give it a go at the end of your chest session.',
+    loadGuidelines: { technique: 'Light load, focus on the stretch and breathing', hypertrophy: 'Moderate load, 10-15 reps, full stretch', strength: 'Not typically used for maximal strength work' },
+    regressions: ['Dumbbell Pullover', 'Cable Pullover'],
+    progressions: ['Straight Arm Pullover (more lat focus)', 'Decline Barbell Pullover'],
+    safetyNotes: ['Start light to assess shoulder flexibility', 'Stop if sharp shoulder pain occurs', 'Control the bar at all times — it\'s behind your head'],
+    loggingInstructions: ['Log barbell weight in kg', 'Log total sets and reps', 'Note RPE and any shoulder discomfort']
+  },
+
+  'decline-dumbbell-bench-press': {
+    exerciseType: 'accessory',
+    purpose: 'The decline dumbbell press targets the lower chest with the added benefit of independent arm movement. Dumbbells allow a deeper stretch and natural wrist rotation compared to the barbell version.',
+    phases: [
+      { name: 'Setup', description: 'Position on decline bench with dumbbells', cues: ['Hook feet under pads securely', 'Start with dumbbells pressed above lower chest', 'Palms facing forward or slightly rotated', 'Shoulder blades retracted'] },
+      { name: 'Eccentric (Lowering)', description: 'Lower to deep chest stretch', cues: ['Lower dumbbells to outer lower chest', 'Elbows at 45-60° from torso', 'Control the descent — 2-3 seconds', 'Feel the lower chest stretch'] },
+      { name: 'Concentric (Pressing)', description: 'Press back to start', cues: ['Drive dumbbells up and slightly inward', 'Squeeze chest at top', 'Don\'t clang dumbbells together', 'Full lockout'] }
+    ],
+    breathing: { inhale: 'During the lowering phase', exhale: 'As you press up' },
+    commonMistakes: [
+      { mistake: 'Feet not secured — sliding', correction: 'Lock feet under pads before getting dumbbells in position' },
+      { mistake: 'Not going deep enough', correction: 'Use the extra range dumbbells allow — deeper stretch means more growth' },
+      { mistake: 'Arms flaring too wide', correction: 'Keep elbows at 45-60° for safe, effective pressing' }
+    ],
+    musclesTargeted: { primary: ['Lower Pectoralis Major', 'Triceps'], secondary: ['Anterior Deltoids'] },
+    tempoGuide: '2-1-1-0',
+    coachingNotes: 'Decline dumbbells give you the lower chest focus of decline bench with the freedom of dumbbells. Use them when you want extra stretch at the bottom of each rep.',
+    loadGuidelines: { technique: 'Light load, learn the decline position with dumbbells', hypertrophy: '8-12 reps, moderate load', strength: '6-8 reps, heavier dumbbells' },
+    regressions: ['High-to-Low Cable Flyes', 'Machine Chest Press'],
+    progressions: ['Decline Barbell Bench Press', 'Weighted Dips'],
+    safetyNotes: ['Secure feet before handling dumbbells', 'Have a spotter help hand you the dumbbells if heavy', 'Sit up between sets to avoid blood rush'],
+    loggingInstructions: ['Log dumbbell weight in kg (per hand)', 'Log total sets and reps', 'Note RPE per set']
+  },
+
+  'dumbbell-squeeze-press': {
+    exerciseType: 'accessory',
+    purpose: 'The squeeze press keeps the dumbbells pressed together throughout the movement, creating constant inner chest tension. It\'s a class hypertrophy tool for building the chest line and inner pec thickness. Dead simple, brutally effective.',
+    phases: [
+      { name: 'Setup', description: 'Dumbbells pressed together above chest', cues: ['Lie flat on bench', 'Dumbbells touching with palms facing each other (neutral grip)', 'Press dumbbells hard into each other — maintain this force throughout', 'Shoulder blades retracted'] },
+      { name: 'Eccentric (Lowering)', description: 'Lower while maintaining squeeze', cues: ['Lower dumbbells to chest while pressing them together', 'Elbows stay relatively close to body', '2-3 second controlled descent', 'The squeeze pressure never stops'] },
+      { name: 'Concentric (Pressing)', description: 'Press up, still squeezing', cues: ['Press dumbbells back up while maintaining the squeeze', 'Full lockout at top', 'Inner chest should be burning', 'Keep the inward force constant'] }
+    ],
+    breathing: { inhale: 'During the lowering phase', exhale: 'As you press up' },
+    commonMistakes: [
+      { mistake: 'Losing the squeeze — dumbbells separate', correction: 'The whole point is pressing them together. If they separate, you\'re missing the exercise' },
+      { mistake: 'Going too heavy', correction: 'This is about constant tension, not load. Moderate weight with a fierce squeeze' },
+      { mistake: 'Turning it into a regular press', correction: 'Keep the inward force — think about crushing the dumbbells together' }
+    ],
+    musclesTargeted: { primary: ['Pectoralis Major (inner/sternal)', 'Triceps'], secondary: ['Anterior Deltoids'] },
+    tempoGuide: '2-1-1-0',
+    coachingNotes: 'The squeeze press is one of the best inner chest exercises going. Keep those dumbbells pressed into each other like your life depends on it. You\'ll feel every fibre working.',
+    loadGuidelines: { technique: 'Light load, master the constant squeeze', hypertrophy: '10-15 reps, moderate load, constant tension', strength: 'Not typically used for max strength' },
+    regressions: ['Cable Crossover', 'Pec Deck Machine'],
+    progressions: ['Squeeze Press with pause at bottom', 'Incline Squeeze Press'],
+    safetyNotes: ['Keep wrists neutral to avoid strain', 'Stop if inner chest or shoulder feels wrong'],
+    loggingInstructions: ['Log dumbbell weight in kg (per hand)', 'Log total sets and reps', 'Note RPE per set']
+  },
+
+  'single-arm-dumbbell-press': {
+    exerciseType: 'accessory',
+    purpose: 'The single-arm dumbbell press develops unilateral pressing strength and serious core anti-rotation stability. Pressing one arm at a time exposes and fixes imbalances between sides. Your core has to work overtime to stop you rolling off the bench.',
+    phases: [
+      { name: 'Setup', description: 'One dumbbell, one arm', cues: ['Lie flat on bench, one dumbbell pressed above chest', 'Other hand grips bench edge or rests on body', 'Feet wide on floor for stability', 'Core braced hard — resist the rotation'] },
+      { name: 'Eccentric (Lowering)', description: 'Lower with anti-rotation', cues: ['Lower dumbbell to chest — 2-3 seconds', 'Fight the rotation — don\'t let your body twist', 'Elbow at 45° from torso', 'Keep hips and shoulders level'] },
+      { name: 'Concentric (Pressing)', description: 'Press with full-body stability', cues: ['Press dumbbell back to start', 'Maintain level shoulders and hips', 'Full lockout', 'Control throughout'] }
+    ],
+    breathing: { inhale: 'During the lowering phase', exhale: 'As you press up' },
+    commonMistakes: [
+      { mistake: 'Rotating toward the working side', correction: 'Stay level — the anti-rotation is half the exercise' },
+      { mistake: 'Not bracing the core', correction: 'Brace hard before every rep. No brace, no stability' },
+      { mistake: 'Going too heavy too soon', correction: 'Start lighter than you think — the stability demand is real' }
+    ],
+    musclesTargeted: { primary: ['Pectoralis Major', 'Anterior Deltoids', 'Triceps'], secondary: ['Core (anti-rotation)', 'Obliques'] },
+    tempoGuide: '2-1-1-0',
+    coachingNotes: 'Single-arm pressing is brilliant for finding weak links. If one side is noticeably weaker, use this to bring it up. Always start with your weaker side.',
+    loadGuidelines: { technique: 'Light load, master the anti-rotation', hypertrophy: '8-12 reps each side, moderate load', strength: '5-8 reps each side' },
+    regressions: ['Flat Dumbbell Bench Press (both arms)', 'Push Ups'],
+    progressions: ['Single Arm Floor Press', 'Alternating Dumbbell Press'],
+    safetyNotes: ['Use a weight you can fully control', 'Wide foot base is essential for stability', 'Stop if lower back compensates'],
+    loggingInstructions: ['Log dumbbell weight in kg', 'Log total sets and reps per side', 'Note any side-to-side imbalance']
+  },
+
+  'wide-push-ups': {
+    exerciseType: 'assistance',
+    purpose: 'Wide push-ups shift the emphasis from triceps to the outer chest by increasing the stretch at the bottom. The wider hand placement forces the pecs to work harder through a longer lever arm. Simple, effective, no equipment needed.',
+    phases: [
+      { name: 'Setup', description: 'Wide hand placement', cues: ['Hands 1.5x shoulder width apart', 'Body in a rigid straight line', 'Core braced, glutes squeezed', 'Fingers spread, pointing forward'] },
+      { name: 'Eccentric (Lowering)', description: 'Lower chest to floor', cues: ['Lower slowly — chest toward the floor', 'Feel the chest stretch at the bottom', 'Elbows bend outward naturally', 'Full depth — chest nearly touches floor'] },
+      { name: 'Concentric (Pressing)', description: 'Push back to start', cues: ['Push the floor away', 'Squeeze chest at the top', 'Full arm extension', 'Maintain rigid body line'] }
+    ],
+    breathing: { inhale: 'During the lowering', exhale: 'As you push up' },
+    commonMistakes: [
+      { mistake: 'Hands too wide — shoulder pain', correction: 'About 1.5x shoulder width is enough. Ultra-wide stresses shoulders' },
+      { mistake: 'Hips sagging', correction: 'Squeeze glutes and brace core — body stays straight' },
+      { mistake: 'Partial reps', correction: 'Full depth. If you can\'t go all the way down, elevate your hands' }
+    ],
+    musclesTargeted: { primary: ['Pectoralis Major (outer/sternal)', 'Anterior Deltoids'], secondary: ['Triceps', 'Core'] },
+    tempoGuide: '2-0-1-0',
+    coachingNotes: 'Wide push-ups are dead simple but effective for targeting the outer chest. If standard push-ups feel too tricep-heavy, widen the stance and feel the pecs work.',
+    regressions: ['Standard Push Ups', 'Incline Wide Push Ups'],
+    progressions: ['Weighted Wide Push Ups (plate on back)', 'Archer Push Ups'],
+    safetyNotes: ['Don\'t go ultra-wide — find the point where you feel chest stretch without shoulder pinching'],
+    loggingInstructions: ['Log total sets and reps', 'Note RPE per set']
+  },
+
+  'decline-push-ups': {
+    exerciseType: 'assistance',
+    purpose: 'Decline push-ups elevate the feet to shift more load onto the upper chest and shoulders. It\'s the bodyweight equivalent of an incline press — no bench required. Brilliant for home training or as a finisher.',
+    phases: [
+      { name: 'Setup', description: 'Feet elevated on bench or box', cues: ['Hands on floor, shoulder-width', 'Feet on a bench, box, or step', 'Body in straight line from heels to head', 'Core braced, glutes tight'] },
+      { name: 'Eccentric (Lowering)', description: 'Lower with control', cues: ['Lower chest toward the floor', 'Elbows at 45° from torso', 'Full depth — nose nearly touches floor', 'Controlled 2-second descent'] },
+      { name: 'Concentric (Pressing)', description: 'Push back up', cues: ['Drive through palms', 'Full lockout', 'Maintain body line throughout', 'Don\'t pike at the hips'] }
+    ],
+    breathing: { inhale: 'During the lowering', exhale: 'As you press up' },
+    commonMistakes: [
+      { mistake: 'Hips piking up', correction: 'Keep body in a straight line — if piking, the height might be too much' },
+      { mistake: 'Not going deep enough', correction: 'Full range of motion — nose to floor' },
+      { mistake: 'Box too high for ability level', correction: 'Start with a low step and progress height over time' }
+    ],
+    musclesTargeted: { primary: ['Upper Pectoralis Major', 'Anterior Deltoids', 'Triceps'], secondary: ['Core', 'Serratus Anterior'] },
+    tempoGuide: '2-0-1-0',
+    coachingNotes: 'Higher feet = more upper chest and shoulder work. Start with a low box and progress. These are a proper upper chest builder when done right.',
+    regressions: ['Standard Push Ups', 'Incline Dumbbell Press'],
+    progressions: ['Feet on stability ball', 'Deficit Decline Push Ups (hands on plates)'],
+    safetyNotes: ['Ensure the surface under your feet is stable', 'Progress height gradually'],
+    loggingInstructions: ['Log total sets and reps', 'Note elevation height', 'Note RPE']
+  },
+
+  'incline-push-ups': {
+    exerciseType: 'assistance',
+    purpose: 'Incline push-ups elevate the hands to make the push-up easier, making it the ideal regression for beginners. It also shifts emphasis slightly toward the lower chest. Start here and progress to floor push-ups as you get stronger.',
+    phases: [
+      { name: 'Setup', description: 'Hands elevated on bench, box, or wall', cues: ['Hands on elevated surface, shoulder-width', 'Body in straight line from head to heels', 'Core braced, glutes tight', 'The higher the surface, the easier it is'] },
+      { name: 'Eccentric (Lowering)', description: 'Lower chest to surface', cues: ['Lower chest toward the elevated surface', 'Elbows at 45° from torso', 'Full depth — chest touches or nearly touches', 'Controlled descent'] },
+      { name: 'Concentric (Pressing)', description: 'Push back to start', cues: ['Press through palms', 'Full lockout at top', 'Maintain straight body line', 'Squeeze chest at top'] }
+    ],
+    breathing: { inhale: 'During the lowering', exhale: 'As you press up' },
+    commonMistakes: [
+      { mistake: 'Hips sagging', correction: 'Squeeze glutes and core — body stays rigid even on the incline' },
+      { mistake: 'Partial reps', correction: 'Full range — chest to surface on every rep' },
+      { mistake: 'Picking a surface that\'s too easy', correction: 'Progress to lower surfaces as you get stronger — the goal is eventually the floor' }
+    ],
+    musclesTargeted: { primary: ['Pectoralis Major', 'Triceps'], secondary: ['Anterior Deltoids', 'Core'] },
+    tempoGuide: '2-0-1-0',
+    coachingNotes: 'Incline push-ups are the starting point for pressing strength. No shame in starting high — even on a wall. Lower the surface progressively until you own the floor.',
+    regressions: ['Wall Push Ups'],
+    progressions: ['Standard Push Ups', 'Decline Push Ups'],
+    safetyNotes: ['Use a stable surface that won\'t slide', 'Progress surface height gradually'],
+    loggingInstructions: ['Log total sets and reps', 'Note surface height', 'Note RPE']
+  },
+
+  'diamond-push-ups': {
+    exerciseType: 'assistance',
+    purpose: 'Diamond push-ups bring the hands close together to create a triangle shape, shifting the emphasis heavily to the triceps and inner chest. One of the most effective bodyweight tricep exercises going — tougher than most people expect.',
+    phases: [
+      { name: 'Setup', description: 'Hands together forming diamond/triangle', cues: ['Hands together under chest — thumbs and index fingers touching', 'Body in rigid straight line', 'Core braced, glutes tight', 'Elbows close to body'] },
+      { name: 'Eccentric (Lowering)', description: 'Lower chest to hands', cues: ['Lower chest toward your hands', 'Elbows stay close to body — tuck tight', 'Full depth — chest touches hands', 'Controlled 2-second descent'] },
+      { name: 'Concentric (Pressing)', description: 'Press back up', cues: ['Press through palms and triceps', 'Full lockout at top', 'Squeeze triceps and inner chest', 'Maintain body position'] }
+    ],
+    breathing: { inhale: 'During lowering', exhale: 'As you press up' },
+    commonMistakes: [
+      { mistake: 'Elbows flaring wide', correction: 'Keep elbows tucked tight to your body throughout' },
+      { mistake: 'Partial reps because it\'s hard', correction: 'Full range or regress to standard push-ups first' },
+      { mistake: 'Hands too far forward', correction: 'Hands should be under the chest, not under the face' }
+    ],
+    musclesTargeted: { primary: ['Triceps', 'Inner Pectoralis Major'], secondary: ['Anterior Deltoids', 'Core'] },
+    tempoGuide: '2-0-1-0',
+    coachingNotes: 'Diamond push-ups are a class tricep exercise. If you can bang out 15 perfect diamond push-ups, your pressing muscles are in good nick. Start with standard push-ups if these are too tough.',
+    regressions: ['Standard Push Ups', 'Close Grip Bench Press'],
+    progressions: ['Weighted Diamond Push Ups', 'Archer Push Ups'],
+    safetyNotes: ['Stop if wrists feel strained — the position can stress some people\'s wrists'],
+    loggingInstructions: ['Log total sets and reps', 'Note RPE per set']
+  },
+
+  'archer-push-ups': {
+    exerciseType: 'assistance',
+    purpose: 'Archer push-ups are an advanced unilateral push-up variation where you shift your weight to one arm while the other extends out straight for support. It\'s a stepping stone to one-arm push-ups and builds serious unilateral pressing strength. Proper hard work.',
+    phases: [
+      { name: 'Setup', description: 'Extra-wide hand placement', cues: ['Hands very wide — about 2x shoulder width', 'Body in straight line', 'Core braced hard', 'Fingers can point outward slightly'] },
+      { name: 'Eccentric (Shifting and Lowering)', description: 'Shift weight and lower', cues: ['Shift bodyweight toward one hand', 'Lower yourself on the working arm', 'Supporting arm extends straight — light contact only', 'Chest lowers toward the working hand'] },
+      { name: 'Concentric (Pressing)', description: 'Push back up from one side', cues: ['Press up through the working arm', 'Supporting arm stays straight', 'Return to centre before switching sides', 'Full lockout'] }
+    ],
+    breathing: { inhale: 'As you lower toward one side', exhale: 'As you press back up' },
+    commonMistakes: [
+      { mistake: 'Not shifting enough weight to the working arm', correction: 'The supporting arm should barely be touching — almost all load on the working side' },
+      { mistake: 'Rotating the torso', correction: 'Keep shoulders and hips square throughout' },
+      { mistake: 'Rushing through reps', correction: 'Slow controlled reps — this is advanced work' }
+    ],
+    musclesTargeted: { primary: ['Pectoralis Major', 'Triceps', 'Anterior Deltoids'], secondary: ['Core (anti-rotation)', 'Obliques'] },
+    tempoGuide: '2-1-1-0',
+    coachingNotes: 'Archer push-ups are for people who\'ve mastered standard push-ups and need more challenge. If you can\'t do 15 clean standard push-ups, don\'t attempt these yet.',
+    regressions: ['Standard Push Ups', 'Wide Push Ups'],
+    progressions: ['One Arm Push Up', 'Typewriter Push Ups'],
+    safetyNotes: ['Requires good shoulder stability', 'Build up slowly — wrist and shoulder demands are high'],
+    loggingInstructions: ['Log total sets and reps per side', 'Note RPE']
+  },
+
+  'plyometric-push-ups': {
+    exerciseType: 'conditioning',
+    purpose: 'Plyometric push-ups develop explosive pressing power by launching off the ground. They train fast-twitch muscle fibres in the chest, shoulders, and triceps. Essential for athletes who need explosive upper-body power — and they look well impressive.',
+    phases: [
+      { name: 'Setup', description: 'Standard push-up position', cues: ['Hands shoulder-width', 'Body in rigid line', 'Core braced, glutes tight', 'Start from the top position'] },
+      { name: 'Eccentric (Lowering)', description: 'Quick controlled descent', cues: ['Lower quickly but under control', 'Elbows at 45°', 'Load the chest and triceps like a spring'] },
+      { name: 'Explosive Press', description: 'Launch off the floor', cues: ['Explode up — push so hard your hands leave the floor', 'Clap if you can (optional)', 'Keep body rigid in the air', 'Land softly with slight elbow bend'] }
+    ],
+    breathing: { inhale: 'During the lowering', exhale: 'Forcefully during the explosive push' },
+    commonMistakes: [
+      { mistake: 'Landing with locked elbows', correction: 'Absorb landing with slight elbow bend — protect your joints' },
+      { mistake: 'Hips piking in the air', correction: 'Body stays in a straight line throughout — even in the air' },
+      { mistake: 'Attempting before mastering standard push-ups', correction: 'You need solid push-up strength first. 20+ clean reps minimum before trying these' }
+    ],
+    musclesTargeted: { primary: ['Pectoralis Major', 'Triceps', 'Anterior Deltoids'], secondary: ['Core', 'Serratus Anterior'] },
+    tempoGuide: 'Quick controlled lower, maximum explosive push, soft landing',
+    coachingNotes: 'Plyo push-ups are about power, not volume. Low reps (5-8), maximum effort each rep. If you can\'t get your hands off the floor, you\'re not ready yet. Go back to standard push-ups.',
+    regressions: ['Standard Push Ups', 'Kneeling Plyo Push Ups'],
+    progressions: ['Clap Push Ups', 'Superman Push Ups (hands and feet leave floor)'],
+    safetyNotes: ['Land softly with bent elbows', 'Not recommended for those with wrist issues', 'Master standard push-ups first — 20+ clean reps'],
+    loggingInstructions: ['Log total sets and reps', 'Note quality of each rep', 'Note RPE']
   }
 };
 
