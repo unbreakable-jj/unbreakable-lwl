@@ -24,6 +24,8 @@ import { useMealPlans } from '@/hooks/useMealPlans';
 import { toast } from '@/hooks/use-toast';
 import { GeneratedProgram } from '@/lib/programTypes';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface MessageWithMedia extends Message {
   media?: ChatMedia;
@@ -244,8 +246,9 @@ export default function Help() {
 
   const { generateProgramme, detectProgrammeRequest, isGenerating } = useAIProgramme();
   const { generateMealPlan, detectMealPlanRequest, isGenerating: isMealPlanGenerating } = useAIMealPlan();
-  const { updateProgram } = useTrainingPrograms();
+  const { updateProgram, saveProgram } = useTrainingPrograms();
   const { updateMealPlan } = useMealPlans();
+  const queryClient = useQueryClient();
 
   const lastProcessedMsgRef = useRef<string | null>(null);
 
@@ -266,19 +269,15 @@ export default function Help() {
     const mealPlanMatch = content.match(/\[BUILD_MEAL_PLAN\](\{.*\})?/);
 
     if (programmeMatch) {
-      // Strip the tag from displayed content
-      const cleanContent = content.replace(/\[BUILD_PROGRAMME\](\{.*\})?/, '').trim();
-      if (cleanContent !== content) {
-        // Content will be cleaned on next render via enrichedMessages
-      }
       const chatContext = messages.slice(-10).map(m => `${m.role}: ${m.content}`).join('\n');
       setProgrammeGenerating(true);
       generateProgramme('Build a programme based on our conversation', { chatContext }).then(result => {
         setProgrammeGenerating(false);
-        if (result?.savedToHub && result.programId) {
-          const planInfo: GeneratedPlanInfo = { type: 'programme', planData: result.program, planId: result.programId, savedToHub: true };
+        if (result?.program) {
+          // Show plan for review — NOT saved yet
+          const planInfo: GeneratedPlanInfo = { type: 'programme', planData: result.program, planId: '', savedToHub: false };
           setGeneratedPlans(prev => [...prev, planInfo]);
-          toast({ title: 'Programme Created & Saved!', description: 'Edit it below or view in Power → My Programmes' });
+          toast({ title: 'Programme Ready for Review', description: 'Review your plan below, then save it to your library.' });
         }
       });
     } else if (mealPlanMatch) {
@@ -286,10 +285,11 @@ export default function Help() {
       setMealPlanGenerating(true);
       generateMealPlan('Build a meal plan based on our conversation', 'full_plan', { chatContext }).then(result => {
         setMealPlanGenerating(false);
-        if (result?.savedToHub && result.plan && result.planId) {
-          const planInfo: GeneratedPlanInfo = { type: 'meal_plan', planData: result.plan, planId: result.planId, savedToHub: true };
+        if (result?.plan) {
+          // Show plan for review — NOT saved yet
+          const planInfo: GeneratedPlanInfo = { type: 'meal_plan', planData: result.plan, planId: '', savedToHub: false };
           setGeneratedPlans(prev => [...prev, planInfo]);
-          toast({ title: 'Meal Plan Created & Saved!', description: 'Edit it below or view in Fuel → My Meal Plans' });
+          toast({ title: 'Meal Plan Ready for Review', description: 'Review your plan below, then save it to your library.' });
         }
       });
     }
@@ -352,17 +352,57 @@ export default function Help() {
   };
 
   const handleEditPlan = (plan: GeneratedPlanInfo) => { setEditingPlan(plan); setShowEditModal(true); };
+  
+  const handleSavePlanToLibrary = async (plan: GeneratedPlanInfo) => {
+    try {
+      if (plan.type === 'programme') {
+        const result = await saveProgram.mutateAsync(plan.planData as GeneratedProgram);
+        setGeneratedPlans(prev => prev.map(p => p === plan ? { ...p, planId: result.id, savedToHub: true } : p));
+      } else {
+        // Save meal plan via supabase directly
+        const { data: savedPlan, error } = await supabase
+          .from('meal_plans')
+          .insert({ user_id: user!.id, name: plan.planData.planName || 'AI Meal Plan', description: plan.planData.overview, is_active: false })
+          .select()
+          .single();
+        if (error) throw error;
+        
+        // Save items
+        const planItems: any[] = [];
+        for (const day of plan.planData.days || []) {
+          const addMeal = (meal: any, mealType: string) => {
+            if (!meal) return;
+            planItems.push({ user_id: user!.id, meal_plan_id: savedPlan.id, day_of_week: (day.dayNumber || 1) - 1, meal_type: mealType, food_name: meal.name, recipe_id: meal.recipeId || null, calories: meal.calories, protein_g: meal.protein, carbs_g: meal.carbs, fat_g: meal.fat, notes: meal.prepNotes || null });
+          };
+          addMeal(day.meals?.breakfast, 'breakfast');
+          addMeal(day.meals?.lunch, 'lunch');
+          addMeal(day.meals?.dinner, 'dinner');
+          for (const snack of day.meals?.snacks || []) addMeal(snack, 'snack');
+        }
+        if (planItems.length > 0) await supabase.from('meal_plan_items').insert(planItems);
+        
+        queryClient.invalidateQueries({ queryKey: ['meal-plans'] });
+        setGeneratedPlans(prev => prev.map(p => p === plan ? { ...p, planId: savedPlan.id, savedToHub: true } : p));
+        toast({ title: 'Meal Plan Saved!', description: 'View it in Fuel → My Meal Plans' });
+      }
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to save plan. Please try again.', variant: 'destructive' });
+    }
+  };
+
   const handleSaveEditedPlan = async (editedPlanData: any) => {
     if (!editingPlan) return;
     try {
-      if (editingPlan.type === 'programme') {
-        await updateProgram.mutateAsync({ programId: editingPlan.planId, programData: editedPlanData as GeneratedProgram });
-      } else {
-        await updateMealPlan.mutateAsync({ id: editingPlan.planId, name: editedPlanData.planName, description: editedPlanData.overview });
+      if (editingPlan.savedToHub && editingPlan.planId) {
+        if (editingPlan.type === 'programme') {
+          await updateProgram.mutateAsync({ programId: editingPlan.planId, programData: editedPlanData as GeneratedProgram });
+        } else {
+          await updateMealPlan.mutateAsync({ id: editingPlan.planId, name: editedPlanData.planName, description: editedPlanData.overview });
+        }
       }
-      setGeneratedPlans(prev => prev.map(p => p.planId === editingPlan.planId ? { ...p, planData: editedPlanData } : p));
+      setGeneratedPlans(prev => prev.map(p => p.planId === editingPlan.planId || p === editingPlan ? { ...p, planData: editedPlanData } : p));
       setShowEditModal(false); setEditingPlan(null);
-      toast({ title: 'Plan Updated!', description: 'Your changes have been saved.' });
+      toast({ title: 'Plan Updated!', description: 'Your changes have been applied.' });
     } catch (error) {
       toast({ title: 'Error', description: 'Failed to save changes. Please try again.', variant: 'destructive' });
     }
@@ -376,6 +416,8 @@ export default function Help() {
       const cleanContent = msg.content
         .replace(/\[BUILD_PROGRAMME\](\{.*\})?/g, '')
         .replace(/\[BUILD_MEAL_PLAN\](\{.*\})?/g, '')
+        .replace(/\[BUILD_MOVEMENT\](\{.*\})?/g, '')
+        .replace(/\[BUILD_MINDSET\](\{.*\})?/g, '')
         .trim();
       return { ...msg, content: cleanContent };
     }
@@ -538,15 +580,16 @@ export default function Help() {
                   {/* Generated Plan Display Cards */}
                   {generatedPlans.length > 0 && (
                     <div className="space-y-4 mt-4 pt-4 border-t border-border/50">
-                      {generatedPlans.map((plan) => (
+                      {generatedPlans.map((plan, idx) => (
                         <PlanDisplayCard
-                          key={plan.planId}
+                          key={plan.planId || `pending-${idx}`}
                           planType={plan.type}
                           planData={plan.planData}
                           planId={plan.planId}
                           savedToHub={plan.savedToHub}
                           onEdit={() => handleEditPlan(plan)}
                           onViewInHub={() => handleViewInHub(plan)}
+                          onSaveToLibrary={() => handleSavePlanToLibrary(plan)}
                         />
                       ))}
                     </div>
