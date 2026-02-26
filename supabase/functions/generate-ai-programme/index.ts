@@ -69,9 +69,10 @@ serve(async (req) => {
     );
 
     const token = authHeader.replace('Bearer ', '');
-    const { data: claimsData, error: authError } = await authClient.auth.getClaims(token);
+    const { data: { user }, error: authError } = await authClient.auth.getUser(token);
     
-    if (authError || !claimsData?.claims) {
+    if (authError || !user) {
+      console.error('Auth error:', authError);
       return new Response(
         JSON.stringify({ error: 'Unauthorized - Invalid session' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
