@@ -117,6 +117,34 @@ export function usePersonalRecords() {
     }));
   };
 
+  const resetPR = async (recordId: string) => {
+    if (!user) return;
+    const { error } = await supabase
+      .from('personal_records')
+      .delete()
+      .eq('id', recordId)
+      .eq('user_id', user.id);
+    if (error) {
+      console.error('Error deleting PR:', error);
+      throw error;
+    }
+    await fetchRecords();
+  };
+
+  const resetAllPRsForActivity = async (activityType: string) => {
+    if (!user) return;
+    const { error } = await supabase
+      .from('personal_records')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('activity_type', activityType);
+    if (error) {
+      console.error('Error deleting PRs:', error);
+      throw error;
+    }
+    await fetchRecords();
+  };
+
   return {
     records,
     loading,
@@ -124,5 +152,7 @@ export function usePersonalRecords() {
     checkAndUpdatePRs,
     getPRForDistance,
     getAllPRsWithLabels,
+    resetPR,
+    resetAllPRsForActivity,
   };
 }
