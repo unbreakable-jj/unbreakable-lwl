@@ -4006,51 +4006,6 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     loggingInstructions: ['Log total sets and reps', 'Note quality of each rep', 'Note RPE']
   },
 
-  // =====================================================
-  // REMAINING BACK EXERCISES
-  // =====================================================
-  'sumo-deadlift': {
-    exerciseType: 'primary_lift',
-    purpose: 'The sumo deadlift uses a wide stance to reduce range of motion and shift emphasis to the quads, glutes, and adductors. Suits lifters with longer torsos or limited hip hinge mobility.',
-    phases: [
-      { name: 'Setup', description: 'Wide stance, narrow grip', cues: ['Feet wide — toes out 45°', 'Grip inside knees', 'Hips close to bar', 'Chest up, back flat'] },
-      { name: 'The Pull', description: 'Push the floor apart', cues: ['Push knees out hard', 'Drive hips forward as bar breaks floor', 'Keep chest up — dont let torso fold', 'Bar stays close to body'] },
-      { name: 'Lockout', description: 'Full hip extension', cues: ['Squeeze glutes at top', 'Stand tall', 'Dont hyperextend'] }
-    ],
-    breathing: { inhale: 'Before the pull', exhale: 'At lockout', brace: 'Full 360° brace before every rep' },
-    commonMistakes: [
-      { mistake: 'Hips shooting up first', correction: 'Chest and hips rise together — push the floor apart' },
-      { mistake: 'Knees caving in', correction: 'Actively drive knees out over toes' },
-      { mistake: 'Stance too wide — cant generate power', correction: 'Find your strongest width — wider isnt always better' }
-    ],
-    musclesTargeted: { primary: ['Glutes', 'Quadriceps', 'Adductors'], secondary: ['Hamstrings', 'Erector Spinae', 'Traps'] },
-    tempoGuide: 'Controlled setup, explosive pull',
-    coachingNotes: 'The sumo deadlift rewards patience off the floor. Stay tight, push the floor apart, and let the hips do the work.',
-    loadGuidelines: { technique: 'Light load, focus on hip position and knee drive', hypertrophy: 'Moderate load, 6-8 reps', strength: 'Heavy load, 1-5 reps' },
-    regressions: ['Conventional Deadlift', 'Dumbbell Sumo Deadlift'],
-    progressions: ['Deficit Sumo Deadlift', 'Paused Sumo Deadlift'],
-    safetyNotes: ['Stop if inner thigh/groin feels strained', 'Warm up hips and adductors thoroughly'],
-    loggingInstructions: ['Log barbell weight in kg', 'Log sets and reps', 'Note RPE']
-  },
-
-  'pendlay-row': {
-    exerciseType: 'accessory',
-    purpose: 'The Pendlay row resets on the floor each rep, building explosive pulling power from a dead stop. Named after Glenn Pendlay — its a strict, powerful back builder.',
-    phases: [
-      { name: 'Setup', description: 'Flat back, bar on floor', cues: ['Feet hip-width, hinged at hips', 'Torso parallel to floor — flat back', 'Grip just outside knees', 'Bar on floor between reps'] },
-      { name: 'The Pull', description: 'Explosive row from floor', cues: ['Explosively row bar to lower chest', 'Keep torso still — no standing up', 'Squeeze upper back hard', 'Bar returns to floor — full dead stop'] }
-    ],
-    breathing: { inhale: 'Before each pull', exhale: 'As bar hits chest' },
-    commonMistakes: [
-      { mistake: 'Torso rising during pull', correction: 'Stay parallel — if you cant, reduce weight' },
-      { mistake: 'Bouncing bar off floor', correction: 'Full dead stop each rep — thats the point' }
-    ],
-    musclesTargeted: { primary: ['Latissimus Dorsi', 'Rhomboids', 'Middle Trapezius'], secondary: ['Biceps', 'Erector Spinae'] },
-    tempoGuide: 'Explosive pull, dead stop on floor',
-    coachingNotes: 'Pendlay rows build real pulling power. The dead stop removes momentum and builds raw back strength.',
-    loggingInstructions: ['Log barbell weight in kg', 'Log sets and reps', 'Note RPE']
-  },
-
   'rack-pulls': {
     exerciseType: 'accessory',
     purpose: 'Rack pulls are partial deadlifts from pins at or above knee height. They build lockout strength, upper back thickness, and grip endurance with supramaximal loads.',
@@ -4067,25 +4022,6 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     tempoGuide: 'Controlled setup, powerful pull, controlled lower',
     coachingNotes: 'Rack pulls let you handle heavier loads than full deadlifts. Use them to overload the lockout and build a massive upper back.',
     loggingInstructions: ['Log barbell weight in kg', 'Note pin height', 'Log sets and reps', 'Note RPE']
-  },
-
-  'single-arm-dumbbell-row': {
-    exerciseType: 'accessory',
-    purpose: 'The single-arm dumbbell row develops unilateral back strength and addresses imbalances between sides. The supported position allows heavy loading with minimal lower back stress.',
-    phases: [
-      { name: 'Setup', description: 'One hand and knee on bench', cues: ['One hand and knee on bench', 'Other foot wide on floor', 'Flat back, core braced', 'Dumbbell hanging below shoulder'] },
-      { name: 'The Pull', description: 'Row to hip', cues: ['Drive elbow up and back toward hip', 'Keep shoulder down — no shrugging', 'Squeeze lat at top', 'Full stretch at bottom'] },
-      { name: 'The Lower', description: 'Controlled descent', cues: ['Lower slowly — 2 seconds', 'Full arm extension', 'Feel the lat stretch'] }
-    ],
-    breathing: { inhale: 'At bottom stretch', exhale: 'During the pull' },
-    commonMistakes: [
-      { mistake: 'Rotating torso to pull', correction: 'Stay square — if you rotate, the weight is too heavy' },
-      { mistake: 'Pulling too high (to chest)', correction: 'Pull to hip crease for better lat engagement' }
-    ],
-    musclesTargeted: { primary: ['Latissimus Dorsi', 'Rhomboids'], secondary: ['Biceps', 'Rear Deltoids', 'Core'] },
-    tempoGuide: '1-1-2-0',
-    coachingNotes: 'The single arm row is a back-building staple. Pull to hip, not to chest, and keep the torso still. Let the lat do the work.',
-    loggingInstructions: ['Log dumbbell weight in kg', 'Log sets and reps per side', 'Note any side imbalance']
   },
 
   'two-arm-dumbbell-row': {
@@ -4276,24 +4212,6 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     musclesTargeted: { primary: ['Erector Spinae', 'Glutes'], secondary: ['Rear Deltoids', 'Hamstrings'] },
     tempoGuide: 'Hold for 20-45 seconds',
     coachingNotes: 'Simple but effective posterior chain work. Perfect for warm-ups or as part of a core circuit.'
-  },
-
-  'face-pulls': {
-    exerciseType: 'accessory',
-    purpose: 'Face pulls target the rear delts and external rotators — the muscles most people neglect. They are essential for shoulder health, posture, and balanced development.',
-    phases: [
-      { name: 'Setup', description: 'Rope at face height', cues: ['Cable at face height, rope attachment', 'Step back for tension', 'Overhand grip on rope ends'] },
-      { name: 'The Pull', description: 'Pull to face and apart', cues: ['Pull rope to face', 'Drive elbows back and HIGH', 'Pull rope apart at the face', 'External rotate — thumbs point behind you'] },
-      { name: 'Return', description: 'Controlled return', cues: ['Extend arms slowly', 'Maintain posture'] }
-    ],
-    breathing: { inhale: 'At extension', exhale: 'During pull' },
-    commonMistakes: [
-      { mistake: 'Pulling too low (to chest)', correction: 'Pull to FACE — elbows should be at shoulder height or above' },
-      { mistake: 'Not pulling apart', correction: 'Split the rope at the face for external rotation benefit' }
-    ],
-    musclesTargeted: { primary: ['Rear Deltoids', 'External Rotators'], secondary: ['Rhomboids', 'Middle Trapezius'] },
-    tempoGuide: '2-2-2-0',
-    coachingNotes: 'Face pulls should be in EVERY programme. They fix posture, protect shoulders, and balance pressing. High reps, 2-3x per week minimum.'
   },
 
   'cable-pullover': {
@@ -4839,40 +4757,6 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     coachingNotes: 'Calves respond to full range and holds. Full stretch, full contraction, hold at both ends.'
   },
 
-  'dumbbell-lunges': {
-    exerciseType: 'accessory',
-    purpose: 'Dumbbell lunges build unilateral leg strength, balance, and coordination. Walking or stationary variations.',
-    phases: [
-      { name: 'Setup', description: 'Dumbbells at sides', cues: ['Dumbbells at sides', 'Stand tall, core braced'] },
-      { name: 'Step', description: 'Step forward into lunge', cues: ['Big step forward', 'Lower until both knees at 90°', 'Front knee tracks over toes', 'Upright torso'] },
-      { name: 'Drive', description: 'Return to standing', cues: ['Drive through front heel', 'Step back or continue walking'] }
-    ],
-    breathing: { inhale: 'During descent', exhale: 'During drive' },
-    commonMistakes: [
-      { mistake: 'Short steps — knee past toes', correction: 'Take a bigger step to keep shin vertical' }
-    ],
-    musclesTargeted: { primary: ['Quadriceps', 'Glutes'], secondary: ['Hamstrings', 'Core'] },
-    tempoGuide: '2-0-1-0',
-    coachingNotes: 'Lunges are functional and effective. If balance is an issue, start with stationary split squats first.'
-  },
-
-  'dumbbell-romanian-deadlift': {
-    exerciseType: 'accessory',
-    purpose: 'Dumbbell RDLs teach the hip hinge with accessible loading. Dumbbells hang naturally at the sides.',
-    phases: [
-      { name: 'Setup', description: 'Dumbbells at sides', cues: ['Feet hip-width', 'Dumbbells at sides or front of thighs', 'Slight knee bend'] },
-      { name: 'Hinge', description: 'Push hips back', cues: ['Push hips BACK', 'Dumbbells slide close to legs', 'Feel hamstring stretch', 'Flat back throughout'] },
-      { name: 'Drive', description: 'Return to standing', cues: ['Drive hips forward', 'Squeeze glutes'] }
-    ],
-    breathing: { inhale: 'Before hinge', exhale: 'During drive' },
-    commonMistakes: [
-      { mistake: 'Squatting', correction: 'Push hips BACK, dont bend knees more' }
-    ],
-    musclesTargeted: { primary: ['Hamstrings', 'Glutes'], secondary: ['Erector Spinae'] },
-    tempoGuide: '3-0-1-0',
-    coachingNotes: 'Dumbbell RDLs are the easiest way to learn the hip hinge. Master these before barbell.'
-  },
-
   'dumbbell-single-leg-rdl': {
     exerciseType: 'accessory',
     purpose: 'Single-leg RDLs develop unilateral hip hinge strength and balance. Outstanding for hamstring development and injury prevention.',
@@ -5097,93 +4981,6 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     safetyNotes: ['Step down — never jump down', 'Start with a low box', 'Ensure box is stable']
   },
 
-  'nordic-curls': {
-    exerciseType: 'accessory',
-    purpose: 'Nordic curls are the gold standard eccentric hamstring exercise. They build hamstring strength and reduce injury risk significantly.',
-    phases: [
-      { name: 'Setup', description: 'Kneel with feet anchored', cues: ['Kneel on pad', 'Feet anchored under something solid', 'Body straight from knees to shoulders'] },
-      { name: 'Lower', description: 'Slow eccentric fall forward', cues: ['Lower as slowly as possible', 'Keep body straight — hinge at knees only', 'Catch yourself with hands when you cant hold anymore'] },
-      { name: 'Return', description: 'Push up or curl back', cues: ['Push off floor to assist return', 'Or curl back up with hamstrings if strong enough'] }
-    ],
-    breathing: { inhale: 'Before lowering', exhale: 'During return' },
-    commonMistakes: [
-      { mistake: 'Hinging at hips', correction: 'Body stays STRAIGHT — movement is only at the knees' },
-      { mistake: 'Dropping too fast', correction: 'The slow eccentric IS the exercise — fight gravity every inch' }
-    ],
-    musclesTargeted: { primary: ['Hamstrings'], secondary: ['Calves', 'Glutes'] },
-    tempoGuide: 'As slow as possible on the way down (5-10 seconds)',
-    coachingNotes: 'Nordic curls are incredibly effective for hamstring health and injury prevention. Even 2-3 reps with a slow eccentric is valuable.',
-    safetyNotes: ['Start with assisted/band nordics', 'The eccentric is demanding — progress slowly']
-  },
-
-  'smith-machine-squat': {
-    exerciseType: 'accessory',
-    purpose: 'Smith machine squats provide a guided squat path. They allow heavier loading with reduced stability demands.',
-    phases: [
-      { name: 'Setup', description: 'Position under Smith bar', cues: ['Feet slightly forward of bar', 'Bar on upper traps', 'Unrack by rotating hooks'] },
-      { name: 'Squat', description: 'Lower with control', cues: ['Break at knees and hips', 'Full depth', 'Upright torso'] },
-      { name: 'Drive', description: 'Press up', cues: ['Drive through whole foot', 'Full lockout', 'Rotate hooks to rack'] }
-    ],
-    breathing: { inhale: 'Before descent', exhale: 'During drive' },
-    commonMistakes: [
-      { mistake: 'Feet too far under bar', correction: 'Feet forward allows more upright torso and quad emphasis' }
-    ],
-    musclesTargeted: { primary: ['Quadriceps', 'Glutes'], secondary: ['Hamstrings', 'Core'] },
-    tempoGuide: '2-0-1-0',
-    coachingNotes: 'The fixed path lets you focus on driving through the legs. Good for high-rep quad work or training around injuries.'
-  },
-
-  'lying-leg-curl-machine': {
-    exerciseType: 'accessory',
-    purpose: 'Lying leg curls isolate the hamstrings through knee flexion in a prone position. The stretched hip position provides a strong hamstring contraction.',
-    phases: [
-      { name: 'Setup', description: 'Face down on machine', cues: ['Hips flat on pad', 'Ankle pad on lower calves', 'Grip handles'] },
-      { name: 'Curl', description: 'Curl heels to glutes', cues: ['Curl heels toward glutes', 'Squeeze hamstrings', 'Dont lift hips'] },
-      { name: 'Lower', description: 'Slow eccentric', cues: ['Extend slowly — 3 seconds', 'Full extension without locking'] }
-    ],
-    breathing: { inhale: 'During extension', exhale: 'During curl' },
-    commonMistakes: [
-      { mistake: 'Hips lifting off pad', correction: 'Stay flat — if hips lift, reduce the weight' }
-    ],
-    musclesTargeted: { primary: ['Hamstrings'], secondary: ['Gastrocnemius'] },
-    tempoGuide: '1-1-3-0',
-    coachingNotes: 'Slow eccentric on leg curls is where the growth happens. 3-second lowering minimum.'
-  },
-
-  'seated-calf-raise-machine': {
-    exerciseType: 'accessory',
-    purpose: 'Seated calf raises target the soleus with bent knees. The soleus is the larger, deeper calf muscle and responds to high reps.',
-    phases: [
-      { name: 'Setup', description: 'Knees under pad', cues: ['Sit with knees under pad', 'Balls of feet on platform edge', 'Heels hanging'] },
-      { name: 'Raise', description: 'Full plantarflexion', cues: ['Push through balls of feet', 'Rise as high as possible', 'Squeeze 2 seconds'] },
-      { name: 'Lower', description: 'Full dorsiflexion', cues: ['Drop heels below platform', 'Full stretch', 'Pause 2 seconds'] }
-    ],
-    breathing: { inhale: 'At stretch', exhale: 'During raise' },
-    commonMistakes: [
-      { mistake: 'Bouncing', correction: 'Pause at top AND bottom' }
-    ],
-    musclesTargeted: { primary: ['Soleus'], secondary: ['Gastrocnemius'] },
-    tempoGuide: '1-2-1-2',
-    coachingNotes: 'The soleus is mostly slow-twitch — it responds to higher reps (15-25) with controlled tempo.'
-  },
-
-  'cable-pull-through': {
-    exerciseType: 'accessory',
-    purpose: 'Cable pull-throughs teach the hip hinge with constant cable tension. Excellent for glute activation and hinge patterning.',
-    phases: [
-      { name: 'Setup', description: 'Face away from low cable', cues: ['Low cable, rope attachment', 'Face away, feet wide', 'Rope between legs'] },
-      { name: 'Hinge', description: 'Push hips back', cues: ['Hinge at hips — push back', 'Feel cable pull through legs', 'Flat back, slight knee bend'] },
-      { name: 'Drive', description: 'Hip extension', cues: ['Drive hips forward', 'Squeeze glutes at top', 'Full standing position'] }
-    ],
-    breathing: { inhale: 'During hinge', exhale: 'During drive' },
-    commonMistakes: [
-      { mistake: 'Squatting instead of hinging', correction: 'Push hips BACK — minimal knee bend' }
-    ],
-    musclesTargeted: { primary: ['Glutes', 'Hamstrings'], secondary: ['Erector Spinae'] },
-    tempoGuide: '2-0-1-1',
-    coachingNotes: 'Cable pull-throughs are the best tool for teaching the hip hinge. The cable naturally pulls you into the right position.'
-  },
-
   'pendulum-squat': {
     exerciseType: 'accessory',
     purpose: 'The pendulum squat machine provides an arc-path squat that deeply loads the quads while minimising spinal stress.',
@@ -5220,23 +5017,6 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     musclesTargeted: { primary: ['Biceps Brachii'], secondary: ['Brachialis', 'Forearms'] },
     tempoGuide: '2-1-3-0',
     coachingNotes: 'Strict form builds bigger biceps than cheat curls. Pin elbows, control every rep.'
-  },
-
-  'ez-bar-curl': {
-    exerciseType: 'accessory',
-    purpose: 'EZ bar curls reduce wrist strain compared to straight bar curls. The angled grip is more comfortable for most lifters.',
-    phases: [
-      { name: 'Setup', description: 'EZ bar grip', cues: ['Grip the inner or outer camber', 'Stand tall, elbows at sides'] },
-      { name: 'Curl', description: 'Contract biceps', cues: ['Curl to full contraction', 'Elbows pinned', 'Squeeze at top'] },
-      { name: 'Lower', description: 'Controlled return', cues: ['Lower slowly — 2-3 seconds', 'Full extension'] }
-    ],
-    breathing: { inhale: 'During lowering', exhale: 'During curl' },
-    commonMistakes: [
-      { mistake: 'Swinging', correction: 'Strict form — control every rep' }
-    ],
-    musclesTargeted: { primary: ['Biceps Brachii', 'Brachialis'], secondary: ['Forearms'] },
-    tempoGuide: '2-1-3-0',
-    coachingNotes: 'If straight bar curls bother your wrists, the EZ bar is the answer. Same muscle engagement, less joint stress.'
   },
 
   'barbell-preacher-curl': {
@@ -5293,24 +5073,6 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     loadGuidelines: { technique: 'Light, focus on tricep engagement', hypertrophy: '8-12 reps', strength: '5-8 reps' }
   },
 
-  'barbell-skull-crushers': {
-    exerciseType: 'accessory',
-    purpose: 'Skull crushers (lying tricep extensions) isolate the triceps with heavy loading. The stretch at the bottom targets the long head.',
-    phases: [
-      { name: 'Setup', description: 'Lying on bench, bar overhead', cues: ['Lie flat, bar pressed above face', 'Elbows pointing at ceiling', 'Narrow grip'] },
-      { name: 'Lower', description: 'Lower to forehead/behind head', cues: ['Bend elbows only — upper arms stay vertical', 'Lower bar to forehead or behind head', 'Feel tricep stretch'] },
-      { name: 'Extend', description: 'Press back to start', cues: ['Extend elbows to lockout', 'Squeeze triceps', 'Keep upper arms still'] }
-    ],
-    breathing: { inhale: 'During lowering', exhale: 'During extension' },
-    commonMistakes: [
-      { mistake: 'Elbows flaring', correction: 'Keep elbows pointed at ceiling — shoulder-width apart' },
-      { mistake: 'Moving upper arms', correction: 'Only forearms should move — upper arms are FIXED' }
-    ],
-    musclesTargeted: { primary: ['Triceps (all heads)'], secondary: ['Anconeus'] },
-    tempoGuide: '2-0-1-0',
-    coachingNotes: 'Skull crushers are the bread and butter of tricep isolation. Going slightly behind the head gives a better long head stretch.'
-  },
-
   'barbell-wrist-curl': {
     exerciseType: 'assistance',
     purpose: 'Wrist curls develop forearm flexor strength and size.',
@@ -5343,40 +5105,6 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     musclesTargeted: { primary: ['Forearm Extensors'], secondary: [] },
     tempoGuide: '2-1-2-0',
     coachingNotes: 'Reverse wrist curls balance the forearms and reduce elbow tendinitis risk.'
-  },
-
-  'dumbbell-bicep-curl': {
-    exerciseType: 'accessory',
-    purpose: 'Dumbbell bicep curls allow supination for maximum bicep activation. Independent arm movement addresses imbalances.',
-    phases: [
-      { name: 'Setup', description: 'Dumbbells at sides', cues: ['Dumbbells at sides, palms facing in', 'Stand tall, elbows at sides'] },
-      { name: 'Curl', description: 'Curl with supination', cues: ['Curl and rotate palms up (supinate)', 'Squeeze at top', 'Elbows pinned'] },
-      { name: 'Lower', description: 'Controlled descent', cues: ['Lower slowly — 2-3 seconds', 'Full extension'] }
-    ],
-    breathing: { inhale: 'During lowering', exhale: 'During curl' },
-    commonMistakes: [
-      { mistake: 'Not supinating', correction: 'Rotate palms up during curl — thats what maximises bicep contraction' }
-    ],
-    musclesTargeted: { primary: ['Biceps Brachii'], secondary: ['Brachialis', 'Forearms'] },
-    tempoGuide: '2-1-3-0',
-    coachingNotes: 'The supination during dumbbell curls is what makes them superior to barbell for peak contraction.'
-  },
-
-  'dumbbell-hammer-curls': {
-    exerciseType: 'accessory',
-    purpose: 'Hammer curls use a neutral grip to target the brachialis and brachioradialis. They build forearm size and overall arm thickness.',
-    phases: [
-      { name: 'Setup', description: 'Neutral grip', cues: ['Dumbbells at sides, thumbs up', 'Elbows at sides'] },
-      { name: 'Curl', description: 'Curl with thumbs up', cues: ['Curl while keeping thumbs up (neutral grip)', 'Elbows pinned', 'Squeeze at top'] },
-      { name: 'Lower', description: 'Controlled descent', cues: ['Lower slowly', 'Full extension'] }
-    ],
-    breathing: { inhale: 'During lowering', exhale: 'During curl' },
-    commonMistakes: [
-      { mistake: 'Swinging', correction: 'Stay strict — no body english' }
-    ],
-    musclesTargeted: { primary: ['Brachialis', 'Brachioradialis'], secondary: ['Biceps Brachii'] },
-    tempoGuide: '2-1-2-0',
-    coachingNotes: 'Hammer curls build arm THICKNESS. The brachialis pushes the bicep up from underneath, making the arm look bigger.'
   },
 
   'dumbbell-concentration-curl': {
@@ -5599,40 +5327,6 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     coachingNotes: 'Isometric holds build tendon strength and muscular endurance. Use them as finishers after curl sets.'
   },
 
-  'cable-rope-hammer-curl': {
-    exerciseType: 'accessory',
-    purpose: 'Cable rope hammer curls provide constant tension on the brachialis and brachioradialis with a neutral grip.',
-    phases: [
-      { name: 'Setup', description: 'Low cable, rope attachment', cues: ['Low pulley, rope attachment', 'Neutral grip on rope ends', 'Elbows at sides'] },
-      { name: 'Curl', description: 'Curl and split', cues: ['Curl rope up', 'Split rope at top', 'Squeeze at peak', 'Elbows pinned'] },
-      { name: 'Lower', description: 'Controlled descent', cues: ['Lower slowly', 'Fight the cable tension'] }
-    ],
-    breathing: { inhale: 'During lowering', exhale: 'During curl' },
-    commonMistakes: [
-      { mistake: 'Not splitting rope', correction: 'Pull rope ends apart at the top for maximum contraction' }
-    ],
-    musclesTargeted: { primary: ['Brachialis', 'Brachioradialis'], secondary: ['Biceps Brachii'] },
-    tempoGuide: '2-1-2-0',
-    coachingNotes: 'Cable rope hammer curls give constant tension that dumbbells cant match. Split the rope at the top for peak contraction.'
-  },
-
-  'cable-rope-pushdown': {
-    exerciseType: 'accessory',
-    purpose: 'Rope pushdowns allow wrist rotation at lockout to target the lateral head. The rope split at the bottom enhances contraction.',
-    phases: [
-      { name: 'Setup', description: 'High cable, rope', cues: ['High cable, rope attachment', 'Slight forward lean', 'Elbows pinned at sides'] },
-      { name: 'Push', description: 'Extend and split', cues: ['Push rope down to full extension', 'Split rope apart at bottom', 'Pronate at lockout', 'Squeeze triceps'] },
-      { name: 'Return', description: 'Controlled return', cues: ['Let rope rise to 90°', 'Control throughout'] }
-    ],
-    breathing: { inhale: 'During return', exhale: 'During pushdown' },
-    commonMistakes: [
-      { mistake: 'Not splitting rope', correction: 'Split rope apart at the bottom — thats what targets the lateral head' }
-    ],
-    musclesTargeted: { primary: ['Triceps (lateral head emphasis)'], secondary: ['Anconeus'] },
-    tempoGuide: '1-1-2-0',
-    coachingNotes: 'The rope split at the bottom differentiates this from bar pushdowns. Split wide and pronate for maximum lateral head hit.'
-  },
-
   'machine-tricep-dip': {
     exerciseType: 'assistance',
     purpose: 'The assisted dip machine makes tricep dips accessible for those who cant yet do bodyweight reps.',
@@ -5815,22 +5509,6 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     musclesTargeted: { primary: ['Rectus Abdominis (lower)'], secondary: ['Hip Flexors', 'Forearms'] },
     tempoGuide: '2-0-2-0',
     coachingNotes: 'The pelvic tilt is the key. If you dont tilt the pelvis, youre doing a hip flexor exercise, not an ab exercise.'
-  },
-
-  'dead-bug': {
-    exerciseType: 'assistance',
-    purpose: 'Dead bugs train core stability through anti-extension. They teach the core to maintain spinal position while limbs move — essential for injury prevention.',
-    phases: [
-      { name: 'Setup', description: 'On back, arms and legs up', cues: ['Lie on back', 'Arms straight up, knees bent at 90°', 'Press lower back into floor — DONT LET IT LIFT'] },
-      { name: 'Movement', description: 'Opposite arm and leg extend', cues: ['Extend opposite arm and leg toward floor', 'Lower back stays PRESSED into floor', 'Slow controlled movement', 'Return and switch'] }
-    ],
-    breathing: { inhale: 'During extension', exhale: 'During return' },
-    commonMistakes: [
-      { mistake: 'Lower back arching off floor', correction: 'PRESS lower back into floor — if it lifts, youve gone too far' }
-    ],
-    musclesTargeted: { primary: ['Transverse Abdominis', 'Rectus Abdominis'], secondary: ['Hip Flexors', 'Obliques'] },
-    tempoGuide: '3-0-3-0 (slow extension, slow return)',
-    coachingNotes: 'Dead bugs are the single best core stability exercise for beginners. If your back lifts off the floor, reduce the range.'
   },
 
   'bird-dog': {
@@ -6100,23 +5778,6 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     musclesTargeted: { primary: ['Gluteus Maximus'], secondary: ['Hamstrings'] },
     tempoGuide: '1-2-2-0',
     coachingNotes: 'Simple bodyweight glute work. Focus on the squeeze at full extension. Add ankle weights for progression.'
-  },
-
-  'hip-thrust-machine': {
-    exerciseType: 'accessory',
-    purpose: 'Dedicated hip thrust machine — eliminates barbell setup and provides consistent resistance through the range.',
-    phases: [
-      { name: 'Setup', description: 'Position in machine', cues: ['Back against pad', 'Feet on platform', 'Pad across hips'] },
-      { name: 'Drive', description: 'Full hip extension', cues: ['Drive hips up', 'Full extension', 'Squeeze glutes 2 seconds'] },
-      { name: 'Lower', description: 'Controlled return', cues: ['Lower slowly', 'Maintain tension'] }
-    ],
-    breathing: { inhale: 'At bottom', exhale: 'During drive' },
-    commonMistakes: [
-      { mistake: 'Not reaching full extension', correction: 'Drive ALL the way up — squeeze at the top' }
-    ],
-    musclesTargeted: { primary: ['Gluteus Maximus'], secondary: ['Hamstrings'] },
-    tempoGuide: '1-2-2-0',
-    coachingNotes: 'The machine eliminates setup hassle. Just load it up and squeeze. Focus on the 2-second hold at top.'
   },
 
   // =====================================================
@@ -6499,110 +6160,6 @@ export const EXERCISE_COACHING_DATA: Record<string, ExerciseCoachingData> = {
     musclesTargeted: { primary: ['Full Body', 'Cardiovascular System'], secondary: [] },
     tempoGuide: 'Maximum sustainable pace',
     coachingNotes: 'Love them or hate them, burpees work. Full push-up, full jump. No shortcuts.'
-  },
-
-  // =====================================================
-  // REMAINING MACHINE/CABLE EXERCISES
-  // =====================================================
-  'incline-machine-press': {
-    exerciseType: 'accessory',
-    purpose: 'Incline machine press targets the upper chest with guided path. Safe for solo training to failure.',
-    phases: [
-      { name: 'Setup', description: 'Adjust for upper chest line', cues: ['Seat adjusted so handles are at upper chest', 'Back against pad'] },
-      { name: 'Press', description: 'Drive handles forward and up', cues: ['Press to full extension', 'Squeeze upper chest', 'Control return'] }
-    ],
-    breathing: { inhale: 'During return', exhale: 'During press' },
-    commonMistakes: [
-      { mistake: 'Seat wrong height', correction: 'Handles should be at upper chest/collarbone level' }
-    ],
-    musclesTargeted: { primary: ['Upper Pectoralis Major', 'Anterior Deltoids'], secondary: ['Triceps'] },
-    tempoGuide: '2-0-1-0',
-    coachingNotes: 'Great for upper chest isolation. Use for drop sets or pressing to failure without a spotter.'
-  },
-
-  'smith-machine-bench-press': {
-    exerciseType: 'accessory',
-    purpose: 'Smith machine bench provides a guided bench press path. Useful for solo training to failure.',
-    phases: [
-      { name: 'Setup', description: 'Bench under Smith bar', cues: ['Position bench so bar touches mid-chest', 'Retract shoulder blades', 'Grip outside shoulders'] },
-      { name: 'Lower', description: 'Controlled descent', cues: ['Rotate hooks to unrack', 'Lower to chest', 'Elbows at 45°'] },
-      { name: 'Press', description: 'Drive to lockout', cues: ['Press to full extension', 'Re-hook to rack'] }
-    ],
-    breathing: { inhale: 'During lowering', exhale: 'During press' },
-    commonMistakes: [
-      { mistake: 'Bar not touching right spot on chest', correction: 'Adjust bench position so bar touches mid-chest at bottom' }
-    ],
-    musclesTargeted: { primary: ['Pectoralis Major', 'Triceps'], secondary: ['Anterior Deltoids'] },
-    tempoGuide: '2-0-1-0',
-    coachingNotes: 'The Smith machine removes stabiliser demand. Use it for volume work, drop sets, or when training alone.'
-  },
-
-  'low-to-high-cable-flyes': {
-    exerciseType: 'accessory',
-    purpose: 'Low-to-high cable flyes target the upper chest with an upward sweeping arc. Cables provide constant tension throughout.',
-    phases: [
-      { name: 'Setup', description: 'Low pulleys, step forward', cues: ['Pulleys at lowest position', 'Step forward into split stance', 'Handles at sides, slight arm bend'] },
-      { name: 'Fly', description: 'Arc upward and inward', cues: ['Sweep arms up and together in front of upper chest', 'Squeeze upper chest at top', 'Maintain arm bend throughout'] },
-      { name: 'Return', description: 'Controlled return', cues: ['Lower slowly to sides', 'Feel chest stretch'] }
-    ],
-    breathing: { inhale: 'During return', exhale: 'During fly' },
-    commonMistakes: [
-      { mistake: 'Pressing instead of flying', correction: 'Fixed arm bend — this is a fly, not a press' }
-    ],
-    musclesTargeted: { primary: ['Upper Pectoralis Major'], secondary: ['Anterior Deltoids'] },
-    tempoGuide: '2-1-2-0',
-    coachingNotes: 'Low-to-high flyes are excellent for upper chest development. Focus on the squeeze at the top.'
-  },
-
-  'high-to-low-cable-flyes': {
-    exerciseType: 'accessory',
-    purpose: 'High-to-low cable flyes target the lower chest with a downward sweeping arc.',
-    phases: [
-      { name: 'Setup', description: 'High pulleys, step forward', cues: ['Pulleys at highest position', 'Step forward into split stance', 'Handles at sides, slight arm bend'] },
-      { name: 'Fly', description: 'Arc downward and inward', cues: ['Sweep arms down and together in front of lower chest', 'Squeeze lower chest at bottom', 'Lean slightly forward'] },
-      { name: 'Return', description: 'Controlled return', cues: ['Let arms rise slowly', 'Feel stretch'] }
-    ],
-    breathing: { inhale: 'During return', exhale: 'During fly' },
-    commonMistakes: [
-      { mistake: 'Arms going too low', correction: 'Hands should meet at lower chest/upper ab level' }
-    ],
-    musclesTargeted: { primary: ['Lower Pectoralis Major'], secondary: ['Anterior Deltoids'] },
-    tempoGuide: '2-1-2-0',
-    coachingNotes: 'High-to-low flyes carve out the lower chest line. Great finisher after pressing movements.'
-  },
-
-  'assisted-dip-machine': {
-    exerciseType: 'assistance',
-    purpose: 'The assisted dip machine makes dips accessible for beginners who cant yet handle their bodyweight.',
-    phases: [
-      { name: 'Setup', description: 'Select assistance weight', cues: ['More weight = more help', 'Kneel on pad', 'Lean forward for chest focus'] },
-      { name: 'Lower', description: 'Controlled descent', cues: ['Lower slowly', 'Good depth — feel the stretch'] },
-      { name: 'Press', description: 'Push back up', cues: ['Press to lockout', 'Squeeze chest at top'] }
-    ],
-    breathing: { inhale: 'During lowering', exhale: 'During press' },
-    commonMistakes: [
-      { mistake: 'Too much assistance', correction: 'Reduce assistance as you get stronger — challenge yourself' }
-    ],
-    musclesTargeted: { primary: ['Chest', 'Triceps'], secondary: ['Anterior Deltoids'] },
-    tempoGuide: '2-0-1-0',
-    coachingNotes: 'Track your assistance weight and progressively reduce it. The goal is bodyweight dips.'
-  },
-
-  'dumbbell-flyes-incline': {
-    exerciseType: 'accessory',
-    purpose: 'Incline dumbbell flyes isolate the upper chest with a stretching arc on an inclined bench.',
-    phases: [
-      { name: 'Setup', description: 'Bench at 30°, dumbbells above', cues: ['Bench at 30° incline', 'Dumbbells above upper chest', 'Slight arm bend locked in'] },
-      { name: 'Open', description: 'Lower in wide arc', cues: ['Open arms wide in arc', 'Feel upper chest stretch', 'Stop at comfortable depth'] },
-      { name: 'Close', description: 'Squeeze back together', cues: ['Bring dumbbells back together', 'Squeeze upper chest at top'] }
-    ],
-    breathing: { inhale: 'During opening', exhale: 'During closing' },
-    commonMistakes: [
-      { mistake: 'Going too deep — shoulder strain', correction: 'Only go as deep as comfortable' }
-    ],
-    musclesTargeted: { primary: ['Upper Pectoralis Major'], secondary: ['Anterior Deltoids'] },
-    tempoGuide: '2-0-2-0',
-    coachingNotes: 'Incline flyes isolate the upper chest without tricep involvement. Great pairing with incline presses.'
   },
 
   'dumbbell-pullover': {
