@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Send, MessageSquarePlus, Trash2, Loader2, Flame, Sparkles, Video, UtensilsCrossed, PanelLeftClose, PanelLeftOpen, Dumbbell, TrendingUp, BarChart3, Brain, Zap, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -94,9 +94,9 @@ function MessageBubble({ message }: { message: MessageWithMedia }) {
 
 // ─── Quick Action Tiles ──────────────────────────────────────────────────────
 const QUICK_ACTIONS = [
-  { icon: Dumbbell, label: 'POWER', description: 'Build a training programme', prompt: 'Build me a bespoke training programme based on my profile.', color: 'from-primary/20 to-primary/5' },
+  { icon: Dumbbell, label: 'POWER', description: 'Build a training programme', prompt: "I'd like to build a new training programme.", color: 'from-primary/20 to-primary/5' },
   { icon: TrendingUp, label: 'MOVEMENT', description: 'Improve technique & cardio', prompt: 'Give me tips to improve my squat form.', color: 'from-primary/15 to-primary/5' },
-  { icon: UtensilsCrossed, label: 'FUEL', description: 'Create a nutrition plan', prompt: 'Create a meal plan for my current calorie and macro goals.', color: 'from-primary/20 to-primary/5' },
+  { icon: UtensilsCrossed, label: 'FUEL', description: 'Create a nutrition plan', prompt: "I'd like to create a nutrition plan.", color: 'from-primary/20 to-primary/5' },
   { icon: Brain, label: 'MINDSET', description: 'Mental performance coaching', prompt: 'Help me build a mindset routine for consistency and focus.', color: 'from-primary/15 to-primary/5' },
 ];
 
@@ -247,10 +247,53 @@ export default function Help() {
   const { updateProgram } = useTrainingPrograms();
   const { updateMealPlan } = useMealPlans();
 
+  const lastProcessedMsgRef = useRef<string | null>(null);
+
   // Auto-scroll to bottom on new messages
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Detect build tags in completed assistant messages
+  useEffect(() => {
+    if (isLoading || messages.length === 0) return;
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg.role !== 'assistant' || lastMsg.id === lastProcessedMsgRef.current) return;
+    lastProcessedMsgRef.current = lastMsg.id;
+
+    const content = lastMsg.content;
+    const programmeMatch = content.match(/\[BUILD_PROGRAMME\](\{.*\})?/);
+    const mealPlanMatch = content.match(/\[BUILD_MEAL_PLAN\](\{.*\})?/);
+
+    if (programmeMatch) {
+      // Strip the tag from displayed content
+      const cleanContent = content.replace(/\[BUILD_PROGRAMME\](\{.*\})?/, '').trim();
+      if (cleanContent !== content) {
+        // Content will be cleaned on next render via enrichedMessages
+      }
+      const chatContext = messages.slice(-10).map(m => `${m.role}: ${m.content}`).join('\n');
+      setProgrammeGenerating(true);
+      generateProgramme('Build a programme based on our conversation', { chatContext }).then(result => {
+        setProgrammeGenerating(false);
+        if (result?.savedToHub && result.programId) {
+          const planInfo: GeneratedPlanInfo = { type: 'programme', planData: result.program, planId: result.programId, savedToHub: true };
+          setGeneratedPlans(prev => [...prev, planInfo]);
+          toast({ title: 'Programme Created & Saved!', description: 'Edit it below or view in Power → My Programmes' });
+        }
+      });
+    } else if (mealPlanMatch) {
+      const chatContext = messages.slice(-10).map(m => `${m.role}: ${m.content}`).join('\n');
+      setMealPlanGenerating(true);
+      generateMealPlan('Build a meal plan based on our conversation', 'full_plan', { chatContext }).then(result => {
+        setMealPlanGenerating(false);
+        if (result?.savedToHub && result.plan && result.planId) {
+          const planInfo: GeneratedPlanInfo = { type: 'meal_plan', planData: result.plan, planId: result.planId, savedToHub: true };
+          setGeneratedPlans(prev => [...prev, planInfo]);
+          toast({ title: 'Meal Plan Created & Saved!', description: 'Edit it below or view in Fuel → My Meal Plans' });
+        }
+      });
+    }
+  }, [messages, isLoading]);
 
   // Context from URL params or sessionStorage
   useEffect(() => {
@@ -295,37 +338,6 @@ export default function Help() {
     }
     const mediaAttachments = selectedMedia ? [{ type: selectedMedia.type, url: selectedMedia.url, name: selectedMedia.name }] : undefined;
 
-    if (detectProgrammeRequest(messageContent)) {
-      setProgrammeGenerating(true);
-      const userMsg = messageContent;
-      sendMessage(userMsg, { mediaAttachments });
-      setInput(''); setSelectedMedia(null);
-      const result = await generateProgramme(userMsg, { chatContext: messages.slice(-5).map(m => `${m.role}: ${m.content}`).join('\n') });
-      setProgrammeGenerating(false);
-      if (result?.savedToHub && result.programId) {
-        const planInfo: GeneratedPlanInfo = { type: 'programme', planData: result.program, planId: result.programId, savedToHub: true };
-        setGeneratedPlans(prev => [...prev, planInfo]);
-        setTimeout(() => { sendMessage(`🎉 **\"${result.program.programName}\"** is ready! Check out the full details below.`); }, 300);
-        toast({ title: 'Programme Created & Saved!', description: 'Edit it below or view in Power → My Programmes' });
-      }
-      return;
-    }
-    if (detectMealPlanRequest(messageContent)) {
-      setMealPlanGenerating(true);
-      const userMsg = messageContent;
-      sendMessage(userMsg, { mediaAttachments });
-      setInput(''); setSelectedMedia(null);
-      const result = await generateMealPlan(userMsg, 'full_plan', { chatContext: messages.slice(-5).map(m => `${m.role}: ${m.content}`).join('\n') });
-      setMealPlanGenerating(false);
-      if (result?.savedToHub && result.plan && result.planId) {
-        const planInfo: GeneratedPlanInfo = { type: 'meal_plan', planData: result.plan, planId: result.planId, savedToHub: true };
-        setGeneratedPlans(prev => [...prev, planInfo]);
-        setTimeout(() => { sendMessage(`🍽️ **\"${result.plan.planName}\"** is ready! Check out the full details below.`); }, 300);
-        toast({ title: 'Meal Plan Created & Saved!', description: 'Edit it below or view in Fuel → My Meal Plans' });
-      }
-      return;
-    }
-
     if (selectedMedia) {
       setMessagesWithMedia(prev => new Map(prev).set(`content:${messageContent}`, selectedMedia));
     }
@@ -359,7 +371,14 @@ export default function Help() {
 
   const isAnyGenerating = isGenerating || isMealPlanGenerating;
   const enrichedMessages: MessageWithMedia[] = messages.map((msg) => {
-    if (msg.role !== 'user') return { ...msg };
+    // Strip build tags from assistant messages
+    if (msg.role === 'assistant') {
+      const cleanContent = msg.content
+        .replace(/\[BUILD_PROGRAMME\](\{.*\})?/g, '')
+        .replace(/\[BUILD_MEAL_PLAN\](\{.*\})?/g, '')
+        .trim();
+      return { ...msg, content: cleanContent };
+    }
     const mediaEntry = messagesWithMedia.get(`content:${msg.content}`);
     return { ...msg, media: mediaEntry };
   });
