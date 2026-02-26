@@ -11,6 +11,7 @@ import { useNutritionGoals } from '@/hooks/useNutritionGoals';
 import { useRecipes } from '@/hooks/useRecipes';
 import { MealType, mealTypeLabels, dayLabels, RecipeIngredient } from '@/lib/fuelTypes';
 import { NutritionCoachCTA } from './NutritionCoachCTA';
+import { ShoppingList } from './ShoppingList';
 import { RecipeDetailModal } from './RecipeDetailModal';
 import { 
   Calendar,
@@ -299,6 +300,9 @@ export function MealPlanExecutionView({ planId, onBack }: MealPlanExecutionViewP
           );
         })}
       </div>
+
+      {/* Shopping List */}
+      <ShoppingList planItems={allItems} />
 
       {/* AI Coaching CTA */}
       <NutritionCoachCTA
