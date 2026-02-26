@@ -50,7 +50,7 @@ export function AdminSettingsPanel() {
       <Card>
         <CardHeader>
           <CardTitle className="font-display flex items-center gap-2">
-            <Settings className="w-5 h-5" />
+            <Settings className="w-5 h-5 text-primary" />
             FEATURE TOGGLES
           </CardTitle>
           <CardDescription>
@@ -78,8 +78,8 @@ export function AdminSettingsPanel() {
           {/* Social Features */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
-                <FileText className="w-5 h-5 text-blue-500" />
+              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <FileText className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <Label className="font-medium">Social Features</Label>
@@ -95,8 +95,8 @@ export function AdminSettingsPanel() {
           {/* Messaging */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-green-500" />
+              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <MessageSquare className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <Label className="font-medium">Direct Messaging</Label>
@@ -112,8 +112,8 @@ export function AdminSettingsPanel() {
           {/* AI Coaching */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
-                <Brain className="w-5 h-5 text-purple-500" />
+              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <Brain className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <Label className="font-medium">Unbreakable Coaching</Label>
@@ -132,7 +132,7 @@ export function AdminSettingsPanel() {
       <Card>
         <CardHeader>
           <CardTitle className="font-display flex items-center gap-2">
-            <Wrench className="w-5 h-5" />
+            <Wrench className="w-5 h-5 text-primary" />
             RATE LIMITS
           </CardTitle>
         </CardHeader>
@@ -157,7 +157,7 @@ export function AdminSettingsPanel() {
       <Card className={settingsMap.maintenance_mode.enabled ? 'border-destructive' : ''}>
         <CardHeader>
           <CardTitle className="font-display flex items-center gap-2">
-            <AlertTriangle className={`w-5 h-5 ${settingsMap.maintenance_mode.enabled ? 'text-destructive' : ''}`} />
+            <AlertTriangle className={`w-5 h-5 ${settingsMap.maintenance_mode.enabled ? 'text-destructive' : 'text-primary'}`} />
             MAINTENANCE MODE
           </CardTitle>
           <CardDescription>

@@ -62,7 +62,7 @@ export function AdminReportsPanel() {
     <Card>
       <CardHeader>
         <CardTitle className="font-display flex items-center gap-2">
-          <AlertTriangle className="w-5 h-5 text-destructive" />
+          <AlertTriangle className="w-5 h-5 text-primary" />
           USER REPORTS
         </CardTitle>
       </CardHeader>

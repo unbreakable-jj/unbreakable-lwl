@@ -118,7 +118,7 @@ export function SocialHeader({
                 className="relative"
                 onClick={() => navigate('/inbox?compose=1')}
               >
-                <MessageCircle className="w-5 h-5" />
+                <MessageCircle className="w-5 h-5 text-primary" />
                 {messageCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] bg-destructive">
                     {messageCount > 9 ? '9+' : messageCount}
@@ -131,7 +131,7 @@ export function SocialHeader({
                 className="relative"
                 onClick={() => setShowNotifications(true)}
               >
-                <Bell className="w-5 h-5" />
+                <Bell className="w-5 h-5 text-primary" />
                 {notificationCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] bg-destructive">
                     {notificationCount > 9 ? '9+' : notificationCount}
@@ -141,14 +141,14 @@ export function SocialHeader({
             </div>
 
             <Button variant="ghost" size="sm" onClick={onShowUserSearch} className="hidden sm:flex">
-              <UserPlus className="w-5 h-5" />
+              <UserPlus className="w-5 h-5 text-primary" />
             </Button>
             <Button variant="ghost" size="sm" onClick={onShowFriendsList} className="hidden sm:flex">
-              <Users className="w-5 h-5" />
+              <Users className="w-5 h-5 text-primary" />
             </Button>
             <Link to="/inbox" className="hidden sm:block">
               <Button variant="ghost" size="sm" className="relative">
-                <Inbox className="w-5 h-5" />
+                <Inbox className="w-5 h-5 text-primary" />
                 {messageCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] bg-destructive">
                     {messageCount > 9 ? '9+' : messageCount}

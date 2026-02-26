@@ -33,10 +33,10 @@ import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const mealIcons: Record<MealType, React.ReactNode> = {
-  breakfast: <Coffee className="w-5 h-5" />,
-  lunch: <UtensilsCrossed className="w-5 h-5" />,
-  dinner: <Moon className="w-5 h-5" />,
-  snack: <Cookie className="w-5 h-5" />,
+  breakfast: <Coffee className="w-5 h-5 text-primary" />,
+  lunch: <UtensilsCrossed className="w-5 h-5 text-primary" />,
+  dinner: <Moon className="w-5 h-5 text-primary" />,
+  snack: <Cookie className="w-5 h-5 text-primary" />,
 };
 
 interface FoodSearchModalProps {

@@ -87,7 +87,7 @@ export function SettingsPanel() {
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="font-display text-xl tracking-wide flex items-center gap-2">
-            {settings.theme === 'dark' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+            {settings.theme === 'dark' ? <Moon className="w-5 h-5 text-primary" /> : <Sun className="w-5 h-5 text-primary" />}
             APPEARANCE
           </CardTitle>
         </CardHeader>
@@ -115,7 +115,7 @@ export function SettingsPanel() {
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="font-display text-xl tracking-wide flex items-center gap-2">
-            <Lock className="w-5 h-5" />
+            <Lock className="w-5 h-5 text-primary" />
             PRIVACY
           </CardTitle>
         </CardHeader>
@@ -139,19 +139,19 @@ export function SettingsPanel() {
               <SelectContent>
                 <SelectItem value="public">
                   <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4" />
+                    <Globe className="w-4 h-4 text-primary" />
                     Public
                   </div>
                 </SelectItem>
                 <SelectItem value="friends">
                   <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4" />
+                    <Users className="w-4 h-4 text-primary" />
                     Friends Only
                   </div>
                 </SelectItem>
                 <SelectItem value="private">
                   <div className="flex items-center gap-2">
-                    <Lock className="w-4 h-4" />
+                    <Lock className="w-4 h-4 text-primary" />
                     Private
                   </div>
                 </SelectItem>
@@ -164,7 +164,7 @@ export function SettingsPanel() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label className="text-foreground font-medium flex items-center gap-2">
-                <Eye className="w-4 h-4" />
+                <Eye className="w-4 h-4 text-primary" />
                 Show Stats Publicly
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -180,7 +180,7 @@ export function SettingsPanel() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label className="text-foreground font-medium flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
+                <MessageSquare className="w-4 h-4 text-primary" />
                 Allow Comments by Default
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -196,7 +196,7 @@ export function SettingsPanel() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label className="text-foreground font-medium flex items-center gap-2">
-                <UserPlus className="w-4 h-4" />
+                <UserPlus className="w-4 h-4 text-primary" />
                 Allow Friend Requests
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -215,7 +215,7 @@ export function SettingsPanel() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label className="text-foreground font-medium flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
+                <MessageSquare className="w-4 h-4 text-primary" />
                 Who Can Message Me
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -234,19 +234,19 @@ export function SettingsPanel() {
               <SelectContent>
                 <SelectItem value="everyone">
                   <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4" />
+                    <Globe className="w-4 h-4 text-primary" />
                     Everyone
                   </div>
                 </SelectItem>
                 <SelectItem value="friends">
                   <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4" />
+                    <Users className="w-4 h-4 text-primary" />
                     Friends Only
                   </div>
                 </SelectItem>
                 <SelectItem value="none">
                   <div className="flex items-center gap-2">
-                    <Lock className="w-4 h-4" />
+                    <Lock className="w-4 h-4 text-primary" />
                     No One
                   </div>
                 </SelectItem>
@@ -257,7 +257,7 @@ export function SettingsPanel() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label className="text-foreground font-medium flex items-center gap-2">
-                <Eye className="w-4 h-4" />
+                <Eye className="w-4 h-4 text-primary" />
                 Show Online Status
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -280,7 +280,7 @@ export function SettingsPanel() {
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="font-display text-xl tracking-wide flex items-center gap-2">
-            <Dumbbell className="w-5 h-5" />
+            <Dumbbell className="w-5 h-5 text-primary" />
             PROGRAMME TRACKING
           </CardTitle>
         </CardHeader>
@@ -335,7 +335,7 @@ export function SettingsPanel() {
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="font-display text-xl tracking-wide flex items-center gap-2">
-            <Brain className="w-5 h-5" />
+            <Brain className="w-5 h-5 text-primary" />
             UNBREAKABLE COACHING
           </CardTitle>
         </CardHeader>
@@ -347,7 +347,7 @@ export function SettingsPanel() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label className="text-foreground font-medium flex items-center gap-2">
-                <Volume2 className="w-4 h-4" />
+                <Volume2 className="w-4 h-4 text-primary" />
                 Voice Feedback
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -395,7 +395,7 @@ export function SettingsPanel() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label className="text-foreground font-medium flex items-center gap-2">
-                <Video className="w-4 h-4" />
+                <Video className="w-4 h-4 text-primary" />
                 Movement Analysis
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -412,7 +412,7 @@ export function SettingsPanel() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label className="text-foreground font-medium flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-4 h-4 text-primary" />
                 Auto Progression
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -433,7 +433,7 @@ export function SettingsPanel() {
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="font-display text-xl tracking-wide flex items-center gap-2">
-            <Bell className="w-5 h-5" />
+            <Bell className="w-5 h-5 text-primary" />
             NOTIFICATIONS
           </CardTitle>
         </CardHeader>
@@ -441,7 +441,7 @@ export function SettingsPanel() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label className="text-foreground font-medium flex items-center gap-2">
-                <Heart className="w-4 h-4" />
+                <Heart className="w-4 h-4 text-primary" />
                 Likes
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -457,7 +457,7 @@ export function SettingsPanel() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label className="text-foreground font-medium flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
+                <MessageSquare className="w-4 h-4 text-primary" />
                 Comments
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -473,7 +473,7 @@ export function SettingsPanel() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label className="text-foreground font-medium flex items-center gap-2">
-                <UserPlus className="w-4 h-4" />
+                <UserPlus className="w-4 h-4 text-primary" />
                 Friend Requests
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -489,7 +489,7 @@ export function SettingsPanel() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label className="text-foreground font-medium flex items-center gap-2">
-                <Trophy className="w-4 h-4" />
+                <Trophy className="w-4 h-4 text-primary" />
                 Achievements
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -505,7 +505,7 @@ export function SettingsPanel() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label className="text-foreground font-medium flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
+                <MessageSquare className="w-4 h-4 text-primary" />
                 Messages
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -524,7 +524,7 @@ export function SettingsPanel() {
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="font-display text-xl tracking-wide flex items-center gap-2">
-            <Settings className="w-5 h-5" />
+            <Settings className="w-5 h-5 text-primary" />
             FEED PREFERENCES
           </CardTitle>
         </CardHeader>

@@ -87,7 +87,7 @@ const Index = () => {
                 activeTab === 'feed' ? 'text-primary' : 'text-muted-foreground'
               }`}
             >
-              <Home className="w-6 h-6" />
+              <Home className={`w-6 h-6 ${activeTab === 'feed' ? '' : 'text-primary'}`} />
               <span className="text-xs font-display tracking-wide">FEED</span>
             </button>
             <button
@@ -102,7 +102,7 @@ const Index = () => {
               onClick={() => navigate('/profile')}
               className="flex flex-col items-center gap-1 px-4 py-2 text-muted-foreground"
             >
-              <User className="w-6 h-6" />
+              <User className="w-6 h-6 text-primary" />
               <span className="text-xs font-display tracking-wide">PROFILE</span>
             </button>
           </div>

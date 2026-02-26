@@ -16,7 +16,7 @@ export function VoiceSettingsSheet({ children }: VoiceSettingsSheetProps) {
   if (isLoading || !preferences) {
     return children || (
       <Button variant="ghost" size="icon" disabled>
-        <Volume2 className="w-5 h-5" />
+        <Volume2 className="w-5 h-5 text-primary" />
       </Button>
     );
   }
