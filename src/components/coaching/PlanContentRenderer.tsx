@@ -173,12 +173,13 @@ function MealItemCard({ meal, mealType }: { meal: any; mealType: string }) {
 function MealDayCard({ day, dayIndex }: { day: any; dayIndex: number }) {
   const [isOpen, setIsOpen] = useState(dayIndex === 0);
   
-  const meals = day.meals || [
+  const rawMeals = day.meals || [
     day.breakfast && { ...day.breakfast, type: 'breakfast' },
     day.lunch && { ...day.lunch, type: 'lunch' },
     day.dinner && { ...day.dinner, type: 'dinner' },
     day.snacks && { ...day.snacks, type: 'snack' },
   ].filter(Boolean);
+  const meals = Array.isArray(rawMeals) ? rawMeals : [];
 
   return (
     <Card className="border-border/50 bg-card/50">
