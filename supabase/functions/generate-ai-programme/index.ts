@@ -496,6 +496,8 @@ ${EXERCISE_NAMES_PROMPT}
 
 Rules: Match equipment+experience. Periodize for goals. Account for injuries. Include warmup/cooldown. Use EXACT exercise names from the list above.
 
+MANDATORY: Every programme MUST include 2 x 30-minute cardio sessions per week (steady-state walk, run, cycle, row, or swim). Schedule these on non-lifting days or after lighter sessions. Label them clearly in the weekly schedule as "Cardio – 30 min steady state" with the recommended activity type.
+
 Return ONLY valid JSON:
 {"programName":"string","overview":"string","weeklySchedule":[{"day":"Monday","focus":"string","type":"strength|running|rest|active_recovery"}],"phases":[{"name":"string","weeks":"1-4","focus":"string","notes":"string"}],"templateWeek":{"days":[{"day":"Monday","sessionType":"string","duration":"60 mins","warmup":"string","exercises":[{"name":"Flat Barbell Bench Press","equipment":"barbell","sets":4,"reps":"6-8","intensity":"RPE 7","rest":"3 min","notes":"string"}],"cooldown":"string"}]},"phaseProgressions":[{"phase":"string","adjustments":"string"}],"progressionRules":["string"],"nutritionTips":["string"],"metadata":{"origin":"ai_chat","createdFor":"${userName}"}}`;
 

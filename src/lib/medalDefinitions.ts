@@ -100,6 +100,7 @@ export const PR_DISTANCES = [
 ];
 
 export function getMatchingPRDistance(distanceKm: number): typeof PR_DISTANCES[number] | null {
+  // First check for exact match within tolerance
   for (const prDistance of PR_DISTANCES) {
     const minDistance = prDistance.distanceKm * (1 - prDistance.tolerance);
     const maxDistance = prDistance.distanceKm * (1 + prDistance.tolerance);
@@ -107,5 +108,13 @@ export function getMatchingPRDistance(distanceKm: number): typeof PR_DISTANCES[n
       return prDistance;
     }
   }
-  return null;
+  // If no exact match, find the highest standard distance the run exceeds
+  // e.g., a 7km walk should award a 5km PR
+  let bestMatch: typeof PR_DISTANCES[number] | null = null;
+  for (const prDistance of PR_DISTANCES) {
+    if (distanceKm >= prDistance.distanceKm) {
+      bestMatch = prDistance;
+    }
+  }
+  return bestMatch;
 }

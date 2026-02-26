@@ -57,50 +57,56 @@ export function usePersonalRecords() {
   }): Promise<{ distanceType: string; isNewPR: boolean }[]> => {
     if (!user) return [];
 
-    const matchingDistance = getMatchingPRDistance(run.distance_km);
-    if (!matchingDistance) return [];
-
-    const pacePerKmSeconds = Math.round(run.duration_seconds / run.distance_km);
     const activityType = run.activity_type || 'run';
     const results: { distanceType: string; isNewPR: boolean }[] = [];
 
-    // Check if there's an existing PR for this distance AND activity type
-    const existingPR = records.find(r => r.distance_type === matchingDistance.type && r.activity_type === activityType);
+    // Check ALL distance buckets the run qualifies for
+    // e.g., a 7km run qualifies for 1km, 3km, and 5km PRs
+    for (const prDistance of PR_DISTANCES) {
+      if (run.distance_km < prDistance.distanceKm) continue;
 
-    if (!existingPR || (existingPR.time_seconds && run.duration_seconds < existingPR.time_seconds)) {
-      // This is a new PR!
-      if (existingPR) {
-        // Update existing record
-        await supabase
-          .from('personal_records')
-          .update({
-            time_seconds: run.duration_seconds,
-            pace_per_km_seconds: pacePerKmSeconds,
-            run_id: run.id,
-            achieved_at: run.started_at,
-            distance_km: run.distance_km,
-          })
-          .eq('id', existingPR.id);
+      // Calculate the time it would have taken to cover this PR distance
+      // (proportional estimate for longer runs)
+      const proportionalTime = Math.round(run.duration_seconds * (prDistance.distanceKm / run.distance_km));
+      const pacePerKmSeconds = Math.round(proportionalTime / prDistance.distanceKm);
+
+      // Check existing PR for this distance AND activity type
+      const existingPR = records.find(r => r.distance_type === prDistance.type && r.activity_type === activityType);
+
+      if (!existingPR || (existingPR.time_seconds && proportionalTime < existingPR.time_seconds)) {
+        if (existingPR) {
+          await supabase
+            .from('personal_records')
+            .update({
+              time_seconds: proportionalTime,
+              pace_per_km_seconds: pacePerKmSeconds,
+              run_id: run.id,
+              achieved_at: run.started_at,
+              distance_km: run.distance_km,
+            })
+            .eq('id', existingPR.id);
+        } else {
+          await supabase
+            .from('personal_records')
+            .insert({
+              user_id: user.id,
+              distance_type: prDistance.type,
+              distance_km: run.distance_km,
+              time_seconds: proportionalTime,
+              pace_per_km_seconds: pacePerKmSeconds,
+              run_id: run.id,
+              achieved_at: run.started_at,
+              activity_type: activityType,
+            } as any);
+        }
+        results.push({ distanceType: prDistance.type, isNewPR: true });
       } else {
-        // Insert new record
-        await supabase
-          .from('personal_records')
-          .insert({
-            user_id: user.id,
-            distance_type: matchingDistance.type,
-            distance_km: run.distance_km,
-            time_seconds: run.duration_seconds,
-            pace_per_km_seconds: pacePerKmSeconds,
-            run_id: run.id,
-            achieved_at: run.started_at,
-            activity_type: activityType,
-          } as any);
+        results.push({ distanceType: prDistance.type, isNewPR: false });
       }
+    }
 
-      results.push({ distanceType: matchingDistance.type, isNewPR: true });
+    if (results.some(r => r.isNewPR)) {
       await fetchRecords();
-    } else {
-      results.push({ distanceType: matchingDistance.type, isNewPR: false });
     }
 
     return results;
