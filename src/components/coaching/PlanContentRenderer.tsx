@@ -173,13 +173,30 @@ function MealItemCard({ meal, mealType }: { meal: any; mealType: string }) {
 function MealDayCard({ day, dayIndex }: { day: any; dayIndex: number }) {
   const [isOpen, setIsOpen] = useState(dayIndex === 0);
   
-  const rawMeals = day.meals || [
-    day.breakfast && { ...day.breakfast, type: 'breakfast' },
-    day.lunch && { ...day.lunch, type: 'lunch' },
-    day.dinner && { ...day.dinner, type: 'dinner' },
-    day.snacks && { ...day.snacks, type: 'snack' },
-  ].filter(Boolean);
-  const meals = Array.isArray(rawMeals) ? rawMeals : [];
+  // Handle meals as array OR object with breakfast/lunch/dinner/snacks keys
+  const buildMealsArray = () => {
+    const m = day.meals;
+    if (Array.isArray(m)) return m;
+    if (m && typeof m === 'object') {
+      const result: any[] = [];
+      if (m.breakfast) result.push({ ...(typeof m.breakfast === 'string' ? { name: m.breakfast } : m.breakfast), type: 'breakfast' });
+      if (m.lunch) result.push({ ...(typeof m.lunch === 'string' ? { name: m.lunch } : m.lunch), type: 'lunch' });
+      if (m.dinner) result.push({ ...(typeof m.dinner === 'string' ? { name: m.dinner } : m.dinner), type: 'dinner' });
+      if (m.snacks) {
+        const snacks = Array.isArray(m.snacks) ? m.snacks : [m.snacks];
+        snacks.forEach((s: any) => result.push({ ...(typeof s === 'string' ? { name: s } : s), type: 'snack' }));
+      }
+      if (m.snack) result.push({ ...(typeof m.snack === 'string' ? { name: m.snack } : m.snack), type: 'snack' });
+      if (result.length > 0) return result;
+    }
+    return [
+      day.breakfast && { ...(typeof day.breakfast === 'object' ? day.breakfast : { name: day.breakfast }), type: 'breakfast' },
+      day.lunch && { ...(typeof day.lunch === 'object' ? day.lunch : { name: day.lunch }), type: 'lunch' },
+      day.dinner && { ...(typeof day.dinner === 'object' ? day.dinner : { name: day.dinner }), type: 'dinner' },
+      day.snacks && { ...(typeof day.snacks === 'object' ? day.snacks : { name: day.snacks }), type: 'snack' },
+    ].filter(Boolean);
+  };
+  const meals = buildMealsArray();
 
   return (
     <Card className="border-border/50 bg-card/50">
