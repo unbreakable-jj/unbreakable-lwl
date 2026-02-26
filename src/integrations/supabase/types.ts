@@ -1014,32 +1014,41 @@ export type Database = {
       }
       nutrition_goals: {
         Row: {
+          activity_level: string | null
           created_at: string
           daily_calories: number | null
           daily_carbs_g: number | null
           daily_fat_g: number | null
           daily_protein_g: number | null
+          goals_mode: string
           id: string
+          macro_split: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          activity_level?: string | null
           created_at?: string
           daily_calories?: number | null
           daily_carbs_g?: number | null
           daily_fat_g?: number | null
           daily_protein_g?: number | null
+          goals_mode?: string
           id?: string
+          macro_split?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          activity_level?: string | null
           created_at?: string
           daily_calories?: number | null
           daily_carbs_g?: number | null
           daily_fat_g?: number | null
           daily_protein_g?: number | null
+          goals_mode?: string
           id?: string
+          macro_split?: string | null
           updated_at?: string
           user_id?: string
         }
