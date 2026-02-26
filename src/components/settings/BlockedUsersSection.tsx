@@ -36,7 +36,7 @@ export function BlockedUsersSection() {
     <Card className="bg-card border-border">
       <CardHeader>
         <CardTitle className="font-display text-xl tracking-wide flex items-center gap-2">
-          <Ban className="w-5 h-5" />
+          <Ban className="w-5 h-5 text-primary" />
           BLOCKED USERS
         </CardTitle>
       </CardHeader>

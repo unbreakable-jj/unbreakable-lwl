@@ -331,7 +331,7 @@ export function ProfileView() {
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
-                    <Cake className="w-4 h-4" />
+                     <Cake className="w-4 h-4 text-primary" />
                     Date of Birth
                   </Label>
                   <Input
@@ -348,9 +348,9 @@ export function ProfileView() {
                 <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                   <div className="flex items-center gap-2">
                     {editData.is_public ? (
-                      <Globe className="w-4 h-4 text-primary" />
+                     <Globe className="w-4 h-4 text-primary" />
                     ) : (
-                      <Lock className="w-4 h-4 text-muted-foreground" />
+                      <Lock className="w-4 h-4 text-primary" />
                     )}
                     <div>
                       <p className="text-sm font-medium text-foreground">
@@ -376,7 +376,7 @@ export function ProfileView() {
                 )}
                 {profile.location && (
                   <div className="flex items-center gap-1 text-muted-foreground mt-2">
-                    <MapPin className="w-4 h-4" />
+                    <MapPin className="w-4 h-4 text-primary" />
                     <span>{profile.location}</span>
                   </div>
                 )}
@@ -386,18 +386,18 @@ export function ProfileView() {
 
             <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
+                <Calendar className="w-4 h-4 text-primary" />
                 <span>Joined {format(parseISO(profile.created_at), 'MMM yyyy')}</span>
               </div>
               <div className="flex items-center gap-1">
                 {profile.is_public ? (
                   <>
-                    <Globe className="w-4 h-4" />
+                    <Globe className="w-4 h-4 text-primary" />
                     <span>Public</span>
                   </>
                 ) : (
                   <>
-                    <Lock className="w-4 h-4" />
+                    <Lock className="w-4 h-4 text-primary" />
                     <span>Private</span>
                   </>
                 )}
@@ -411,21 +411,21 @@ export function ProfileView() {
       <Tabs value={activeProfileTab} onValueChange={(v) => setActiveProfileTab(v as any)}>
         <TabsList className="w-full bg-card border border-border">
           <TabsTrigger value="overview" className="flex-1 font-display tracking-wide text-xs sm:text-sm">
-            <User className="w-4 h-4 mr-1 sm:mr-2" />
+            <User className="w-4 h-4 mr-1 sm:mr-2 text-primary" />
             <span className="hidden sm:inline">OVERVIEW</span>
             <span className="sm:hidden">ABOUT</span>
           </TabsTrigger>
           <TabsTrigger value="stats" className="flex-1 font-display tracking-wide text-xs sm:text-sm">
-            <BarChart2 className="w-4 h-4 mr-1 sm:mr-2" />
+            <BarChart2 className="w-4 h-4 mr-1 sm:mr-2 text-primary" />
             STATS
           </TabsTrigger>
           <TabsTrigger value="records" className="flex-1 font-display tracking-wide text-xs sm:text-sm">
-            <Medal className="w-4 h-4 mr-1 sm:mr-2" />
+            <Medal className="w-4 h-4 mr-1 sm:mr-2 text-primary" />
             <span className="hidden sm:inline">RECORDS</span>
             <span className="sm:hidden">PRs</span>
           </TabsTrigger>
           <TabsTrigger value="settings" className="flex-1 font-display tracking-wide text-xs sm:text-sm">
-            <Settings className="w-4 h-4 mr-1 sm:mr-2" />
+            <Settings className="w-4 h-4 mr-1 sm:mr-2 text-primary" />
             <span className="hidden sm:inline">SETTINGS</span>
             <span className="sm:hidden">⚙️</span>
           </TabsTrigger>

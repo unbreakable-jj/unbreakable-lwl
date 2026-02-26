@@ -128,7 +128,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                           : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
-                  <link.icon className="w-5 h-5" />
+                  <link.icon className={`w-5 h-5 ${isActive(link.to) ? '' : 'text-primary'}`} />
                   {link.label}
                 </Link>
               ))}

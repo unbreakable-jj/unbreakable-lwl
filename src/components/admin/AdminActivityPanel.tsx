@@ -62,7 +62,7 @@ export function AdminActivityPanel() {
     <Card>
       <CardHeader>
         <CardTitle className="font-display flex items-center gap-2">
-          <Activity className="w-5 h-5" />
+          <Activity className="w-5 h-5 text-primary" />
           ACTIVITY LOGS
         </CardTitle>
       </CardHeader>
