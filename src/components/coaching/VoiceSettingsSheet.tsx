@@ -79,14 +79,14 @@ export function VoiceSettingsSheet({ children }: VoiceSettingsSheetProps) {
                   <RadioGroupItem value="female" id="female" />
                   <Label htmlFor="female" className="flex-1 cursor-pointer">
                     <span className="font-medium">Female Voice</span>
-                    <p className="text-xs text-muted-foreground">Warm British tone, steady & grounded</p>
+                    <p className="text-xs text-muted-foreground">Clear and encouraging tone</p>
                   </Label>
                 </div>
                 <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30 border border-border">
                   <RadioGroupItem value="male" id="male" />
                   <Label htmlFor="male" className="flex-1 cursor-pointer">
                     <span className="font-medium">Male Voice</span>
-                    <p className="text-xs text-muted-foreground">Direct British tone, calm & coaching</p>
+                    <p className="text-xs text-muted-foreground">Strong and motivating tone</p>
                   </Label>
                 </div>
               </RadioGroup>
