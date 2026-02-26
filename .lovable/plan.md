@@ -1,107 +1,120 @@
 
 
-# Conversational Intake for All 4 Coach Tiles (POWER, FUEL, MOVEMENT, MINDSET)
+# Profile Tracker System Overhaul
 
-## Problem
-Currently only POWER and FUEL have a conversational intake protocol in the system prompt. MOVEMENT ("Give me tips to improve my squat form") and MINDSET ("Help me build a mindset routine for consistency and focus") send generic prompts with no structured questioning or build capability.
-
-## Solution
-Extend the system prompt and quick action prompts so all 4 tiles trigger a conversational intake flow where the coach reviews profile data first, asks only what's missing, confirms a plan summary, then triggers a build.
+## Overview
+Upgrade the profile's tracking system: add PR reset capability, clean up the overview tab, ensure all 5 cardio types are tracked in PRs and stats, and build the best possible consistency tracker for workouts.
 
 ---
 
-## Changes
+## 1. Reset/Save Personal Records
 
-### 1. Update Quick Action Prompts (`src/pages/Help.tsx`)
+**File: `src/components/tracker/CombinedRecordsView.tsx`**
 
-Replace generic prompts with conversation starters:
+Add a reset button per individual PR record and a "Reset All" option per activity type:
+- Each PR card gets a small trash/reset icon button
+- Clicking shows a confirmation dialog ("Reset your 5K PR?")
+- On confirm, deletes the record from `personal_records` table
+- Add a "Reset All [ACTIVITY] PRs" button at the bottom of each cardio sub-tab
 
-| Tile | Current Prompt | New Prompt |
-|------|---------------|------------|
-| POWER | "I'd like to build a new training programme." | "I'd like to build a new training programme." (no change) |
-| MOVEMENT | "Give me tips to improve my squat form." | "I'd like to build a movement and cardio plan." |
-| FUEL | "I'd like to create a nutrition plan." | "I'd like to create a nutrition plan." (no change) |
-| MINDSET | "Help me build a mindset routine for consistency and focus." | "I'd like to build a mindset and recovery routine." |
+**File: `src/hooks/usePersonalRecords.tsx`**
 
-Update descriptions too:
-- MOVEMENT: "Build a cardio & mobility plan"
-- MINDSET: "Build a mindset & recovery routine"
+Add two new functions:
+- `resetPR(recordId: string)` -- deletes a single PR from the database
+- `resetAllPRsForActivity(activityType: string)` -- deletes all PRs matching the activity type
 
-### 2. Expand System Prompt (`supabase/functions/help-chat/index.ts`)
+Need a database migration to add DELETE policy for `personal_records` (currently missing -- users can INSERT and UPDATE but not DELETE).
 
-Add two new intake protocols alongside the existing programme/meal plan ones:
-
-**MOVEMENT/CARDIO PLAN PROTOCOL (4-6 questions):**
-1. Movement goal (improve running pace, general cardio fitness, flexibility/mobility, sport-specific conditioning)
-2. Current cardio activity and frequency (if not in profile)
-3. Available equipment/space (treadmill, outdoor, pool, bike, etc.)
-4. Schedule (sessions per week, duration, preferred days)
-5. Any race/event goals or target distances (if not in profile)
-6. Injuries or mobility limitations (if not in profile)
-
-When ready, coach uses: `[BUILD_MOVEMENT]{"goal":"...","sessionsPerWeek":...,"activities":"...","targetEvent":"...","preferences":"..."}`
-
-**MINDSET/RECOVERY ROUTINE PROTOCOL (4-6 questions):**
-1. Primary mindset goal (consistency, focus, stress management, pre-competition mental prep, sleep improvement)
-2. Current habits (meditation, journaling, breathing exercises -- what they already do)
-3. Available time per day for mindset work
-4. Sleep situation (hours, quality, issues -- if not in profile)
-5. Stress triggers and biggest mental challenge (if not in profile)
-6. Preferences (guided vs unguided, morning vs evening, app-based vs manual)
-
-When ready, coach uses: `[BUILD_MINDSET]{"goal":"...","dailyMinutes":...,"sleepFocus":...,"stressLevel":"...","preferences":"..."}`
-
-The same rules apply: review profile data first, skip questions already answered, ask 1-2 at a time, confirm summary before building.
-
-### 3. Add Tag Detection for MOVEMENT and MINDSET (`src/pages/Help.tsx`)
-
-In the existing `useEffect` that scans for `[BUILD_PROGRAMME]` and `[BUILD_MEAL_PLAN]` tags, add detection for:
-
-- `[BUILD_MOVEMENT]` -- For now, since there's no dedicated cardio plan generator, the coach will generate a structured text-based plan directly in chat (no hidden tag trigger needed yet). Instead, update the system prompt to instruct the coach to output a complete structured movement/cardio plan directly in chat when the user confirms, formatted with clear days, sessions, distances/durations, and progressions. No hidden tag needed.
-
-- `[BUILD_MINDSET]` -- Same approach: the coach outputs a structured daily mindset/recovery routine directly in chat with clear time blocks, techniques, and weekly progression. No hidden tag needed.
-
-This means POWER and FUEL use the existing automated builders, while MOVEMENT and MINDSET get rich structured text plans delivered in-chat. This avoids building new edge functions for plan types that don't have existing generators.
-
-### 4. System Prompt Update Detail
-
-Add after the existing meal plan protocol section:
-
+**Database migration:**
+```sql
+CREATE POLICY "Users can delete their own records"
+ON public.personal_records FOR DELETE
+USING (auth.uid() = user_id);
 ```
-MOVEMENT/CARDIO PLAN BUILDING PROTOCOL
-When a user requests a cardio, running, or movement plan, DO NOT generate one immediately.
-Conduct a structured intake of 4-6 questions.
 
-Review the user's MOVEMENT PROFILE, CARDIO HISTORY, and PERSONAL RECORDS first.
-Confirm what you know, then ask ONLY what's missing.
+---
 
-Once confirmed, output a complete structured plan directly in your response with:
-- Weekly schedule (days, session types, durations)
-- Specific sessions (warm-up, main work, cool-down)
-- Progressive overload across weeks
-- Target paces/distances where relevant
+## 2. Clean Up Overview Tab
 
-MINDSET/RECOVERY ROUTINE BUILDING PROTOCOL
-When a user requests a mindset routine, mental performance plan, or recovery protocol, DO NOT generate one immediately.
-Conduct a structured intake of 4-6 questions.
+**File: `src/components/tracker/ProfileView.tsx`**
 
-Review the user's MINDSET PROFILE (motivation, challenge, sleep, stress) first.
-Confirm what you know, then ask ONLY what's missing.
+Remove from the overview tab:
+- The "RECENT ACTIVITY" card (lines 500-539) -- the session list showing recent runs
+- Keep the 3 quick stat cards (Sessions, km, Time) at the top
+- Keep "MY PROGRAMMES" section
 
-Once confirmed, output a complete structured routine directly in your response with:
-- Daily time blocks and techniques
-- Morning and evening protocols
-- Breathing exercises, journaling prompts, or visualization scripts
-- Weekly progression or variation
+This makes the overview tab a clean summary: identity + quick stats + programmes only.
+
+---
+
+## 3. Cardio PRs: All 5 Activity Types
+
+**File: `src/components/tracker/CombinedRecordsView.tsx`**
+
+Currently the cardio sub-selector only shows Walk, Run, Cycle (line 187). Update to include all 5 types: Walk, Run, Cycle, Row, Swim.
+
+Change:
+```typescript
+{(['walk', 'run', 'cycle'] as CardioActivityType[]).map(type => {
 ```
+To:
+```typescript
+{(Object.keys(CARDIO_ACTIVITY_CONFIG) as CardioActivityType[]).map(type => {
+```
+
+This uses the already-defined `CARDIO_ACTIVITY_CONFIG` which includes all 5 types.
+
+---
+
+## 4. Stats Tab: Cardio Linked to Session Records
+
+**File: `src/components/tracker/CombinedStatsView.tsx`**
+
+The cardio stats sub-selector already shows all 5 types (line 267). Stats are already computed per activity type from runs data. This is working correctly.
+
+Enhancement: Add a "View Records" link button at the bottom of each cardio stats view that switches to the Records tab's cardio section with the same activity type pre-selected. This requires lifting the tab state or using a callback.
+
+**Implementation:** Add an optional `onViewRecords` prop to `CombinedStatsView` that triggers a tab switch in the parent `ProfileView`.
+
+---
+
+## 5. Workout Stats: Programme Consistency Tracker
+
+**File: `src/components/tracker/CombinedStatsView.tsx`**
+
+Rework the Workouts tab to focus on programme consistency rather than raw volume:
+
+Remove:
+- "Sets Completed" stat card
+
+Replace with:
+- **Programme Adherence %** -- sessions completed vs sessions planned (based on active programme's days_per_week)
+- **Current Streak** (already exists, keep it)
+- **Total Workouts** (keep)
+- **Total Time** (keep)
+- **Avg Duration** (keep)
+- **Weekly Attendance** chart (already exists, keep it)
+- **Programme Progress** -- a progress bar showing current_week out of total weeks for the active programme
+
+---
+
+## 6. PR Tab Linked to Trackers
+
+Ensure the Records tab properly links to data sources:
+- **Cardio PRs** already pull from `personal_records` table which is populated by the cardio tracker (`usePersonalRecords.checkAndUpdatePRs`). This works for all activity types since `activity_type` is stored on each record.
+- **Strength PRs** already pull from `exercise_logs` via `workout_sessions`. This is working.
+- No changes needed here beyond the 5-type fix in point 3.
 
 ---
 
 ## Files to Modify
 
-1. **`src/pages/Help.tsx`** -- Update MOVEMENT and MINDSET quick action prompts and descriptions
-2. **`supabase/functions/help-chat/index.ts`** -- Add MOVEMENT and MINDSET intake protocols to system prompt
+1. `src/hooks/usePersonalRecords.tsx` -- Add `resetPR` and `resetAllPRsForActivity` functions
+2. `src/components/tracker/CombinedRecordsView.tsx` -- Add reset buttons with confirmation, expand cardio selector to all 5 types
+3. `src/components/tracker/ProfileView.tsx` -- Remove recent activity section from overview tab, add cross-tab navigation support
+4. `src/components/tracker/CombinedStatsView.tsx` -- Remove total sets, add programme adherence %, add programme progress bar, add "View Records" link
 
-## No Database Changes Required
+## Database Migration
 
-All profile data (cardio preferences, sleep, stress, motivation) is already in `coaching_profiles` and already sent to the coach via context.
+Add DELETE policy for `personal_records` table so users can reset their PRs.
+
