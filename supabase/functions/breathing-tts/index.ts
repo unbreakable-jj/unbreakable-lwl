@@ -6,10 +6,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Voice IDs for different voice options
+// Voice IDs — British-accented voices to match Scouse coaching tone
 const VOICES = {
-  male: "JBFqnCBsd6RMkjVDRZzb", // George - calm, warm male voice
-  female: "EXAVITQu4vr4xnSDxMaL", // Sarah - calm, soothing female voice
+  male: "onwK4e9ZLuTAKqWW03F9",   // Daniel — British male, grounded & direct
+  female: "pFZP5JQG7iQjIQuC4Bku", // Lily — British female, warm & clear
 };
 
 serve(async (req) => {
@@ -82,11 +82,11 @@ serve(async (req) => {
           text,
           model_id: "eleven_turbo_v2_5",
           voice_settings: {
-            stability: 0.7,
-            similarity_boost: 0.5,
-            style: 0.3,
+            stability: 0.55,          // Slightly lower for natural regional inflection
+            similarity_boost: 0.8,    // Keep voice character strong
+            style: 0.45,              // Moderate expressiveness for coaching warmth
             use_speaker_boost: true,
-            speed: 0.9, // Slightly slower for calm guidance
+            speed: 0.92,              // Steady, coach-like pace
           },
         }),
       }
