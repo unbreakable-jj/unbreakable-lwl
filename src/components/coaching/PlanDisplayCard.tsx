@@ -14,12 +14,13 @@ import {
   ChevronDown,
   ChevronUp,
   Save,
+  Brain,
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { PlanContentRenderer } from './PlanContentRenderer';
 import { GeneratedProgram, WorkoutDay } from '@/lib/programTypes';
 
-type PlanType = 'programme' | 'meal_plan';
+type PlanType = 'programme' | 'meal_plan' | 'mindset';
 
 interface PlanDisplayCardProps {
   planType: PlanType;
@@ -40,16 +41,16 @@ export function PlanDisplayCard({
   onViewInHub,
   onSaveToLibrary,
 }: PlanDisplayCardProps) {
-  const [showDetails, setShowDetails] = useState(true); // Default open
+  const [showDetails, setShowDetails] = useState(true);
   const isProgramme = planType === 'programme';
-  const Icon = isProgramme ? Dumbbell : UtensilsCrossed;
-  const hubLabel = isProgramme ? 'My Programmes' : 'My Meal Plans';
-  const navLabel = isProgramme ? 'POWER' : 'FUEL';
+  const isMindset = planType === 'mindset';
+  const Icon = isProgramme ? Dumbbell : isMindset ? Brain : UtensilsCrossed;
+  const hubLabel = isProgramme ? 'My Programmes' : isMindset ? 'My Programmes' : 'My Meal Plans';
+  const navLabel = isProgramme ? 'POWER' : isMindset ? 'MINDSET' : 'FUEL';
 
-  const planName = planData.programName || planData.planName || 'Your Plan';
+  const planName = planData.programName || planData.planName || planData.name || 'Your Plan';
   const overview = planData.overview || planData.description || '';
 
-  // Get summary stats
   const getSummary = () => {
     if (isProgramme) {
       const days = planData.templateWeek?.days || planData.weeks?.[0]?.days || [];
@@ -58,10 +59,15 @@ export function PlanDisplayCard({
         primary: `${days.length} training days/week`,
         secondary: `${phases} phases over 12 weeks`,
       };
+    } else if (isMindset) {
+      return {
+        primary: `${planData.durationWeeks || 4} weeks`,
+        secondary: `${planData.dailyMinutes || 15} min/day`,
+      };
     } else {
       const days = planData.days?.length || 7;
-      const avgCals = planData.weeklyCalories 
-        ? Math.round(planData.weeklyCalories / 7) 
+      const avgCals = planData.weeklyCalories
+        ? Math.round(planData.weeklyCalories / 7)
         : planData.days?.[0]?.totalCalories || 0;
       return {
         primary: `${days} days planned`,

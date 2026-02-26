@@ -5,6 +5,7 @@ import { ThemedLogo } from "@/components/ThemedLogo";
 import { NavigationDrawer } from "@/components/NavigationDrawer";
 import { ThemeToggle } from "@/components/hub/ThemeToggle";
 import { UnifiedFooter } from "@/components/UnifiedFooter";
+import { MindsetProgrammes } from "@/components/mindset/MindsetProgrammes";
 
 const heroContent = {
   title: "UNBREAKABLE",
@@ -97,6 +98,11 @@ const Mindset = () => {
             <p className="text-primary font-display text-2xl tracking-wide mt-6 neon-glow-subtle">
               {heroContent.hashtag}
             </p>
+          </div>
+
+          {/* My Programmes Section */}
+          <div className="mb-12">
+            <MindsetProgrammes />
           </div>
 
           {/* Explore Section */}
