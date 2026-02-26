@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Send, MessageSquarePlus, Trash2, Loader2, Flame, Sparkles, Video, UtensilsCrossed, PanelLeftClose, PanelLeftOpen, Dumbbell, TrendingUp, BarChart3, Brain, Zap, Heart, Volume2 } from 'lucide-react';
+import { Send, MessageSquarePlus, Trash2, Loader2, Flame, Sparkles, Video, UtensilsCrossed, PanelLeftClose, PanelLeftOpen, Dumbbell, TrendingUp, BarChart3, Brain, Zap, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -24,8 +24,6 @@ import { useMealPlans } from '@/hooks/useMealPlans';
 import { toast } from '@/hooks/use-toast';
 import { GeneratedProgram } from '@/lib/programTypes';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useAIPreferences } from '@/hooks/useAIPreferences';
-import { useBreathingAudio } from '@/hooks/useBreathingAudio';
 
 interface MessageWithMedia extends Message {
   media?: ChatMedia;
@@ -40,7 +38,7 @@ interface GeneratedPlanInfo {
 }
 
 // ─── Neon Glass Message Bubble ───────────────────────────────────────────────
-function MessageBubble({ message, onPlayVoice, voiceEnabled }: { message: MessageWithMedia; onPlayVoice?: (text: string) => void; voiceEnabled?: boolean }) {
+function MessageBubble({ message }: { message: MessageWithMedia }) {
   const isUser = message.role === 'user';
 
   const formatContent = (content: string) => {
@@ -85,15 +83,6 @@ function MessageBubble({ message, onPlayVoice, voiceEnabled }: { message: Messag
           <div className={`text-sm leading-relaxed ${isUser ? 'text-foreground' : 'text-foreground/90'}`}>
             {isUser ? message.content : formatContent(message.content)}
           </div>
-          {!isUser && voiceEnabled && message.content && (
-            <button
-              onClick={() => onPlayVoice?.(message.content)}
-              className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
-            >
-              <Volume2 className="w-3.5 h-3.5" />
-              <span>Play</span>
-            </button>
-          )}
         </div>
         <p className={`text-[11px] text-muted-foreground mt-1.5 px-1 ${isUser ? 'text-right' : 'text-left'}`}>
           {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -257,38 +246,11 @@ export default function Help() {
   const { generateMealPlan, detectMealPlanRequest, isGenerating: isMealPlanGenerating } = useAIMealPlan();
   const { updateProgram } = useTrainingPrograms();
   const { updateMealPlan } = useMealPlans();
-  const { preferences: aiPrefs } = useAIPreferences();
-  const voiceEnabled = aiPrefs?.voice_feedback_enabled ?? false;
-  const voiceGender = aiPrefs?.voice_gender ?? 'female';
-  const { playAudio, cleanup: cleanupAudio } = useBreathingAudio({ voiceType: voiceGender, enabled: voiceEnabled });
-  const lastSpokenMsgRef = useRef<string | null>(null);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  // Auto-play voice for new assistant messages
-  useEffect(() => {
-    if (!voiceEnabled || messages.length === 0 || isLoading) return;
-    const lastMsg = messages[messages.length - 1];
-    if (lastMsg.role === 'assistant' && lastMsg.content && lastMsg.id !== lastSpokenMsgRef.current) {
-      lastSpokenMsgRef.current = lastMsg.id;
-      // Truncate long responses for TTS (first ~500 chars)
-      const ttsText = lastMsg.content.length > 500 ? lastMsg.content.slice(0, 500) + '...' : lastMsg.content;
-      playAudio(ttsText);
-    }
-  }, [messages, voiceEnabled, isLoading, playAudio]);
-
-  // Cleanup audio on unmount
-  useEffect(() => {
-    return () => cleanupAudio();
-  }, [cleanupAudio]);
-
-  const handlePlayVoice = useCallback((text: string) => {
-    const ttsText = text.length > 500 ? text.slice(0, 500) + '...' : text;
-    playAudio(ttsText);
-  }, [playAudio]);
 
   // Context from URL params or sessionStorage
   useEffect(() => {
@@ -517,7 +479,7 @@ export default function Help() {
                 /* ─── Chat Messages ─── */
                 <div className="max-w-3xl mx-auto">
                   {enrichedMessages.map((msg) => (
-                    <MessageBubble key={msg.id} message={msg} onPlayVoice={handlePlayVoice} voiceEnabled={voiceEnabled} />
+                    <MessageBubble key={msg.id} message={msg} />
                   ))}
                   {isLoading && enrichedMessages[enrichedMessages.length - 1]?.role === 'user' && !isGenerating && (
                     <div className="flex items-center gap-3 mb-5 animate-fade-in">
