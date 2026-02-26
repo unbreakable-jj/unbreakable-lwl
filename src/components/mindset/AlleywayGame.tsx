@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Play, Pause, Trophy } from "lucide-react";
+import { RotateCcw, Play, Pause, Trophy, Volume2, VolumeX } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAlleywayScores } from "@/hooks/useAlleywayScores";
 import { AlleywayLeaderboard } from "./AlleywayLeaderboard";
+import { useGameAudio } from "@/hooks/useGameAudio";
 
 // --- Theme Palettes (strictly orange / neon orange / black / white) ---
 interface ThemePalette {
@@ -114,7 +115,7 @@ type PowerUpType = "multiball" | "wide" | "fireball";
 
 interface Brick {
   x: number; y: number; width: number; height: number;
-  alive: boolean; row: number; hp: number; isIndestructible: boolean;
+  alive: boolean; row: number; hp: number; isReinforced: boolean;
 }
 
 interface Ball {
@@ -192,6 +193,7 @@ const AlleywayGame = () => {
   const [combo, setCombo] = useState(0);
 
   const { saveScore, topScores, userBest, refetch } = useAlleywayScores();
+  const { playHit, playLevelUp, playGameOver, startMusic, stopMusic, toggleMute, isMuted } = useGameAudio("alleyway");
 
   const [scale, setScale] = useState(1);
   useEffect(() => {
@@ -225,8 +227,8 @@ const AlleywayGame = () => {
           x: BRICK_PADDING + col * (brickWidth + BRICK_PADDING),
           y: BRICK_TOP_OFFSET + row * (BRICK_HEIGHT + BRICK_PADDING),
           width: brickWidth, height: BRICK_HEIGHT,
-          alive: true, row, hp: isSteel ? 999 : row < 2 ? 2 : 1,
-          isIndestructible: isSteel,
+          alive: true, row, hp: isSteel ? 5 : row < 2 ? 2 : 1,
+          isReinforced: isSteel,
         });
       }
     }
@@ -289,8 +291,8 @@ const AlleywayGame = () => {
         x: BRICK_PADDING + col * (brickWidth + BRICK_PADDING),
         y: BRICK_TOP_OFFSET, width: brickWidth, height: BRICK_HEIGHT,
         alive: true, row: 0,
-        hp: isSteel ? 999 : Math.random() < reinforceChance ? 2 : 1,
-        isIndestructible: isSteel,
+        hp: isSteel ? 5 : Math.random() < reinforceChance ? 2 : 1,
+        isReinforced: isSteel,
       });
     }
 
@@ -355,31 +357,36 @@ const AlleywayGame = () => {
     bricks.forEach((brick) => {
       if (!brick.alive) return;
 
-      if (brick.isIndestructible) {
-        // Steel brick — dark metallic
-        ctx.shadowColor = "rgba(100,100,100,0.2)";
+      if (brick.isReinforced && brick.hp > 0) {
+        // Steel brick — dark metallic with HP indicator
+        const hpRatio = brick.hp / 5;
+        ctx.shadowColor = `rgba(100,100,100,${0.1 + hpRatio * 0.2})`;
         ctx.shadowBlur = 4;
         const sg = ctx.createLinearGradient(brick.x, brick.y, brick.x, brick.y + brick.height);
-        sg.addColorStop(0, "#555555");
+        sg.addColorStop(0, `rgb(${55 + (1 - hpRatio) * 60}, ${55 + (1 - hpRatio) * 30}, ${55})`);
         sg.addColorStop(0.5, "#3a3a3a");
         sg.addColorStop(1, "#222222");
         ctx.fillStyle = sg;
         ctx.beginPath(); ctx.roundRect(brick.x, brick.y, brick.width, brick.height, 3); ctx.fill();
 
-        // X pattern
+        // Crack pattern based on damage
         ctx.shadowBlur = 0;
-        ctx.strokeStyle = "#ffffff18";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(brick.x + 4, brick.y + 4);
-        ctx.lineTo(brick.x + brick.width - 4, brick.y + brick.height - 4);
-        ctx.moveTo(brick.x + brick.width - 4, brick.y + 4);
-        ctx.lineTo(brick.x + 4, brick.y + brick.height - 4);
-        ctx.stroke();
+        if (hpRatio < 1) {
+          ctx.strokeStyle = `rgba(249,115,22,${0.15 + (1 - hpRatio) * 0.4})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(brick.x + 4, brick.y + 4);
+          ctx.lineTo(brick.x + brick.width - 4, brick.y + brick.height - 4);
+          if (hpRatio < 0.6) {
+            ctx.moveTo(brick.x + brick.width - 4, brick.y + 4);
+            ctx.lineTo(brick.x + 4, brick.y + brick.height - 4);
+          }
+          ctx.stroke();
+        }
 
-        // Orange border glow
-        ctx.strokeStyle = "#f9731633";
-        ctx.lineWidth = 1;
+        // Border glow — brighter as damage increases
+        ctx.strokeStyle = `rgba(249,115,22,${0.1 + (1 - hpRatio) * 0.4})`;
+        ctx.lineWidth = 1 + (1 - hpRatio);
         ctx.beginPath(); ctx.roundRect(brick.x, brick.y, brick.width, brick.height, 3); ctx.stroke();
       } else {
         // Normal / reinforced brick
@@ -577,11 +584,13 @@ const AlleywayGame = () => {
 
   const handleGameOver = useCallback(() => {
     cancelAnimationFrame(animFrameRef.current);
+    stopMusic();
+    playGameOver();
     setGameState("gameover");
     const finalScore = scoreRef.current;
     if (finalScore > highScore) setHighScore(finalScore);
     if (finalScore > 0) saveScore(finalScore, Math.floor(finalScore / THEME_SHIFT_INTERVAL));
-  }, [highScore, saveScore]);
+  }, [highScore, saveScore, stopMusic, playGameOver]);
 
   // --- GAME LOOP ---
   const gameLoop = useCallback(() => {
@@ -646,15 +655,16 @@ const AlleywayGame = () => {
           ball.y + BALL_RADIUS > brick.y &&
           ball.y - BALL_RADIUS < brick.y + brick.height
         ) {
-          if (brick.isIndestructible) {
-            if (!ball.isFireball) {
-              const oL = (ball.x + BALL_RADIUS) - brick.x;
-              const oR = (brick.x + brick.width) - (ball.x - BALL_RADIUS);
-              const oT = (ball.y + BALL_RADIUS) - brick.y;
-              const oB = (brick.y + brick.height) - (ball.y - BALL_RADIUS);
-              if (Math.min(oL, oR) < Math.min(oT, oB)) ball.dx = -ball.dx;
-              else ball.dy = -ball.dy;
-            }
+          if (brick.isReinforced && brick.hp > 1 && !ball.isFireball) {
+            // Steel brick — takes damage but bounces
+            brick.hp -= 1;
+            playHit();
+            const oL = (ball.x + BALL_RADIUS) - brick.x;
+            const oR = (brick.x + brick.width) - (ball.x - BALL_RADIUS);
+            const oT = (ball.y + BALL_RADIUS) - brick.y;
+            const oB = (brick.y + brick.height) - (ball.y - BALL_RADIUS);
+            if (Math.min(oL, oR) < Math.min(oT, oB)) ball.dx = -ball.dx;
+            else ball.dy = -ball.dy;
             // Spark particles on steel hit
             spawnParticles(ball.x, ball.y, "#888888", 4);
             return;
@@ -665,6 +675,7 @@ const AlleywayGame = () => {
             brick.alive = false;
             scoreRef.current++;
             setScore(scoreRef.current);
+            playHit();
 
             // Combo
             comboRef.current++;
@@ -679,7 +690,8 @@ const AlleywayGame = () => {
             const newS = Math.floor(scoreRef.current / THEME_SHIFT_INTERVAL);
             if (newS > oldS) {
               setThemeShifts(newS);
-              screenShakeRef.current = 10; // theme shift shake
+              screenShakeRef.current = 10;
+              playLevelUp();
             }
           }
 
@@ -772,22 +784,25 @@ const AlleywayGame = () => {
     lastDescentRef.current = performance.now();
 
     setGameState("playing");
+    startMusic();
     draw();
     animFrameRef.current = requestAnimationFrame(gameLoop);
-  }, [generateBricks, draw, gameLoop]);
+  }, [generateBricks, draw, gameLoop, startMusic]);
 
   const togglePause = useCallback(() => {
     if (gameState === "playing") {
       cancelAnimationFrame(animFrameRef.current);
+      stopMusic();
       setGameState("paused");
     } else if (gameState === "paused") {
       const now = performance.now();
       lastRegenRef.current = now;
       lastDescentRef.current = now;
       setGameState("playing");
+      startMusic();
       animFrameRef.current = requestAnimationFrame(gameLoop);
     }
-  }, [gameState, gameLoop]);
+  }, [gameState, gameLoop, stopMusic, startMusic]);
 
   const movePaddle = useCallback((clientX: number) => {
     const canvas = canvasRef.current;
@@ -894,9 +909,14 @@ const AlleywayGame = () => {
           </AnimatePresence>
         </div>
 
-        <div className="text-right">
-          <p className="font-display text-[10px] tracking-widest text-muted-foreground">BEST</p>
-          <p className="font-display text-xl tracking-wide text-primary">{Math.max(highScore, userBest || 0)}</p>
+        <div className="flex items-center gap-2">
+          <div className="text-right">
+            <p className="font-display text-[10px] tracking-widest text-muted-foreground">BEST</p>
+            <p className="font-display text-xl tracking-wide text-primary">{Math.max(highScore, userBest || 0)}</p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={toggleMute} className="h-8 w-8 p-0 text-muted-foreground hover:text-primary">
+            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </Button>
         </div>
       </div>
 

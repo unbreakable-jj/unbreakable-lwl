@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Play, Pause, Trophy, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from "lucide-react";
+import { RotateCcw, Play, Pause, Trophy, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Volume2, VolumeX } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSnakeScores } from "@/hooks/useSnakeScores";
 import { SnakeLeaderboard } from "./SnakeLeaderboard";
+import { useGameAudio } from "@/hooks/useGameAudio";
 
 // --- Types ---
 type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT";
@@ -83,6 +84,7 @@ const SnakeGame = () => {
   const [themeShifts, setThemeShifts] = useState(0);
 
   const { saveScore, topScores, userBest, refetch } = useSnakeScores();
+  const { playHit, playLevelUp, playGameOver, startMusic, stopMusic, toggleMute, isMuted } = useGameAudio("snake");
 
   // Responsive canvas
   const [cellSize, setCellSize] = useState(16);
@@ -162,12 +164,14 @@ const SnakeGame = () => {
 
   const gameOver = useCallback(() => {
     if (gameLoopRef.current) clearInterval(gameLoopRef.current);
+    stopMusic();
+    playGameOver();
     setGameState("gameover");
     const finalScore = scoreRef.current;
     const shifts = Math.floor(finalScore / 5);
     if (finalScore > highScore) setHighScore(finalScore);
     if (finalScore > 0) saveScore(finalScore, shifts);
-  }, [highScore, saveScore]);
+  }, [highScore, saveScore, stopMusic, playGameOver]);
 
   const tick = useCallback(() => {
     const snake = [...snakeRef.current];
@@ -191,9 +195,13 @@ const SnakeGame = () => {
       const newScore = scoreRef.current + 1;
       scoreRef.current = newScore;
       setScore(newScore);
+      playHit();
       const oldShifts = Math.floor((newScore - 1) / 5);
       const newShifts = Math.floor(newScore / 5);
-      if (newShifts > oldShifts) setThemeShifts(newShifts);
+      if (newShifts > oldShifts) {
+        setThemeShifts(newShifts);
+        playLevelUp();
+      }
       if (gameLoopRef.current) clearInterval(gameLoopRef.current);
       gameLoopRef.current = setInterval(tick, getSpeed(newScore));
       spawnFood();
@@ -214,20 +222,23 @@ const SnakeGame = () => {
     setThemeShifts(0);
     spawnFood();
     setGameState("playing");
+    startMusic();
     draw();
     if (gameLoopRef.current) clearInterval(gameLoopRef.current);
     gameLoopRef.current = setInterval(tick, INITIAL_SPEED);
-  }, [spawnFood, draw, tick]);
+  }, [spawnFood, draw, tick, startMusic]);
 
   const togglePause = useCallback(() => {
     if (gameState === "playing") {
       if (gameLoopRef.current) clearInterval(gameLoopRef.current);
+      stopMusic();
       setGameState("paused");
     } else if (gameState === "paused") {
       gameLoopRef.current = setInterval(tick, getSpeed(score));
+      startMusic();
       setGameState("playing");
     }
-  }, [gameState, tick, score]);
+  }, [gameState, tick, score, stopMusic, startMusic]);
 
   // Keyboard
   useEffect(() => {
@@ -353,9 +364,14 @@ const SnakeGame = () => {
         </div>
 
         {/* Best */}
-        <div className="text-right shrink-0">
-          <p className="font-display text-[10px] tracking-wider text-muted-foreground">BEST</p>
-          <p className="font-display text-base sm:text-lg tracking-wide text-primary leading-none">{Math.max(highScore, userBest || 0)}</p>
+        <div className="flex items-center gap-1 shrink-0">
+          <div className="text-right">
+            <p className="font-display text-[10px] tracking-wider text-muted-foreground">BEST</p>
+            <p className="font-display text-base sm:text-lg tracking-wide text-primary leading-none">{Math.max(highScore, userBest || 0)}</p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={toggleMute} className="h-8 w-8 p-0 text-muted-foreground hover:text-primary">
+            {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+          </Button>
         </div>
       </div>
 

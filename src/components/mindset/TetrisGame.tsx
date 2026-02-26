@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Play, Pause, Trophy, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from "lucide-react";
+import { RotateCcw, Play, Pause, Trophy, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Volume2, VolumeX } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTetrisScores } from "@/hooks/useTetrisScores";
 import { TetrisLeaderboard } from "./TetrisLeaderboard";
+import { useGameAudio } from "@/hooks/useGameAudio";
 
 // ─── Theme palettes (orange / neon / black / white, inverting) ───
 interface ThemePalette {
@@ -201,6 +202,7 @@ const TetrisGame = () => {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   const { saveScore, topScores, userBest, refetch } = useTetrisScores();
+  const { playHit, playLevelUp, playGameOver, startMusic, stopMusic, toggleMute, isMuted } = useGameAudio("tetris");
 
   // Responsive scaling — fill available width
   const [scale, setScale] = useState(1);
@@ -245,8 +247,9 @@ const TetrisGame = () => {
         const ny = piece.y + r;
         const nx = piece.x + c;
         if (ny < 0) {
-          // Game over — piece locked above visible area
           setGameState("gameover");
+          stopMusic();
+          playGameOver();
           const fs = scoreRef.current;
           if (fs > highScore) setHighScore(fs);
           if (fs > 0) saveScore(fs, linesClearedRef.current, levelRef.current);
@@ -271,6 +274,7 @@ const TetrisGame = () => {
     if (cleared > 0) {
       linesClearedRef.current += cleared;
       setLinesCleared(linesClearedRef.current);
+      playHit();
 
       const pts = (POINTS[cleared] || cleared * 100) * levelRef.current;
       scoreRef.current += pts;
@@ -280,6 +284,7 @@ const TetrisGame = () => {
       if (newLevel !== levelRef.current) {
         levelRef.current = newLevel;
         setLevel(newLevel);
+        playLevelUp();
       }
 
       screenShakeRef.current = cleared >= 4 ? 12 : cleared >= 2 ? 6 : 3;
@@ -292,11 +297,13 @@ const TetrisGame = () => {
     // Check if new piece is valid
     if (!isValid(board, currentPieceRef.current)) {
       setGameState("gameover");
+      stopMusic();
+      playGameOver();
       const fs = scoreRef.current;
       if (fs > highScore) setHighScore(fs);
       if (fs > 0) saveScore(fs, linesClearedRef.current, levelRef.current);
     }
-  }, [highScore, saveScore, spawnParticles]);
+  }, [highScore, saveScore, spawnParticles, stopMusic, playGameOver, playHit, playLevelUp]);
 
   // ─── Draw ───
   const draw = useCallback(() => {
@@ -498,16 +505,19 @@ const TetrisGame = () => {
     setScore(0); setLinesCleared(0); setLevel(1);
     particlesRef.current = []; screenShakeRef.current = 0;
     setGameState("playing");
-  }, []);
+    startMusic();
+  }, [startMusic]);
 
   const togglePause = useCallback(() => {
     if (gameState === "playing") {
       cancelAnimationFrame(animFrameRef.current);
+      stopMusic();
       setGameState("paused");
     } else if (gameState === "paused") {
+      startMusic();
       setGameState("playing");
     }
-  }, [gameState]);
+  }, [gameState, stopMusic, startMusic]);
 
   // ─── Input: move / rotate / drop ───
   const moveLeft = useCallback(() => {
@@ -682,9 +692,14 @@ const TetrisGame = () => {
           <p className="font-display text-[10px] tracking-wider text-muted-foreground">LINES</p>
           <p className="font-display text-lg sm:text-xl tracking-wide text-primary leading-none">{linesCleared}</p>
         </div>
-        <div className="text-right shrink-0">
-          <p className="font-display text-[10px] tracking-wider text-muted-foreground">BEST</p>
-          <p className="font-display text-base sm:text-lg tracking-wide text-primary leading-none">{Math.max(highScore, userBest || 0)}</p>
+        <div className="flex items-center gap-1 shrink-0">
+          <div className="text-right">
+            <p className="font-display text-[10px] tracking-wider text-muted-foreground">BEST</p>
+            <p className="font-display text-base sm:text-lg tracking-wide text-primary leading-none">{Math.max(highScore, userBest || 0)}</p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={toggleMute} className="h-8 w-8 p-0 text-muted-foreground hover:text-primary">
+            {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+          </Button>
         </div>
       </div>
 
