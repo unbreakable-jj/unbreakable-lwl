@@ -95,9 +95,9 @@ function MessageBubble({ message }: { message: MessageWithMedia }) {
 // ─── Quick Action Tiles ──────────────────────────────────────────────────────
 const QUICK_ACTIONS = [
   { icon: Dumbbell, label: 'POWER', description: 'Build a training programme', prompt: "I'd like to build a new training programme.", color: 'from-primary/20 to-primary/5' },
-  { icon: TrendingUp, label: 'MOVEMENT', description: 'Improve technique & cardio', prompt: 'Give me tips to improve my squat form.', color: 'from-primary/15 to-primary/5' },
+  { icon: TrendingUp, label: 'MOVEMENT', description: 'Build a cardio & mobility plan', prompt: "I'd like to build a movement and cardio plan.", color: 'from-primary/15 to-primary/5' },
   { icon: UtensilsCrossed, label: 'FUEL', description: 'Create a nutrition plan', prompt: "I'd like to create a nutrition plan.", color: 'from-primary/20 to-primary/5' },
-  { icon: Brain, label: 'MINDSET', description: 'Mental performance coaching', prompt: 'Help me build a mindset routine for consistency and focus.', color: 'from-primary/15 to-primary/5' },
+  { icon: Brain, label: 'MINDSET', description: 'Build a mindset & recovery routine', prompt: "I'd like to build a mindset and recovery routine.", color: 'from-primary/15 to-primary/5' },
 ];
 
 function QuickActionTiles({ onSelect, disabled }: { onSelect: (prompt: string) => void; disabled?: boolean }) {
