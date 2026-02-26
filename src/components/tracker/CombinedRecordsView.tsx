@@ -1,13 +1,16 @@
 import { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePersonalRecords } from '@/hooks/usePersonalRecords';
 import { useMedals } from '@/hooks/useMedals';
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
+import { DeleteConfirmModal } from '@/components/tracker/DeleteConfirmModal';
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
-import { Clock, TrendingUp, Zap, Timer, Dumbbell, Footprints, Bike, Crosshair, Waves, Droplets } from 'lucide-react';
+import { Clock, TrendingUp, Zap, Timer, Dumbbell, Footprints, Bike, Crosshair, Waves, Droplets, Trash2 } from 'lucide-react';
 import { CardioActivityType } from '@/hooks/useRuns';
+import { toast } from 'sonner';
 
 // Big 5 lifts + bodyweight exercises for records
 const STRENGTH_EXERCISES = [
@@ -49,10 +52,13 @@ function NeonTarget({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
 }
 
 export function CombinedRecordsView() {
-  const { getAllPRsWithLabels, loading: prsLoading } = usePersonalRecords();
+  const { getAllPRsWithLabels, records, resetPR, resetAllPRsForActivity, loading: prsLoading } = usePersonalRecords();
   const { getAllMedalsWithStatus, loading: medalsLoading } = useMedals();
   const { sessions, isLoading: workoutsLoading } = useWorkoutSessions();
   const [cardioSub, setCardioSub] = useState<CardioActivityType>('run');
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; label: string } | null>(null);
+  const [deleteAllTarget, setDeleteAllTarget] = useState<CardioActivityType | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const prs = getAllPRsWithLabels();
   const allMedals = getAllMedalsWithStatus();
@@ -64,6 +70,11 @@ export function CombinedRecordsView() {
       record: pr.record && (pr.record as any).activity_type === cardioSub ? pr.record : undefined,
     }));
   }, [prs, cardioSub]);
+
+  // Check if any PRs exist for current activity type
+  const hasRecordsForActivity = useMemo(() => {
+    return records.some(r => r.activity_type === cardioSub);
+  }, [records, cardioSub]);
 
   // Calculate strength records from workout sessions
   const strengthRecords = useMemo((): StrengthRecord[] => {
@@ -134,6 +145,32 @@ export function CombinedRecordsView() {
 
   const getMedalIcon = (rank: 1 | 2 | 3) => ({ 1: '🥇', 2: '🥈', 3: '🥉' }[rank]);
 
+  const handleDeletePR = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await resetPR(deleteTarget.id);
+      toast.success(`${deleteTarget.label} PR reset`);
+    } catch {
+      toast.error('Failed to reset PR');
+    }
+    setDeleting(false);
+    setDeleteTarget(null);
+  };
+
+  const handleDeleteAllPRs = async () => {
+    if (!deleteAllTarget) return;
+    setDeleting(true);
+    try {
+      await resetAllPRsForActivity(deleteAllTarget);
+      toast.success(`All ${CARDIO_ACTIVITY_CONFIG[deleteAllTarget].label} PRs reset`);
+    } catch {
+      toast.error('Failed to reset PRs');
+    }
+    setDeleting(false);
+    setDeleteAllTarget(null);
+  };
+
   const earnedMedals = allMedals.filter(m => m.earned);
   const unearnedMedals = allMedals.filter(m => !m.earned);
 
@@ -182,15 +219,15 @@ export function CombinedRecordsView() {
 
         {/* Cardio PRs */}
         <TabsContent value="cardio" className="space-y-4 mt-4">
-          {/* Activity sub-selector */}
-          <div className="flex gap-2">
-            {(['walk', 'run', 'cycle'] as CardioActivityType[]).map(type => {
+          {/* Activity sub-selector - all 5 types */}
+          <div className="flex flex-wrap gap-2">
+            {(Object.keys(CARDIO_ACTIVITY_CONFIG) as CardioActivityType[]).map(type => {
               const config = CARDIO_ACTIVITY_CONFIG[type];
               return (
                 <button
                   key={type}
                   onClick={() => setCardioSub(type)}
-                  className={`flex-1 flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-all font-display tracking-wide text-sm ${
+                  className={`flex-1 min-w-[60px] flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-all font-display tracking-wide text-xs ${
                     cardioSub === type
                       ? 'border-primary bg-primary/10 text-primary shadow-[0_0_15px_hsl(var(--primary)/0.3)]'
                       : 'border-border bg-card text-muted-foreground hover:border-primary/40'
@@ -242,19 +279,46 @@ export function CombinedRecordsView() {
                           )}
                         </div>
                       </div>
-                      {pr.record && pr.record.time_seconds && (
-                        <div className="text-right">
-                          <p className="font-display text-xl text-primary neon-glow-subtle">{formatTime(pr.record.time_seconds)}</p>
-                          {pr.record.pace_per_km_seconds && (
-                            <p className="text-sm text-muted-foreground">{formatPace(pr.record.pace_per_km_seconds)}</p>
-                          )}
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {pr.record && pr.record.time_seconds && (
+                          <div className="text-right">
+                            <p className="font-display text-xl text-primary neon-glow-subtle">{formatTime(pr.record.time_seconds)}</p>
+                            {pr.record.pace_per_km_seconds && (
+                              <p className="text-sm text-muted-foreground">{formatPace(pr.record.pace_per_km_seconds)}</p>
+                            )}
+                          </div>
+                        )}
+                        {pr.record && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={() => setDeleteTarget({ id: pr.record!.id, label: pr.label })}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </Card>
                 </motion.div>
               ))}
             </div>
+
+            {/* Reset All button */}
+            {hasRecordsForActivity && (
+              <div className="mt-4 flex justify-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-destructive border-destructive/30 hover:bg-destructive/10 font-display tracking-wide"
+                  onClick={() => setDeleteAllTarget(cardioSub)}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  RESET ALL {CARDIO_ACTIVITY_CONFIG[cardioSub].label} PRS
+                </Button>
+              </div>
+            )}
           </motion.div>
         </TabsContent>
 
@@ -352,6 +416,28 @@ export function CombinedRecordsView() {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Delete single PR confirmation */}
+      <DeleteConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDeletePR}
+        title="Reset Personal Record"
+        description={`Reset your ${deleteTarget?.label} PR? This cannot be undone.`}
+        confirmText="Reset PR"
+        loading={deleting}
+      />
+
+      {/* Delete all PRs for activity confirmation */}
+      <DeleteConfirmModal
+        isOpen={!!deleteAllTarget}
+        onClose={() => setDeleteAllTarget(null)}
+        onConfirm={handleDeleteAllPRs}
+        title={`Reset All ${deleteAllTarget ? CARDIO_ACTIVITY_CONFIG[deleteAllTarget].label : ''} PRs`}
+        description={`This will reset all your ${deleteAllTarget ? CARDIO_ACTIVITY_CONFIG[deleteAllTarget].label.toLowerCase() : ''} personal records. This cannot be undone.`}
+        confirmText="Reset All"
+        loading={deleting}
+      />
     </div>
   );
 }

@@ -1,17 +1,20 @@
 import { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 import { useUserRuns, CardioActivityType } from '@/hooks/useRuns';
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
+import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
 import { useAuth } from '@/hooks/useAuth';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar,
 } from 'recharts';
 import { 
   TrendingUp, Calendar, Clock, Zap, Target, Award, Activity,
-  Dumbbell, Timer, CheckCircle2, Footprints, Bike, Flame, Waves, Droplets,
+  Dumbbell, Timer, Footprints, Bike, Flame, Waves, Droplets, Medal, ArrowRight,
 } from 'lucide-react';
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, subWeeks, parseISO } from 'date-fns';
+import { format, startOfWeek, endOfWeek, subWeeks, parseISO, differenceInWeeks } from 'date-fns';
 import { motion } from 'framer-motion';
 
 const ACTIVITY_CONFIG: Record<CardioActivityType, { label: string; icon: typeof Footprints; emoji: string }> = {
@@ -22,7 +25,11 @@ const ACTIVITY_CONFIG: Record<CardioActivityType, { label: string; icon: typeof 
   swim: { label: 'SWIM', icon: Droplets, emoji: '🏊' },
 };
 
-function CardioSubStats({ runs, activityType }: { runs: any[]; activityType: CardioActivityType }) {
+interface CombinedStatsViewProps {
+  onViewRecords?: (activityType?: CardioActivityType) => void;
+}
+
+function CardioSubStats({ runs, activityType, onViewRecords }: { runs: any[]; activityType: CardioActivityType; onViewRecords?: () => void }) {
   const filteredRuns = useMemo(() => {
     return runs.filter(r => {
       const type = r.activity_type || (r.notes && ['walk', 'run', 'cycle', 'row', 'swim'].includes(r.notes) ? r.notes : 'run');
@@ -144,14 +151,26 @@ function CardioSubStats({ runs, activityType }: { runs: any[]; activityType: Car
           </ResponsiveContainer>
         </div>
       </Card>
+
+      {/* View Records link */}
+      {onViewRecords && (
+        <div className="flex justify-center">
+          <Button variant="outline" size="sm" onClick={onViewRecords} className="font-display tracking-wide">
+            <Medal className="w-4 h-4 mr-2" />
+            VIEW {config.label} RECORDS
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
 
-export function CombinedStatsView() {
+export function CombinedStatsView({ onViewRecords }: CombinedStatsViewProps) {
   const { user } = useAuth();
   const { runs, loading: runsLoading } = useUserRuns(user?.id);
   const { sessions, isLoading: workoutsLoading } = useWorkoutSessions();
+  const { activeProgram } = useTrainingPrograms();
   const [cardioSub, setCardioSub] = useState<CardioActivityType>('run');
 
   const completedWorkouts = useMemo(() => {
@@ -162,9 +181,6 @@ export function CombinedStatsView() {
     if (!completedWorkouts.length) return null;
     const totalWorkouts = completedWorkouts.length;
     const totalTime = completedWorkouts.reduce((sum, w) => sum + (w.duration_seconds || 0), 0);
-    const totalSets = completedWorkouts.reduce((sum, w) => {
-      return sum + (w.exercise_logs?.filter(l => l.completed).length || 0);
-    }, 0);
     const avgDuration = totalTime / totalWorkouts;
 
     // Streak calculation
@@ -181,6 +197,29 @@ export function CombinedStatsView() {
       }
     }
 
+    // Programme adherence calculation
+    let adherencePercent: number | null = null;
+    let programProgress: { current: number; total: number; name: string } | null = null;
+
+    if (activeProgram) {
+      const daysPerWeek = (activeProgram.program_data as any)?.daysPerWeek || (activeProgram.program_data as any)?.days_per_week || 4;
+      const durationWeeks = (activeProgram.program_data as any)?.durationWeeks || (activeProgram.program_data as any)?.duration_weeks || 12;
+      const startedAt = activeProgram.started_at ? parseISO(activeProgram.started_at) : parseISO(activeProgram.created_at);
+      const weeksElapsed = Math.max(1, differenceInWeeks(new Date(), startedAt) + 1);
+      const cappedWeeks = Math.min(weeksElapsed, durationWeeks);
+      const expectedSessions = cappedWeeks * daysPerWeek;
+
+      // Count sessions linked to this programme
+      const programSessions = completedWorkouts.filter(w => w.program_id === activeProgram.id).length;
+      adherencePercent = expectedSessions > 0 ? Math.min(100, Math.round((programSessions / expectedSessions) * 100)) : 0;
+
+      programProgress = {
+        current: activeProgram.current_week || 1,
+        total: durationWeeks,
+        name: activeProgram.name,
+      };
+    }
+
     // Weekly frequency bar chart
     const last8Weeks = Array.from({ length: 8 }, (_, i) => {
       const weekStart = startOfWeek(subWeeks(new Date(), 7 - i));
@@ -195,8 +234,8 @@ export function CombinedStatsView() {
       };
     });
 
-    return { totalWorkouts, totalTime, totalSets, avgDuration, streak, weeklyData: last8Weeks };
-  }, [completedWorkouts]);
+    return { totalWorkouts, totalTime, avgDuration, streak, weeklyData: last8Weeks, adherencePercent, programProgress };
+  }, [completedWorkouts, activeProgram]);
 
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -274,7 +313,7 @@ export function CombinedStatsView() {
                 <button
                   key={type}
                   onClick={() => setCardioSub(type)}
-                  className={`flex-1 flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-all font-display tracking-wide text-sm ${
+                  className={`flex-1 min-w-[60px] flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-all font-display tracking-wide text-xs ${
                     cardioSub === type 
                       ? 'border-primary bg-primary/10 text-primary shadow-[0_0_15px_hsl(var(--primary)/0.3)]' 
                       : 'border-border bg-card text-muted-foreground hover:border-primary/40'
@@ -288,19 +327,25 @@ export function CombinedStatsView() {
             })}
           </div>
 
-          <CardioSubStats runs={runs} activityType={cardioSub} />
+          <CardioSubStats 
+            runs={runs} 
+            activityType={cardioSub} 
+            onViewRecords={onViewRecords ? () => onViewRecords(cardioSub) : undefined}
+          />
         </TabsContent>
 
         <TabsContent value="workouts" className="space-y-6 mt-4">
           {workoutStats && (
             <>
-              {/* Workout Stat Cards with attendance */}
+              {/* Workout Stat Cards */}
               <div className="grid grid-cols-2 gap-4">
                 {[
                   { icon: Dumbbell, label: 'Total Workouts', value: workoutStats.totalWorkouts.toString() },
                   { icon: Clock, label: 'Total Time', value: formatDuration(workoutStats.totalTime) },
-                  { icon: CheckCircle2, label: 'Sets Completed', value: workoutStats.totalSets.toString() },
                   { icon: Target, label: 'Avg Duration', value: formatDuration(workoutStats.avgDuration) },
+                  ...(workoutStats.adherencePercent !== null
+                    ? [{ icon: TrendingUp, label: 'Adherence', value: `${workoutStats.adherencePercent}%` }]
+                    : []),
                 ].map((stat, index) => (
                   <motion.div
                     key={stat.label}
@@ -320,6 +365,30 @@ export function CombinedStatsView() {
                   </motion.div>
                 ))}
               </div>
+
+              {/* Programme Progress */}
+              {workoutStats.programProgress && (
+                <Card className="bg-card border-primary/20 p-6 neon-border-subtle">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="text-sm text-muted-foreground font-display tracking-wide">PROGRAMME PROGRESS</p>
+                      <p className="font-display text-lg text-foreground tracking-wide mt-1">
+                        {workoutStats.programProgress.name}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-display text-2xl text-primary neon-glow-subtle">
+                        {workoutStats.programProgress.current}/{workoutStats.programProgress.total}
+                      </p>
+                      <p className="text-xs text-muted-foreground">weeks</p>
+                    </div>
+                  </div>
+                  <Progress 
+                    value={(workoutStats.programProgress.current / workoutStats.programProgress.total) * 100} 
+                    className="h-3"
+                  />
+                </Card>
+              )}
 
               {/* Streak Counter */}
               <Card className="bg-card border-primary/20 p-6 neon-border-subtle">
