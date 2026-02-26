@@ -118,10 +118,17 @@ serve(async (req) => {
 RECIPE LIBRARY (format: Name|Category|Cals|Macros|ID):
 ${recipeCatalogue}
 
-Rules: Prioritize library recipes. Adjust cals for training vs rest days. Higher carbs on training days.
+CRITICAL RULES:
+- You MUST generate ALL 7 DAYS (Monday through Sunday). No exceptions. Never generate fewer than 7 days.
+- Each day MUST have breakfast, lunch, dinner, and at least 1 snack.
+- Prioritize library recipes. Use the exact recipe ID from the library.
+- Adjust calories for training vs rest days. Higher carbs on training days.
+- Vary meals across the week — avoid repeating the same recipe on consecutive days.
 
-Return ONLY JSON:
-{"planName":"string","overview":"string","weeklyCalories":0,"weeklyProtein":0,"days":[{"dayNumber":1,"dayName":"Monday","isTrainingDay":true,"totalCalories":0,"totalProtein":0,"totalCarbs":0,"totalFat":0,"meals":{"breakfast":{"name":"string","recipeId":"uuid","calories":0,"protein":0,"carbs":0,"fat":0,"prepNotes":"string"},"lunch":{"name":"string","recipeId":"uuid","calories":0,"protein":0,"carbs":0,"fat":0,"prepNotes":"string"},"dinner":{"name":"string","recipeId":"uuid","calories":0,"protein":0,"carbs":0,"fat":0,"prepNotes":"string"},"snacks":[{"name":"string","recipeId":"uuid","calories":0,"protein":0,"carbs":0,"fat":0}]}}],"shoppingList":["string"],"mealPrepTips":["string"],"coachNotes":"string"}`;
+Return ONLY JSON matching this EXACT structure with 7 day objects:
+{"planName":"string","overview":"string","weeklyCalories":0,"weeklyProtein":0,"days":[{"dayNumber":1,"dayName":"Monday","isTrainingDay":true,"totalCalories":0,"totalProtein":0,"totalCarbs":0,"totalFat":0,"meals":{"breakfast":{"name":"string","recipeId":"uuid","calories":0,"protein":0,"carbs":0,"fat":0,"prepNotes":"string"},"lunch":{"name":"string","recipeId":"uuid","calories":0,"protein":0,"carbs":0,"fat":0,"prepNotes":"string"},"dinner":{"name":"string","recipeId":"uuid","calories":0,"protein":0,"carbs":0,"fat":0,"prepNotes":"string"},"snacks":[{"name":"string","recipeId":"uuid","calories":0,"protein":0,"carbs":0,"fat":0}]}}],"shoppingList":["string"],"mealPrepTips":["string"],"coachNotes":"string"}
+
+The "days" array MUST contain exactly 7 objects, dayNumber 1-7, Monday through Sunday.`;
 
     // Build context
     let contextMessage = `ATHLETE CONTEXT:\n`;
