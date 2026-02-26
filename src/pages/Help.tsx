@@ -22,6 +22,7 @@ import { AIPlanReviewModal } from '@/components/ai/AIPlanReviewModal';
 import { useAIProgramme } from '@/hooks/useAIProgramme';
 import { useAIMealPlan } from '@/hooks/useAIMealPlan';
 import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
+import { useMindsetProgrammes } from '@/hooks/useMindsetProgrammes';
 import { useMealPlans } from '@/hooks/useMealPlans';
 import { toast } from '@/hooks/use-toast';
 import { GeneratedProgram } from '@/lib/programTypes';
@@ -34,7 +35,7 @@ interface MessageWithMedia extends Message {
 }
 
 interface GeneratedPlanInfo {
-  type: 'programme' | 'meal_plan';
+  type: 'programme' | 'meal_plan' | 'mindset';
   planData: any;
   planId: string;
   savedToHub: boolean;
@@ -248,6 +249,7 @@ export default function Help() {
   const [messagesWithMedia, setMessagesWithMedia] = useState<Map<string, ChatMedia>>(new Map());
   const [programmeGenerating, setProgrammeGenerating] = useState(false);
   const [mealPlanGenerating, setMealPlanGenerating] = useState(false);
+  const [mindsetGenerating, setMindsetGenerating] = useState(false);
   const [generatedPlans, setGeneratedPlans] = useState<GeneratedPlanInfo[]>([]);
   const [editingPlan, setEditingPlan] = useState<GeneratedPlanInfo | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -290,6 +292,7 @@ export default function Help() {
   const { generateMealPlan, detectMealPlanRequest, isGenerating: isMealPlanGenerating } = useAIMealPlan();
   const { updateProgram, saveProgram } = useTrainingPrograms();
   const { updateMealPlan } = useMealPlans();
+  const { saveProgramme: saveMindsetProgramme, generateProgramme: generateMindsetProgramme } = useMindsetProgrammes();
   const queryClient = useQueryClient();
 
   const lastProcessedMsgRef = useRef<string | null>(null);
@@ -309,6 +312,7 @@ export default function Help() {
     const content = lastMsg.content;
     const programmeMatch = content.match(/\[BUILD_PROGRAMME\](\{.*\})?/);
     const mealPlanMatch = content.match(/\[BUILD_MEAL_PLAN\](\{.*\})?/);
+    const mindsetMatch = content.match(/\[BUILD_MINDSET_PROGRAMME\](\{.*\})?/);
 
     if (programmeMatch) {
       const chatContext = messages.slice(-10).map(m => `${m.role}: ${m.content}`).join('\n');
@@ -316,7 +320,6 @@ export default function Help() {
       generateProgramme('Build a programme based on our conversation', { chatContext }).then(result => {
         setProgrammeGenerating(false);
         if (result?.program) {
-          // Show plan for review — NOT saved yet
           const planInfo: GeneratedPlanInfo = { type: 'programme', planData: result.program, planId: '', savedToHub: false };
           setGeneratedPlans(prev => [...prev, planInfo]);
           toast({ title: 'Programme Ready for Review', description: 'Review your plan below, then save it to your library.' });
@@ -328,11 +331,24 @@ export default function Help() {
       generateMealPlan('Build a meal plan based on our conversation', 'full_plan', { chatContext }).then(result => {
         setMealPlanGenerating(false);
         if (result?.plan) {
-          // Show plan for review — NOT saved yet
           const planInfo: GeneratedPlanInfo = { type: 'meal_plan', planData: result.plan, planId: '', savedToHub: false };
           setGeneratedPlans(prev => [...prev, planInfo]);
           toast({ title: 'Meal Plan Ready for Review', description: 'Review your plan below, then save it to your library.' });
         }
+      });
+    } else if (mindsetMatch) {
+      const chatContext = messages.slice(-10).map(m => `${m.role}: ${m.content}`).join('\n');
+      setMindsetGenerating(true);
+      generateMindsetProgramme('Build a mindset programme based on our conversation', chatContext).then(result => {
+        setMindsetGenerating(false);
+        if (result?.programme) {
+          const planInfo: GeneratedPlanInfo = { type: 'mindset', planData: result.programme, planId: '', savedToHub: false };
+          setGeneratedPlans(prev => [...prev, planInfo]);
+          toast({ title: 'Mindset Programme Ready', description: 'Review your programme below, then save it.' });
+        }
+      }).catch(() => {
+        setMindsetGenerating(false);
+        toast({ title: 'Error', description: 'Failed to generate mindset programme', variant: 'destructive' });
       });
     }
   }, [messages, isLoading]);
@@ -400,6 +416,18 @@ export default function Help() {
       if (plan.type === 'programme') {
         const result = await saveProgram.mutateAsync(plan.planData as GeneratedProgram);
         setGeneratedPlans(prev => prev.map(p => p === plan ? { ...p, planId: result.id, savedToHub: true } : p));
+      } else if (plan.type === 'mindset') {
+        const result = await saveMindsetProgramme.mutateAsync({
+          name: plan.planData.name || 'AI Mindset Programme',
+          description: plan.planData.description,
+          goal: plan.planData.goal,
+          duration_weeks: plan.planData.durationWeeks || 4,
+          daily_minutes: plan.planData.dailyMinutes || 15,
+          focus_areas: plan.planData.focusAreas || [],
+          programme_data: plan.planData,
+        });
+        setGeneratedPlans(prev => prev.map(p => p === plan ? { ...p, planId: result.id, savedToHub: true } : p));
+        toast({ title: 'Mindset Programme Saved!', description: 'View it in Mindset → My Programmes' });
       } else {
         // Save meal plan via supabase directly
         const { data: savedPlan, error } = await supabase
@@ -449,9 +477,9 @@ export default function Help() {
       toast({ title: 'Error', description: 'Failed to save changes. Please try again.', variant: 'destructive' });
     }
   };
-  const handleViewInHub = (plan: GeneratedPlanInfo) => { navigate(plan.type === 'programme' ? '/programming' : '/fuel'); };
+  const handleViewInHub = (plan: GeneratedPlanInfo) => { navigate(plan.type === 'programme' ? '/programming' : plan.type === 'mindset' ? '/mindset' : '/fuel'); };
 
-  const isAnyGenerating = isGenerating || isMealPlanGenerating;
+  const isAnyGenerating = isGenerating || isMealPlanGenerating || mindsetGenerating;
   const enrichedMessages: MessageWithMedia[] = messages.map((msg) => {
     // Strip build tags from assistant messages
     if (msg.role === 'assistant') {
@@ -460,6 +488,7 @@ export default function Help() {
         .replace(/\[BUILD_MEAL_PLAN\](\{.*\})?/g, '')
         .replace(/\[BUILD_MOVEMENT\](\{.*\})?/g, '')
         .replace(/\[BUILD_MINDSET\](\{.*\})?/g, '')
+        .replace(/\[BUILD_MINDSET_PROGRAMME\](\{.*\})?/g, '')
         .trim();
       return { ...msg, content: cleanContent };
     }
@@ -615,6 +644,17 @@ export default function Help() {
                       </div>
                       <div className="rounded-2xl rounded-bl-md px-5 py-4 bg-primary/10 border border-primary/30 backdrop-blur-md shadow-[0_0_20px_hsl(24_100%_50%/0.1)]">
                         <span className="text-sm font-medium text-primary">Building your bespoke meal plan...</span>
+                        <p className="text-xs text-muted-foreground mt-1">This takes about 15-20 seconds</p>
+                      </div>
+                    </div>
+                  )}
+                  {mindsetGenerating && (
+                    <div className="flex items-center gap-3 mb-5 animate-fade-in">
+                      <div className="w-9 h-9 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center neon-border-subtle">
+                        <Brain className="w-4 h-4 text-primary animate-pulse" />
+                      </div>
+                      <div className="rounded-2xl rounded-bl-md px-5 py-4 bg-primary/10 border border-primary/30 backdrop-blur-md shadow-[0_0_20px_hsl(24_100%_50%/0.1)]">
+                        <span className="text-sm font-medium text-primary">Building your mindset programme...</span>
                         <p className="text-xs text-muted-foreground mt-1">This takes about 15-20 seconds</p>
                       </div>
                     </div>

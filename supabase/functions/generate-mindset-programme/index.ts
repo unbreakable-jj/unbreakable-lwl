@@ -1,0 +1,160 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
+
+function extractJsonFromResponse(response: string): unknown {
+  let cleaned = response.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
+  const jsonStart = cleaned.search(/[\{\[]/);
+  const jsonEnd = cleaned.lastIndexOf(jsonStart !== -1 && cleaned[jsonStart] === '[' ? ']' : '}');
+  if (jsonStart === -1 || jsonEnd === -1) throw new Error("No JSON found");
+  cleaned = cleaned.substring(jsonStart, jsonEnd + 1);
+  try { return JSON.parse(cleaned); } catch {
+    cleaned = cleaned.replace(/,\s*}/g, "}").replace(/,\s*]/g, "]").replace(/[\x00-\x1F\x7F]/g, "");
+    return JSON.parse(cleaned);
+  }
+}
+
+const BREATHING_PATTERNS = `Focus (4-7-8): Inhale 4s, hold 7s, exhale 8s — calming
+Box Breathing (4-4-4-4): Inhale 4s, hold 4s, exhale 4s, hold 4s — military-grade control
+Tactical Calm (4-2-6): Inhale 4s, hold 2s, exhale 6s — pre-performance
+Deep Reset (4-4-6-2): Inhale 4s, hold 4s, exhale 6s, hold 2s — recovery`;
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const authClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: authError } = await authClient.auth.getClaims(token);
+    if (authError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const { prompt, userContext } = await req.json();
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("Missing configuration");
+
+    const systemPrompt = `UNBREAKABLE MINDSET PROGRAMME BUILDER. You are an accredited mental health & performance coach building structured daily mindset programmes.
+
+AVAILABLE BREATHING PATTERNS (use these exact names):
+${BREATHING_PATTERNS}
+
+SESSION TYPES you can prescribe:
+- breathing: Structured breathing exercise using one of the patterns above
+- meditation: Guided or unguided meditation with a specific focus (body scan, visualisation, gratitude, awareness)
+- journaling: Structured journaling with specific prompts
+- mental_drill: Cognitive exercises (visualisation, focus drills, positive self-talk scripts, reframing exercises)
+- reflection: End-of-day review and self-assessment
+
+CRITICAL RULES:
+- Generate a COMPLETE programme with daily sessions for EVERY day across ALL weeks requested
+- Each day should have 1-3 activities fitting the user's daily time budget
+- Vary activities across the week — mix breathing, meditation, journaling, and mental drills
+- Progress difficulty/depth across weeks (Week 1 = foundation, later weeks = deeper work)
+- Include a clear weekly theme or focus area
+- Be specific with durations, prompts, and instructions
+
+Return ONLY valid JSON matching this structure:
+{
+  "name": "string",
+  "description": "string",
+  "goal": "string",
+  "durationWeeks": number,
+  "dailyMinutes": number,
+  "focusAreas": ["string"],
+  "coachNotes": "string",
+  "weeks": [
+    {
+      "weekNumber": 1,
+      "theme": "string",
+      "overview": "string",
+      "days": [
+        {
+          "dayNumber": 1,
+          "dayName": "Monday",
+          "totalMinutes": number,
+          "activities": [
+            {
+              "type": "breathing|meditation|journaling|mental_drill|reflection",
+              "name": "string",
+              "durationMinutes": number,
+              "instructions": "string",
+              "breathingPattern": "optional - only for breathing type",
+              "journalPrompts": ["optional - only for journaling type"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}`;
+
+    let contextMessage = "";
+    if (userContext) {
+      contextMessage = `ATHLETE CONTEXT:\n${userContext}\n\n`;
+    }
+    contextMessage += `REQUEST: ${prompt}`;
+
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: contextMessage },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) return new Response(JSON.stringify({ error: "Rate limit — try again shortly." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (response.status === 402) return new Response(JSON.stringify({ error: "Payment required." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      throw new Error("AI service unavailable");
+    }
+
+    const aiResponse = await response.json();
+    const content = aiResponse.choices?.[0]?.message?.content;
+    if (!content) throw new Error("No response from AI");
+
+    let programme;
+    try {
+      programme = extractJsonFromResponse(content);
+    } catch {
+      return new Response(JSON.stringify({ type: 'text', content }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify({ type: 'programme', programme }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    console.error("generate-mindset-programme error:", e);
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Failed to generate" }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});

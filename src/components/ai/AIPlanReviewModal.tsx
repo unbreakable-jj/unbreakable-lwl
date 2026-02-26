@@ -43,7 +43,7 @@ import { ScrollableExerciseLibrary } from '@/components/programming/ScrollableEx
 import { LibraryExercise } from '@/lib/exerciseLibrary';
 import { useRecipes } from '@/hooks/useRecipes';
 
-type PlanType = 'programme' | 'meal_plan';
+type PlanType = 'programme' | 'meal_plan' | 'mindset';
 
 interface AIPlanReviewModalProps {
   isOpen: boolean;

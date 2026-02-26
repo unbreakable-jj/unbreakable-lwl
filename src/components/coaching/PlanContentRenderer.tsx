@@ -24,7 +24,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { GeneratedProgram, WorkoutDay, Exercise } from '@/lib/programTypes';
 
 interface PlanContentRendererProps {
-  planType: 'programme' | 'meal_plan';
+  planType: 'programme' | 'meal_plan' | 'mindset';
   planData: GeneratedProgram | any;
 }
 

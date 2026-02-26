@@ -979,6 +979,54 @@ export type Database = {
         }
         Relationships: []
       }
+      mindset_programmes: {
+        Row: {
+          created_at: string
+          daily_minutes: number
+          description: string | null
+          duration_weeks: number
+          focus_areas: string[] | null
+          goal: string | null
+          id: string
+          is_active: boolean
+          name: string
+          programme_data: Json
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          daily_minutes?: number
+          description?: string | null
+          duration_weeks?: number
+          focus_areas?: string[] | null
+          goal?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          programme_data?: Json
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          daily_minutes?: number
+          description?: string | null
+          duration_weeks?: number
+          focus_areas?: string[] | null
+          goal?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          programme_data?: Json
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
