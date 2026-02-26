@@ -47,6 +47,33 @@ CORE: Front Plank,Side Plank,Dead Bug,Hanging Leg Raise,Cable Woodchops,Russian 
 GLUTES: Barbell Hip Thrust,Dumbbell Hip Thrust,Glute Bridge,Cable Kickbacks,Cable Pull Through,Frog Pumps
 CARDIO: Treadmill Run,Rowing Machine,Stationary Bike,Jump Rope,Burpees,Battle Ropes,Sled Push,Farmers Walk,Kettlebell Swings`;
 
+function extractJsonFromResponse(response: string): unknown {
+  let cleaned = response
+    .replace(/```json\s*/gi, "")
+    .replace(/```\s*/g, "")
+    .trim();
+
+  const jsonStart = cleaned.search(/[\{\[]/);
+  const jsonEnd = cleaned.lastIndexOf(jsonStart !== -1 && cleaned[jsonStart] === '[' ? ']' : '}');
+
+  if (jsonStart === -1 || jsonEnd === -1) {
+    throw new Error("No JSON object found in response");
+  }
+
+  cleaned = cleaned.substring(jsonStart, jsonEnd + 1);
+
+  try {
+    return JSON.parse(cleaned);
+  } catch (e) {
+    cleaned = cleaned
+      .replace(/,\s*}/g, "}")
+      .replace(/,\s*]/g, "]")
+      .replace(/[\x00-\x1F\x7F]/g, "");
+
+    return JSON.parse(cleaned);
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -219,86 +246,16 @@ If the user hasn't provided enough information, make intelligent assumptions bas
       throw new Error("No response from coach");
     }
 
-    // Parse the programme JSON
-    let cleanedContent = content.trim();
-    
-    // Remove markdown blocks
-    if (cleanedContent.includes("```json")) {
-      cleanedContent = cleanedContent.substring(cleanedContent.indexOf("```json") + 7);
-    } else if (cleanedContent.includes("```")) {
-      cleanedContent = cleanedContent.substring(cleanedContent.indexOf("```") + 3);
-    }
-    if (cleanedContent.includes("```")) {
-      cleanedContent = cleanedContent.substring(0, cleanedContent.lastIndexOf("```"));
-    }
-    cleanedContent = cleanedContent.trim();
-    
-    // Extract JSON
-    const jsonStart = cleanedContent.indexOf("{");
-    const jsonEnd = cleanedContent.lastIndexOf("}");
-    
-    if (jsonStart === -1 || jsonEnd === -1 || jsonEnd <= jsonStart) {
-      console.error("No valid JSON found:", cleanedContent.substring(0, 500));
-      throw new Error("Coach couldn't format the programme properly. Please try again.");
-    }
-    
-    cleanedContent = cleanedContent.substring(jsonStart, jsonEnd + 1);
-
+    // Parse the programme JSON with robust extraction
     let program;
     try {
-      program = JSON.parse(cleanedContent);
+      program = extractJsonFromResponse(content);
     } catch (parseError) {
-      console.error("Parse error:", cleanedContent.substring(0, 500));
+      console.error("Parse error:", content.substring(0, 500));
       throw new Error("Programme data formatting issue. Please try again.");
     }
 
-    // If we have Supabase credentials and user ID, save directly to database
-    if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY && userContext.userId) {
-      try {
-        const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-        
-        // Check active program count
-        const { data: activePrograms } = await supabase
-          .from('training_programs')
-          .select('id')
-          .eq('user_id', userContext.userId)
-          .eq('is_active', true);
-        
-        const activeCount = activePrograms?.length || 0;
-        
-        // Save the programme
-        const { data: savedProgram, error: saveError } = await supabase
-          .from('training_programs')
-          .insert([{
-            user_id: userContext.userId,
-            name: program.programName,
-            overview: program.overview,
-            program_data: program,
-            is_active: false,
-          }])
-          .select()
-          .single();
-        
-        if (saveError) {
-          console.error("Failed to save programme:", saveError);
-        } else {
-          return new Response(
-            JSON.stringify({ 
-              program, 
-              savedToHub: true, 
-              programId: savedProgram.id,
-              activeCount,
-              message: `Programme "${program.programName}" has been created and saved to your My Programmes hub!`
-            }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-      } catch (dbError) {
-        console.error("Database error:", dbError);
-        // Continue and return programme without saving
-      }
-    }
-
+    // Return programme for user review — do NOT auto-save
     return new Response(
       JSON.stringify({ program, savedToHub: false }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }

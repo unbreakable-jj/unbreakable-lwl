@@ -6,6 +6,33 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+function extractJsonFromResponse(response: string): unknown {
+  let cleaned = response
+    .replace(/```json\s*/gi, "")
+    .replace(/```\s*/g, "")
+    .trim();
+
+  const jsonStart = cleaned.search(/[\{\[]/);
+  const jsonEnd = cleaned.lastIndexOf(jsonStart !== -1 && cleaned[jsonStart] === '[' ? ']' : '}');
+
+  if (jsonStart === -1 || jsonEnd === -1) {
+    throw new Error("No JSON object found in response");
+  }
+
+  cleaned = cleaned.substring(jsonStart, jsonEnd + 1);
+
+  try {
+    return JSON.parse(cleaned);
+  } catch (e) {
+    cleaned = cleaned
+      .replace(/,\s*}/g, "}")
+      .replace(/,\s*]/g, "]")
+      .replace(/[\x00-\x1F\x7F]/g, "");
+
+    return JSON.parse(cleaned);
+  }
+}
+
 interface UserContext {
   userId: string;
   goals?: {
@@ -176,12 +203,10 @@ Return ONLY JSON:
       });
     }
 
-    // For full plans, parse JSON and save to database
+    // For full plans, parse JSON with robust extraction
     let mealPlan;
     try {
-      const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/) || content.match(/\{[\s\S]*\}/);
-      const jsonStr = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : content;
-      mealPlan = JSON.parse(jsonStr);
+      mealPlan = extractJsonFromResponse(content);
     } catch (parseError) {
       console.error("JSON parse error:", parseError);
       return new Response(JSON.stringify({ 
@@ -193,72 +218,12 @@ Return ONLY JSON:
       });
     }
 
-    // Save the meal plan to database
-    const { data: savedPlan, error: saveError } = await supabase
-      .from('meal_plans')
-      .insert({
-        user_id: userContext.userId,
-        name: mealPlan.planName || 'AI Generated Plan',
-        description: mealPlan.overview,
-        is_active: false,
-      })
-      .select()
-      .single();
-
-    if (saveError) {
-      console.error("Save error:", saveError);
-      throw new Error("Failed to save meal plan");
-    }
-
-    // Save meal plan items with recipe_id links
-    const planItems = [];
-    for (const day of mealPlan.days || []) {
-      const dayIndex = day.dayNumber - 1;
-      
-      const addMeal = (meal: any, mealType: string) => {
-        if (!meal) return;
-        planItems.push({
-          user_id: userContext.userId,
-          meal_plan_id: savedPlan.id,
-          day_of_week: dayIndex,
-          meal_type: mealType,
-          food_name: meal.name,
-          recipe_id: meal.recipeId || null,
-          calories: meal.calories,
-          protein_g: meal.protein,
-          carbs_g: meal.carbs,
-          fat_g: meal.fat,
-          notes: meal.prepNotes || null,
-        });
-      };
-
-      addMeal(day.meals?.breakfast, 'breakfast');
-      addMeal(day.meals?.lunch, 'lunch');
-      addMeal(day.meals?.dinner, 'dinner');
-      
-      if (day.meals?.snacks) {
-        for (const snack of day.meals.snacks) {
-          addMeal(snack, 'snack');
-        }
-      }
-    }
-
-    if (planItems.length > 0) {
-      const { error: itemsError } = await supabase
-        .from('meal_plan_items')
-        .insert(planItems);
-
-      if (itemsError) {
-        console.error("Items save error:", itemsError);
-      }
-    }
-
+    // Return meal plan for user review — do NOT auto-save
     return new Response(JSON.stringify({
       type: 'plan',
       plan: mealPlan,
-      savedToHub: true,
-      planId: savedPlan.id,
-      message: `Your "${mealPlan.planName}" meal plan is ready in your Fuel hub! Review and confirm the suggested recipes.`,
+      savedToHub: false,
+      message: `Your "${mealPlan.planName || 'Meal Plan'}" is ready for review.`,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

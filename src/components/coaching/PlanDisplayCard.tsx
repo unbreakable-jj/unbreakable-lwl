@@ -13,6 +13,7 @@ import {
   Flame,
   ChevronDown,
   ChevronUp,
+  Save,
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { PlanContentRenderer } from './PlanContentRenderer';
@@ -27,6 +28,7 @@ interface PlanDisplayCardProps {
   savedToHub: boolean;
   onEdit: () => void;
   onViewInHub: () => void;
+  onSaveToLibrary?: () => void;
 }
 
 export function PlanDisplayCard({
@@ -36,6 +38,7 @@ export function PlanDisplayCard({
   savedToHub,
   onEdit,
   onViewInHub,
+  onSaveToLibrary,
 }: PlanDisplayCardProps) {
   const [showDetails, setShowDetails] = useState(true); // Default open
   const isProgramme = planType === 'programme';
@@ -138,19 +141,33 @@ export function PlanDisplayCard({
             <Edit3 className="w-3.5 h-3.5" />
             EDIT PLAN
           </Button>
-          <Button
-            size="sm"
-            className="flex-1 gap-1.5 text-xs h-9"
-            onClick={onViewInHub}
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            VIEW IN {navLabel}
-          </Button>
+          {savedToHub ? (
+            <Button
+              size="sm"
+              className="flex-1 gap-1.5 text-xs h-9"
+              onClick={onViewInHub}
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              VIEW IN {navLabel}
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              className="flex-1 gap-1.5 text-xs h-9 bg-primary hover:bg-primary/90"
+              onClick={onSaveToLibrary}
+            >
+              <Save className="w-3.5 h-3.5" />
+              SAVE TO LIBRARY
+            </Button>
+          )}
         </div>
 
         {/* Hub Link Note */}
         <p className="text-[10px] text-muted-foreground text-center">
-          Your plan is saved to <strong>{hubLabel}</strong> with status "Not Started"
+          {savedToHub
+            ? <>Your plan is saved to <strong>{hubLabel}</strong> with status "Not Started"</>
+            : <>Review your plan above, then save it to <strong>{hubLabel}</strong></>
+          }
         </p>
       </CardContent>
     </Card>
