@@ -72,6 +72,25 @@ serve(async (req) => {
     }
 
     const requestData: ProgramRequest = await req.json();
+
+    // Input validation
+    if (!requestData.goal || typeof requestData.goal !== 'string' || requestData.goal.length > 500) {
+      return new Response(JSON.stringify({ error: 'Invalid goal' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (!requestData.availability || typeof requestData.availability !== 'number' || requestData.availability < 1 || requestData.availability > 7) {
+      return new Response(JSON.stringify({ error: 'Availability must be 1-7 days' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (!requestData.sessionLength || typeof requestData.sessionLength !== 'number' || requestData.sessionLength < 15 || requestData.sessionLength > 300) {
+      return new Response(JSON.stringify({ error: 'Session length must be 15-300 minutes' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (!requestData.level || typeof requestData.level !== 'string' || requestData.level.length > 100) {
+      return new Response(JSON.stringify({ error: 'Invalid experience level' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {

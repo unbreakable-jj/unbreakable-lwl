@@ -49,7 +49,19 @@ serve(async (req) => {
       });
     }
 
-    const { prompt, userContext } = await req.json();
+    const body = await req.json();
+    const { prompt, userContext } = body;
+
+    // Input validation
+    if (!prompt || typeof prompt !== 'string' || prompt.length > 5000) {
+      return new Response(JSON.stringify({ error: 'Invalid or missing prompt (max 5000 chars)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (userContext && typeof userContext === 'string' && userContext.length > 50000) {
+      return new Response(JSON.stringify({ error: 'User context too large' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("Missing configuration");
 

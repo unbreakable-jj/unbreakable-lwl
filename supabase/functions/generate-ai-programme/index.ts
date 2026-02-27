@@ -426,6 +426,21 @@ serve(async (req) => {
     }
 
     const requestData: ProgrammeRequest = await req.json();
+
+    // Input validation
+    if (!requestData.prompt || typeof requestData.prompt !== 'string' || requestData.prompt.length > 5000) {
+      return new Response(JSON.stringify({ error: 'Invalid or missing prompt (max 5000 chars)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (!requestData.requestType || !['full_programme', 'quick_programme', 'chat_request'].includes(requestData.requestType)) {
+      return new Response(JSON.stringify({ error: 'Invalid request type' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (requestData.userContext?.chatContext && typeof requestData.userContext.chatContext === 'string' && requestData.userContext.chatContext.length > 50000) {
+      return new Response(JSON.stringify({ error: 'Chat context too large' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {

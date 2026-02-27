@@ -94,12 +94,27 @@ serve(async (req) => {
       );
     }
 
-    const { type, query, barcode, userId } = await req.json() as {
+    const body = await req.json();
+    const { type, query, barcode, userId } = body as {
       type: 'barcode' | 'search';
       query?: string;
       barcode?: string;
       userId?: string;
     };
+
+    // Input validation
+    if (!type || !['barcode', 'search'].includes(type)) {
+      return new Response(JSON.stringify({ error: 'Invalid lookup type' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (type === 'barcode' && (!barcode || typeof barcode !== 'string' || barcode.length > 50 || !/^[a-zA-Z0-9-]+$/.test(barcode))) {
+      return new Response(JSON.stringify({ error: 'Invalid barcode format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (type === 'search' && (!query || typeof query !== 'string' || query.length > 200)) {
+      return new Response(JSON.stringify({ error: 'Invalid search query (max 200 chars)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");

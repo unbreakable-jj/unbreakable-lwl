@@ -81,11 +81,26 @@ serve(async (req) => {
       );
     }
 
-    const { userContext, prompt, requestType } = await req.json() as {
+    const body = await req.json();
+    const { userContext, prompt, requestType } = body as {
       userContext: UserContext;
       prompt: string;
       requestType: 'full_plan' | 'suggestions' | 'chat_request';
     };
+
+    // Input validation
+    if (!prompt || typeof prompt !== 'string') {
+      return new Response(JSON.stringify({ error: 'Prompt is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (prompt.length > 5000) {
+      return new Response(JSON.stringify({ error: 'Prompt too long (max 5000 chars)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (!requestType || !['full_plan', 'suggestions', 'chat_request'].includes(requestType)) {
+      return new Response(JSON.stringify({ error: 'Invalid request type' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");

@@ -88,7 +88,18 @@ serve(async (req) => {
       );
     }
 
-    const { type, item, userContext } = await req.json() as AnalysisRequest;
+    const body = await req.json();
+    const { type, item, userContext } = body as AnalysisRequest;
+
+    // Input validation
+    if (!type || !['barcode', 'food_log', 'recipe', 'daily_summary'].includes(type)) {
+      return new Response(JSON.stringify({ error: 'Invalid analysis type' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (!item || !item.name || typeof item.name !== 'string' || item.name.length > 500) {
+      return new Response(JSON.stringify({ error: 'Invalid food item name' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     

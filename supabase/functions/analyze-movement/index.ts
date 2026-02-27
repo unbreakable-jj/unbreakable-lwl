@@ -37,7 +37,15 @@ serve(async (req) => {
       );
     }
 
-    const { videoId } = await req.json();
+    const body = await req.json();
+    const { videoId } = body;
+
+    // Input validation
+    if (!videoId || typeof videoId !== 'string' || videoId.length > 100) {
+      return new Response(JSON.stringify({ error: 'Invalid video ID' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {
