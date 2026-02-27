@@ -19,6 +19,10 @@ import {
   Sandwich,
   Moon,
   Utensils,
+  Brain,
+  Wind,
+  BookOpen,
+  Eye,
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { GeneratedProgram, WorkoutDay, Exercise } from '@/lib/programTypes';
@@ -239,9 +243,110 @@ function MealDayCard({ day, dayIndex }: { day: any; dayIndex: number }) {
   );
 }
 
+// Mindset activity icons
+const mindsetActivityIcons: Record<string, React.ReactNode> = {
+  breathing: <Wind className="w-4 h-4" />,
+  meditation: <Brain className="w-4 h-4" />,
+  journaling: <BookOpen className="w-4 h-4" />,
+  mental_drill: <Target className="w-4 h-4" />,
+  reflection: <Eye className="w-4 h-4" />,
+};
+
+function MindsetWeekCard({ week, weekIndex }: { week: any; weekIndex: number }) {
+  const [isOpen, setIsOpen] = useState(weekIndex === 0);
+
+  return (
+    <Card className="border-border/50 bg-card/50">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <CollapsibleTrigger asChild>
+          <div className="flex items-center justify-between p-3 cursor-pointer hover:bg-muted/30 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                <Brain className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-display text-sm tracking-wide text-primary">
+                  WEEK {week.weekNumber || weekIndex + 1}
+                </p>
+                <p className="text-xs text-muted-foreground">{week.theme || 'Focus Week'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-xs">{week.days?.length || 0} days</Badge>
+              {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </div>
+          </div>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="px-3 pb-3 space-y-2">
+            {week.overview && (
+              <p className="text-xs text-muted-foreground italic px-1">{week.overview}</p>
+            )}
+            {(week.days || []).map((day: any, di: number) => (
+              <div key={di} className="p-2.5 bg-background/50 rounded-lg border border-border/50 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-display text-xs tracking-wide">
+                    {day.dayName || `DAY ${day.dayNumber || di + 1}`}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">{day.totalMinutes} min</span>
+                </div>
+                {(day.activities || []).map((activity: any, ai: number) => (
+                  <div key={ai} className="flex items-start gap-2 p-2 bg-muted/20 rounded border border-border/30">
+                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0 mt-0.5">
+                      {mindsetActivityIcons[activity.type] || <Brain className="w-3 h-3" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium">{activity.name || activity.type}</span>
+                        <Badge variant="secondary" className="text-[9px]">{activity.durationMinutes} min</Badge>
+                      </div>
+                      {activity.instructions && (
+                        <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{activity.instructions}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </Card>
+  );
+}
+
 export function PlanContentRenderer({ planType, planData }: PlanContentRendererProps) {
   const isProgramme = planType === 'programme';
+  const isMindset = planType === 'mindset';
   
+  // Mindset programme rendering
+  if (isMindset) {
+    const weeks = planData.weeks || [];
+    return (
+      <div className="space-y-4 max-w-full">
+        {weeks.length > 0 ? (
+          <ScrollArea className="h-[280px] pr-2">
+            <div className="space-y-2">
+              {weeks.map((week: any, wi: number) => (
+                <MindsetWeekCard key={wi} week={week} weekIndex={wi} />
+              ))}
+            </div>
+          </ScrollArea>
+        ) : (
+          <div className="p-4 bg-muted/30 rounded-lg text-center">
+            <p className="text-sm text-muted-foreground">Mindset programme structure loading...</p>
+          </div>
+        )}
+        {planData.coachNotes && (
+          <div className="p-3 bg-muted/30 rounded-lg">
+            <p className="font-medium text-sm text-foreground mb-1">Coach Notes</p>
+            <p className="text-xs text-muted-foreground italic">"{planData.coachNotes}"</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   // Programme rendering
   if (isProgramme) {
     const days = planData.templateWeek?.days || planData.weeks?.[0]?.days || [];

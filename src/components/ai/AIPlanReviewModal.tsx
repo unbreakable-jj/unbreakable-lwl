@@ -37,6 +37,10 @@ import {
   Moon,
   Salad,
   Search,
+  Brain,
+  Wind,
+  BookOpen,
+  Eye,
 } from 'lucide-react';
 import { GeneratedProgram, WorkoutDay, Exercise } from '@/lib/programTypes';
 import { ScrollableExerciseLibrary } from '@/components/programming/ScrollableExerciseLibrary';
@@ -213,13 +217,16 @@ export function AIPlanReviewModal({
   const [swappingMeal, setSwappingMeal] = useState<{ dayIndex: number; mealKey: string; isSnack: boolean; snackIndex?: number; label: string } | null>(null);
 
   const isProgramme = planType === 'programme';
-  const Icon = isProgramme ? Dumbbell : UtensilsCrossed;
-  const title = isProgramme ? 'YOUR PROGRAMME' : 'YOUR MEAL PLAN';
-  const hubName = isProgramme ? 'My Programmes' : 'My Meal Plans';
+  const isMindset = planType === 'mindset';
+  const isMealPlan = planType === 'meal_plan';
+  const Icon = isProgramme ? Dumbbell : isMindset ? Brain : UtensilsCrossed;
+  const title = isProgramme ? 'YOUR PROGRAMME' : isMindset ? 'YOUR MINDSET PROGRAMME' : 'YOUR MEAL PLAN';
+  const hubName = isProgramme ? 'My Programmes' : isMindset ? 'Mindset Programmes' : 'My Meal Plans';
 
   const isEditing = step === 'edit';
   const programmeDays: WorkoutDay[] = isProgramme ? (editedPlan.templateWeek?.days || []) : [];
-  const mealPlanDays: any[] = !isProgramme ? (editedPlan.days || []) : [];
+  const mealPlanDays: any[] = isMealPlan ? (editedPlan.days || []) : [];
+  const mindsetWeeks: any[] = isMindset ? (editedPlan.weeks || []) : [];
 
   const updatePlanField = useCallback((field: string, value: string) => {
     setEditedPlan((prev: any) => ({ ...prev, [field]: value }));
@@ -388,7 +395,7 @@ export function AIPlanReviewModal({
               </DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground mt-1">
                 {isEditing
-                  ? (isProgramme ? 'Edit exercises, swap, or add new ones' : 'Tap the swap icon to change meals from your recipe library')
+                  ? (isProgramme ? 'Edit exercises, swap, or add new ones' : isMindset ? 'Edit activities, durations, and instructions' : 'Tap the swap icon to change meals from your recipe library')
                   : `Review, edit, and save to your ${hubName}`}
               </DialogDescription>
             </div>
@@ -410,14 +417,18 @@ export function AIPlanReviewModal({
                 <div>
                   {isEditing ? (
                     <Input
-                      value={editedPlan.programName || editedPlan.planName || ''}
-                      onChange={(e) => updatePlanField(isProgramme ? 'programName' : 'planName', e.target.value)}
+                      value={editedPlan.programName || editedPlan.planName || editedPlan.name || ''}
+                      onChange={(e) => {
+                        if (isProgramme) updatePlanField('programName', e.target.value);
+                        else if (isMindset) updatePlanField('name', e.target.value);
+                        else updatePlanField('planName', e.target.value);
+                      }}
                       className="font-display text-xl tracking-wide border-primary/40"
                       placeholder="Plan name..."
                     />
                   ) : (
                     <h2 className="font-display text-2xl tracking-wide text-primary neon-glow-subtle text-center">
-                      {editedPlan.programName || editedPlan.planName || 'Your Plan'}
+                      {editedPlan.programName || editedPlan.planName || editedPlan.name || 'Your Plan'}
                     </h2>
                   )}
                 </div>
@@ -514,8 +525,145 @@ export function AIPlanReviewModal({
                   </div>
                 )}
 
+                {/* ═══ MINDSET PROGRAMME: Weeks & Activities ═══ */}
+                {isMindset && mindsetWeeks.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Brain className="w-4 h-4 text-primary" />
+                      <span className="font-display text-sm tracking-wide text-primary">
+                        {mindsetWeeks.length} WEEK PROGRAMME
+                      </span>
+                    </div>
+                    {mindsetWeeks.map((week: any, weekIndex: number) => (
+                      <Collapsible key={weekIndex} open={expandedDay === weekIndex} onOpenChange={() => setExpandedDay(expandedDay === weekIndex ? null : weekIndex)}>
+                        <CollapsibleTrigger asChild>
+                          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border cursor-pointer hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center gap-2">
+                              <span className="font-display text-sm tracking-wide text-primary">WEEK {week.weekNumber || weekIndex + 1}</span>
+                              {week.theme && <span className="text-xs text-muted-foreground">— {week.theme}</span>}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="secondary" className="text-[10px]">{week.days?.length || 0} days</Badge>
+                              {expandedDay === weekIndex ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                            </div>
+                          </div>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <div className="mt-1 p-3 rounded-b-lg border border-t-0 border-border space-y-3">
+                            {week.overview && !isEditing && (
+                              <p className="text-xs text-muted-foreground italic">{week.overview}</p>
+                            )}
+                            {(week.days || []).map((day: any, dayIndex: number) => (
+                              <div key={dayIndex} className="p-2.5 bg-background/50 rounded-lg border border-border/50 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="font-display text-xs tracking-wide">
+                                    {day.dayName || `DAY ${day.dayNumber || dayIndex + 1}`}
+                                  </span>
+                                  <span className="text-[10px] text-muted-foreground">{day.totalMinutes} min</span>
+                                </div>
+                                {(day.activities || []).map((activity: any, actIndex: number) => (
+                                  <div key={actIndex} className="flex items-start gap-2 p-2 bg-muted/20 rounded border border-border/30">
+                                    <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0 mt-0.5">
+                                      {activity.type === 'breathing' ? <Wind className="w-3.5 h-3.5" /> :
+                                       activity.type === 'journaling' ? <BookOpen className="w-3.5 h-3.5" /> :
+                                       activity.type === 'reflection' ? <Eye className="w-3.5 h-3.5" /> :
+                                       <Brain className="w-3.5 h-3.5" />}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      {isEditing ? (
+                                        <div className="space-y-1.5">
+                                          <Input
+                                            value={activity.name || ''}
+                                            onChange={(e) => {
+                                              setEditedPlan((prev: any) => {
+                                                const updated = JSON.parse(JSON.stringify(prev));
+                                                if (updated.weeks?.[weekIndex]?.days?.[dayIndex]?.activities?.[actIndex]) {
+                                                  updated.weeks[weekIndex].days[dayIndex].activities[actIndex].name = e.target.value;
+                                                }
+                                                return updated;
+                                              });
+                                            }}
+                                            className="h-7 text-xs border-primary/30"
+                                            placeholder="Activity name..."
+                                          />
+                                          <div className="flex gap-1.5">
+                                            <Input
+                                              type="number"
+                                              value={activity.durationMinutes || ''}
+                                              onChange={(e) => {
+                                                setEditedPlan((prev: any) => {
+                                                  const updated = JSON.parse(JSON.stringify(prev));
+                                                  if (updated.weeks?.[weekIndex]?.days?.[dayIndex]?.activities?.[actIndex]) {
+                                                    updated.weeks[weekIndex].days[dayIndex].activities[actIndex].durationMinutes = Number(e.target.value);
+                                                  }
+                                                  return updated;
+                                                });
+                                              }}
+                                              className="h-6 text-[10px] w-20 px-1"
+                                              placeholder="Min"
+                                            />
+                                            <Badge variant="secondary" className="text-[9px] shrink-0">{activity.type}</Badge>
+                                          </div>
+                                          <Textarea
+                                            value={activity.instructions || ''}
+                                            onChange={(e) => {
+                                              setEditedPlan((prev: any) => {
+                                                const updated = JSON.parse(JSON.stringify(prev));
+                                                if (updated.weeks?.[weekIndex]?.days?.[dayIndex]?.activities?.[actIndex]) {
+                                                  updated.weeks[weekIndex].days[dayIndex].activities[actIndex].instructions = e.target.value;
+                                                }
+                                                return updated;
+                                              });
+                                            }}
+                                            className="min-h-[50px] text-[10px] border-primary/30"
+                                            placeholder="Instructions..."
+                                          />
+                                        </div>
+                                      ) : (
+                                        <>
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-xs font-medium">{activity.name || activity.type}</span>
+                                            <Badge variant="secondary" className="text-[9px]">{activity.durationMinutes} min</Badge>
+                                          </div>
+                                          {activity.instructions && (
+                                            <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{activity.instructions}</p>
+                                          )}
+                                          {activity.breathingPattern && (
+                                            <Badge variant="outline" className="text-[9px] mt-1 border-primary/30">{activity.breathingPattern}</Badge>
+                                          )}
+                                        </>
+                                      )}
+                                    </div>
+                                    {isEditing && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 w-6 p-0 text-destructive hover:text-destructive shrink-0"
+                                        onClick={() => {
+                                          setEditedPlan((prev: any) => {
+                                            const updated = JSON.parse(JSON.stringify(prev));
+                                            updated.weeks?.[weekIndex]?.days?.[dayIndex]?.activities?.splice(actIndex, 1);
+                                            return updated;
+                                          });
+                                        }}
+                                        title="Remove activity"
+                                      >
+                                        <Trash2 className="w-3 h-3" />
+                                      </Button>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            ))}
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    ))}
+                  </div>
+                )}
+
                 {/* ═══ MEAL PLAN: All Days with Meals ═══ */}
-                {!isProgramme && mealPlanDays.length > 0 && (
+                {isMealPlan && mealPlanDays.length > 0 && (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 mb-1">
                       <UtensilsCrossed className="w-4 h-4 text-primary" />
@@ -704,7 +852,7 @@ export function AIPlanReviewModal({
                   </div>
                   <h2 className="font-display text-2xl tracking-wide">READY TO SAVE?</h2>
                   <p className="text-muted-foreground max-w-md mx-auto">
-                    Your {isProgramme ? 'programme' : 'meal plan'} will be saved to{' '}
+                    Your {isProgramme ? 'programme' : isMindset ? 'mindset programme' : 'meal plan'} will be saved to{' '}
                     <span className="text-primary">{hubName}</span> with status{' '}
                     <Badge variant="secondary">Not Started</Badge>
                   </p>
@@ -716,10 +864,12 @@ export function AIPlanReviewModal({
                       <div className="flex items-center gap-3">
                         <Icon className="w-6 h-6 text-primary" />
                         <div>
-                          <p className="font-display tracking-wide">{editedPlan.programName || editedPlan.planName}</p>
+                          <p className="font-display tracking-wide">{editedPlan.programName || editedPlan.planName || editedPlan.name}</p>
                           <p className="text-sm text-muted-foreground">
                             {isProgramme
                               ? `${editedPlan.templateWeek?.days?.length || 0} training days per week`
+                              : isMindset
+                              ? `${editedPlan.weeks?.length || 0} weeks · ${editedPlan.dailyMinutes || 15} min/day`
                               : `${editedPlan.days?.length || 7} day meal plan`}
                           </p>
                         </div>

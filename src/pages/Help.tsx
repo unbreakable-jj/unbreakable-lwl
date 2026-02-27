@@ -466,6 +466,23 @@ export default function Help() {
       if (editingPlan.savedToHub && editingPlan.planId) {
         if (editingPlan.type === 'programme') {
           await updateProgram.mutateAsync({ programId: editingPlan.planId, programData: editedPlanData as GeneratedProgram });
+        } else if (editingPlan.type === 'mindset') {
+          // For mindset, update the programme_data in the database
+          await supabase
+            .from('mindset_programmes')
+            .update({
+              name: editedPlanData.name || editedPlanData.planName,
+              description: editedPlanData.description || editedPlanData.overview,
+              goal: editedPlanData.goal,
+              duration_weeks: editedPlanData.durationWeeks || editedPlanData.weeks?.length || 4,
+              daily_minutes: editedPlanData.dailyMinutes || 15,
+              focus_areas: editedPlanData.focusAreas || [],
+              programme_data: editedPlanData,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', editingPlan.planId)
+            .eq('user_id', user!.id);
+          queryClient.invalidateQueries({ queryKey: ['mindset-programmes'] });
         } else {
           await updateMealPlan.mutateAsync({ id: editingPlan.planId, name: editedPlanData.planName, description: editedPlanData.overview });
         }

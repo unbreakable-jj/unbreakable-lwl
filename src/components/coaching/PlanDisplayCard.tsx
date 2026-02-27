@@ -90,7 +90,7 @@ export function PlanDisplayCard({
             <div className="flex items-center gap-2 mb-0.5">
               <Flame className="w-3.5 h-3.5 text-primary" />
               <span className="text-xs font-display tracking-wide text-primary">
-                YOUR {isProgramme ? 'PROGRAMME' : 'MEAL PLAN'} IS READY
+                YOUR {isProgramme ? 'PROGRAMME' : isMindset ? 'MINDSET PROGRAMME' : 'MEAL PLAN'} IS READY
               </span>
             </div>
             <p className="text-[10px] text-muted-foreground italic mt-0.5">
