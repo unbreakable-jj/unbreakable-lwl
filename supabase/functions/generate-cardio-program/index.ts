@@ -50,6 +50,29 @@ serve(async (req) => {
     }
 
     const requestData: CardioRequest = await req.json();
+
+    // Input validation
+    if (!requestData.activityType || !['walk', 'run', 'cycle'].includes(requestData.activityType)) {
+      return new Response(JSON.stringify({ error: 'Invalid activity type' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (!requestData.goal || !['fitness', 'distance', 'speed', 'endurance', 'weight_loss'].includes(requestData.goal)) {
+      return new Response(JSON.stringify({ error: 'Invalid goal' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (!requestData.currentLevel || !['beginner', 'intermediate', 'advanced'].includes(requestData.currentLevel)) {
+      return new Response(JSON.stringify({ error: 'Invalid level' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (!requestData.sessionsPerWeek || typeof requestData.sessionsPerWeek !== 'number' || requestData.sessionsPerWeek < 1 || requestData.sessionsPerWeek > 7) {
+      return new Response(JSON.stringify({ error: 'Sessions per week must be 1-7' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (!requestData.sessionLength || typeof requestData.sessionLength !== 'number' || requestData.sessionLength < 10 || requestData.sessionLength > 300) {
+      return new Response(JSON.stringify({ error: 'Session length must be 10-300 minutes' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {

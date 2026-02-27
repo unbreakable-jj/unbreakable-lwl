@@ -43,8 +43,9 @@ Deno.serve(async (req) => {
       })
     }
 
-    const { target_user_id } = await req.json()
-    if (!target_user_id) {
+    const body = await req.json()
+    const { target_user_id } = body
+    if (!target_user_id || typeof target_user_id !== 'string' || target_user_id.length > 100) {
       return new Response(JSON.stringify({ error: 'target_user_id required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -212,7 +212,48 @@ serve(async (req) => {
       );
     }
 
-    const { messages, userContext, mediaUrls } = await req.json();
+    const body = await req.json();
+    const { messages, userContext, mediaUrls } = body;
+
+    // Input validation
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid request: messages array is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    if (messages.length > 100) {
+      return new Response(
+        JSON.stringify({ error: 'Too many messages in conversation' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    for (const msg of messages) {
+      if (!msg.role || !['user', 'assistant', 'system'].includes(msg.role)) {
+        return new Response(
+          JSON.stringify({ error: 'Invalid message role' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      if (typeof msg.content === 'string' && msg.content.length > 50000) {
+        return new Response(
+          JSON.stringify({ error: 'Message content too long' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+    if (userContext && typeof userContext === 'string' && userContext.length > 100000) {
+      return new Response(
+        JSON.stringify({ error: 'User context too large' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    if (mediaUrls && (!Array.isArray(mediaUrls) || mediaUrls.length > 10)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid media attachments' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {

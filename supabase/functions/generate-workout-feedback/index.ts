@@ -37,7 +37,23 @@ serve(async (req) => {
       );
     }
 
-    const { sessionId, exerciseLogs, userId } = await req.json();
+    const body = await req.json();
+    const { sessionId, exerciseLogs, userId } = body;
+
+    // Input validation
+    if (!sessionId || typeof sessionId !== 'string' || sessionId.length > 100) {
+      return new Response(JSON.stringify({ error: 'Invalid session ID' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (!userId || typeof userId !== 'string' || userId.length > 100) {
+      return new Response(JSON.stringify({ error: 'Invalid user ID' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (!exerciseLogs || !Array.isArray(exerciseLogs) || exerciseLogs.length === 0 || exerciseLogs.length > 500) {
+      return new Response(JSON.stringify({ error: 'Invalid exercise logs (1-500 entries)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {

@@ -44,15 +44,25 @@ serve(async (req) => {
       );
     }
 
-    const { text, voiceType = "male" } = await req.json();
+    const body = await req.json();
+    const { text, voiceType = "male" } = body;
     
-    if (!text) {
+    if (!text || typeof text !== 'string') {
       return new Response(
         JSON.stringify({ error: "Text is required" }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, "Content-Type": "application/json" } 
-        }
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    if (text.length > 5000) {
+      return new Response(
+        JSON.stringify({ error: "Text too long (max 5000 chars)" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    if (voiceType && !['male', 'female'].includes(voiceType)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid voice type" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
