@@ -82,8 +82,8 @@ export function ExerciseSwapSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto">
-        <SheetHeader className="pb-4">
+      <SheetContent side="bottom" className="max-h-[80vh] flex flex-col z-[60]">
+        <SheetHeader className="pb-4 shrink-0">
           <SheetTitle className="font-display tracking-wide flex items-center gap-2">
             <Shuffle className="w-5 h-5 text-primary" />
             SWAP EXERCISE
@@ -93,8 +93,8 @@ export function ExerciseSwapSheet({
           </p>
         </SheetHeader>
 
-        <div className="space-y-4 pb-6">
-          <div className="relative">
+        <div className="flex-1 min-h-0 flex flex-col pb-6 gap-4">
+          <div className="relative shrink-0">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search alternatives..."
@@ -104,7 +104,7 @@ export function ExerciseSwapSheet({
             />
           </div>
 
-          <ScrollArea className="max-h-[50vh]">
+          <ScrollArea className="flex-1 min-h-0">
             <div className="space-y-2">
               {filteredSuggestions.length === 0 && (
                 <p className="text-sm text-muted-foreground text-center py-4">
