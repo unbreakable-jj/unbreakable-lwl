@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, MoreVertical, UserX, ShieldCheck, ShieldOff, Crown, User, Trash2, Pause } from 'lucide-react';
+import { Search, MoreVertical, UserX, ShieldCheck, ShieldOff, Crown, User, Trash2, Pause, UserCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,6 +24,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAdminUsers, AdminUser } from '@/hooks/useAdminUsers';
 import { useUserRole, AppRole } from '@/hooks/useUserRole';
+import { useCoachingAssignments } from '@/hooks/useCoachingAssignments';
 import { format } from 'date-fns';
 
 export function AdminUsersPanel() {
@@ -32,12 +33,18 @@ export function AdminUsersPanel() {
   const [suspendDialogOpen, setSuspendDialogOpen] = useState(false);
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [assignCoachDialogOpen, setAssignCoachDialogOpen] = useState(false);
   const [suspendReason, setSuspendReason] = useState('');
   const [newRole, setNewRole] = useState<AppRole>('user');
+  const [selectedCoachId, setSelectedCoachId] = useState('');
   const [deleting, setDeleting] = useState(false);
   
   const { users, loading, totalCount, fetchUsers, suspendUser, liftSuspension, assignRole, deleteUser } = useAdminUsers();
   const { isOwner } = useUserRole();
+  const { assignCoach, assignments } = useCoachingAssignments();
+
+  // Get coaches from the users list
+  const coaches = users.filter(u => u.role === 'coach' || u.role === 'dev');
 
   useEffect(() => {
     fetchUsers();
@@ -79,6 +86,14 @@ export function AdminUsersPanel() {
       setSelectedUser(null);
       fetchUsers(search);
     }
+  };
+
+  const handleAssignCoach = async () => {
+    if (!selectedUser || !selectedCoachId) return;
+    await assignCoach(selectedCoachId, selectedUser.user_id);
+    setAssignCoachDialogOpen(false);
+    setSelectedUser(null);
+    setSelectedCoachId('');
   };
 
   const getInitials = (user: AdminUser) => {
@@ -189,6 +204,16 @@ export function AdminUsersPanel() {
                         Suspend User
                       </DropdownMenuItem>
                     )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setAssignCoachDialogOpen(true);
+                      }}
+                    >
+                      <UserCheck className="w-4 h-4 mr-2" />
+                      Assign Coach
+                    </DropdownMenuItem>
                     {isOwner && (
                       <>
                         <DropdownMenuSeparator />
@@ -293,6 +318,40 @@ export function AdminUsersPanel() {
             </Button>
             <Button variant="destructive" onClick={handleDeleteUser} disabled={deleting}>
               {deleting ? 'Deleting...' : 'Delete Permanently'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Assign Coach Dialog */}
+      <Dialog open={assignCoachDialogOpen} onOpenChange={setAssignCoachDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">ASSIGN COACH</DialogTitle>
+            <DialogDescription>
+              Assign a coach to {selectedUser?.display_name || selectedUser?.username}
+            </DialogDescription>
+          </DialogHeader>
+          <Select value={selectedCoachId} onValueChange={setSelectedCoachId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a coach..." />
+            </SelectTrigger>
+            <SelectContent>
+              {coaches
+                .filter(c => c.user_id !== selectedUser?.user_id)
+                .map(coach => (
+                  <SelectItem key={coach.user_id} value={coach.user_id}>
+                    {coach.display_name || coach.username || 'Unknown'} ({coach.role})
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAssignCoachDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAssignCoach} disabled={!selectedCoachId}>
+              Assign
             </Button>
           </DialogFooter>
         </DialogContent>
