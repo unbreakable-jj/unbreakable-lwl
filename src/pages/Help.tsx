@@ -222,7 +222,7 @@ function ConversationSidebar({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity flex-shrink-0"
+                    className="h-7 w-7 opacity-60 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity flex-shrink-0"
                     onClick={(e) => { e.stopPropagation(); onDelete(conv.id); }}
                   >
                     <Trash2 className="w-3.5 h-3.5" />

@@ -12,6 +12,17 @@ import {
 } from '@/components/ui/select';
 import type { Gender, Distance } from '@/lib/speedCalculations';
 import { distanceLabels } from '@/lib/speedCalculations';
+import { Footprints, Zap, Bike, Waves, Droplets } from 'lucide-react';
+
+type ActivityType = 'walk' | 'run' | 'cycle' | 'row' | 'swim';
+
+const activityOptions: { value: ActivityType; label: string; icon: React.ReactNode }[] = [
+  { value: 'walk', label: 'Walk', icon: <Footprints className="w-5 h-5" /> },
+  { value: 'run', label: 'Run', icon: <Zap className="w-5 h-5" /> },
+  { value: 'cycle', label: 'Cycle', icon: <Bike className="w-5 h-5" /> },
+  { value: 'row', label: 'Row', icon: <Waves className="w-5 h-5" /> },
+  { value: 'swim', label: 'Swim', icon: <Droplets className="w-5 h-5" /> },
+];
 
 interface SpeedFormProps {
   onCalculate: (data: {
@@ -27,6 +38,7 @@ interface SpeedFormProps {
 export function SpeedForm({ onCalculate }: SpeedFormProps) {
   const [gender, setGender] = useState<Gender>('male');
   const [age, setAge] = useState('');
+  const [activity, setActivity] = useState<ActivityType>('run');
   const [distance, setDistance] = useState<Distance>('5k');
   const [hours, setHours] = useState('0');
   const [minutes, setMinutes] = useState('');
@@ -54,6 +66,28 @@ export function SpeedForm({ onCalculate }: SpeedFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Activity Type */}
+      <div className="space-y-3">
+        <Label className="text-muted-foreground">Activity</Label>
+        <div className="flex gap-2 flex-wrap">
+          {activityOptions.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setActivity(opt.value)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md font-display tracking-wide text-sm transition-colors ${
+                activity === opt.value
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {opt.icon}
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Gender Selection */}
       <div className="space-y-3">
         <Label className="text-muted-foreground">Gender</Label>
@@ -167,7 +201,7 @@ export function SpeedForm({ onCalculate }: SpeedFormProps) {
       </div>
 
       <Button type="submit" className="w-full font-display text-lg tracking-wide py-6">
-        Calculate Speed
+        Calculate Performance
       </Button>
     </form>
   );

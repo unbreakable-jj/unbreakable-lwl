@@ -28,7 +28,7 @@ type Tab = 'strength' | 'fuel' | 'speed';
 
 const heroContent = {
   strength: {
-    title: 'STRENGTH',
+    title: 'POWER',
     titleAccent: 'CALCULATOR',
     tagline: 'LIVE WITHOUT LIMITS',
     intro: "Your body is your armour. Strength isn't about lifting heavy once — it's about building a foundation that",
@@ -56,7 +56,7 @@ const heroContent = {
     hashtag: '#UNBREAKABLEFUEL',
   },
   speed: {
-    title: 'SPEED',
+    title: 'MOVEMENT',
     titleAccent: 'CALCULATOR',
     tagline: 'LIVE WITHOUT LIMITS',
     intro: "Every finish line is a new starting point. Understand where you stand and",
@@ -161,9 +161,9 @@ const Calculators = () => {
   const hero = heroContent[activeTab];
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
-    { key: 'strength', label: 'STRENGTH', icon: <Dumbbell className="w-5 h-5" /> },
+    { key: 'strength', label: 'POWER', icon: <Dumbbell className="w-5 h-5" /> },
     { key: 'fuel', label: 'FUEL', icon: <Flame className="w-5 h-5" /> },
-    { key: 'speed', label: 'SPEED', icon: <Timer className="w-5 h-5" /> },
+    { key: 'speed', label: 'MOVEMENT', icon: <Timer className="w-5 h-5" /> },
   ];
 
   return (

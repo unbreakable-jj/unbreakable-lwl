@@ -69,19 +69,22 @@ export function ShoppingList({ planItems }: ShoppingListProps) {
     enabled: recipeIds.length > 0,
   });
 
-  // Build aggregated & categorised shopping list
+  // Build aggregated shopping list — merge ALL occurrences across the entire week
   const categorisedList = useMemo(() => {
     const itemMap = new Map<string, ShoppingItem>();
 
-    // Add ingredients from recipes
+    // Aggregate ingredients across ALL plan items (entire 7-day plan)
     (allIngredients || []).forEach(ing => {
-      const key = `${ing.name.toLowerCase()}-${(ing.unit || '').toLowerCase()}`;
-      const existing = itemMap.get(key);
+      // Normalise key: lowercase name + unit so "Chicken Breast 200g" merges everywhere
+      const normName = ing.name.trim().toLowerCase();
+      const normUnit = (ing.unit || '').trim().toLowerCase();
+      const key = `${normName}-${normUnit}`;
 
-      // Count how many plan items use this recipe
+      // Count total usages of this recipe across the whole plan
       const recipeUsageCount = planItems.filter(pi => pi.recipe_id === ing.recipe_id).length;
       const qty = (ing.quantity || 0) * recipeUsageCount;
 
+      const existing = itemMap.get(key);
       if (existing) {
         existing.quantity = (existing.quantity || 0) + qty;
       } else {
@@ -94,10 +97,11 @@ export function ShoppingList({ planItems }: ShoppingListProps) {
       }
     });
 
-    // Also add non-recipe plan items as standalone entries
+    // Also add non-recipe plan items as standalone entries (deduplicated)
     planItems.forEach(item => {
       if (!item.recipe_id && item.food_name) {
-        const key = `custom-${item.food_name.toLowerCase()}`;
+        const normName = item.food_name.trim().toLowerCase();
+        const key = `custom-${normName}`;
         if (!itemMap.has(key)) {
           itemMap.set(key, {
             name: item.food_name,
@@ -212,7 +216,7 @@ export function ShoppingList({ planItems }: ShoppingListProps) {
                               />
                               <span className={`flex-1 text-sm ${checked ? 'line-through text-muted-foreground' : ''}`}>
                                 {item.quantity && item.quantity > 0
-                                  ? `${item.name} — ${Math.round(item.quantity * 10) / 10}${item.unit ? ` ${item.unit}` : ''}`
+                                  ? `${item.name} — ${Math.round(item.quantity * 10) / 10}${item.unit ? ` ${item.unit}` : ''} (total)`
                                   : item.name
                                 }
                               </span>

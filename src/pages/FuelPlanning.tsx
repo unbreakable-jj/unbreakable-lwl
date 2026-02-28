@@ -4,15 +4,25 @@ import { motion } from 'framer-motion';
 import { MainNavigation } from '@/components/MainNavigation';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
 import { MealPlanning } from '@/components/fuel/MealPlanning';
+import { ShoppingList } from '@/components/fuel/ShoppingList';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthModal } from '@/components/tracker/AuthModal';
+import { useMealPlans } from '@/hooks/useMealPlans';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Flame, ArrowRight } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Calendar, Flame, ArrowRight, ShoppingCart } from 'lucide-react';
 
 export default function FuelPlanning() {
   const { user, loading } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const { planItems, mealPlans } = useMealPlans();
+  
+  // Get items for the active plan(s)
+  const activePlanItems = planItems?.filter(item => {
+    const plan = mealPlans?.find(p => p.id === item.meal_plan_id);
+    return plan?.is_active;
+  }) || [];
 
   if (loading) {
     return (
@@ -38,6 +48,9 @@ export default function FuelPlanning() {
               Build weekly meal plans to stay consistent and hit your targets. Plan ahead, become{' '}
               <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
             </p>
+            <p className="text-muted-foreground/70 text-xs max-w-xl mx-auto italic">
+              All Unbreakable meals and nutrition info are for reference only. Be sure to log and track actual ingredients used via the barcode scanner for accurate results.
+            </p>
             <p className="text-primary font-display text-2xl tracking-wider neon-glow-subtle">#UNBREAKABLEFUEL</p>
           </motion.div>
         </div>
@@ -46,7 +59,34 @@ export default function FuelPlanning() {
       <main className="container mx-auto px-4 py-8 md:py-12">
         {user ? (
           <div className="max-w-4xl mx-auto">
-            <MealPlanning />
+            <Tabs defaultValue="planner" className="w-full">
+              <TabsList className="w-full mb-6">
+                <TabsTrigger value="planner" className="flex-1 font-display tracking-wide gap-2">
+                  <Calendar className="w-4 h-4" />
+                  MEAL PLANNER
+                </TabsTrigger>
+                <TabsTrigger value="shopping" className="flex-1 font-display tracking-wide gap-2">
+                  <ShoppingCart className="w-4 h-4" />
+                  SHOPPING LIST
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="planner">
+                <MealPlanning />
+              </TabsContent>
+              <TabsContent value="shopping">
+                {activePlanItems.length > 0 ? (
+                  <ShoppingList planItems={activePlanItems} />
+                ) : (
+                  <Card className="p-8 text-center border-2 border-primary/30 neon-border-subtle">
+                    <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="font-display text-lg tracking-wide mb-2">NO ACTIVE PLAN</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Activate a meal plan in the Planner tab to generate your shopping list.
+                    </p>
+                  </Card>
+                )}
+              </TabsContent>
+            </Tabs>
           </div>
         ) : (
           <div className="max-w-2xl mx-auto">
