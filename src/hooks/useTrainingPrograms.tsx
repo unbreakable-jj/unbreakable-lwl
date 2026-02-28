@@ -53,7 +53,7 @@ function toTrainingProgram(row: {
   };
 }
 
-const MAX_ACTIVE_PROGRAMS = 3;
+const MAX_ACTIVE_PROGRAMS = 2;
 
 export function useTrainingPrograms() {
   const { user } = useAuth();

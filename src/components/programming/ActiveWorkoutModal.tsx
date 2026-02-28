@@ -346,8 +346,7 @@ export function ActiveWorkoutModal({
             isCompleted={isCompleted}
           />
 
-          {/* Daily 6 Habit Diary */}
-          <DailyHabitDiary habits={habits} onChange={setHabits} compact />
+          {/* Daily 6 Habit Diary - temporarily removed from session view */}
 
           {/* Action Buttons */}
           <div className="flex gap-2 pt-4 border-t border-border">

@@ -875,7 +875,7 @@ export function AIPlanReviewModal({
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-2 pt-4 border-t border-border">
-                        {['Fully editable', 'Progress tracking', 'AI feedback', 'Start anytime'].map(label => (
+                        {['Fully editable', 'Progress tracking', 'Coach feedback', 'Start anytime'].map(label => (
                           <div key={label} className="flex items-center gap-2 text-sm">
                             <Check className="w-4 h-4 text-primary" />
                             <span>{label}</span>

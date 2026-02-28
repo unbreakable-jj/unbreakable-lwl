@@ -15,7 +15,13 @@ import { useAuth } from '@/hooks/useAuth';
 // import { useTrophies } from '@/hooks/useTrophies'; // Trophy system hidden for now
 import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
+import { useCardioPrograms } from '@/hooks/useCardioPrograms';
+import { useMindsetProgrammes } from '@/hooks/useMindsetProgrammes';
+import { useMealPlans } from '@/hooks/useMealPlans';
 import { MyProgramsSection } from '@/components/programming/MyProgramsSection';
+import { SavedCardioPrograms } from '@/components/cardio/SavedCardioPrograms';
+import { MindsetProgrammes } from '@/components/mindset/MindsetProgrammes';
+import { Badge } from '@/components/ui/badge';
 // import { TrophyCase, TrophyCountsBadge } from '@/components/tracker/TrophyCase'; // Trophy system hidden for now
 import { CombinedStatsView } from '@/components/tracker/CombinedStatsView';
 import { CombinedRecordsView } from '@/components/tracker/CombinedRecordsView';
@@ -52,6 +58,9 @@ export function ProfileView() {
   // const { getTrophyCounts } = useTrophies(); // Trophy system hidden for now
   const { activeProgram } = useTrainingPrograms();
   const { sessions } = useWorkoutSessions();
+  const { programs: cardioPrograms } = useCardioPrograms();
+  const { programmes: mindsetProgrammes } = useMindsetProgrammes();
+  const { mealPlans } = useMealPlans();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     display_name: '',
@@ -449,7 +458,59 @@ export function ProfileView() {
             <MyProgramsSection />
           </Card>
 
+          {/* Cardio Programmes */}
+          {cardioPrograms && cardioPrograms.length > 0 && (
+            <Card className="bg-card border-border p-6">
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <div>
+                  <h3 className="font-display text-xl text-foreground tracking-wide">CARDIO PROGRAMMES</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {cardioPrograms.length} saved programme{cardioPrograms.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
+                <Activity className="w-5 h-5 text-primary" />
+              </div>
+              <SavedCardioPrograms onViewProgram={() => {}} />
+            </Card>
+          )}
 
+          {/* Mindset Programmes */}
+          <Card className="bg-card border-border p-6">
+            <MindsetProgrammes />
+          </Card>
+
+          {/* Meal Plans */}
+          {mealPlans && mealPlans.length > 0 && (
+            <Card className="bg-card border-border p-6">
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <div>
+                  <h3 className="font-display text-xl text-foreground tracking-wide">MEAL PLANS</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {mealPlans.filter(p => p.is_active).length > 0 
+                      ? `${mealPlans.filter(p => p.is_active).length} active plan${mealPlans.filter(p => p.is_active).length !== 1 ? 's' : ''}`
+                      : `${mealPlans.length} saved plan${mealPlans.length !== 1 ? 's' : ''}`
+                    }
+                  </p>
+                </div>
+                <TrendingUp className="w-5 h-5 text-primary" />
+              </div>
+              <div className="space-y-2">
+                {mealPlans.map((plan) => (
+                  <div key={plan.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
+                    <div>
+                      <p className="font-display text-sm text-foreground">{plan.name}</p>
+                      {plan.description && (
+                        <p className="text-xs text-muted-foreground line-clamp-1">{plan.description}</p>
+                      )}
+                    </div>
+                    {plan.is_active && (
+                      <Badge variant="default" className="bg-primary/20 text-primary text-xs">Active</Badge>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
 
           {/* Trophy Case - hidden for now */}
         </TabsContent>
