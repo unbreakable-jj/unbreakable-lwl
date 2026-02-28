@@ -13,6 +13,9 @@ import {
   ChevronDown,
   ChevronUp,
   Flame,
+  Gamepad2,
+  Timer,
+  Snowflake,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -22,6 +25,9 @@ const activityIcons: Record<string, React.ReactNode> = {
   journaling: <BookOpen className="w-4 h-4" />,
   mental_drill: <Target className="w-4 h-4" />,
   reflection: <Eye className="w-4 h-4" />,
+  focus_game: <Gamepad2 className="w-4 h-4" />,
+  retention: <Timer className="w-4 h-4" />,
+  exposure: <Snowflake className="w-4 h-4" />,
 };
 
 const activityLabels: Record<string, string> = {
@@ -30,6 +36,9 @@ const activityLabels: Record<string, string> = {
   journaling: 'Journaling',
   mental_drill: 'Mental Drill',
   reflection: 'Reflection',
+  focus_game: 'Focus Game',
+  retention: 'Breath Retention',
+  exposure: 'Exposure',
 };
 
 interface Props {
@@ -213,6 +222,33 @@ export function MindsetProgrammeDetail({ programme, onBack }: Props) {
                                                 {prompt}
                                               </p>
                                             ))}
+                                          </div>
+                                        )}
+
+                                        {activity.gameName && (
+                                          <Badge variant="secondary" className="text-xs mt-2">
+                                            🎮 {activity.gameName}
+                                            {activity.targetScore && ` · Target: ${activity.targetScore}`}
+                                          </Badge>
+                                        )}
+
+                                        {activity.retentionTargetSeconds && (
+                                          <Badge variant="secondary" className="text-xs mt-2">
+                                            ⏱️ Target: {Math.floor(activity.retentionTargetSeconds / 60)}:{String(activity.retentionTargetSeconds % 60).padStart(2, '0')} hold
+                                          </Badge>
+                                        )}
+
+                                        {activity.exposureType && (
+                                          <div className="mt-2 space-y-1">
+                                            <Badge variant="secondary" className="text-xs">
+                                              {activity.exposureType === 'sauna' ? '🔥' : '🧊'} {activity.exposureType.replace('_', ' ')}
+                                              {activity.targetDurationSeconds && ` · ${Math.floor(activity.targetDurationSeconds / 60)}:${String(activity.targetDurationSeconds % 60).padStart(2, '0')}`}
+                                            </Badge>
+                                            {activity.safetyNotes && (
+                                              <p className="text-xs text-amber-500/80 pl-3 border-l-2 border-amber-500/30">
+                                                ⚠️ {activity.safetyNotes}
+                                              </p>
+                                            )}
                                           </div>
                                         )}
                                       </div>
