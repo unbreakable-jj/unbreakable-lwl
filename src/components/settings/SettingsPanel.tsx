@@ -36,31 +36,18 @@ import {
 } from 'lucide-react';
 import { useUserSettings, UserSettings } from '@/hooks/useUserSettings';
 import { useAIPreferences } from '@/hooks/useAIPreferences';
-import { useNutritionGoals } from '@/hooks/useNutritionGoals';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
-import { Flame, UtensilsCrossed } from 'lucide-react';
-import {
-  activityLabels,
-  macroSplitLabels,
-  type ActivityLevel,
-  type MacroSplit,
-} from '@/lib/fuelCalculations';
 
 import { BlockedUsersSection } from './BlockedUsersSection';
 
 export function SettingsPanel() {
   const { settings, loading, updateSettings, toggleTheme } = useUserSettings();
   const { preferences: aiPreferences, isLoading: aiLoading, updatePreferences } = useAIPreferences();
-  const { goals: nutritionGoals, rawGoals, autoCalculatedGoals, isAutoMode, saveGoals } = useNutritionGoals();
   const { profile, updateProfile } = useProfile();
   const { signOut } = useAuth();
   const [saving, setSaving] = useState(false);
-  const [manualCalories, setManualCalories] = useState('');
-  const [manualProtein, setManualProtein] = useState('');
-  const [manualCarbs, setManualCarbs] = useState('');
-  const [manualFat, setManualFat] = useState('');
 
   if (loading || !settings) {
     return (
