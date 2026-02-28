@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Users, Flag, Settings, Activity, Shield, UserCheck } from 'lucide-react';
+import { Users, Flag, Settings, Activity, Shield, UserCheck, UserPlus } from 'lucide-react';
 import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
 import { PageHeader } from '@/components/PageHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,6 +7,7 @@ import { AdminUsersPanel } from '@/components/admin/AdminUsersPanel';
 import { AdminReportsPanel } from '@/components/admin/AdminReportsPanel';
 import { AdminSettingsPanel } from '@/components/admin/AdminSettingsPanel';
 import { AdminActivityPanel } from '@/components/admin/AdminActivityPanel';
+import { ClientSearchPanel } from '@/components/coaching/ClientSearchPanel';
 import { useUserRole } from '@/hooks/useUserRole';
 import CoachDashboard from '@/pages/CoachDashboard';
 
@@ -17,7 +18,7 @@ export default function Admin() {
   return (
     <AdminProtectedRoute>
       <div className="min-h-screen bg-background">
-        <PageHeader sectionLabel="ADMIN" />
+        <PageHeader sectionLabel="DEV" />
         
         <div className="container mx-auto px-4 sm:px-6 py-6">
           {/* Admin Header */}
@@ -42,6 +43,10 @@ export default function Admin() {
                 <UserCheck className="w-4 h-4" />
                 ATHLETES
               </TabsTrigger>
+              <TabsTrigger value="clients" className="font-display gap-2">
+                <UserPlus className="w-4 h-4" />
+                CLIENTS
+              </TabsTrigger>
               <TabsTrigger value="users" className="font-display gap-2">
                 <Users className="w-4 h-4" />
                 USERS
@@ -64,6 +69,10 @@ export default function Admin() {
 
             <TabsContent value="athletes">
               <CoachDashboard embedded />
+            </TabsContent>
+
+            <TabsContent value="clients">
+              <ClientSearchPanel />
             </TabsContent>
 
             <TabsContent value="users">

@@ -142,7 +142,7 @@ const App = () => (
                 <ProtectedRoute><Habits /></ProtectedRoute>
               } />
               
-              {/* Coach Dashboard */}
+              {/* Coach Dashboard - role-protected */}
               <Route path="/coach" element={
                 <ProtectedRoute><CoachDashboard /></ProtectedRoute>
               } />

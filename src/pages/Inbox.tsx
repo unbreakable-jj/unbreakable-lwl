@@ -78,13 +78,27 @@ export default function Inbox() {
     }
   }, [searchParams, loading]);
 
-  // Open composer via /inbox?compose=1
+  // Open composer via /inbox?compose=1 or auto-start with ?to=
   useEffect(() => {
     const compose = searchParams.get('compose');
     const cid = searchParams.get('cid');
+    const toUserId = searchParams.get('to');
     if (!cid && compose === '1' && !loading) {
-      setNewMessageOpen(true);
-      setSearchParams({}, { replace: true });
+      if (toUserId) {
+        // Auto-start conversation with the specified user
+        setSearchParams({}, { replace: true });
+        startConversation(toUserId).then((result) => {
+          if (result?.conversation?.id) {
+            setSelectedConversationId(result.conversation.id);
+          }
+        }).catch((err) => {
+          console.error('Failed to start conversation:', err);
+          toast.error('Could not start conversation');
+        });
+      } else {
+        setNewMessageOpen(true);
+        setSearchParams({}, { replace: true });
+      }
     }
   }, [searchParams, loading]);
 

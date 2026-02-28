@@ -93,6 +93,8 @@ export function useUserRole() {
 
   return {
     ...state,
+    isCoach: state.role === 'coach',
+    isDev: state.role === 'dev',
     refetch: fetchUserRole,
   };
 }
