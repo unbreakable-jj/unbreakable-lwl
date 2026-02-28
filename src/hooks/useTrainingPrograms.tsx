@@ -72,7 +72,12 @@ export function useTrainingPrograms() {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return (data || []).map(toTrainingProgram);
+      // Filter out any legacy cardio programs (those with activityType in program_data)
+      const strengthOnly = (data || []).filter(p => {
+        const pd = p.program_data as Record<string, unknown>;
+        return !pd || !('activityType' in pd);
+      });
+      return strengthOnly.map(toTrainingProgram);
     },
     enabled: !!user,
   });
