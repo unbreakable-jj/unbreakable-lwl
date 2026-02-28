@@ -92,6 +92,48 @@ export type Database = {
         }
         Relationships: []
       }
+      cardio_programs: {
+        Row: {
+          created_at: string
+          current_day: number | null
+          current_week: number | null
+          id: string
+          is_active: boolean
+          name: string
+          overview: string | null
+          program_data: Json
+          started_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_day?: number | null
+          current_week?: number | null
+          id?: string
+          is_active?: boolean
+          name: string
+          overview?: string | null
+          program_data: Json
+          started_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_day?: number | null
+          current_week?: number | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          overview?: string | null
+          program_data?: Json
+          started_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       coaching_profiles: {
         Row: {
           age_years: number | null
