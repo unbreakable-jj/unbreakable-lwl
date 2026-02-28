@@ -71,9 +71,9 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="right" className="w-80 bg-card border-border">
+        <SheetContent side="right" className="w-80 bg-card/95 backdrop-blur-md border-l border-primary/20">
           <SheetHeader className="text-left">
-            <SheetTitle className="font-display text-xl tracking-wide text-foreground">
+            <SheetTitle className="font-display text-xl tracking-wide text-primary neon-glow-subtle">
               MENU
             </SheetTitle>
           </SheetHeader>
@@ -96,7 +96,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                     <p className="text-xs text-muted-foreground">{user.email}</p>
                   </div>
                 </div>
-                <Separator className="bg-border" />
+                <Separator className="bg-primary/20" />
               </div>
             ) : (
               <div className="mb-6">
@@ -109,7 +109,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                 >
                   SIGN IN
                 </Button>
-                <Separator className="bg-border mt-6" />
+                <Separator className="bg-primary/20 mt-6" />
               </div>
             )}
 
@@ -122,12 +122,12 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                   onClick={handleNavClick}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg font-display tracking-wide transition-all ${
                     isActive(link.to)
-                      ? 'bg-primary text-primary-foreground'
+                      ? 'bg-primary text-primary-foreground shadow-[0_0_15px_hsl(24_100%_50%/0.4)]'
                       : (link as any).admin
                         ? 'text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 border border-amber-500/30'
                         : (link as any).highlight
                           ? 'text-primary hover:text-primary-foreground hover:bg-primary/80 border border-primary/30'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                          : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
                   }`}
                 >
                   <link.icon className={`w-5 h-5 ${isActive(link.to) ? '' : 'text-primary'}`} />
@@ -139,7 +139,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
             {/* User Actions */}
             {user && (
               <div className="mt-auto pt-6">
-                <Separator className="bg-border mb-6" />
+                <Separator className="bg-primary/20 mb-6" />
                 <div className="space-y-2">
                   <button
                     onClick={handleSignOut}

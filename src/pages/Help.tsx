@@ -178,7 +178,7 @@ function ConversationSidebar({
         ${isMobile && !isOpen ? 'pointer-events-none' : ''}
       `}>
         {/* Sidebar header */}
-        <div className="p-4 border-b border-primary/15 flex items-center justify-between flex-shrink-0">
+        <div className="p-4 border-b border-primary/20 flex items-center justify-between flex-shrink-0">
           <h2 className="font-display text-sm tracking-wider text-primary whitespace-nowrap">CONVERSATIONS</h2>
           <Button variant="ghost" size="icon" onClick={onToggle} className="h-8 w-8 flex-shrink-0">
             <PanelLeftClose className="w-4 h-4" />
@@ -206,10 +206,10 @@ function ConversationSidebar({
               {conversations.map((conv) => (
                 <div
                   key={conv.id}
-                  className={`group flex items-center gap-2 p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                  className={`group flex items-center gap-2 p-3 rounded-lg cursor-pointer transition-all duration-200 border ${
                     currentConversationId === conv.id
-                      ? 'bg-primary/15 border border-primary/30 shadow-[0_0_10px_hsl(24_100%_50%/0.1)]'
-                      : 'hover:bg-muted/50 border border-transparent'
+                      ? 'bg-primary/15 border-primary/40 shadow-[0_0_12px_hsl(24_100%_50%/0.15)]'
+                      : 'border-primary/10 hover:border-primary/30 hover:bg-primary/5'
                   }`}
                   onClick={() => onSelect(conv.id)}
                 >
@@ -222,7 +222,7 @@ function ConversationSidebar({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 opacity-60 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity flex-shrink-0"
+                    className="h-7 w-7 text-destructive/70 hover:text-destructive hover:bg-destructive/10 transition-all flex-shrink-0"
                     onClick={(e) => { e.stopPropagation(); onDelete(conv.id); }}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -527,7 +527,7 @@ export default function Help() {
     <SwipeNavigationWrapper>
       <div className="min-h-screen bg-background flex flex-col">
         {/* Header */}
-        <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+        <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-primary/15">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <ThemeToggle />
@@ -565,7 +565,7 @@ export default function Help() {
           {/* Chat Panel */}
           <div className="flex-1 flex flex-col min-w-0 relative">
             {/* Chat panel header bar */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-border/50 bg-card/30 backdrop-blur-sm flex-shrink-0">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-primary/15 bg-card/30 backdrop-blur-sm flex-shrink-0">
               {user && !sidebarOpen && (
                 <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="h-8 w-8">
                   <PanelLeftOpen className="w-4 h-4" />

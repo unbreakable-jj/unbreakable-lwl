@@ -26,7 +26,7 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <header
-      className={`${sticky ? 'sticky top-0 z-50' : ''} bg-background/80 backdrop-blur-sm border-b border-border ${className}`}
+      className={`${sticky ? 'sticky top-0 z-50' : ''} bg-background/80 backdrop-blur-md border-b border-primary/15 ${className}`}
     >
       <div className="container mx-auto px-4 sm:px-6 py-4">
         <div className="flex items-center justify-between">
