@@ -52,10 +52,10 @@ export default function TrackerMyProgrammes() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="space-y-6">
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide leading-none">
               <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
-              <span className="text-foreground">CARDIO</span>
+              <span className="text-foreground">MOVEMENT</span>
             </h1>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              View and execute your saved cardio programmes. Every step forward makes you{' '}
+              View and execute your saved movement programmes. Every step forward makes you{' '}
               <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
             </p>
             <p className="text-primary font-display text-2xl tracking-wider neon-glow-subtle">#UNBREAKABLEMOVEMENT</p>
