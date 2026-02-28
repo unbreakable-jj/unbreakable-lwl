@@ -722,12 +722,7 @@ export default function Help() {
                 )}
 
                 <div className="flex items-end gap-2">
-                  <ChatMediaUpload
-                    onMediaSelect={setSelectedMedia}
-                    selectedMedia={selectedMedia}
-                    onClearMedia={() => setSelectedMedia(null)}
-                    disabled={isLoading || isAnyGenerating}
-                  />
+                  {/* Media upload temporarily disabled - will rework later */}
                   <div className="flex-1 relative">
                     <textarea
                       ref={inputRef}
