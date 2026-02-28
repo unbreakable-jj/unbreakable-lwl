@@ -381,7 +381,7 @@ export function ProgrammeBuilder() {
         ],
       };
 
-      await saveProgram.mutateAsync(program);
+      await saveProgram.mutateAsync({ program });
 
       // Reset builder
       setStep('setup');

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MainNavigation } from '@/components/MainNavigation';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
@@ -12,9 +12,12 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, Flame, ArrowRight, ShoppingCart } from 'lucide-react';
+import { BuildingForBanner } from '@/components/coaching/BuildingForBanner';
 
 export default function FuelPlanning() {
   const { user, loading } = useAuth();
+  const [searchParams] = useSearchParams();
+  const forUserId = searchParams.get('for') || undefined;
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { planItems, mealPlans } = useMealPlans();
   
@@ -59,6 +62,7 @@ export default function FuelPlanning() {
       <main className="container mx-auto px-4 py-8 md:py-12">
         {user ? (
           <div className="max-w-4xl mx-auto">
+            {forUserId && <BuildingForBanner forUserId={forUserId} />}
             <Tabs defaultValue="planner" className="w-full">
               <TabsList className="w-full mb-6">
                 <TabsTrigger value="planner" className="flex-1 font-display tracking-wide gap-2">
@@ -71,7 +75,7 @@ export default function FuelPlanning() {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="planner">
-                <MealPlanning />
+                <MealPlanning forUserId={forUserId} />
               </TabsContent>
               <TabsContent value="shopping">
                 {activePlanItems.length > 0 ? (

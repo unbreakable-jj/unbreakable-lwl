@@ -66,13 +66,13 @@ export function useCardioPrograms() {
   const canActivateMore = activeProgramCount < MAX_ACTIVE_PROGRAMS;
 
   const saveProgram = useMutation({
-    mutationFn: async (program: GeneratedCardioProgram) => {
+    mutationFn: async ({ program, forUserId }: { program: GeneratedCardioProgram; forUserId?: string }) => {
       if (!user) throw new Error('Must be logged in');
       
       const { data, error } = await supabase
         .from('cardio_programs')
         .insert([{
-          user_id: user.id,
+          user_id: forUserId || user.id,
           name: program.programName,
           overview: program.overview,
           program_data: JSON.parse(JSON.stringify(program)),

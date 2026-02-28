@@ -414,17 +414,19 @@ export default function Help() {
   const handleSavePlanToLibrary = async (plan: GeneratedPlanInfo) => {
     try {
       if (plan.type === 'programme') {
-        const result = await saveProgram.mutateAsync(plan.planData as GeneratedProgram);
+        const result = await saveProgram.mutateAsync({ program: plan.planData as GeneratedProgram });
         setGeneratedPlans(prev => prev.map(p => p === plan ? { ...p, planId: result.id, savedToHub: true } : p));
       } else if (plan.type === 'mindset') {
         const result = await saveMindsetProgramme.mutateAsync({
-          name: plan.planData.name || 'AI Mindset Programme',
-          description: plan.planData.description,
-          goal: plan.planData.goal,
-          duration_weeks: plan.planData.durationWeeks || 4,
-          daily_minutes: plan.planData.dailyMinutes || 15,
-          focus_areas: plan.planData.focusAreas || [],
-          programme_data: plan.planData,
+          programme: {
+            name: plan.planData.name || 'AI Mindset Programme',
+            description: plan.planData.description,
+            goal: plan.planData.goal,
+            duration_weeks: plan.planData.durationWeeks || 4,
+            daily_minutes: plan.planData.dailyMinutes || 15,
+            focus_areas: plan.planData.focusAreas || [],
+            programme_data: plan.planData,
+          },
         });
         setGeneratedPlans(prev => prev.map(p => p === plan ? { ...p, planId: result.id, savedToHub: true } : p));
         toast({ title: 'Mindset Programme Saved!', description: 'View it in Mindset → My Programmes' });

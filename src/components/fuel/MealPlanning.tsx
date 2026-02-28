@@ -35,7 +35,11 @@ const mealIcons: Record<MealType, React.ReactNode> = {
   snack: <Cookie className="w-4 h-4" />,
 };
 
-export function MealPlanning() {
+interface MealPlanningProps {
+  forUserId?: string;
+}
+
+export function MealPlanning({ forUserId }: MealPlanningProps = {}) {
   const { 
     mealPlans, 
     activePlansCount,
@@ -70,9 +74,12 @@ export function MealPlanning() {
     if (!newPlanName.trim()) return;
     
     await createMealPlan.mutateAsync({
-      name: newPlanName,
-      description: newPlanDescription,
-      is_active: false,
+      plan: {
+        name: newPlanName,
+        description: newPlanDescription,
+        is_active: false,
+      },
+      forUserId,
     });
     
     setShowCreateModal(false);

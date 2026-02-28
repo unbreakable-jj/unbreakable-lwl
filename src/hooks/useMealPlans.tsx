@@ -52,7 +52,7 @@ export function useMealPlans() {
   const canActivateMore = activePlansCount < 3;
 
   const createMealPlan = useMutation({
-    mutationFn: async (plan: Omit<MealPlan, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async ({ plan, forUserId }: { plan: Omit<MealPlan, 'id' | 'user_id' | 'created_at' | 'updated_at'>; forUserId?: string }) => {
       if (!user) throw new Error('Not authenticated');
 
       // Check if trying to activate and already at limit
@@ -63,7 +63,7 @@ export function useMealPlans() {
       const { data, error } = await supabase
         .from('meal_plans')
         .insert({
-          user_id: user.id,
+          user_id: forUserId || user.id,
           ...plan,
         })
         .select()

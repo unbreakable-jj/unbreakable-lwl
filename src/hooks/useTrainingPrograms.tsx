@@ -105,13 +105,13 @@ export function useTrainingPrograms() {
   const canActivateMore = activeProgramCount < MAX_ACTIVE_PROGRAMS;
 
   const saveProgram = useMutation({
-    mutationFn: async (program: GeneratedProgram) => {
+    mutationFn: async ({ program, forUserId }: { program: GeneratedProgram; forUserId?: string }) => {
       if (!user) throw new Error('Must be logged in');
       
       const { data, error } = await supabase
         .from('training_programs')
         .insert([{
-          user_id: user.id,
+          user_id: forUserId || user.id,
           name: program.programName,
           overview: program.overview,
           program_data: program as unknown as Json,
