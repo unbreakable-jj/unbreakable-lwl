@@ -14,6 +14,7 @@ import { ProgressMetricsView } from './ProgressMetricsView';
 import { CompactRestTimer } from './CompactRestTimer';
 import { DailyHabitDiary, HabitState } from './DailyHabitDiary';
 import { ExerciseCoachingPanel } from './ExerciseCoachingPanel';
+import { ExerciseSwapSheet } from './ExerciseSwapSheet';
 import { 
   Square, 
   X,
@@ -22,7 +23,8 @@ import {
   ChevronUp,
   Check,
   BookOpen,
-  Lightbulb
+  Lightbulb,
+  Shuffle,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getExerciseDetails } from '@/lib/exerciseLibrary';
@@ -39,6 +41,8 @@ interface ActiveWorkoutModalProps {
   }) => void;
   onComplete: (notes?: string, visibility?: 'public' | 'friends' | 'private') => void;
   onCancel: () => void;
+  onSwapExercise?: (oldName: string, newExercise: { name: string; equipment: string }) => void;
+  isSwapping?: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -50,6 +54,8 @@ export function ActiveWorkoutModal({
   onUpdateLog,
   onComplete,
   onCancel,
+  onSwapExercise,
+  isSwapping,
   open,
   onOpenChange,
 }: ActiveWorkoutModalProps) {
@@ -67,6 +73,7 @@ export function ActiveWorkoutModal({
     journal: '',
   });
   const [expandedExercise, setExpandedExercise] = useState<string | null>(null);
+  const [swappingExercise, setSwappingExercise] = useState<string | null>(null);
 
   const exerciseLogs = session.exercise_logs || [];
   const completedSets = exerciseLogs.filter((l) => l.completed).length;
@@ -233,6 +240,15 @@ export function ActiveWorkoutModal({
                               <Badge variant="outline" className="text-xs">
                                 {exercise.completed}/{exercise.sets}
                               </Badge>
+                              {onSwapExercise && (
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setSwappingExercise(exercise.name); }}
+                                  className="p-1 rounded hover:bg-primary/10 transition-colors"
+                                  title="Swap exercise"
+                                >
+                                  <Shuffle className="w-4 h-4 text-primary" />
+                                </button>
+                              )}
                               {hasDetails && (
                                 <BookOpen className="w-4 h-4 text-primary" />
                               )}
@@ -369,6 +385,19 @@ export function ActiveWorkoutModal({
           </div>
         </div>
 
+        {/* Exercise Swap Sheet */}
+        {swappingExercise && onSwapExercise && (
+          <ExerciseSwapSheet
+            open={!!swappingExercise}
+            onOpenChange={(open) => { if (!open) setSwappingExercise(null); }}
+            exerciseName={swappingExercise}
+            onSwap={(oldName, newEx) => {
+              onSwapExercise(oldName, newEx);
+              setSwappingExercise(null);
+            }}
+            isSwapping={isSwapping}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );
