@@ -321,6 +321,62 @@ export function useWorkoutSessions() {
     },
   });
 
+  const swapExercise = useMutation({
+    mutationFn: async ({
+      sessionId,
+      oldExerciseName,
+      newExerciseName,
+      newEquipment,
+    }: {
+      sessionId: string;
+      oldExerciseName: string;
+      newExerciseName: string;
+      newEquipment: string;
+    }) => {
+      if (!user) throw new Error('Must be logged in');
+
+      // Update all exercise logs for this exercise in this session
+      const { error } = await supabase
+        .from('exercise_logs')
+        .update({
+          exercise_name: newExerciseName,
+          equipment: newEquipment,
+        })
+        .eq('session_id', sessionId)
+        .eq('exercise_name', oldExerciseName);
+
+      if (error) throw error;
+    },
+    onMutate: async ({ sessionId, oldExerciseName, newExerciseName, newEquipment }) => {
+      await queryClient.cancelQueries({ queryKey: ['active-session', user?.id] });
+      const previousSession = queryClient.getQueryData<WorkoutSession | null>(['active-session', user?.id]);
+
+      if (previousSession?.exercise_logs) {
+        const updatedLogs = previousSession.exercise_logs.map((log) => {
+          if (log.exercise_name === oldExerciseName) {
+            return { ...log, exercise_name: newExerciseName, equipment: newEquipment };
+          }
+          return log;
+        });
+        queryClient.setQueryData(['active-session', user?.id], {
+          ...previousSession,
+          exercise_logs: updatedLogs,
+        });
+      }
+      return { previousSession };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousSession) {
+        queryClient.setQueryData(['active-session', user?.id], context.previousSession);
+      }
+      toast({ title: 'Swap Failed', description: 'Could not swap exercise', variant: 'destructive' });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['workout-sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['active-session'] });
+    },
+  });
+
   return {
     sessions,
     activeSession,
@@ -330,5 +386,6 @@ export function useWorkoutSessions() {
     completeSession,
     cancelSession,
     updateSession,
+    swapExercise,
   };
 }

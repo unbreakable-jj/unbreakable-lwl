@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +8,10 @@ import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import { TrainingProgram } from '@/hooks/useTrainingPrograms';
 import { ActiveWorkoutModal } from './ActiveWorkoutModal';
 import { SessionResultsView } from './SessionResultsView';
+import { PowerProgressionDialog, PowerProgressionSuggestion } from './PowerProgressionDialog';
 import { format, parseISO } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Play,
   Check,
@@ -19,6 +22,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Trophy,
+  TrendingUp,
 } from 'lucide-react';
 
 interface ProgrammeExecutionViewProps {
@@ -34,12 +38,19 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
     startSession, 
     updateExerciseLog, 
     completeSession, 
-    cancelSession 
+    cancelSession,
+    swapExercise,
   } = useWorkoutSessions();
+  const { toast } = useToast();
   
   const [showWorkoutModal, setShowWorkoutModal] = useState(false);
   const [isStartingSession, setIsStartingSession] = useState(false);
   const [viewingResultIndex, setViewingResultIndex] = useState<number | null>(null);
+
+  // Progression state
+  const [progressionSuggestions, setProgressionSuggestions] = useState<PowerProgressionSuggestion[]>([]);
+  const [showProgression, setShowProgression] = useState(false);
+  const [isCheckingProgression, setIsCheckingProgression] = useState(false);
 
   // Find next pending session
   const nextSession = useMemo(() => {
@@ -128,6 +139,76 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
     setShowWorkoutModal(false);
   };
 
+  const handleSwapExercise = (oldName: string, newExercise: { name: string; equipment: string }) => {
+    if (!activeSession) return;
+    swapExercise.mutate({
+      sessionId: activeSession.id,
+      oldExerciseName: oldName,
+      newExerciseName: newExercise.name,
+      newEquipment: newExercise.equipment,
+    }, {
+      onSuccess: () => {
+        toast({ title: 'Exercise Swapped', description: `Switched to ${newExercise.name}` });
+      },
+    });
+  };
+
+  const checkForProgression = useCallback(async () => {
+    if (!completedSessions || completedSessions.length < 2 || !nextSession) return;
+
+    setIsCheckingProgression(true);
+    try {
+      // Gather recent exercise logs from completed sessions
+      const recentLogs = completedSessions.slice(0, 3).flatMap(s => 
+        (s.exercise_logs || []).map(log => ({
+          exerciseName: log.exercise_name,
+          equipment: log.equipment,
+          setNumber: log.set_number,
+          targetReps: log.target_reps,
+          actualReps: log.actual_reps,
+          weightKg: log.weight_kg,
+          rpe: log.rpe,
+          completed: log.completed,
+          confidenceRating: log.confidence_rating,
+          painFlag: log.pain_flag,
+        }))
+      );
+
+      // Get upcoming planned exercises
+      const upcomingExercises = nextSession.planned_exercises.map(ex => ({
+        name: ex.name,
+        equipment: ex.equipment,
+        sets: ex.sets,
+        reps: ex.reps,
+        intensity: ex.intensity,
+      }));
+
+      const { data, error } = await supabase.functions.invoke('suggest-power-progression', {
+        body: { completedSessions: recentLogs, upcomingExercises },
+      });
+
+      if (error) throw error;
+
+      if (data?.suggestions && data.suggestions.length > 0) {
+        setProgressionSuggestions(data.suggestions);
+        setShowProgression(true);
+      } else {
+        toast({ title: 'No Changes Needed', description: 'Coach says keep pushing at current levels.' });
+      }
+    } catch (err) {
+      console.error('Progression check failed:', err);
+      toast({ title: 'Coach Unavailable', description: 'Could not check progression right now.', variant: 'destructive' });
+    } finally {
+      setIsCheckingProgression(false);
+    }
+  }, [completedSessions, nextSession, toast]);
+
+  const handleAcceptProgression = () => {
+    toast({ title: 'Progression Noted', description: 'Adjustments have been noted for your next session.' });
+    setShowProgression(false);
+    setProgressionSuggestions([]);
+  };
+
   const hasActiveSession = !!activeSession && activeSession.program_id === program.id;
 
   if (plannersLoading) {
@@ -158,9 +239,27 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
           <ArrowLeft className="w-4 h-4" />
           BACK
         </Button>
-        <Badge variant="outline" className="font-display">
-          Week {program.current_week} • Day {program.current_day}
-        </Badge>
+        <div className="flex items-center gap-2">
+          {completedSessions.length >= 2 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={checkForProgression}
+              disabled={isCheckingProgression}
+              className="gap-1 font-display tracking-wide"
+            >
+              {isCheckingProgression ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <TrendingUp className="w-4 h-4" />
+              )}
+              Coach
+            </Button>
+          )}
+          <Badge variant="outline" className="font-display">
+            Week {program.current_week} • Day {program.current_day}
+          </Badge>
+        </div>
       </div>
 
       {/* Programme Title */}
@@ -319,10 +418,21 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
           onUpdateLog={(logId, data) => updateExerciseLog.mutate({ logId, ...data })}
           onComplete={handleCompleteWorkout}
           onCancel={handleCancelWorkout}
+          onSwapExercise={handleSwapExercise}
+          isSwapping={swapExercise.isPending}
           open={showWorkoutModal}
           onOpenChange={setShowWorkoutModal}
         />
       )}
+
+      {/* Power Progression Dialog */}
+      <PowerProgressionDialog
+        open={showProgression}
+        onOpenChange={setShowProgression}
+        suggestions={progressionSuggestions}
+        onAccept={handleAcceptProgression}
+        onDismiss={() => { setShowProgression(false); setProgressionSuggestions([]); }}
+      />
     </div>
   );
 }
