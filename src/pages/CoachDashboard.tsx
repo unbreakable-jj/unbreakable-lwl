@@ -15,7 +15,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { AthleteDataViewer } from '@/components/coaching/AthleteDataViewer';
 
-const CoachDashboard = () => {
+const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { myAthletes, pendingRequests, loading, updateStatus } = useCoachingAssignments();
@@ -30,14 +30,14 @@ const CoachDashboard = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <PageHeader sectionLabel="COACHING" />
-      <main className="container mx-auto px-4 py-6 max-w-3xl space-y-6">
+  const content = (
+    <div className={embedded ? 'space-y-6' : 'container mx-auto px-4 py-6 max-w-3xl space-y-6'}>
+      {!embedded && (
         <div className="text-center space-y-2">
           <h1 className="font-display text-2xl tracking-wide text-foreground">COACH DASHBOARD</h1>
           <p className="text-muted-foreground text-sm">Manage your athletes and review their progress</p>
         </div>
+      )}
 
         <Tabs defaultValue="athletes" className="w-full">
           <TabsList className="w-full grid grid-cols-2">
@@ -170,7 +170,15 @@ const CoachDashboard = () => {
             )}
           </TabsContent>
         </Tabs>
-      </main>
+      </div>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <PageHeader sectionLabel="COACHING" />
+      <main>{content}</main>
     </div>
   );
 };

@@ -45,7 +45,6 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
     { to: '/university', label: 'UNIVERSITY', icon: GraduationCap },
     { to: '/profile', label: 'MY PROFILE', icon: User },
     ...(isAdminOrOwner ? [
-      { to: '/coach', label: 'MY ATHLETES', icon: UserCheck, highlight: true },
       { to: '/admin', label: 'DEV', icon: Shield, admin: true },
     ] : []),
   ];
