@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,16 +13,6 @@ import {
   PenLine,
   ChevronDown,
   Check,
-  Brain,
-  Utensils,
-  Heart,
-  Calendar,
-  Shield,
-  Sparkles,
-  Star,
-  Sun,
-  Moon,
-  Zap,
 } from 'lucide-react';
 
 export interface HabitState {
@@ -51,120 +41,24 @@ const HABITS = [
   { key: 'hitYourNumbers' as const, label: 'HIT YOUR NUMBERS', description: 'Meet your nutrition targets', icon: Target },
 ];
 
-interface JournalPrompt {
-  category: string;
-  icon: typeof Brain;
-  prompt: string;
+const MIN_WORDS = 150;
+
+function countWords(text: string): number {
+  return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
-const JOURNAL_PROMPTS: JournalPrompt[] = [
-  // Mindset
-  { category: 'Mindset', icon: Brain, prompt: 'What negative thought pattern did you notice today? How could you reframe it?' },
-  { category: 'Mindset', icon: Brain, prompt: 'When did you feel most focused today? What conditions created that focus?' },
-  { category: 'Mindset', icon: Brain, prompt: 'What are you avoiding right now? What would it take to face it?' },
-  { category: 'Mindset', icon: Brain, prompt: 'What belief about yourself held you back this week?' },
-  { category: 'Mindset', icon: Brain, prompt: 'Describe a moment today where you chose discipline over comfort.' },
-  { category: 'Mindset', icon: Brain, prompt: 'What is one thing you need to let go of to move forward?' },
-
-  // Training
-  { category: 'Training', icon: Dumbbell, prompt: 'What felt strongest in your last session? What felt weakest?' },
-  { category: 'Training', icon: Dumbbell, prompt: 'Are you training with intent or just going through the motions? Be honest.' },
-  { category: 'Training', icon: Dumbbell, prompt: 'What movement or lift are you most proud of improving recently?' },
-  { category: 'Training', icon: Dumbbell, prompt: 'If you could change one thing about your training approach, what would it be?' },
-  { category: 'Training', icon: Dumbbell, prompt: 'How does your body feel right now — recovered, sore, energised, flat?' },
-
-  // Fuel / Nutrition
-  { category: 'Fuel', icon: Utensils, prompt: 'Did your food choices today support your goals? Where did you slip?' },
-  { category: 'Fuel', icon: Utensils, prompt: 'What meal this week made you feel genuinely good after eating it?' },
-  { category: 'Fuel', icon: Utensils, prompt: 'Are you eating enough to fuel your training? What does your energy tell you?' },
-  { category: 'Fuel', icon: Utensils, prompt: 'What is one small nutrition habit you could lock in this week?' },
-
-  // Relationships
-  { category: 'Relationships', icon: Heart, prompt: 'Who lifted you up this week? Have you told them?' },
-  { category: 'Relationships', icon: Heart, prompt: 'Is there a conversation you need to have that you have been putting off?' },
-  { category: 'Relationships', icon: Heart, prompt: 'How do the people around you influence your habits - positively or negatively?' },
-  { category: 'Relationships', icon: Heart, prompt: 'Who do you want to show up better for? What does that look like?' },
-
-  // Planning & Goals
-  { category: 'Planning', icon: Calendar, prompt: 'What are your top 3 priorities for tomorrow? Write them now.' },
-  { category: 'Planning', icon: Calendar, prompt: 'Where do you want to be in 90 days? What needs to happen this week to get closer?' },
-  { category: 'Planning', icon: Calendar, prompt: 'What did you plan to do this week that you have not done yet? Why?' },
-  { category: 'Planning', icon: Calendar, prompt: 'If this week was your only chance to make progress, what would you focus on?' },
-
-  // Injuries & Recovery
-  { category: 'Recovery', icon: Shield, prompt: 'How is your body recovering? Any niggles you are ignoring that need attention?' },
-  { category: 'Recovery', icon: Shield, prompt: 'What are you doing for recovery outside the gym - sleep, mobility, downtime?' },
-  { category: 'Recovery', icon: Shield, prompt: 'Are you pushing through pain or training around it? There is a difference.' },
-  { category: 'Recovery', icon: Shield, prompt: 'Rate your sleep quality this week 1-10. What could improve it by one point?' },
-
-  // Gratitude & Wins
-  { category: 'Gratitude', icon: Star, prompt: 'Name three things that went well today - no matter how small.' },
-  { category: 'Gratitude', icon: Star, prompt: 'What is one win from this week you have not given yourself credit for?' },
-  { category: 'Gratitude', icon: Star, prompt: 'What part of your life are you taking for granted right now?' },
-
-  // Energy & Self-awareness
-  { category: 'Energy', icon: Zap, prompt: 'What time of day do you feel sharpest? Are you using that window well?' },
-  { category: 'Energy', icon: Zap, prompt: 'What drained your energy today? What recharged it?' },
-  { category: 'Energy', icon: Zap, prompt: 'On a scale of 1-10, where is your motivation right now? What would move it up one?' },
-
-  // Future
-  { category: 'Future', icon: Sparkles, prompt: 'What does your best self look like one year from now? Be specific.' },
-  { category: 'Future', icon: Sparkles, prompt: 'What habit, if you nailed it every day for 6 months, would change your life?' },
-  { category: 'Future', icon: Sparkles, prompt: 'What are you building toward that excites you most right now?' },
-];
-
-/**
- * Simple deterministic hash from a date string to pick 3 prompts from
- * different categories each day.
- */
-function getPromptsForDate(dateKey: string): JournalPrompt[] {
-  let hash = 0;
-  for (let i = 0; i < dateKey.length; i++) {
-    hash = (hash * 31 + dateKey.charCodeAt(i)) | 0;
-  }
-  hash = Math.abs(hash);
-
-  // Shuffle categories deterministically
-  const categories = [...new Set(JOURNAL_PROMPTS.map(p => p.category))];
-  const shuffled = categories
-    .map((c, i) => ({ c, sort: (hash * (i + 1) * 7919) % 10000 }))
-    .sort((a, b) => a.sort - b.sort)
-    .map(x => x.c);
-
-  const picked: JournalPrompt[] = [];
-  for (let i = 0; i < 3 && i < shuffled.length; i++) {
-    const catPrompts = JOURNAL_PROMPTS.filter(p => p.category === shuffled[i]);
-    const idx = (hash * (i + 3)) % catPrompts.length;
-    picked.push(catPrompts[Math.abs(idx) % catPrompts.length]);
-  }
-  return picked;
-}
-
-export function DailyHabitDiary({ habits, onChange, compact = false, readOnly = false, dateKey }: DailyHabitDiaryProps) {
+export function DailyHabitDiary({ habits, onChange, compact = false, readOnly = false }: DailyHabitDiaryProps) {
   const [isOpen, setIsOpen] = useState(!compact);
-  const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
-  
-  const completedCount = HABITS.filter(h => habits[h.key]).length + (habits.journal.trim().length > 0 ? 1 : 0);
+
+  const wordCount = countWords(habits.journal);
+  const journalComplete = wordCount >= MIN_WORDS;
+  const completedCount = HABITS.filter(h => habits[h.key]).length + (journalComplete ? 1 : 0);
   const totalCount = 6;
   const allComplete = completedCount === totalCount;
-
-  const todaysPrompts = useMemo(
-    () => getPromptsForDate(dateKey || new Date().toISOString().slice(0, 10)),
-    [dateKey]
-  );
 
   const toggleHabit = (key: keyof Omit<HabitState, 'journal'>) => {
     if (readOnly) return;
     onChange({ ...habits, [key]: !habits[key] });
-  };
-
-  const handlePromptClick = (prompt: string) => {
-    if (readOnly) return;
-    setSelectedPrompt(prompt);
-    // If journal is empty, pre-fill with the prompt as a header
-    if (!habits.journal.trim()) {
-      onChange({ ...habits, journal: '' });
-    }
   };
 
   return (
@@ -224,57 +118,34 @@ export function DailyHabitDiary({ habits, onChange, compact = false, readOnly = 
 
             {/* Journal Entry */}
             <div className="space-y-3 pt-2">
-              <div className="flex items-center gap-2">
-                <PenLine className={`w-5 h-5 ${habits.journal.trim() ? 'text-primary' : 'text-primary'}`} />
-                <span className={`font-display text-sm tracking-wide ${habits.journal.trim() ? 'text-primary' : 'text-foreground'}`}>
-                  DAILY JOURNAL
-                </span>
-              </div>
-
-              {/* Prompt Chips */}
-              <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">Pick a prompt to write about:</p>
-                <div className="flex flex-col gap-2">
-                  {todaysPrompts.map((p, i) => {
-                    const Icon = p.icon;
-                    const isSelected = selectedPrompt === p.prompt;
-                    return (
-                      <button
-                        key={i}
-                        onClick={() => handlePromptClick(p.prompt)}
-                        disabled={readOnly}
-                        className={`w-full text-left flex items-start gap-3 p-3 rounded-xl border transition-all ${
-                          isSelected
-                            ? 'border-primary/50 bg-primary/10'
-                            : 'border-border bg-muted/10 hover:bg-muted/30'
-                        }`}
-                      >
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          isSelected ? 'bg-primary/20' : 'bg-muted/30'
-                        }`}>
-                          <Icon className={`w-4 h-4 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <Badge variant="outline" className={`text-[10px] mb-1 ${isSelected ? 'border-primary/40 text-primary' : ''}`}>
-                            {p.category}
-                          </Badge>
-                          <p className={`text-sm leading-relaxed ${isSelected ? 'text-foreground' : 'text-muted-foreground'}`}>
-                            {p.prompt}
-                          </p>
-                        </div>
-                      </button>
-                    );
-                  })}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <PenLine className={`w-5 h-5 ${journalComplete ? 'text-primary' : 'text-primary'}`} />
+                  <span className={`font-display text-sm tracking-wide ${journalComplete ? 'text-primary' : 'text-foreground'}`}>
+                    DAILY JOURNAL
+                  </span>
                 </div>
+                <Badge 
+                  variant="outline" 
+                  className={`text-xs ${journalComplete ? 'border-primary/40 text-primary' : ''}`}
+                >
+                  {wordCount}/{MIN_WORDS} words
+                </Badge>
               </div>
 
               <Textarea
-                placeholder={selectedPrompt || "Reflect on your day... pick a prompt above or write freely."}
+                placeholder="Write freely — reflect on your day, your training, your mindset, anything on your mind. Minimum 150 words."
                 value={habits.journal}
                 onChange={(e) => !readOnly && onChange({ ...habits, journal: e.target.value })}
-                className="min-h-[120px] text-sm bg-muted/20 border-border resize-none"
+                className="min-h-[200px] text-sm bg-muted/20 border-border resize-none"
                 readOnly={readOnly}
               />
+
+              {!journalComplete && wordCount > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {MIN_WORDS - wordCount} more word{MIN_WORDS - wordCount !== 1 ? 's' : ''} to complete your journal
+                </p>
+              )}
             </div>
           </div>
         </CollapsibleContent>
