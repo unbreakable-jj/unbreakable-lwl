@@ -169,26 +169,22 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                 MY PROFILE
               </Link>
 
-              {/* COACH - only for coach role */}
-              {isCoach && (
-                <Link to="/coach" onClick={handleNavClick} className={linkClass('/coach', true)}>
-                  <UserCheck className={`w-5 h-5 ${isActive('/coach') ? '' : 'text-primary'}`} />
-                  COACH
-                </Link>
-              )}
+              {/* COACHING - role-aware */}
+              <Link
+                to={(isCoach || isDev) ? '/coach' : '/my-coaching'}
+                onClick={handleNavClick}
+                className={linkClass((isCoach || isDev) ? '/coach' : '/my-coaching', true)}
+              >
+                <UserCheck className={`w-5 h-5 ${(isActive('/coach') || isActive('/my-coaching')) ? '' : 'text-primary'}`} />
+                COACHING
+              </Link>
 
               {/* DEV - only for dev role */}
               {isDev && (
-                <>
-                  <Link to="/coach" onClick={handleNavClick} className={linkClass('/coach', true)}>
-                    <UserCheck className={`w-5 h-5 ${isActive('/coach') ? '' : 'text-primary'}`} />
-                    COACH
-                  </Link>
-                  <Link to="/admin" onClick={handleNavClick} className={linkClass('/admin', false, true)}>
-                    <Shield className={`w-5 h-5 ${isActive('/admin') ? '' : 'text-amber-500'}`} />
-                    DEV
-                  </Link>
-                </>
+                <Link to="/admin" onClick={handleNavClick} className={linkClass('/admin', false, true)}>
+                  <Shield className={`w-5 h-5 ${isActive('/admin') ? '' : 'text-amber-500'}`} />
+                  DEV
+                </Link>
               )}
             </nav>
 

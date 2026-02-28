@@ -162,22 +162,20 @@ export function MainNavigation() {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
-                {/* COACH - for coach role */}
-                {(isCoach || isDev) && (
-                  <NavigationMenuItem>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        to="/coach"
-                        className={cn(
-                          'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-colors hover:bg-accent hover:text-accent-foreground text-primary',
-                          isActive('/coach') && 'bg-primary/10'
-                        )}
-                      >
-                        COACH
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                )}
+                {/* COACHING - role-aware routing */}
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      to={(isCoach || isDev) ? '/coach' : '/my-coaching'}
+                      className={cn(
+                        'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-colors hover:bg-accent hover:text-accent-foreground text-primary',
+                        (isActive('/coach') || isActive('/my-coaching')) && 'bg-primary/10'
+                      )}
+                    >
+                      COACHING
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
 
                 {/* DEV - for dev role only */}
                 {isDev && (

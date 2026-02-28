@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Users, UserCheck, Clock, Eye, MessageSquare,
-  Check, X, Loader2, UserPlus, Shield,
-  Dumbbell, Footprints, Utensils, Brain, ChevronRight
+  Check, X, Loader2, UserPlus,
+  Dumbbell, Footprints, Utensils, Brain, ChevronRight, MoreHorizontal
 } from 'lucide-react';
 import { useCoachingAssignments } from '@/hooks/useCoachingAssignments';
 import { useAuth } from '@/hooks/useAuth';
@@ -21,6 +21,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 
 const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
@@ -50,34 +51,31 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
   ];
 
   const content = (
-    <div className={embedded ? 'space-y-6' : 'container mx-auto px-4 py-6 max-w-3xl space-y-6'}>
+    <div className={embedded ? 'space-y-5' : 'container mx-auto px-4 py-6 max-w-3xl space-y-5'}>
       {!embedded && (
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-            <Shield className="w-6 h-6 text-primary" />
-          </div>
+        <div className="flex items-center justify-between mb-2">
           <div>
-            <h1 className="font-display text-2xl tracking-wide text-foreground">
+            <h1 className="font-display text-xl tracking-wide text-foreground">
               {dashboardLabel} DASHBOARD
             </h1>
-            <p className="text-sm text-muted-foreground">
-              Manage your athletes and review their progress
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Manage athletes and build plans
             </p>
           </div>
+          <Badge variant="outline" className="font-display text-[10px] tracking-wider border-primary/30 text-primary">
+            {role?.toUpperCase()}
+          </Badge>
         </div>
       )}
 
-      {/* Quick Actions: Build My Own + Build For Athlete */}
+      {/* Quick Actions Row */}
       <div className="grid grid-cols-2 gap-3">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Card className="border-border hover:border-primary/30 transition-colors cursor-pointer">
-              <CardContent className="p-4 text-center">
-                <Dumbbell className="w-6 h-6 mx-auto text-primary mb-2" />
-                <p className="font-display text-xs tracking-wide text-foreground">BUILD MY OWN</p>
-                <p className="text-[10px] text-muted-foreground mt-1">Create a plan for yourself</p>
-              </CardContent>
-            </Card>
+            <Button variant="outline" className="h-auto py-3 px-4 flex flex-col items-center gap-1.5 border-border hover:border-primary/40 hover:bg-primary/5 transition-all">
+              <Dumbbell className="w-5 h-5 text-primary" />
+              <span className="font-display text-[11px] tracking-wide">BUILD MY OWN</span>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="center">
             {buildPlanOptions.map(opt => (
@@ -91,13 +89,10 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Card className="border-border hover:border-primary/30 transition-colors cursor-pointer">
-              <CardContent className="p-4 text-center">
-                <UserCheck className="w-6 h-6 mx-auto text-primary mb-2" />
-                <p className="font-display text-xs tracking-wide text-foreground">BUILD FOR ATHLETE</p>
-                <p className="text-[10px] text-muted-foreground mt-1">Select an athlete below</p>
-              </CardContent>
-            </Card>
+            <Button variant="outline" className="h-auto py-3 px-4 flex flex-col items-center gap-1.5 border-border hover:border-primary/40 hover:bg-primary/5 transition-all">
+              <UserCheck className="w-5 h-5 text-primary" />
+              <span className="font-display text-[11px] tracking-wide">BUILD FOR ATHLETE</span>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="center" className="w-64 max-h-72 overflow-y-auto">
             {myAthletes.length === 0 ? (
@@ -134,11 +129,23 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
         </DropdownMenu>
       </div>
 
+      {/* Stats Summary */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-primary/5 border border-primary/10 rounded-lg px-4 py-3 text-center">
+          <p className="font-display text-2xl text-primary">{myAthletes.length}</p>
+          <p className="text-[10px] font-display tracking-wide text-muted-foreground mt-0.5">ATHLETES</p>
+        </div>
+        <div className="bg-primary/5 border border-primary/10 rounded-lg px-4 py-3 text-center">
+          <p className="font-display text-2xl text-primary">{pendingRequests.length}</p>
+          <p className="text-[10px] font-display tracking-wide text-muted-foreground mt-0.5">PENDING</p>
+        </div>
+      </div>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full grid grid-cols-3">
           <TabsTrigger value="athletes" className="font-display text-xs tracking-wide">
             <UserCheck className="w-4 h-4 mr-1" />
-            ATHLETES ({myAthletes.length})
+            ATHLETES
           </TabsTrigger>
           <TabsTrigger value="clients" className="font-display text-xs tracking-wide">
             <UserPlus className="w-4 h-4 mr-1" />
@@ -146,11 +153,16 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
           </TabsTrigger>
           <TabsTrigger value="requests" className="font-display text-xs tracking-wide">
             <Clock className="w-4 h-4 mr-1" />
-            REQUESTS ({pendingRequests.length})
+            REQUESTS
+            {pendingRequests.length > 0 && (
+              <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 flex items-center justify-center text-[9px]">
+                {pendingRequests.length}
+              </Badge>
+            )}
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="athletes" className="space-y-3 mt-4">
+        <TabsContent value="athletes" className="space-y-2 mt-4">
           {loading ? (
             <div className="flex justify-center py-12">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -159,49 +171,65 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
             <Card className="border-border">
               <CardContent className="py-12 text-center">
                 <Users className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
-                <p className="text-muted-foreground">No athletes assigned yet</p>
-                <p className="text-xs text-muted-foreground mt-1">Use the CLIENTS tab to search and add athletes</p>
+                <p className="text-muted-foreground text-sm">No athletes assigned yet</p>
+                <p className="text-xs text-muted-foreground mt-1">Use the USERS tab to search and add athletes</p>
               </CardContent>
             </Card>
           ) : (
             myAthletes.map(assignment => (
-              <Card key={assignment.id} className="border-border hover:border-primary/30 transition-colors">
-                <CardContent className="p-4">
+              <Card key={assignment.id} className="border-border hover:border-primary/20 transition-colors">
+                <CardContent className="p-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-12 w-12">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Avatar className="h-10 w-10 shrink-0">
                         <AvatarImage src={assignment.athlete_profile?.avatar_url || undefined} />
-                        <AvatarFallback className="font-display">
+                        <AvatarFallback className="font-display text-sm">
                           {(assignment.athlete_profile?.display_name || '?')[0].toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <p className="font-display text-sm tracking-wide text-foreground">
+                      <div className="min-w-0">
+                        <p className="font-display text-sm tracking-wide text-foreground truncate">
                           {assignment.athlete_profile?.display_name || 'Unknown'}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-[11px] text-muted-foreground truncate">
                           @{assignment.athlete_profile?.username || 'unknown'}
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 shrink-0">
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => navigate(`/inbox?compose=1&to=${assignment.athlete_id}`)}
-                        title="Message athlete"
-                      >
-                        <MessageSquare className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
+                        className="h-8 w-8"
                         onClick={() => setSelectedAthleteId(assignment.athlete_id)}
-                        className="font-display text-xs"
+                        title="View athlete data"
                       >
-                        <Eye className="w-4 h-4 mr-1" />
-                        VIEW
+                        <Eye className="w-4 h-4" />
                       </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => navigate(`/inbox?compose=1&to=${assignment.athlete_id}`)}>
+                            <MessageSquare className="w-4 h-4 mr-2" />
+                            Message
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigate(`/user/${assignment.athlete_id}`)}>
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Profile
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          {buildPlanOptions.map(opt => (
+                            <DropdownMenuItem key={opt.path} onClick={() => navigate(`${opt.path}?for=${assignment.athlete_id}`)}>
+                              <opt.icon className="w-4 h-4 mr-2" />
+                              Build {opt.label}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
                 </CardContent>
@@ -214,7 +242,7 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
           <ClientSearchPanel />
         </TabsContent>
 
-        <TabsContent value="requests" className="space-y-3 mt-4">
+        <TabsContent value="requests" className="space-y-2 mt-4">
           {loading ? (
             <div className="flex justify-center py-12">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -223,46 +251,44 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
             <Card className="border-border">
               <CardContent className="py-12 text-center">
                 <Clock className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
-                <p className="text-muted-foreground">No pending requests</p>
+                <p className="text-muted-foreground text-sm">No pending requests</p>
               </CardContent>
             </Card>
           ) : (
             pendingRequests.map(request => (
               <Card key={request.id} className="border-border">
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-12 w-12">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Avatar className="h-10 w-10 shrink-0">
                         <AvatarImage src={request.athlete_profile?.avatar_url || undefined} />
-                        <AvatarFallback className="font-display">
+                        <AvatarFallback className="font-display text-sm">
                           {(request.athlete_profile?.display_name || '?')[0].toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <p className="font-display text-sm tracking-wide text-foreground">
+                      <div className="min-w-0">
+                        <p className="font-display text-sm tracking-wide text-foreground truncate">
                           {request.athlete_profile?.display_name || 'Unknown'}
                         </p>
-                        <p className="text-xs text-muted-foreground">
-                          Wants to be coached by you
-                        </p>
+                        <p className="text-[11px] text-muted-foreground">Coaching request</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                       <Button
                         size="sm"
                         onClick={() => updateStatus(request.id, 'active')}
-                        className="font-display text-xs"
+                        className="font-display text-[11px] h-8 px-3"
                       >
-                        <Check className="w-4 h-4 mr-1" />
+                        <Check className="w-3.5 h-3.5 mr-1" />
                         ACCEPT
                       </Button>
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         onClick={() => updateStatus(request.id, 'declined')}
-                        className="font-display text-xs"
+                        className="font-display text-[11px] h-8 px-3 text-muted-foreground"
                       >
-                        <X className="w-4 h-4 mr-1" />
+                        <X className="w-3.5 h-3.5 mr-1" />
                         DECLINE
                       </Button>
                     </div>
