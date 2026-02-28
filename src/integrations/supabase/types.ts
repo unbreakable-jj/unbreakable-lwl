@@ -238,6 +238,57 @@ export type Database = {
         }
         Relationships: []
       }
+      coaching_feedback: {
+        Row: {
+          athlete_id: string
+          coach_id: string
+          created_at: string
+          data: Json | null
+          feedback_type: string
+          general_comments: string | null
+          id: string
+          next_session_goals: string | null
+          performance_rating: number | null
+          related_program_id: string | null
+          related_session_id: string | null
+          technique_notes: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          athlete_id: string
+          coach_id: string
+          created_at?: string
+          data?: Json | null
+          feedback_type?: string
+          general_comments?: string | null
+          id?: string
+          next_session_goals?: string | null
+          performance_rating?: number | null
+          related_program_id?: string | null
+          related_session_id?: string | null
+          technique_notes?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          athlete_id?: string
+          coach_id?: string
+          created_at?: string
+          data?: Json | null
+          feedback_type?: string
+          general_comments?: string | null
+          id?: string
+          next_session_goals?: string | null
+          performance_rating?: number | null
+          related_program_id?: string | null
+          related_session_id?: string | null
+          technique_notes?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       coaching_profiles: {
         Row: {
           age_years: number | null

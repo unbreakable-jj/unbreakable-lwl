@@ -10,8 +10,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   ArrowLeft, Dumbbell, Utensils, Brain, Activity,
   Target, MessageSquare, Loader2, Calendar, TrendingUp,
-  Flame, Droplets, BookOpen, PenLine, Check, Footprints
+  Flame, Droplets, BookOpen, PenLine, Check, Footprints, ClipboardList, Star, Edit
 } from 'lucide-react';
+import { CoachFeedbackPanel } from './CoachFeedbackPanel';
+import { useCoachingFeedback, CoachingFeedback } from '@/hooks/useCoachingFeedback';
+import { formatDistanceToNow } from 'date-fns';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +31,7 @@ interface AthleteDataViewerProps {
 
 export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps) {
   const navigate = useNavigate();
+  const { getFeedbackForAthlete } = useCoachingFeedback();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [coachingProfile, setCoachingProfile] = useState<any>(null);
@@ -36,6 +40,7 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
   const [programs, setPrograms] = useState<any[]>([]);
   const [personalRecords, setPersonalRecords] = useState<any[]>([]);
   const [recentFoodLogs, setRecentFoodLogs] = useState<any[]>([]);
+  const [feedbackHistory, setFeedbackHistory] = useState<CoachingFeedback[]>([]);
 
   useEffect(() => {
     loadAthleteData();
@@ -69,6 +74,11 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
     setPrograms(progs || []);
     setPersonalRecords(prs || []);
     setRecentFoodLogs(foods || []);
+
+    // Load feedback history
+    const { data: fbData } = await getFeedbackForAthlete(athleteId);
+    setFeedbackHistory(fbData);
+
     setLoading(false);
   };
 
@@ -201,11 +211,12 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
 
         {/* Tabs for detailed data */}
         <Tabs defaultValue="training" className="w-full">
-          <TabsList className="w-full grid grid-cols-4">
+          <TabsList className="w-full grid grid-cols-5">
             <TabsTrigger value="training" className="text-xs"><Dumbbell className="w-3 h-3 mr-1" />Training</TabsTrigger>
             <TabsTrigger value="habits" className="text-xs"><Check className="w-3 h-3 mr-1" />Habits</TabsTrigger>
             <TabsTrigger value="nutrition" className="text-xs"><Utensils className="w-3 h-3 mr-1" />Fuel</TabsTrigger>
             <TabsTrigger value="records" className="text-xs"><TrendingUp className="w-3 h-3 mr-1" />Records</TabsTrigger>
+            <TabsTrigger value="feedback" className="text-xs"><ClipboardList className="w-3 h-3 mr-1" />Feedback</TabsTrigger>
           </TabsList>
 
           <TabsContent value="training" className="space-y-3 mt-4">
@@ -221,7 +232,18 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
                           Week {p.current_week} • Day {p.current_day}
                         </p>
                       </div>
-                      {p.is_active && <Badge className="bg-primary/20 text-primary border-primary/30 text-xs">ACTIVE</Badge>}
+                      <div className="flex items-center gap-2">
+                        {p.is_active && <Badge className="bg-primary/20 text-primary border-primary/30 text-xs">ACTIVE</Badge>}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => navigate(`/programming/create?edit=${p.id}&for=${athleteId}`)}
+                          className="h-7 px-2 text-xs"
+                        >
+                          <Edit className="w-3 h-3 mr-1" />
+                          EDIT
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -334,6 +356,48 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
                   </CardContent>
                 </Card>
               ))
+            )}
+          </TabsContent>
+
+          <TabsContent value="feedback" className="space-y-4 mt-4">
+            <CoachFeedbackPanel
+              athleteId={athleteId}
+              sessions={recentSessions.map(s => ({ id: s.id, day_name: s.day_name, started_at: s.started_at }))}
+              programs={programs.map(p => ({ id: p.id, name: p.name }))}
+              onSaved={loadAthleteData}
+            />
+
+            {feedbackHistory.length > 0 && (
+              <div className="space-y-2">
+                <p className="font-display text-xs tracking-wide text-muted-foreground">FEEDBACK HISTORY</p>
+                {feedbackHistory.map(fb => (
+                  <Card key={fb.id} className="border-border">
+                    <CardContent className="p-3 space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="font-display text-sm text-foreground">{fb.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatDistanceToNow(new Date(fb.created_at), { addSuffix: true })}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="text-[10px]">{fb.feedback_type.replace('_', ' ')}</Badge>
+                      </div>
+                      {fb.performance_rating && (
+                        <div className="flex gap-0.5">
+                          {[1, 2, 3, 4, 5].map(n => (
+                            <Star key={n} className={`w-3 h-3 ${n <= fb.performance_rating! ? 'fill-primary text-primary' : 'text-muted-foreground/20'}`} />
+                          ))}
+                        </div>
+                      )}
+                      {fb.technique_notes && <p className="text-xs text-muted-foreground">{fb.technique_notes}</p>}
+                      {fb.next_session_goals && (
+                        <p className="text-xs text-foreground"><span className="text-muted-foreground">Goals:</span> {fb.next_session_goals}</p>
+                      )}
+                      {fb.general_comments && <p className="text-xs text-muted-foreground">{fb.general_comments}</p>}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             )}
           </TabsContent>
         </Tabs>

@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useNotifications, Notification } from '@/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 import {
   X,
   Bell,
@@ -20,6 +21,14 @@ import {
 interface NotificationsPanelProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+function getNotificationLink(notification: Notification): string | null {
+  if (notification.type === 'coaching_feedback' && notification.data) {
+    const feedbackId = (notification.data as any)?.feedback_id;
+    return `/profile?tab=coach-updates${feedbackId ? `&feedback=${feedbackId}` : ''}`;
+  }
+  return null;
 }
 
 function getNotificationIcon(type: string) {
@@ -47,16 +56,26 @@ function NotificationItem({
   notification,
   onMarkRead,
   onDelete,
+  onNavigate,
 }: {
   notification: Notification;
   onMarkRead: (id: string) => void;
   onDelete: (id: string) => void;
+  onNavigate?: (path: string) => void;
 }) {
+  const link = getNotificationLink(notification);
+  const handleClick = () => {
+    if (link && onNavigate) {
+      if (!notification.read) onMarkRead(notification.id);
+      onNavigate(link);
+    }
+  };
   return (
     <div
+      onClick={handleClick}
       className={`p-4 border-b border-border hover:bg-muted/50 transition-colors ${
         !notification.read ? 'bg-primary/5' : ''
-      }`}
+      } ${link ? 'cursor-pointer' : ''}`}
     >
       <div className="flex items-start gap-3">
         <div
@@ -103,8 +122,14 @@ function NotificationItem({
 }
 
 export function NotificationsPanel({ isOpen, onClose }: NotificationsPanelProps) {
+  const navigate = useNavigate();
   const { notifications, loading, unreadCount, markAsRead, markAllAsRead, deleteNotification } =
     useNotifications();
+
+  const handleNavigate = (path: string) => {
+    onClose();
+    navigate(path);
+  };
 
   return (
     <AnimatePresence>
@@ -168,6 +193,7 @@ export function NotificationsPanel({ isOpen, onClose }: NotificationsPanelProps)
                     notification={notification}
                     onMarkRead={markAsRead}
                     onDelete={deleteNotification}
+                    onNavigate={handleNavigate}
                   />
                 ))
               )}
