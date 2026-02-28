@@ -1,87 +1,116 @@
 
-# Full Multi-Type Plan Building for Coaches & Devs
 
-## Problem
-Currently, the BUILD PLAN dropdown in `AthleteDataViewer` links to `/programming/create?for=`, `/tracker/create?for=`, and `/fuel/planning?for=` -- but **none of these pages actually read the `?for=` parameter**. They all hardcode `user.id` when saving. Additionally:
-- Mindset programmes are missing from the BUILD PLAN dropdown
-- Coaches cannot build plans for themselves from the coaching hub
-- `mindset_programmes` table lacks INSERT/UPDATE RLS for coaches
-- No user-search-based plan delivery exists
+# Dashboard Rework: Dev, Coach & Athlete Coaching Page
 
-## Changes
+## Overview
 
-### 1. Database: Add Coach RLS for Mindset Programmes
+Clean up and consolidate the Dev Dashboard and Coach Dashboard layouts, removing duplication and improving visual hierarchy. Then create a dedicated `/my-coaching` page for athletes to view their coach, feedback history, and assigned plans.
 
-Add INSERT and UPDATE policies on `mindset_programmes` so coaches can create and edit mindset plans for their assigned athletes.
+---
 
+## 1. Dev Dashboard (Admin.tsx) -- Consolidate Tabs
+
+**Problem**: Currently has 6 tabs including "ATHLETES", "CLIENTS", and "USERS" which overlap. The "ATHLETES" tab embeds the entire CoachDashboard (which itself has sub-tabs including another "USERS" tab), creating confusing nested navigation.
+
+**Solution**: Restructure to 2 clear sections:
+
+```text
++-----------------------------------------------+
+|  DEV DASHBOARD                                 |
+|  Logged in as DEV                              |
++-----------------------------------------------+
+|  COACHING | USERS | REPORTS | SETTINGS | LOGS  |
++-----------------------------------------------+
 ```
-INSERT: WITH CHECK (is_coach_of(auth.uid(), user_id))
-UPDATE: USING (is_coach_of(auth.uid(), user_id))
+
+- **COACHING** tab: Embeds the cleaned-up CoachDashboard (athletes, search users, requests, quick build actions -- all in one)
+- Remove the standalone "CLIENTS" tab (merged into CoachDashboard's USERS sub-tab)
+- **USERS** tab: AdminUsersPanel (full user management with roles, suspend, delete)
+- **REPORTS**, **SETTINGS**, **LOGS**: Unchanged
+
+---
+
+## 2. CoachDashboard.tsx -- Visual Rework
+
+Redesign the layout for a cleaner, more professional look. Same design for both dev and coach roles.
+
+**Header**: Compact role badge + dashboard title (no large icon circle)
+
+**Quick Actions Row**: Two action cards side-by-side with dropdowns (keep current BUILD MY OWN / BUILD FOR ATHLETE pattern but improve styling):
+- Tighter padding, subtle gradient borders, icon + label only (remove sub-description text)
+- The BUILD FOR ATHLETE dropdown uses a cleaner scrollable list with avatars
+
+**Tabs**: Keep 3 tabs (ATHLETES, USERS, REQUESTS) but improve content:
+
+- **ATHLETES tab**: 
+  - Summary stat bar at top: total athletes count, pending requests count
+  - Athlete cards: Avatar + name + username on left; action buttons (Message, View, Build Plan dropdown) on right with a compact `...` more menu instead of multiple visible buttons
+  - Empty state with a clear CTA to search users
+
+- **USERS tab**: ClientSearchPanel (unchanged, already clean)
+
+- **REQUESTS tab**: Cleaner request cards with Accept/Decline as primary/ghost buttons
+
+**Empty state text fix**: Change "Use the CLIENTS tab" to "Use the USERS tab"
+
+---
+
+## 3. New Page: `/my-coaching` -- Athlete Coaching Hub
+
+A dedicated page for athletes (regular users) who have an assigned coach. Accessible from the COACHING nav item.
+
+**Layout**:
+```text
++-----------------------------------------------+
+|  MY COACHING                                   |
++-----------------------------------------------+
+|  YOUR COACH                                    |
+|  [Avatar] Coach Name  @username     [MESSAGE]  |
++-----------------------------------------------+
+|  UPDATES | MY PLANS                            |
++-----------------------------------------------+
+|  (Coach feedback cards / assigned plans)        |
++-----------------------------------------------+
 ```
 
-### 2. Save Hooks: Accept Optional `forUserId`
+**Content**:
+- **Coach Card** at top: Shows assigned coach's avatar, name, username, and MESSAGE button
+- **UPDATES tab**: Renders the existing `CoachUpdatesView` component (feedback history from coach)
+- **MY PLANS tab**: Shows plans assigned by the coach (training, cardio, meal, mindset programmes where the user_id matches but was created by the coach). Uses existing data from the save hooks.
 
-Modify four hooks to accept an optional `forUserId` parameter that overrides `user.id` when saving:
+**No coach state**: If user has no coach, show a clean empty state: "You don't have a coach yet. Request one from your profile or wait for an assignment."
 
-- **`useTrainingPrograms.tsx`** -- `saveProgram` mutation accepts optional `forUserId`
-- **`useCardioPrograms.tsx`** -- `saveProgram` mutation accepts optional `forUserId`  
-- **`useMealPlans.tsx`** -- `createMealPlan` mutation accepts optional `forUserId`
-- **`useMindsetProgrammes.tsx`** -- `saveProgramme` mutation accepts optional `forUserId`
+**Navigation routing**: The COACHING nav item will route to `/my-coaching` for regular users and `/coach` for coach/dev roles.
 
-Each will use `forUserId || user.id` as the `user_id` in the INSERT. RLS already permits this for coaches via the `is_coach_of` policies.
+---
 
-### 3. Builder Pages: Read `?for=` Query Parameter
+## 4. Profile Page Cleanup
 
-Modify three existing builder pages to detect `?for={userId}` from the URL and pass it through to the save hooks:
+Since the athlete now has a dedicated `/my-coaching` page:
+- Remove the "COACH UPDATES" tab from `Profile.tsx`
+- Keep the `RequestCoachCard` on Profile as a subtle info card
+- Profile page returns to a single-view layout (no tabs needed)
 
-- **`ProgrammingCreate.tsx`** -- Read `searchParams.get('for')`, show a banner "Building for [athlete name]", pass `forUserId` to `saveProgram`
-- **`TrackerCreate.tsx`** -- Same pattern for cardio programmes
-- **`FuelPlanning.tsx`** -- Same pattern for meal plans
+---
 
-Additionally, create awareness in the Mindset builder page if one exists, or add a note that Mindset programmes use the same pattern.
+## 5. Navigation Update
 
-### 4. AthleteDataViewer: Add Mindset to BUILD PLAN Dropdown
-
-Add a fourth option to the BUILD PLAN dropdown:
-- **Mindset Programme** -- navigates to `/mindset?for={athleteId}` (or the appropriate mindset builder route)
-
-Also add EDIT buttons on cardio programmes and meal plans (currently only training programmes have EDIT), by fetching those from the database alongside `training_programs`.
-
-### 5. Coach Hub: "Build for Myself" Action
-
-Add a "BUILD MY OWN" section or button in the Coach Dashboard that navigates to the builders **without** a `?for=` param (i.e. saves to the coach's own account). This can be a simple action card at the top of the Athletes tab or a dedicated section.
-
-### 6. Coach Hub: Search + Deliver Plan to Any Assigned Athlete
-
-Add a "BUILD PLAN FOR..." flow accessible from the Coach Dashboard:
-- Reuse the existing `ClientSearchPanel` user search but filter to only show **assigned athletes**
-- Selecting an athlete opens the BUILD PLAN dropdown (same as in AthleteDataViewer)
-- This lets coaches quickly navigate to a builder for any client without first going into the full AthleteDataViewer
-
-### 7. "Building For" Banner Component
-
-Create a small reusable `BuildingForBanner` component that:
-- Fetches the target athlete's profile (display name, avatar) from the `?for=` param
-- Displays "Building for [Name]" at the top of the builder page
-- Shows a "Cancel" button to clear the param and build for yourself instead
+Update the COACHING nav link logic:
+- If user role is `coach` or `dev`: navigate to `/coach` (Coach Dashboard)
+- If user role is `user` and has an active coach: navigate to `/my-coaching`
+- If user role is `user` and has no coach: navigate to `/my-coaching` (shows empty state with request option)
 
 ---
 
 ## Files Summary
 
-**Database migration:**
-- Add INSERT + UPDATE RLS on `mindset_programmes` for coaches
-
 **New file:**
-- `src/components/coaching/BuildingForBanner.tsx` -- reusable "Building for [athlete]" banner
+- `src/pages/MyCoaching.tsx` -- Dedicated athlete coaching page
 
 **Modified files:**
-- `src/hooks/useTrainingPrograms.tsx` -- `forUserId` param on `saveProgram`
-- `src/hooks/useCardioPrograms.tsx` -- `forUserId` param on `saveProgram`
-- `src/hooks/useMealPlans.tsx` -- `forUserId` param on `createMealPlan`
-- `src/hooks/useMindsetProgrammes.tsx` -- `forUserId` param on `saveProgramme`
-- `src/pages/ProgrammingCreate.tsx` -- read `?for=`, show banner, pass to save
-- `src/pages/TrackerCreate.tsx` -- read `?for=`, show banner, pass to save
-- `src/pages/FuelPlanning.tsx` -- read `?for=`, show banner, pass to save
-- `src/components/coaching/AthleteDataViewer.tsx` -- add Mindset to BUILD PLAN dropdown, fetch cardio/meal plans for EDIT buttons
-- `src/pages/CoachDashboard.tsx` -- add "Build My Own" quick actions and "Build Plan For..." search flow
+- `src/pages/Admin.tsx` -- Remove "CLIENTS" tab, rename "ATHLETES" to "COACHING"
+- `src/pages/CoachDashboard.tsx` -- Visual rework: cleaner cards, better layout, compact actions
+- `src/pages/Profile.tsx` -- Remove Coach Updates tab, simplify back to single view
+- `src/App.tsx` -- Add `/my-coaching` route
+- `src/components/MainNavigation.tsx` or relevant nav component -- Update COACHING link routing based on user role
+
