@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { Brain, Wind, Gamepad2, Flame, ArrowRight } from "lucide-react";
+import { Brain, Wind, Gamepad2, Flame, ArrowRight, BookOpen } from "lucide-react";
 import { ThemedLogo } from "@/components/ThemedLogo";
 import { NavigationDrawer } from "@/components/NavigationDrawer";
 import { ThemeToggle } from "@/components/hub/ThemeToggle";
@@ -37,8 +37,14 @@ const exploreCards = [
     icon: Gamepad2,
     link: "/mindset/games",
   },
+  {
+    title: "DAILY JOURNAL",
+    subtitle: "REFLECT & GROW",
+    description: "Structured daily journaling to build self-awareness and accountability. Record what went well, what was hardest, and what you'll improve tomorrow.",
+    icon: BookOpen,
+    link: "/habits",
+  },
 ];
-
 const Mindset = () => {
   return (
     <div className="min-h-screen bg-background">
@@ -110,7 +116,7 @@ const Mindset = () => {
             EXPLORE
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {exploreCards.map((card) => (
               <Link key={card.title} to={card.link}>
                 <Card className="bg-card border-2 border-primary/30 neon-border-subtle border-l-4 border-l-primary p-6 cursor-pointer hover:bg-muted/50 transition-all group h-full">
