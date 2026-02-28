@@ -1,31 +1,18 @@
 import { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { usePersonalRecords } from '@/hooks/usePersonalRecords';
-// import { useMedals } from '@/hooks/useMedals'; // Trophy system hidden for now
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import { DeleteConfirmModal } from '@/components/tracker/DeleteConfirmModal';
+import { EXERCISE_LIBRARY } from '@/lib/exerciseLibrary';
 import { format, parseISO } from 'date-fns';
-import { motion } from 'framer-motion';
-import { Clock, TrendingUp, Zap, Timer, Dumbbell, Footprints, Bike, Crosshair, Waves, Droplets, Trash2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Clock, TrendingUp, Zap, Timer, Dumbbell, Footprints, Bike, Crosshair, Waves, Droplets, Trash2, Search, Plus, X } from 'lucide-react';
 import { CardioActivityType } from '@/hooks/useRuns';
 import { toast } from 'sonner';
-
-// Big 5 lifts + bodyweight exercises for records
-const STRENGTH_EXERCISES = [
-  { name: 'Bench Press', aliases: ['bench'] },
-  { name: 'Squat', aliases: ['squat', 'back squat', 'front squat'] },
-  { name: 'Deadlift', aliases: ['deadlift', 'sumo deadlift'] },
-  { name: 'Overhead Press', aliases: ['ohp', 'shoulder press', 'military press'] },
-  { name: 'Barbell Row', aliases: ['bent over row', 'barbell row', 'pendlay row'] },
-];
-
-const BODYWEIGHT_EXERCISES = [
-  { name: 'Pull-ups', aliases: ['pull up', 'pull-up', 'pullup'] },
-  { name: 'Chin-ups', aliases: ['chin up', 'chin-up', 'chinup'] },
-  { name: 'Press-ups', aliases: ['push up', 'push-up', 'pushup', 'press up', 'press-up', 'pressup'] },
-];
 
 const CARDIO_ACTIVITY_CONFIG: Record<CardioActivityType, { label: string; icon: typeof Footprints }> = {
   walk: { label: 'WALK', icon: Footprints },
@@ -51,14 +38,32 @@ function NeonTarget({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   );
 }
 
+// Storage key for user's tracked exercises
+const TRACKED_EXERCISES_KEY = 'unbreakable_tracked_exercises';
+
+function getTrackedExercises(): string[] {
+  try {
+    const stored = localStorage.getItem(TRACKED_EXERCISES_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch {}
+  // Default: Big 5 + bodyweight
+  return ['Bench Press', 'Squat', 'Deadlift', 'Overhead Press', 'Barbell Row', 'Pull-ups', 'Chin-ups', 'Press-ups'];
+}
+
+function saveTrackedExercises(exercises: string[]) {
+  localStorage.setItem(TRACKED_EXERCISES_KEY, JSON.stringify(exercises));
+}
+
 export function CombinedRecordsView() {
   const { getAllPRsWithLabels, records, resetPR, resetAllPRsForActivity, loading: prsLoading } = usePersonalRecords();
-  // const { getAllMedalsWithStatus, loading: medalsLoading } = useMedals(); // Trophy system hidden for now
   const { sessions, isLoading: workoutsLoading } = useWorkoutSessions();
   const [cardioSub, setCardioSub] = useState<CardioActivityType>('run');
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; label: string } | null>(null);
   const [deleteAllTarget, setDeleteAllTarget] = useState<CardioActivityType | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [trackedExercises, setTrackedExercises] = useState<string[]>(getTrackedExercises);
+  const [showExercisePicker, setShowExercisePicker] = useState(false);
+  const [exerciseSearch, setExerciseSearch] = useState('');
 
   const prs = getAllPRsWithLabels();
   // const allMedals = getAllMedalsWithStatus(); // Trophy system hidden for now
@@ -76,9 +81,46 @@ export function CombinedRecordsView() {
     return records.some(r => r.activity_type === cardioSub);
   }, [records, cardioSub]);
 
-  // Calculate strength records from workout sessions
+  // Bodyweight exercise names (reps-only tracking)
+  const BODYWEIGHT_NAMES = useMemo(() => new Set([
+    'pull-ups', 'chin-ups', 'press-ups', 'dips', 'muscle-ups', 'handstand push-ups',
+    'inverted rows', 'pike push-ups', 'diamond push-ups', 'archer push-ups',
+  ].map(n => n.toLowerCase())), []);
+
+  const isBodyweight = (name: string) => BODYWEIGHT_NAMES.has(name.toLowerCase());
+
+  // Filtered exercise library for picker
+  const filteredLibrary = useMemo(() => {
+    if (!exerciseSearch.trim()) return EXERCISE_LIBRARY.slice(0, 30);
+    const q = exerciseSearch.toLowerCase();
+    return EXERCISE_LIBRARY.filter(ex =>
+      ex.name.toLowerCase().includes(q) ||
+      ex.bodyPart.toLowerCase().includes(q) ||
+      ex.category.toLowerCase().includes(q)
+    ).slice(0, 30);
+  }, [exerciseSearch]);
+
+  const handleAddExercise = (name: string) => {
+    if (!trackedExercises.includes(name)) {
+      const updated = [...trackedExercises, name];
+      setTrackedExercises(updated);
+      saveTrackedExercises(updated);
+      toast.success(`${name} added to records`);
+    }
+    setExerciseSearch('');
+    setShowExercisePicker(false);
+  };
+
+  const handleRemoveExercise = (name: string) => {
+    const updated = trackedExercises.filter(n => n !== name);
+    setTrackedExercises(updated);
+    saveTrackedExercises(updated);
+    toast.success(`${name} removed from records`);
+  };
+
+  // Calculate strength records from workout sessions using tracked exercises
   const strengthRecords = useMemo((): StrengthRecord[] => {
-    if (!sessions) return [];
+    if (!sessions) return trackedExercises.map(name => ({ exerciseName: name, isBodyweight: isBodyweight(name), records: [] }));
     const completedSessions = sessions.filter(s => s.status === 'completed');
     const recordsByExercise: Record<string, Array<{ weight: number; reps: number; date: string }>> = {};
 
@@ -87,36 +129,24 @@ export function CombinedRecordsView() {
         if (!log.completed || !log.actual_reps) return;
         const normalizedName = log.exercise_name.toLowerCase();
 
-        for (const ex of STRENGTH_EXERCISES) {
-          if (normalizedName.includes(ex.name.toLowerCase()) || ex.aliases.some(a => normalizedName.includes(a))) {
-            if (!log.weight_kg) continue;
-            if (!recordsByExercise[ex.name]) recordsByExercise[ex.name] = [];
-            recordsByExercise[ex.name].push({ weight: log.weight_kg, reps: log.actual_reps, date: session.started_at });
-            break;
-          }
-        }
-
-        for (const ex of BODYWEIGHT_EXERCISES) {
-          if (normalizedName.includes(ex.name.toLowerCase()) || ex.aliases.some(a => normalizedName.includes(a))) {
-            if (!recordsByExercise[ex.name]) recordsByExercise[ex.name] = [];
-            recordsByExercise[ex.name].push({ weight: log.weight_kg || 0, reps: log.actual_reps, date: session.started_at });
+        for (const trackedName of trackedExercises) {
+          if (normalizedName.includes(trackedName.toLowerCase()) || normalizedName === trackedName.toLowerCase()) {
+            if (!isBodyweight(trackedName) && !log.weight_kg) continue;
+            if (!recordsByExercise[trackedName]) recordsByExercise[trackedName] = [];
+            recordsByExercise[trackedName].push({ weight: log.weight_kg || 0, reps: log.actual_reps, date: session.started_at });
             break;
           }
         }
       });
     });
 
-    const allExercises = [
-      ...STRENGTH_EXERCISES.map(e => ({ ...e, isBodyweight: false })),
-      ...BODYWEIGHT_EXERCISES.map(e => ({ ...e, isBodyweight: true })),
-    ];
-
-    return allExercises.map(exercise => {
-      const lifts = recordsByExercise[exercise.name] || [];
+    return trackedExercises.map(name => {
+      const bw = isBodyweight(name);
+      const lifts = recordsByExercise[name] || [];
       const sortedLifts = lifts
         .map(lift => ({
           ...lift,
-          estimated1RM: exercise.isBodyweight ? lift.reps : lift.weight * (1 + lift.reps / 30),
+          estimated1RM: bw ? lift.reps : lift.weight * (1 + lift.reps / 30),
         }))
         .sort((a, b) => b.estimated1RM - a.estimated1RM)
         .slice(0, 3)
@@ -125,9 +155,9 @@ export function CombinedRecordsView() {
           rank: (index + 1) as 1 | 2 | 3,
         }));
 
-      return { exerciseName: exercise.name, isBodyweight: exercise.isBodyweight, records: sortedLifts };
+      return { exerciseName: name, isBodyweight: bw, records: sortedLifts };
     });
-  }, [sessions]);
+  }, [sessions, trackedExercises]);
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -322,23 +352,91 @@ export function CombinedRecordsView() {
         {/* Strength Records */}
         <TabsContent value="strength" className="space-y-4 mt-4">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h3 className="font-display text-lg text-foreground mb-3 tracking-wide">
-              BIG 5 <span className="text-primary">1RM</span>
-            </h3>
+            {/* Add exercise button */}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display text-lg text-foreground tracking-wide">
+                STRENGTH <span className="text-primary">RECORDS</span>
+              </h3>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1 font-display tracking-wide"
+                onClick={() => setShowExercisePicker(!showExercisePicker)}
+              >
+                {showExercisePicker ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                {showExercisePicker ? 'CLOSE' : 'ADD EXERCISE'}
+              </Button>
+            </div>
+
+            {/* Exercise Picker */}
+            <AnimatePresence>
+              {showExercisePicker && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden mb-4"
+                >
+                  <Card className="p-4 border-primary/30 bg-card">
+                    <div className="relative mb-3">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search exercises..."
+                        value={exerciseSearch}
+                        onChange={(e) => setExerciseSearch(e.target.value)}
+                        className="pl-9"
+                        autoFocus
+                      />
+                    </div>
+                    <ScrollArea className="h-48">
+                      <div className="space-y-1">
+                        {filteredLibrary.map((ex) => {
+                          const alreadyTracked = trackedExercises.includes(ex.name);
+                          return (
+                            <button
+                              key={ex.id}
+                              onClick={() => !alreadyTracked && handleAddExercise(ex.name)}
+                              disabled={alreadyTracked}
+                              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between ${
+                                alreadyTracked
+                                  ? 'bg-primary/10 text-primary cursor-default'
+                                  : 'hover:bg-muted/50 text-foreground'
+                              }`}
+                            >
+                              <div>
+                                <span className="font-medium">{ex.name}</span>
+                                <span className="text-xs text-muted-foreground ml-2 capitalize">{ex.bodyPart}</span>
+                              </div>
+                              {alreadyTracked && <span className="text-xs text-primary">Tracking</span>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </ScrollArea>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <div className="space-y-4">
-              {strengthRecords.filter(e => !e.isBodyweight).map((exercise, exerciseIndex) => (
-                <ExerciseRecordCard key={exercise.exerciseName} exercise={exercise} index={exerciseIndex} getMedalIcon={getMedalIcon} />
+              {strengthRecords.map((exercise, exerciseIndex) => (
+                <ExerciseRecordCard
+                  key={exercise.exerciseName}
+                  exercise={exercise}
+                  index={exerciseIndex}
+                  getMedalIcon={getMedalIcon}
+                  isBodyweight={exercise.isBodyweight}
+                  onRemove={() => handleRemoveExercise(exercise.exerciseName)}
+                />
               ))}
             </div>
 
-            <h3 className="font-display text-lg text-foreground mb-3 mt-6 tracking-wide">
-              BODYWEIGHT <span className="text-primary">MAX</span>
-            </h3>
-            <div className="space-y-4">
-              {strengthRecords.filter(e => e.isBodyweight).map((exercise, exerciseIndex) => (
-                <ExerciseRecordCard key={exercise.exerciseName} exercise={exercise} index={exerciseIndex} getMedalIcon={getMedalIcon} isBodyweight />
-              ))}
-            </div>
+            {strengthRecords.length === 0 && (
+              <Card className="p-8 text-center border-border">
+                <Dumbbell className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+                <p className="text-muted-foreground">Add exercises to track your strength records</p>
+              </Card>
+            )}
           </motion.div>
         </TabsContent>
 
@@ -371,24 +469,31 @@ export function CombinedRecordsView() {
 }
 
 function ExerciseRecordCard({ 
-  exercise, index, getMedalIcon, isBodyweight 
+  exercise, index, getMedalIcon, isBodyweight, onRemove 
 }: { 
-  exercise: StrengthRecord; index: number; getMedalIcon: (r: 1|2|3) => string; isBodyweight?: boolean;
+  exercise: StrengthRecord; index: number; getMedalIcon: (r: 1|2|3) => string; isBodyweight?: boolean; onRemove?: () => void;
 }) {
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.1 }}
+      transition={{ delay: index * 0.05 }}
     >
       <Card className="p-4 bg-card border-primary/20 border-l-4 border-l-primary neon-border-subtle">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shadow-[0_0_10px_hsl(var(--primary)/0.3)]">
-            <Crosshair className="w-5 h-5 text-primary" />
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shadow-[0_0_10px_hsl(var(--primary)/0.3)]">
+              <Crosshair className="w-5 h-5 text-primary" />
+            </div>
+            <h4 className="font-display text-lg text-foreground tracking-wide">
+              {exercise.exerciseName.toUpperCase()}
+            </h4>
           </div>
-          <h4 className="font-display text-lg text-foreground tracking-wide">
-            {exercise.exerciseName.toUpperCase()}
-          </h4>
+          {onRemove && (
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={onRemove}>
+              <X className="w-4 h-4" />
+            </Button>
+          )}
         </div>
         
         {exercise.records.length > 0 ? (
