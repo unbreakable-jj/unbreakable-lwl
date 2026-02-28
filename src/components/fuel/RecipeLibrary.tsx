@@ -31,6 +31,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { useFoodLogs } from '@/hooks/useFoodLogs';
+import { useSavedFoods } from '@/hooks/useSavedFoods';
+import { calculateBespokeMacros } from '@/lib/storeCupboardMacros';
 import { toast } from 'sonner';
 import { RecipeDetailModal } from './RecipeDetailModal';
 
@@ -99,6 +101,7 @@ export function RecipeLibrary() {
   const { recipes, myRecipes, favouriteRecipes, isLoading, createRecipe, deleteRecipe, toggleFavourite } = useRecipes();
   const { mealPlans, addPlanItem } = useMealPlans();
   const { addFoodLog } = useFoodLogs();
+  const { savedFoods } = useSavedFoods();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -167,19 +170,38 @@ export function RecipeLibrary() {
 
   const handleLogMeal = async (recipe: Recipe) => {
     try {
-      await addFoodLog.mutateAsync({
-        food_name: recipe.name,
+      // Calculate bespoke macros from store cupboard if ingredients are loaded
+      const ingredients = recipeIngredients || [];
+      const fallback = {
         calories: recipe.calories_per_serving || 0,
         protein_g: recipe.protein_g || 0,
         carbs_g: recipe.carbs_g || 0,
         fat_g: recipe.fat_g || 0,
+      };
+      const macros = calculateBespokeMacros(
+        ingredients,
+        savedFoods || [],
+        recipe.servings || 1,
+        fallback
+      );
+
+      await addFoodLog.mutateAsync({
+        food_name: recipe.name,
+        calories: macros.calories,
+        protein_g: macros.protein_g,
+        carbs_g: macros.carbs_g,
+        fat_g: macros.fat_g,
         meal_type: 'lunch',
         servings: 1,
         logged_at: new Date().toISOString(),
         recipe_id: recipe.id,
       });
+
+      const bespokeNote = macros.matchedCount > 0
+        ? ` (${macros.matchedCount}/${macros.totalIngredients} ingredients matched from your store cupboard)`
+        : '';
       toast.success('LOGGED ✓', {
-        description: `${recipe.name} added to your tracker`,
+        description: `${recipe.name} added to your tracker${bespokeNote}`,
         duration: 3000,
       });
     } catch {

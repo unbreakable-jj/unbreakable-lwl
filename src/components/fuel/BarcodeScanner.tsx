@@ -240,7 +240,7 @@ export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeS
       logged_at: new Date().toISOString(),
     });
     
-    // Save to food library for future use (save per-100g for consistency)
+    // Save to store cupboard for future use (save per-100g for consistency)
     const per100g = scannedItem.per100g || {
       calories: scannedItem.calories,
       protein: scannedItem.protein,
@@ -463,7 +463,7 @@ export function BarcodeScanner({ isOpen, onClose, mealType = 'snack' }: BarcodeS
                     <X className="w-8 h-8 text-destructive mx-auto mb-2" />
                     <p className="font-medium">Product not found</p>
                     <p className="text-sm text-muted-foreground">
-                      {mode === 'camera' ? 'Scanning again...' : 'Add it manually in the Food Library'}
+                      {mode === 'camera' ? 'Scanning again...' : 'Add it manually in your Store Cupboard'}
                     </p>
                   </CardContent>
                 </Card>

@@ -31,12 +31,12 @@ export default function FuelFoods() {
         <div className="container mx-auto px-4 text-center max-w-4xl">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="space-y-6">
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide leading-none">
-              <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
-              <span className="text-foreground">FOODS</span>
+              <span className="text-primary neon-glow-subtle">STORE </span>
+              <span className="text-foreground">CUPBOARD</span>
             </h1>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              Manage your saved foods and create quick-access favourites. Know your fuel, become{' '}
-              <span className="text-primary font-semibold">UNBREAKABLE</span>. Keep showing up.
+              Barcode scan your ingredients as you buy them — your store cupboard holds the real macro data used to calculate bespoke nutrition when you cook our recipes. Know your fuel, become{' '}
+              <span className="text-primary font-semibold">UNBREAKABLE</span>.
             </p>
             <p className="text-primary font-display text-2xl tracking-wider neon-glow-subtle">#UNBREAKABLEFUEL</p>
           </motion.div>
@@ -53,10 +53,10 @@ export default function FuelFoods() {
             <Card className="p-8 text-center border-2 border-primary/30 neon-border-subtle">
               <Flame className="w-16 h-16 text-primary mx-auto mb-6" />
               <h2 className="font-display text-2xl tracking-wide mb-4">
-                SIGN IN TO MANAGE FOODS
+                SIGN IN TO ACCESS YOUR STORE CUPBOARD
               </h2>
               <p className="text-muted-foreground mb-6">
-                Save your favourite foods for quick logging and easy tracking.
+                Scan your ingredients to build a store cupboard with real macro data for accurate tracking.
               </p>
               <Button 
                 size="lg" 

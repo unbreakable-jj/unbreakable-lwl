@@ -109,7 +109,7 @@ export function FoodLibrary() {
       carbs_g: 0,
       fat_g: 0,
     });
-    toast.success('Food added to library');
+    toast.success('Added to store cupboard');
   };
 
   const handleSelectApiFood = (food: FoodSearchResult) => {
@@ -174,7 +174,7 @@ export function FoodLibrary() {
       sodium_mg: food.sodium,
       is_favourite: false,
     });
-    toast.success('Saved to your library');
+    toast.success('Saved to store cupboard');
   };
 
   if (isLoading) {
@@ -299,7 +299,7 @@ export function FoodLibrary() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-3 w-full max-w-md">
-          <TabsTrigger value="all">My Foods</TabsTrigger>
+          <TabsTrigger value="all">Store Cupboard</TabsTrigger>
           <TabsTrigger value="favourites">Favourites</TabsTrigger>
           <TabsTrigger value="api">Search Database</TabsTrigger>
         </TabsList>
@@ -363,7 +363,7 @@ export function FoodLibrary() {
                   <p className="text-muted-foreground">
                     {activeTab === 'favourites' 
                       ? 'No favourite foods yet. Star foods to add them here.'
-                      : 'No foods in your library. Search the database or add manually.'}
+                      : 'Your store cupboard is empty. Barcode scan your ingredients or search the database to add them.'}
                   </p>
                 </div>
               )}

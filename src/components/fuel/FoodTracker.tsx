@@ -116,7 +116,7 @@ function FoodSearchModal({ mealType, onClose }: FoodSearchModalProps) {
       logged_at: new Date().toISOString(),
     });
     
-    // Save to foods library
+    // Save to store cupboard
     saveFood.mutate({
       food_name: manualFood.food_name,
       calories: manualFood.calories,
