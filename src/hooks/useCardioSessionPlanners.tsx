@@ -80,10 +80,71 @@ export function useCardioSessionPlanners(programId?: string) {
     },
   });
 
+  const swapSession = useMutation({
+    mutationFn: async ({ plannerId, newSession }: {
+      plannerId: string;
+      newSession: {
+        sessionType: string;
+        mainSession: any[];
+        warmup: string;
+        cooldown: string;
+      };
+    }) => {
+      const { error } = await supabase
+        .from('cardio_session_planners')
+        .update({
+          session_type: newSession.sessionType,
+          planned_session: JSON.parse(JSON.stringify({
+            ...newSession,
+            sessionType: newSession.sessionType,
+          })),
+          warmup: newSession.warmup,
+          cooldown: newSession.cooldown,
+        })
+        .eq('id', plannerId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cardio-session-planners'] });
+    },
+  });
+
+  const applyProgression = useMutation({
+    mutationFn: async (updates: Array<{
+      plannerId: string;
+      sessionType?: string;
+      mainSession?: any[];
+      duration?: string;
+    }>) => {
+      for (const update of updates) {
+        const updateData: Record<string, unknown> = {};
+        if (update.sessionType) updateData.session_type = update.sessionType;
+        if (update.mainSession) {
+          updateData.planned_session = JSON.parse(JSON.stringify({
+            sessionType: update.sessionType,
+            mainSession: update.mainSession,
+            duration: update.duration,
+          }));
+        }
+        
+        const { error } = await supabase
+          .from('cardio_session_planners')
+          .update(updateData)
+          .eq('id', update.plannerId);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cardio-session-planners'] });
+    },
+  });
+
   return {
     planners,
     isLoading,
     markComplete,
     markSkipped,
+    swapSession,
+    applyProgression,
   };
 }

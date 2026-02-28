@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { useCardioSessionPlanners, CardioSessionPlanner } from '@/hooks/useCardioSessionPlanners';
 import { CardioProgram } from '@/hooks/useCardioPrograms';
 import { format } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Play,
   Check,
@@ -20,6 +22,8 @@ import {
   MapPin,
   SkipForward,
   Footprints,
+  Shuffle,
+  TrendingUp,
 } from 'lucide-react';
 import {
   Dialog,
@@ -28,6 +32,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { MovementSessionSwapSheet } from './MovementSessionSwapSheet';
+import { MovementProgressionDialog, ProgressionSuggestion } from './MovementProgressionDialog';
 
 interface MovementExecutionViewProps {
   program: CardioProgram;
@@ -36,13 +42,21 @@ interface MovementExecutionViewProps {
 
 export function MovementExecutionView({ program, onClose }: MovementExecutionViewProps) {
   const { planners, isLoading } = useCardioSessionPlanners(program.id);
-
   const [activeSessionPlanner, setActiveSessionPlanner] = useState<CardioSessionPlanner | null>(null);
   const [completingPlanner, setCompletingPlanner] = useState<CardioSessionPlanner | null>(null);
   const [actualDuration, setActualDuration] = useState('');
   const [actualDistance, setActualDistance] = useState('');
-  const { markComplete, markSkipped } = useCardioSessionPlanners(program.id);
+  const { markComplete, markSkipped, swapSession, applyProgression } = useCardioSessionPlanners(program.id);
   const [viewingResultIndex, setViewingResultIndex] = useState(0);
+  const { toast } = useToast();
+
+  // Swap state
+  const [showSwapSheet, setShowSwapSheet] = useState(false);
+
+  // Progression state
+  const [progressionSuggestions, setProgressionSuggestions] = useState<ProgressionSuggestion[]>([]);
+  const [showProgression, setShowProgression] = useState(false);
+  const [isCheckingProgression, setIsCheckingProgression] = useState(false);
 
   // Find next pending session
   const nextSession = useMemo(() => {
@@ -69,6 +83,12 @@ export function MovementExecutionView({ program, onClose }: MovementExecutionVie
     return planners.filter(p => p.status === 'completed').reverse();
   }, [planners]);
 
+  // Upcoming sessions (for progression)
+  const upcomingSessions = useMemo(() => {
+    if (!planners) return [];
+    return planners.filter(p => p.status === 'pending').slice(0, 5);
+  }, [planners]);
+
   const handleStartSession = (planner: CardioSessionPlanner) => {
     setActiveSessionPlanner(planner);
   };
@@ -81,7 +101,7 @@ export function MovementExecutionView({ program, onClose }: MovementExecutionVie
     setActualDistance('');
   };
 
-  const handleConfirmComplete = () => {
+  const handleConfirmComplete = async () => {
     if (!completingPlanner) return;
     markComplete.mutate({
       plannerId: completingPlanner.id,
@@ -89,10 +109,101 @@ export function MovementExecutionView({ program, onClose }: MovementExecutionVie
       actualDistance: actualDistance ? parseFloat(actualDistance) : undefined,
     });
     setCompletingPlanner(null);
+
+    // Check for progression after completing a session
+    checkForProgression();
   };
 
   const handleSkipSession = (planner: CardioSessionPlanner) => {
     markSkipped.mutate(planner.id);
+  };
+
+  const handleSwap = (newSession: any) => {
+    if (!activeSessionPlanner) return;
+    swapSession.mutate({
+      plannerId: activeSessionPlanner.id,
+      newSession: {
+        sessionType: newSession.sessionType,
+        mainSession: newSession.mainSession,
+        warmup: newSession.warmup,
+        cooldown: newSession.cooldown,
+      },
+    }, {
+      onSuccess: () => {
+        toast({ title: 'Session Swapped', description: `Switched to ${newSession.sessionType}` });
+        setShowSwapSheet(false);
+        // Refresh the active session data
+        setActiveSessionPlanner(prev => prev ? {
+          ...prev,
+          session_type: newSession.sessionType,
+          planned_session: {
+            ...prev.planned_session,
+            sessionType: newSession.sessionType,
+            mainSession: newSession.mainSession,
+            warmup: newSession.warmup,
+            cooldown: newSession.cooldown,
+          },
+          warmup: newSession.warmup,
+          cooldown: newSession.cooldown,
+        } : null);
+      },
+    });
+  };
+
+  const checkForProgression = useCallback(async () => {
+    if (completedSessions.length < 2 || upcomingSessions.length === 0) return;
+
+    setIsCheckingProgression(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('suggest-movement-progression', {
+        body: {
+          completedSessions: completedSessions.slice(0, 5).map(s => ({
+            sessionType: s.session_type,
+            plannedDuration: s.duration_minutes,
+            actualDuration: s.actual_duration_minutes,
+            plannedDistance: s.distance_km,
+            actualDistance: s.actual_distance_km,
+            weekNumber: s.week_number,
+            dayNumber: s.day_number,
+          })),
+          upcomingSessions: upcomingSessions.map(s => ({
+            sessionType: s.session_type,
+            plannedDuration: s.duration_minutes,
+            plannedDistance: s.distance_km,
+            weekNumber: s.week_number,
+            dayNumber: s.day_number,
+            plannedSession: s.planned_session,
+          })),
+          activityType: program.program_data.activityType,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.suggestions && data.suggestions.length > 0) {
+        const mapped: ProgressionSuggestion[] = data.suggestions.map((s: any, i: number) => ({
+          sessionType: s.sessionType,
+          currentTargets: s.currentTargets,
+          suggestedTargets: s.suggestedTargets,
+          reason: s.reason,
+          plannerId: upcomingSessions[s.sessionIndex ?? i]?.id || '',
+        }));
+        setProgressionSuggestions(mapped.filter(m => m.plannerId));
+        if (mapped.length > 0) setShowProgression(true);
+      }
+    } catch (err) {
+      console.error('Progression check failed:', err);
+    } finally {
+      setIsCheckingProgression(false);
+    }
+  }, [completedSessions, upcomingSessions, program.program_data.activityType]);
+
+  const handleAcceptProgression = (suggestions: ProgressionSuggestion[]) => {
+    // For now just dismiss — the AI suggestions are informational
+    // Future: apply actual planned_session updates
+    toast({ title: 'Progression Noted', description: 'Your upcoming sessions have been noted for adjustment.' });
+    setShowProgression(false);
+    setProgressionSuggestions([]);
   };
 
   if (isLoading) {
@@ -123,9 +234,20 @@ export function MovementExecutionView({ program, onClose }: MovementExecutionVie
     const session = activeSessionPlanner.planned_session;
     return (
       <div className="space-y-6">
-        <Button variant="outline" onClick={() => setActiveSessionPlanner(null)} className="gap-2 font-display tracking-wide">
-          <ArrowLeft className="w-4 h-4" /> BACK
-        </Button>
+        <div className="flex items-center justify-between">
+          <Button variant="outline" onClick={() => setActiveSessionPlanner(null)} className="gap-2 font-display tracking-wide">
+            <ArrowLeft className="w-4 h-4" /> BACK
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowSwapSheet(true)}
+            className="gap-2 font-display tracking-wide"
+          >
+            <Shuffle className="w-4 h-4" />
+            SWAP
+          </Button>
+        </div>
 
         <div className="text-center">
           <h2 className="font-display text-2xl md:text-3xl text-foreground tracking-wide mb-2">
@@ -201,6 +323,16 @@ export function MovementExecutionView({ program, onClose }: MovementExecutionVie
             SKIP
           </Button>
         </div>
+
+        {/* Swap Sheet */}
+        <MovementSessionSwapSheet
+          open={showSwapSheet}
+          onOpenChange={setShowSwapSheet}
+          currentSessionType={activeSessionPlanner.session_type}
+          activityType={program.program_data.activityType}
+          onSwap={handleSwap}
+          isSwapping={swapSession.isPending}
+        />
       </div>
     );
   }
@@ -212,9 +344,27 @@ export function MovementExecutionView({ program, onClose }: MovementExecutionVie
         <Button variant="outline" onClick={onClose} className="gap-2 font-display tracking-wide">
           <ArrowLeft className="w-4 h-4" /> BACK
         </Button>
-        <Badge variant="outline" className="font-display">
-          Week {program.current_week} • Day {program.current_day}
-        </Badge>
+        <div className="flex items-center gap-2">
+          {completedSessions.length >= 2 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={checkForProgression}
+              disabled={isCheckingProgression}
+              className="gap-1 font-display tracking-wide"
+            >
+              {isCheckingProgression ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <TrendingUp className="w-4 h-4" />
+              )}
+              Coach
+            </Button>
+          )}
+          <Badge variant="outline" className="font-display">
+            Week {program.current_week} • Day {program.current_day}
+          </Badge>
+        </div>
       </div>
 
       {/* Title */}
@@ -381,6 +531,16 @@ export function MovementExecutionView({ program, onClose }: MovementExecutionVie
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Progression Dialog */}
+      <MovementProgressionDialog
+        open={showProgression}
+        onOpenChange={setShowProgression}
+        suggestions={progressionSuggestions}
+        onAccept={handleAcceptProgression}
+        onDismiss={() => { setShowProgression(false); setProgressionSuggestions([]); }}
+        isApplying={applyProgression.isPending}
+      />
     </div>
   );
 }
