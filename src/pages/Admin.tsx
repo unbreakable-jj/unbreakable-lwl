@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Users, Flag, Settings, Activity, Shield } from 'lucide-react';
+import { Users, Flag, Settings, Activity, Shield, UserCheck } from 'lucide-react';
 import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
 import { PageHeader } from '@/components/PageHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,9 +8,10 @@ import { AdminReportsPanel } from '@/components/admin/AdminReportsPanel';
 import { AdminSettingsPanel } from '@/components/admin/AdminSettingsPanel';
 import { AdminActivityPanel } from '@/components/admin/AdminActivityPanel';
 import { useUserRole } from '@/hooks/useUserRole';
+import CoachDashboard from '@/pages/CoachDashboard';
 
 export default function Admin() {
-  const [activeTab, setActiveTab] = useState('users');
+  const [activeTab, setActiveTab] = useState('athletes');
   const { isOwner, role } = useUserRole(); // isOwner = isDev in new naming
 
   return (
@@ -36,7 +37,14 @@ export default function Admin() {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="bg-muted/50 p-1 rounded-lg">
+            <TabsList className="bg-muted/50 p-1 rounded-lg flex-wrap">
+              <TabsTrigger 
+                value="athletes" 
+                className="font-display gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <UserCheck className="w-4 h-4" />
+                ATHLETES
+              </TabsTrigger>
               <TabsTrigger 
                 value="users" 
                 className="font-display gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -68,6 +76,10 @@ export default function Admin() {
                 LOGS
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="athletes">
+              <CoachDashboard embedded />
+            </TabsContent>
 
             <TabsContent value="users">
               <AdminUsersPanel />
