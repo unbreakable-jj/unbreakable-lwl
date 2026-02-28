@@ -142,7 +142,7 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
           </TabsTrigger>
           <TabsTrigger value="clients" className="font-display text-xs tracking-wide">
             <UserPlus className="w-4 h-4 mr-1" />
-            CLIENTS
+            USERS
           </TabsTrigger>
           <TabsTrigger value="requests" className="font-display text-xs tracking-wide">
             <Clock className="w-4 h-4 mr-1" />
