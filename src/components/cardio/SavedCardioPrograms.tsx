@@ -18,7 +18,7 @@ interface SavedCardioProgramsProps {
   onViewProgram: (program: GeneratedCardioProgram) => void;
 }
 
-const MAX_CARDIO_PROGRAMS = 3;
+const MAX_CARDIO_PROGRAMS = 2;
 
 export function SavedCardioPrograms({ onViewProgram }: SavedCardioProgramsProps) {
   const { programs, isLoading, deleteProgram } = useCardioPrograms();

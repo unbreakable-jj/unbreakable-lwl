@@ -94,7 +94,7 @@ export function MindsetProgrammes() {
       {programmes && programmes.length > 0 && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Flame className="w-4 h-4 text-primary" />
-          <span>{activeProgrammes.length}/3 active</span>
+          <span>{activeProgrammes.length}/2 active</span>
         </div>
       )}
 

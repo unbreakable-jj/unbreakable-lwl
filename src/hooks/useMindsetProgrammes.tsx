@@ -76,8 +76,8 @@ export function useMindsetProgrammes() {
       const prog = programmes?.find(p => p.id === id);
       if (!prog) throw new Error('Not found');
 
-      if (!prog.is_active && activeProgrammes.length >= 3) {
-        throw new Error('Maximum 3 active programmes. Deactivate one first.');
+      if (!prog.is_active && activeProgrammes.length >= 2) {
+        throw new Error('Maximum 2 active programmes. Deactivate one first.');
       }
 
       const { error } = await supabase

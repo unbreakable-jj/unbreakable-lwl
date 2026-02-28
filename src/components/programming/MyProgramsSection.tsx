@@ -155,7 +155,7 @@ export function MyProgramsSection() {
         <ProgrammeCTA 
           variant="outline" 
           size="sm" 
-          label="Create with AI"
+          label="Build with Coach"
           className="shrink-0"
         />
       </div>
