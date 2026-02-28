@@ -40,21 +40,24 @@ export function useMindsetProgrammes() {
   const activeProgrammes = programmes?.filter(p => p.is_active) || [];
 
   const saveProgramme = useMutation({
-    mutationFn: async (programme: {
-      name: string;
-      description?: string;
-      goal?: string;
-      duration_weeks: number;
-      daily_minutes: number;
-      focus_areas?: string[];
-      programme_data: any;
+    mutationFn: async ({ programme, forUserId }: {
+      programme: {
+        name: string;
+        description?: string;
+        goal?: string;
+        duration_weeks: number;
+        daily_minutes: number;
+        focus_areas?: string[];
+        programme_data: any;
+      };
+      forUserId?: string;
     }) => {
       if (!user) throw new Error('Not authenticated');
       const { data, error } = await supabase
         .from('mindset_programmes')
         .insert({
           ...programme,
-          user_id: user.id,
+          user_id: forUserId || user.id,
           status: 'not_started',
           is_active: false,
         })

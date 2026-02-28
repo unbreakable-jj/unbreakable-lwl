@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MainNavigation } from '@/components/MainNavigation';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
@@ -33,9 +33,12 @@ import {
   Dumbbell
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { BuildingForBanner } from '@/components/coaching/BuildingForBanner';
 
 export default function ProgrammingCreate() {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const forUserId = searchParams.get('for') || undefined;
   const { toast } = useToast();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [builderMode, setBuilderMode] = useState<'select' | 'auto' | 'manual'>('select');
@@ -163,9 +166,10 @@ export default function ProgrammingCreate() {
   if (generatedProgram) {
     return (
       <div className="min-h-screen bg-background">
-        <MainNavigation />
+      <MainNavigation />
         <main className="container mx-auto px-4 py-24 md:py-28">
-          <ProgramDisplay program={generatedProgram} onReset={handleReset} />
+          {forUserId && <BuildingForBanner forUserId={forUserId} />}
+          <ProgramDisplay program={generatedProgram} onReset={handleReset} forUserId={forUserId} />
         </main>
         <UnifiedFooter className="mt-auto" />
       </div>

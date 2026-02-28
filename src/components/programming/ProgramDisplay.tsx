@@ -30,6 +30,7 @@ interface ProgramDisplayProps {
   program: GeneratedProgram;
   onReset: () => void;
   savedProgramId?: string;
+  forUserId?: string;
 }
 
 const equipmentColors: Record<string, string> = {
@@ -39,7 +40,7 @@ const equipmentColors: Record<string, string> = {
   running: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
 };
 
-export function ProgramDisplay({ program, onReset, savedProgramId }: ProgramDisplayProps) {
+export function ProgramDisplay({ program, onReset, savedProgramId, forUserId }: ProgramDisplayProps) {
   const [selectedWeek, setSelectedWeek] = useState(1);
   const [showWorkoutModal, setShowWorkoutModal] = useState(false);
   const [selectedDay, setSelectedDay] = useState<WorkoutDay | null>(null);
@@ -66,7 +67,7 @@ export function ProgramDisplay({ program, onReset, savedProgramId }: ProgramDisp
 
   const handleSaveProgram = () => {
     if (!user) return;
-    saveProgram.mutate(program);
+    saveProgram.mutate({ program, forUserId });
   };
 
   const handleStartWorkout = (day: WorkoutDay) => {

@@ -234,7 +234,7 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
         progressionRules: ['Add weight when you complete all reps', 'Deload every 4th week'],
         nutritionTips: ['Prioritize protein intake', 'Stay hydrated'],
       };
-      await saveProgram.mutateAsync(programData);
+      await saveProgram.mutateAsync({ program: programData });
       toast({ title: 'Programme Saved!', description: 'Your custom programme is now in My Programmes.' });
       onBack();
     } catch (error) {

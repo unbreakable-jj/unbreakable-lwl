@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   ArrowLeft, Dumbbell, Utensils, Brain, Activity,
   Target, MessageSquare, Loader2, Calendar, TrendingUp,
-  Flame, Droplets, BookOpen, PenLine, Check, Footprints, ClipboardList, Star, Edit
+  Flame, Droplets, BookOpen, PenLine, Check, Footprints, ClipboardList, Star, Edit, Brain as BrainIcon
 } from 'lucide-react';
 import { CoachFeedbackPanel } from './CoachFeedbackPanel';
 import { useCoachingFeedback, CoachingFeedback } from '@/hooks/useCoachingFeedback';
@@ -141,6 +141,10 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
                 <DropdownMenuItem onClick={() => navigate(`/fuel/planning?for=${athleteId}`)}>
                   <Utensils className="w-4 h-4 mr-2" />
                   Meal Plan
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate(`/mindset?for=${athleteId}`)}>
+                  <Brain className="w-4 h-4 mr-2" />
+                  Mindset Programme
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
