@@ -19,13 +19,14 @@ const Habits = () => {
     goToToday,
   } = useDailyHabits();
 
+  const wordCount = habits.journal.trim().split(/\s+/).filter(Boolean).length;
   const completedCount = [
     habits.train,
     habits.learnDaily,
     habits.water,
     habits.doTheHardThing,
     habits.hitYourNumbers,
-    habits.journal.trim().length > 0,
+    wordCount >= 150,
   ].filter(Boolean).length;
 
   return (
