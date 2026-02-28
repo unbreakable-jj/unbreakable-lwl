@@ -1,21 +1,25 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MainNavigation } from '@/components/MainNavigation';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
 import { ProfileView } from '@/components/tracker/ProfileView';
 import { RequestCoachCard } from '@/components/coaching/RequestCoachCard';
+import { CoachUpdatesView } from '@/components/coaching/CoachUpdatesView';
 import { useAuth } from '@/hooks/useAuth';
 import { useCoachingAssignments } from '@/hooks/useCoachingAssignments';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { User, Flame, ArrowRight } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { User, Flame, ArrowRight, ClipboardList } from 'lucide-react';
 
 export default function Profile() {
   const { user, loading } = useAuth();
   const { myCoach } = useCoachingAssignments();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get('tab') === 'coach-updates' ? 'coach-updates' : 'profile';
 
   if (loading) {
     return (
@@ -61,7 +65,26 @@ export default function Profile() {
         {user ? (
           <div className="max-w-4xl mx-auto space-y-6">
             {myCoach && <RequestCoachCard />}
-            <ProfileView />
+            {myCoach ? (
+              <Tabs defaultValue={defaultTab} className="w-full">
+                <TabsList className="w-full grid grid-cols-2">
+                  <TabsTrigger value="profile" className="font-display text-xs tracking-wide">
+                    <User className="w-3 h-3 mr-1" />MY PROFILE
+                  </TabsTrigger>
+                  <TabsTrigger value="coach-updates" className="font-display text-xs tracking-wide">
+                    <ClipboardList className="w-3 h-3 mr-1" />COACH UPDATES
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="profile">
+                  <ProfileView />
+                </TabsContent>
+                <TabsContent value="coach-updates">
+                  <CoachUpdatesView />
+                </TabsContent>
+              </Tabs>
+            ) : (
+              <ProfileView />
+            )}
           </div>
         ) : (
           <div className="max-w-2xl mx-auto">
