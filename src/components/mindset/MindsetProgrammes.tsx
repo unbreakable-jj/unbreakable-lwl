@@ -70,6 +70,12 @@ export function MindsetProgrammes() {
       case 'resilience': return '💪';
       case 'focus': return '🎯';
       case 'sleep': return '😴';
+      case 'games': return '🎮';
+      case 'focus games': return '🎮';
+      case 'retention': return '⏱️';
+      case 'cold exposure': return '🧊';
+      case 'sauna': return '🔥';
+      case 'exposure': return '🧊';
       default: return '🧠';
     }
   };
