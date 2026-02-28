@@ -5,11 +5,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const LIVERPOOL_RECIPES = [
+const RECIPES = [
   // === BREAKFASTS ===
   {
     name: 'Unbreakable Eggy Bread',
-    description: 'Liverpool-style French toast loaded with protein. Thick-cut bread soaked in seasoned egg, pan-fried golden and served with a side of lean bacon.',
+    description: 'Thick-cut French toast loaded with protein. Soaked in seasoned egg, pan-fried golden and served with a side of lean bacon.',
     instructions: '1. Beat eggs with a splash of milk, salt, pepper and a pinch of cinnamon.\n2. Soak thick slices of wholemeal bread in the egg mixture for 30 seconds each side.\n3. Heat a non-stick pan with a light spray of oil over medium heat.\n4. Cook each slice for 2-3 minutes per side until golden and set.\n5. Grill lean back bacon alongside.\n6. Serve stacked with bacon on top. Optional: drizzle of honey.',
     calories_per_serving: 380,
     protein_g: 32,
@@ -34,7 +34,7 @@ const LIVERPOOL_RECIPES = [
   },
   {
     name: 'Unbreakable Chunky Egg',
-    description: 'A proper Liverpool chunky egg — soft-boiled eggs with thick-cut toast soldiers and butter. Simple, satisfying, protein-packed.',
+    description: 'Soft-boiled eggs with thick-cut toast soldiers and butter. Simple, satisfying, protein-packed.',
     instructions: '1. Bring a pan of water to a rolling boil.\n2. Gently lower eggs in and boil for 6 minutes for a soft, runny yolk.\n3. While eggs cook, toast thick-cut wholemeal bread and cut into soldiers.\n4. Place eggs in egg cups, slice off the tops.\n5. Season with salt and pepper.\n6. Dip soldiers and enjoy.',
     calories_per_serving: 340,
     protein_g: 22,
@@ -58,7 +58,7 @@ const LIVERPOOL_RECIPES = [
   // === MAINS ===
   {
     name: 'Unbreakable Scouse',
-    description: 'The classic Liverpool stew — tender lean beef with root veg, slow-cooked until rich and hearty. High protein, low fat, pure Scouse soul.',
+    description: 'A hearty beef stew with root veg, slow-cooked until rich and tender. High protein, low fat, pure soul food.',
     instructions: '1. Dice beef into chunks and season with salt and pepper.\n2. Brown beef in a large pot with a spray of oil over high heat.\n3. Add diced onions and cook until softened.\n4. Add carrots, swede, turnip, and potatoes.\n5. Pour in beef stock, add bay leaves and thyme.\n6. Bring to a boil, then reduce to a simmer.\n7. Cover and cook for 2-3 hours until beef is melt-in-your-mouth tender.\n8. Season to taste. Serve with pickled beetroot and crusty bread.',
     calories_per_serving: 420,
     protein_g: 42,
@@ -86,7 +86,7 @@ const LIVERPOOL_RECIPES = [
   },
   {
     name: 'Unbreakable Chicken & Barley Soup',
-    description: 'A thick, warming Liverpool chicken and pearl barley soup. Packed with protein and slow-release carbs to keep you fuelled.',
+    description: 'A thick, warming chicken and pearl barley soup. Packed with protein and slow-release carbs to keep you fuelled.',
     instructions: '1. Heat a large pot and add diced chicken breast. Cook until browned.\n2. Add diced onion, carrot, celery and cook for 5 minutes.\n3. Add pearl barley, chicken stock, thyme and bay leaf.\n4. Bring to a boil then simmer for 40-45 minutes until barley is tender.\n5. Season with salt and pepper.\n6. Serve with crusty wholemeal bread.',
     calories_per_serving: 350,
     protein_g: 38,
@@ -112,7 +112,7 @@ const LIVERPOOL_RECIPES = [
   },
   {
     name: 'Unbreakable Pea, Lentil & Ham Soup',
-    description: 'A thick, hearty Liverpool pea and ham soup with added lentils for extra protein. Proper winter warmer.',
+    description: 'A thick, hearty pea and ham soup with added lentils for extra protein. A proper winter warmer.',
     instructions: '1. Soak split peas overnight or for at least 4 hours. Drain.\n2. In a large pot, add the gammon joint and cover with water. Bring to a boil and simmer for 1 hour.\n3. Remove gammon, shred the meat, discard fat and bone.\n4. Return shredded ham to the pot with split peas, red lentils, diced carrot, celery and onion.\n5. Add stock and simmer for 45-60 minutes until peas are soft and soup is thick.\n6. Season with pepper (ham provides salt). Serve hot.',
     calories_per_serving: 380,
     protein_g: 36,
@@ -217,8 +217,8 @@ const LIVERPOOL_RECIPES = [
     ],
   },
   {
-    name: 'Unbreakable Liverpool Hotpot',
-    description: 'A Scouse take on Lancashire hotpot — lean lamb layered with sliced potatoes and onions, slow-baked until golden.',
+    name: 'Unbreakable Hotpot',
+    description: 'Lean lamb layered with sliced potatoes and onions, slow-baked until golden. Comfort food at its finest.',
     instructions: '1. Preheat oven to 170°C.\n2. Brown diced lean lamb in a hot pan. Set aside.\n3. Layer sliced onions, lamb, sliced carrots and seasoning in a casserole dish.\n4. Top with overlapping thin potato slices.\n5. Pour in lamb/beef stock until it just reaches the potatoes.\n6. Brush potato tops with a little melted butter.\n7. Cover and bake for 2 hours. Uncover for last 30 minutes to crisp potatoes.\n8. Serve with pickled red cabbage.',
     calories_per_serving: 440,
     protein_g: 38,
@@ -244,7 +244,7 @@ const LIVERPOOL_RECIPES = [
   },
   {
     name: 'Unbreakable Corned Beef Hash',
-    description: 'A Liverpool kitchen staple — crispy pan-fried corned beef hash with onion, potato and a fried egg on top.',
+    description: 'Crispy pan-fried corned beef hash with onion, potato and a fried egg on top. A kitchen staple.',
     instructions: '1. Boil diced potatoes until just tender, drain.\n2. Heat a large frying pan with spray oil.\n3. Fry diced onion until soft.\n4. Add cubed corned beef and potatoes.\n5. Press down and cook without stirring for 5 minutes to get a crispy base.\n6. Flip sections and crisp the other side.\n7. Meanwhile, fry eggs.\n8. Serve hash topped with fried eggs, season with salt and pepper. Add HP sauce.',
     calories_per_serving: 420,
     protein_g: 30,
@@ -268,7 +268,7 @@ const LIVERPOOL_RECIPES = [
   },
   {
     name: 'Unbreakable Chicken Scouse',
-    description: 'A lighter take on the Liverpool classic — chicken thigh stew with root veg. All the soul, extra lean.',
+    description: 'A lighter take on the classic stew — chicken thigh with root veg. All the soul, extra lean.',
     instructions: '1. Dice chicken thighs (skin removed) and season.\n2. Brown in a large pot with spray oil.\n3. Add diced onion, carrot, swede, turnip and potato.\n4. Pour in chicken stock, add thyme and bay leaf.\n5. Bring to a boil then simmer for 1.5 hours.\n6. The potatoes will thicken the stew naturally.\n7. Season and serve with crusty bread.',
     calories_per_serving: 380,
     protein_g: 40,
@@ -293,7 +293,7 @@ const LIVERPOOL_RECIPES = [
   },
   {
     name: 'Unbreakable Liver & Onions',
-    description: 'A traditional Liverpool favourite — pan-fried lamb liver with caramelised onions and rich gravy. Iron-packed.',
+    description: 'Pan-fried lamb liver with caramelised onions and rich gravy. Iron-packed and full of flavour.',
     instructions: '1. Slice liver and dust lightly with seasoned flour.\n2. In a large pan, slowly cook sliced onions in a little butter until deeply caramelised (20 mins).\n3. Remove onions and set aside.\n4. Flash-fry liver for 2 minutes each side (still pink inside).\n5. Add onions back, pour in stock and a splash of Worcestershire sauce.\n6. Simmer for 2 minutes to make gravy.\n7. Serve with mashed potato and steamed greens.',
     calories_per_serving: 400,
     protein_g: 38,
@@ -318,7 +318,7 @@ const LIVERPOOL_RECIPES = [
   },
   {
     name: 'Unbreakable Sausage & Mash',
-    description: 'Lean turkey sausages with creamy mash and onion gravy. A Scouse comfort classic made lean.',
+    description: 'Lean turkey sausages with creamy mash and onion gravy. Comfort classic made lean.',
     instructions: '1. Grill or bake turkey sausages for 20 minutes until golden and cooked through.\n2. Boil potatoes until tender, drain and mash with a splash of milk and a knob of butter.\n3. For onion gravy: slowly cook sliced onions until caramelised. Add stock and a teaspoon of gravy granules. Simmer until thick.\n4. Serve sausages on mash, smothered in onion gravy.\n5. Add steamed peas or green beans on the side.',
     calories_per_serving: 410,
     protein_g: 35,
@@ -344,7 +344,7 @@ const LIVERPOOL_RECIPES = [
   },
   {
     name: 'Unbreakable Steak & Gravy',
-    description: 'Pan-seared lean steak in a rich onion and mushroom gravy. Liverpool pub grub, protein-loaded.',
+    description: 'Pan-seared lean steak in a rich onion and mushroom gravy. Protein-loaded pub grub.',
     instructions: '1. Season steaks with salt and pepper.\n2. Heat a cast-iron pan to smoking hot. Sear steaks 3-4 minutes each side for medium.\n3. Rest steaks for 5 minutes.\n4. In the same pan, cook sliced mushrooms and onion until softened.\n5. Add beef stock and a splash of Worcestershire sauce. Simmer until reduced and thick.\n6. Slice steaks and pour gravy over. Serve with chips or mash.',
     calories_per_serving: 450,
     protein_g: 48,
@@ -368,7 +368,7 @@ const LIVERPOOL_RECIPES = [
     ],
   },
   {
-    name: 'Unbreakable Liverpool Cottage Pie',
+    name: 'Unbreakable Cottage Pie',
     description: 'Lean beef mince with veg in rich gravy, topped with creamy mash and baked golden. Pure comfort.',
     instructions: '1. Preheat oven to 200°C.\n2. Brown lean mince in a pan, drain any fat.\n3. Add diced onion, carrot, celery and peas. Cook 5 mins.\n4. Add beef stock, tomato purée, Worcestershire sauce and herbs. Simmer 20 mins.\n5. Boil and mash potatoes with a splash of milk.\n6. Spoon mince into an oven dish, top with mash. Fork the surface.\n7. Bake 25-30 minutes until golden and bubbling.',
     calories_per_serving: 450,
@@ -396,8 +396,8 @@ const LIVERPOOL_RECIPES = [
     ],
   },
   {
-    name: 'Unbreakable Mersey Fish Pie',
-    description: 'A Liverpool-style fish pie with cod, salmon and prawns in a creamy sauce, topped with cheesy mash.',
+    name: 'Unbreakable Fish Pie',
+    description: 'Cod, salmon and prawns in a creamy sauce, topped with cheesy mash and baked golden.',
     instructions: '1. Preheat oven to 200°C.\n2. Poach fish fillets in milk with a bay leaf for 8 minutes. Remove fish and flake.\n3. Make sauce: melt butter, stir in flour, gradually add the poaching milk. Stir until thick.\n4. Fold in flaked fish and prawns. Season.\n5. Pour into an oven dish.\n6. Top with mashed potato mixed with a handful of grated cheddar.\n7. Bake 25-30 minutes until golden.',
     calories_per_serving: 460,
     protein_g: 42,
@@ -424,7 +424,7 @@ const LIVERPOOL_RECIPES = [
   },
   {
     name: 'Unbreakable Chippy Fish',
-    description: 'Liverpool chippy-style baked cod in a crispy breadcrumb coating with oven chips and mushy peas.',
+    description: 'Baked cod in a crispy breadcrumb coating with oven chips and mushy peas. Chippy-style, oven-baked.',
     instructions: '1. Preheat oven to 220°C.\n2. Cut potatoes into chips, spray with oil, season and bake 30 mins.\n3. Coat cod fillets: dip in flour, then beaten egg, then wholemeal breadcrumbs.\n4. Place on a baking tray, spray with oil. Bake alongside chips for 15-18 minutes.\n5. Heat mushy peas in a pan.\n6. Serve fish with chips, mushy peas and a wedge of lemon.',
     calories_per_serving: 440,
     protein_g: 40,
@@ -504,7 +504,7 @@ const LIVERPOOL_RECIPES = [
   },
   {
     name: 'Unbreakable Blind Scouse',
-    description: 'The meatless Liverpool classic — a veggie stew packed with root veg and lentils for protein. Traditionally what you ate when you couldn\'t afford the meat.',
+    description: 'The meatless classic — a veggie stew packed with root veg and lentils for protein. What you eat when the fridge is bare and you still show up.',
     instructions: '1. Dice onion, carrot, swede, turnip and potato.\n2. Heat a large pot with spray oil. Cook onions until softened.\n3. Add all veg and red lentils.\n4. Pour in vegetable stock, add thyme and bay leaf.\n5. Bring to a boil then simmer for 1 hour until thick and veg is tender.\n6. The lentils and potatoes will naturally thicken the stew.\n7. Season generously. Serve with crusty bread and pickled beetroot.',
     calories_per_serving: 320,
     protein_g: 18,
@@ -530,7 +530,7 @@ const LIVERPOOL_RECIPES = [
     ],
   },
   {
-    name: 'Unbreakable Mersey Meat Pie',
+    name: 'Unbreakable Meat Pie',
     description: 'Lean turkey and chicken pie with mushrooms in a herb gravy, topped with golden puff pastry.',
     instructions: '1. Preheat oven to 200°C.\n2. Cook diced turkey and chicken breast in a hot pan until golden.\n3. Add sliced mushrooms and cook 3 mins.\n4. Stir in flour, then add stock gradually. Add thyme and parsley.\n5. Simmer until thick. Pour into pie dishes.\n6. Top with puff pastry lids, brush with beaten egg.\n7. Bake 25 minutes until pastry is golden and puffed.',
     calories_per_serving: 430,
@@ -558,7 +558,7 @@ const LIVERPOOL_RECIPES = [
   },
   {
     name: 'Unbreakable Pan Haggerty',
-    description: 'A Liverpool take on the Northern classic — layers of potato, onion and cheese baked until golden. Added chicken for protein.',
+    description: 'Layers of potato, onion and cheese baked until golden. Added chicken for protein.',
     instructions: '1. Preheat oven to 190°C.\n2. Slice potatoes and onions very thinly.\n3. Shred cooked chicken breast.\n4. Layer in a greased oven dish: potato, onion, chicken, grated cheese. Repeat.\n5. Finish with a potato and cheese layer on top.\n6. Pour in a little stock so it just reaches the top layer.\n7. Cover with foil and bake 45 mins. Remove foil, bake 15 more mins until golden.\n8. Rest 5 mins before serving.',
     calories_per_serving: 420,
     protein_g: 36,
@@ -582,7 +582,7 @@ const LIVERPOOL_RECIPES = [
   },
   {
     name: 'Unbreakable Lobscouse',
-    description: 'The original sailor\'s stew that gave Liverpool its name. A lighter, cleaner version of traditional Scouse with lamb.',
+    description: 'The original sailor\'s stew — a lighter, cleaner lamb and root veg slow-cook. Simple, honest, filling.',
     instructions: '1. Dice lean lamb and season well.\n2. Brown in a pot with spray oil. Remove and set aside.\n3. Cook diced onion, carrot and celery for 5 mins.\n4. Return lamb, add diced potato and lamb stock.\n5. Add a splash of Worcestershire sauce, thyme and bay leaf.\n6. Simmer for 2 hours until lamb is very tender.\n7. Crush some potato against the side of the pot to thicken.\n8. Serve with pickled red cabbage and bread.',
     calories_per_serving: 400,
     protein_g: 40,
@@ -609,7 +609,7 @@ const LIVERPOOL_RECIPES = [
   },
   {
     name: 'Unbreakable Wet Nelly',
-    description: 'Liverpool\'s classic bread pudding reimagined with protein. Warm, sweet, and surprisingly high in protein.',
+    description: 'Classic bread pudding reimagined with protein. Warm, sweet, and surprisingly high in protein.',
     instructions: '1. Preheat oven to 180°C.\n2. Tear bread into chunks and place in a bowl. Pour over warm milk and let soak 10 minutes.\n3. Mix in beaten eggs, protein powder, mixed spice, and dried fruit.\n4. Pour into a greased baking dish.\n5. Bake 35-40 minutes until set and golden.\n6. Serve warm with a drizzle of honey or a dollop of Greek yoghurt.',
     calories_per_serving: 340,
     protein_g: 28,
@@ -646,7 +646,7 @@ Deno.serve(async (req) => {
 
     const results: string[] = [];
 
-    for (const recipe of LIVERPOOL_RECIPES) {
+    for (const recipe of RECIPES) {
       const { ingredients, ...recipeData } = recipe;
 
       // Check if recipe already exists
@@ -697,7 +697,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, results, total: LIVERPOOL_RECIPES.length }),
+      JSON.stringify({ success: true, results, total: RECIPES.length }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
