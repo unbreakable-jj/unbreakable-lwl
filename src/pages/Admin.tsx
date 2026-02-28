@@ -37,41 +37,26 @@ export default function Admin() {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="bg-muted/50 p-1 rounded-lg flex-wrap">
-              <TabsTrigger 
-                value="athletes" 
-                className="font-display gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
+            <TabsList className="flex-wrap">
+              <TabsTrigger value="athletes" className="font-display gap-2">
                 <UserCheck className="w-4 h-4" />
                 ATHLETES
               </TabsTrigger>
-              <TabsTrigger 
-                value="users" 
-                className="font-display gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
+              <TabsTrigger value="users" className="font-display gap-2">
                 <Users className="w-4 h-4" />
                 USERS
               </TabsTrigger>
-              <TabsTrigger 
-                value="reports" 
-                className="font-display gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
+              <TabsTrigger value="reports" className="font-display gap-2">
                 <Flag className="w-4 h-4" />
                 REPORTS
               </TabsTrigger>
               {isOwner && (
-                <TabsTrigger 
-                  value="settings" 
-                  className="font-display gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                >
+                <TabsTrigger value="settings" className="font-display gap-2">
                   <Settings className="w-4 h-4" />
                   SETTINGS
                 </TabsTrigger>
               )}
-              <TabsTrigger 
-                value="activity" 
-                className="font-display gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
+              <TabsTrigger value="activity" className="font-display gap-2">
                 <Activity className="w-4 h-4" />
                 LOGS
               </TabsTrigger>
