@@ -122,8 +122,8 @@ export default function Fuel() {
             <Link to="/fuel/foods">
               <Card className="p-5 hover:bg-primary/5 transition-colors border-2 border-border hover:border-primary/30">
                 <Apple className="w-8 h-8 text-primary mb-3" />
-                <h3 className="font-display text-lg tracking-wide mb-1">FOODS</h3>
-                <p className="text-sm text-muted-foreground">Manage saved foods</p>
+                <h3 className="font-display text-lg tracking-wide mb-1">STORE CUPBOARD</h3>
+                <p className="text-sm text-muted-foreground">Your scanned ingredients</p>
               </Card>
             </Link>
             <Link to="/fuel/my-fuel">

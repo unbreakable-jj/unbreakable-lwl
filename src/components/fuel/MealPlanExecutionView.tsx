@@ -12,6 +12,8 @@ import { useRecipes } from '@/hooks/useRecipes';
 import { MealType, mealTypeLabels, dayLabels, RecipeIngredient } from '@/lib/fuelTypes';
 import { NutritionCoachCTA } from './NutritionCoachCTA';
 import { ShoppingList } from './ShoppingList';
+import { useSavedFoods } from '@/hooks/useSavedFoods';
+import { calculateBespokeMacros } from '@/lib/storeCupboardMacros';
 import { RecipeDetailModal } from './RecipeDetailModal';
 import { 
   Calendar,
@@ -45,6 +47,7 @@ export function MealPlanExecutionView({ planId, onBack }: MealPlanExecutionViewP
   const { dailySummary, addFoodLog } = useFoodLogs();
   const { goals } = useNutritionGoals();
   const { recipes: allRecipes, toggleFavourite } = useRecipes();
+  const { savedFoods } = useSavedFoods();
   const [selectedDay, setSelectedDay] = useState(new Date().getDay());
   const [viewingRecipeId, setViewingRecipeId] = useState<string | null>(null);
   
@@ -328,12 +331,25 @@ export function MealPlanExecutionView({ planId, onBack }: MealPlanExecutionViewP
           onClose={() => setViewingRecipeId(null)}
           onToggleFavourite={(id) => toggleFavourite.mutate(id)}
           onLogMeal={(recipe) => {
+            const ingredients = recipeIngredients || [];
+            const fallback = {
+              calories: recipe.calories_per_serving || 0,
+              protein_g: recipe.protein_g || 0,
+              carbs_g: recipe.carbs_g || 0,
+              fat_g: recipe.fat_g || 0,
+            };
+            const macros = calculateBespokeMacros(
+              ingredients,
+              savedFoods || [],
+              recipe.servings || 1,
+              fallback
+            );
             addFoodLog.mutateAsync({
               food_name: recipe.name,
-              calories: recipe.calories_per_serving || 0,
-              protein_g: recipe.protein_g,
-              carbs_g: recipe.carbs_g,
-              fat_g: recipe.fat_g,
+              calories: macros.calories,
+              protein_g: macros.protein_g,
+              carbs_g: macros.carbs_g,
+              fat_g: macros.fat_g,
               meal_type: 'dinner' as MealType,
               servings: 1,
               logged_at: new Date().toISOString(),
