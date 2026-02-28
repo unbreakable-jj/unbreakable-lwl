@@ -134,6 +134,77 @@ export type Database = {
         }
         Relationships: []
       }
+      cardio_session_planners: {
+        Row: {
+          actual_distance_km: number | null
+          actual_duration_minutes: number | null
+          cooldown: string | null
+          created_at: string
+          day_number: number
+          distance_km: number | null
+          duration_minutes: number | null
+          id: string
+          notes: string | null
+          planned_session: Json
+          program_id: string | null
+          scheduled_date: string | null
+          session_type: string
+          status: string | null
+          updated_at: string
+          user_id: string
+          warmup: string | null
+          week_number: number
+        }
+        Insert: {
+          actual_distance_km?: number | null
+          actual_duration_minutes?: number | null
+          cooldown?: string | null
+          created_at?: string
+          day_number: number
+          distance_km?: number | null
+          duration_minutes?: number | null
+          id?: string
+          notes?: string | null
+          planned_session?: Json
+          program_id?: string | null
+          scheduled_date?: string | null
+          session_type: string
+          status?: string | null
+          updated_at?: string
+          user_id: string
+          warmup?: string | null
+          week_number: number
+        }
+        Update: {
+          actual_distance_km?: number | null
+          actual_duration_minutes?: number | null
+          cooldown?: string | null
+          created_at?: string
+          day_number?: number
+          distance_km?: number | null
+          duration_minutes?: number | null
+          id?: string
+          notes?: string | null
+          planned_session?: Json
+          program_id?: string | null
+          scheduled_date?: string | null
+          session_type?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+          warmup?: string | null
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cardio_session_planners_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "cardio_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coaching_profiles: {
         Row: {
           age_years: number | null
