@@ -34,6 +34,7 @@ import TrackerCreate from "./pages/TrackerCreate";
 import UserProfile from "./pages/UserProfile";
 import Onboarding from "./pages/Onboarding";
 import Habits from "./pages/Habits";
+import CoachDashboard from "./pages/CoachDashboard";
 
 const queryClient = new QueryClient();
 
@@ -141,6 +142,10 @@ const App = () => (
                 <ProtectedRoute><Habits /></ProtectedRoute>
               } />
               
+              {/* Coach Dashboard */}
+              <Route path="/coach" element={
+                <ProtectedRoute><CoachDashboard /></ProtectedRoute>
+              } />
               {/* Admin Dashboard - Hidden, role-protected */}
               <Route path="/admin" element={<Admin />} />
               

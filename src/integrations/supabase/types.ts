@@ -205,6 +205,39 @@ export type Database = {
           },
         ]
       }
+      coaching_assignments: {
+        Row: {
+          assigned_by: string | null
+          athlete_id: string
+          coach_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          athlete_id: string
+          coach_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_by?: string | null
+          athlete_id?: string
+          coach_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       coaching_profiles: {
         Row: {
           age_years: number | null
@@ -2607,6 +2640,10 @@ export type Database = {
       is_admin_or_owner: { Args: { _user_id: string }; Returns: boolean }
       is_blocked: {
         Args: { blocked: string; blocker: string }
+        Returns: boolean
+      }
+      is_coach_of: {
+        Args: { _athlete_id: string; _coach_id: string }
         Returns: boolean
       }
       is_conversation_participant: {

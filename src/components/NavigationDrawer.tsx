@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Home, Calculator, Activity, User, LogOut, Settings, Brain, Sparkles, Flame, Dumbbell, Footprints, Apple, Shield, GraduationCap } from 'lucide-react';
+import { Menu, X, Home, Calculator, Activity, User, LogOut, Settings, Brain, Sparkles, Flame, Dumbbell, Footprints, Apple, Shield, GraduationCap, UserCheck } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -19,7 +19,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
-  const { isAdminOrOwner } = useUserRole();
+  const { isAdminOrOwner, role } = useUserRole();
   const location = useLocation();
 
   const getInitials = () => {
@@ -44,7 +44,10 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
     { to: '/help', label: 'COACHING', icon: Flame, highlight: true },
     { to: '/university', label: 'UNIVERSITY', icon: GraduationCap },
     { to: '/profile', label: 'MY PROFILE', icon: User },
-    ...(isAdminOrOwner ? [{ to: '/admin', label: 'DEV', icon: Shield, admin: true }] : []),
+    ...(isAdminOrOwner ? [
+      { to: '/coach', label: 'MY ATHLETES', icon: UserCheck, highlight: true },
+      { to: '/admin', label: 'DEV', icon: Shield, admin: true },
+    ] : []),
   ];
 
   const isActive = (path: string) => location.pathname === path;
