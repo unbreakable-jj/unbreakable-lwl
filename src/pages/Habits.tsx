@@ -73,6 +73,7 @@ const Habits = () => {
             onChange={saveHabits}
             compact={false}
             readOnly={!isToday}
+            dateKey={format(selectedDate, 'yyyy-MM-dd')}
           />
         )}
 
