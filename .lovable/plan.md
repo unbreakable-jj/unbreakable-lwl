@@ -1,180 +1,87 @@
 
+# Full Multi-Type Plan Building for Coaches & Devs
 
-# Coaching Hub: Feedback, Appraisals & Auto-Notifications
+## Problem
+Currently, the BUILD PLAN dropdown in `AthleteDataViewer` links to `/programming/create?for=`, `/tracker/create?for=`, and `/fuel/planning?for=` -- but **none of these pages actually read the `?for=` parameter**. They all hardcode `user.id` when saving. Additionally:
+- Mindset programmes are missing from the BUILD PLAN dropdown
+- Coaches cannot build plans for themselves from the coaching hub
+- `mindset_programmes` table lacks INSERT/UPDATE RLS for coaches
+- No user-search-based plan delivery exists
 
-## Overview
+## Changes
 
-Build a complete coaching feedback system where coaches/devs can review athlete data, write structured appraisals, set session goals, edit existing plans, and save feedback -- automatically notifying the client via inbox with a link to a dedicated "Coach Updates" view on their profile.
+### 1. Database: Add Coach RLS for Mindset Programmes
 
----
+Add INSERT and UPDATE policies on `mindset_programmes` so coaches can create and edit mindset plans for their assigned athletes.
 
-## 1. New Database Table: `coaching_feedback`
-
-Create a `coaching_feedback` table to store structured appraisals from coaches to athletes.
-
-```text
-coaching_feedback
-  id              UUID PK
-  coach_id        UUID NOT NULL (auth user)
-  athlete_id      UUID NOT NULL (auth user)
-  feedback_type   TEXT ('session_review', 'appraisal', 'goal_setting', 'plan_update', 'general')
-  title           TEXT NOT NULL
-  performance_rating  INTEGER (1-5, nullable)
-  technique_notes TEXT (nullable)
-  next_session_goals TEXT (nullable)
-  general_comments TEXT (nullable)
-  related_session_id UUID (nullable, FK to workout_sessions)
-  related_program_id UUID (nullable, FK to training_programs)
-  data            JSONB (flexible extra data)
-  created_at      TIMESTAMPTZ DEFAULT now()
-  updated_at      TIMESTAMPTZ DEFAULT now()
+```
+INSERT: WITH CHECK (is_coach_of(auth.uid(), user_id))
+UPDATE: USING (is_coach_of(auth.uid(), user_id))
 ```
 
-**RLS Policies:**
-- Coaches can INSERT for their assigned athletes (`is_coach_of(auth.uid(), athlete_id)`)
-- Coaches can SELECT/UPDATE their own feedback (`coach_id = auth.uid()`)
-- Athletes can SELECT feedback addressed to them (`athlete_id = auth.uid()`)
-- Devs can do all (via `has_role(auth.uid(), 'dev')`)
+### 2. Save Hooks: Accept Optional `forUserId`
+
+Modify four hooks to accept an optional `forUserId` parameter that overrides `user.id` when saving:
+
+- **`useTrainingPrograms.tsx`** -- `saveProgram` mutation accepts optional `forUserId`
+- **`useCardioPrograms.tsx`** -- `saveProgram` mutation accepts optional `forUserId`  
+- **`useMealPlans.tsx`** -- `createMealPlan` mutation accepts optional `forUserId`
+- **`useMindsetProgrammes.tsx`** -- `saveProgramme` mutation accepts optional `forUserId`
+
+Each will use `forUserId || user.id` as the `user_id` in the INSERT. RLS already permits this for coaches via the `is_coach_of` policies.
+
+### 3. Builder Pages: Read `?for=` Query Parameter
+
+Modify three existing builder pages to detect `?for={userId}` from the URL and pass it through to the save hooks:
+
+- **`ProgrammingCreate.tsx`** -- Read `searchParams.get('for')`, show a banner "Building for [athlete name]", pass `forUserId` to `saveProgram`
+- **`TrackerCreate.tsx`** -- Same pattern for cardio programmes
+- **`FuelPlanning.tsx`** -- Same pattern for meal plans
+
+Additionally, create awareness in the Mindset builder page if one exists, or add a note that Mindset programmes use the same pattern.
+
+### 4. AthleteDataViewer: Add Mindset to BUILD PLAN Dropdown
+
+Add a fourth option to the BUILD PLAN dropdown:
+- **Mindset Programme** -- navigates to `/mindset?for={athleteId}` (or the appropriate mindset builder route)
+
+Also add EDIT buttons on cardio programmes and meal plans (currently only training programmes have EDIT), by fetching those from the database alongside `training_programs`.
+
+### 5. Coach Hub: "Build for Myself" Action
+
+Add a "BUILD MY OWN" section or button in the Coach Dashboard that navigates to the builders **without** a `?for=` param (i.e. saves to the coach's own account). This can be a simple action card at the top of the Athletes tab or a dedicated section.
+
+### 6. Coach Hub: Search + Deliver Plan to Any Assigned Athlete
+
+Add a "BUILD PLAN FOR..." flow accessible from the Coach Dashboard:
+- Reuse the existing `ClientSearchPanel` user search but filter to only show **assigned athletes**
+- Selecting an athlete opens the BUILD PLAN dropdown (same as in AthleteDataViewer)
+- This lets coaches quickly navigate to a builder for any client without first going into the full AthleteDataViewer
+
+### 7. "Building For" Banner Component
+
+Create a small reusable `BuildingForBanner` component that:
+- Fetches the target athlete's profile (display name, avatar) from the `?for=` param
+- Displays "Building for [Name]" at the top of the builder page
+- Shows a "Cancel" button to clear the param and build for yourself instead
 
 ---
 
-## 2. Auto-Notification on Feedback Save
+## Files Summary
 
-### Database trigger: `notify_athlete_on_coaching_feedback`
+**Database migration:**
+- Add INSERT + UPDATE RLS on `mindset_programmes` for coaches
 
-A trigger on `coaching_feedback` INSERT that automatically creates a row in the `notifications` table for the athlete:
-
-```text
-type: 'coaching_feedback'
-title: 'Coach Update'
-body: 'Your coach has left new feedback: {title}'
-data: { feedback_id: <id>, coach_id: <coach_id>, type: <feedback_type> }
-```
-
-This leverages the existing `notifications` table and `useNotifications` hook with realtime subscription -- so the client sees it instantly.
-
-### Auto-message to inbox
-
-Additionally, the trigger (or client-side logic after saving) will send an automated message to the coach-athlete conversation via `start_or_get_conversation` + message insert, containing a clickable link text like: "Your coach has posted new feedback. View it in your Coach Updates."
-
----
-
-## 3. Coach Feedback Panel (New Component)
-
-### File: `src/components/coaching/CoachFeedbackPanel.tsx`
-
-A structured appraisal card component used within `AthleteDataViewer`:
-
-- **Title** field (required)
-- **Feedback Type** selector (Session Review, Appraisal, Goal Setting, Plan Update, General)
-- **Performance Rating** (1-5 stars/badges)
-- **Technique Notes** textarea
-- **Next Session Goals** textarea
-- **General Comments** textarea
-- **Link to Session** (optional dropdown of recent sessions)
-- **Link to Programme** (optional dropdown of athlete's programmes)
-- **SAVE & NOTIFY** button -- saves to `coaching_feedback`, triggers notification + auto-message
-
----
-
-## 4. Athlete "Coach Updates" View
-
-### File: `src/components/coaching/CoachUpdatesView.tsx`
-
-A dedicated view accessible from the athlete's Profile page showing all feedback from their coach:
-
-- Chronological list of feedback cards
-- Each card shows: title, type badge, performance rating, technique notes, goals, comments, date
-- Linked session/programme names are clickable
-- Unread indicator (based on notifications read state)
-
-### Integration into Profile page (`src/pages/Profile.tsx`)
-
-Add a "COACH UPDATES" section/tab that appears when the user has an assigned coach. When notifications with `type: 'coaching_feedback'` are clicked, navigate to `/profile?tab=coach-updates&feedback={id}`.
-
----
-
-## 5. Enhance AthleteDataViewer with Feedback Tab
-
-### File: `src/components/coaching/AthleteDataViewer.tsx`
-
-Add a new **"Feedback"** tab alongside Training, Habits, Fuel, Records:
-
-- Shows the `CoachFeedbackPanel` for writing new feedback
-- Shows history of all previous feedback for this athlete
-- Each historical entry is expandable to view full details
-
----
-
-## 6. Coach Can Edit Existing Athlete Programmes
-
-### Database: New RLS UPDATE policies
-
-Add UPDATE policies for coaches on their assigned athletes' programmes:
-
-```sql
-CREATE POLICY "Coaches can update athlete programs"
-ON training_programs FOR UPDATE
-USING (is_coach_of(auth.uid(), user_id));
-
-CREATE POLICY "Coaches can update athlete cardio"
-ON cardio_programs FOR UPDATE
-USING (is_coach_of(auth.uid(), user_id));
-
-CREATE POLICY "Coaches can update athlete meal plans"
-ON meal_plans FOR UPDATE
-USING (is_coach_of(auth.uid(), user_id));
-
-CREATE POLICY "Coaches can update athlete meal plan items"
-ON meal_plan_items FOR UPDATE
-USING (is_coach_of(auth.uid(), user_id));
-```
-
-### AthleteDataViewer: "EDIT" button on programmes
-
-In the Training tab, each programme card gets an "EDIT" button that navigates to the programme builder with `?edit={programId}&for={athleteId}`. The builder pages will detect this and load the existing programme for editing.
-
----
-
-## 7. New Hook: `useCoachingFeedback`
-
-### File: `src/hooks/useCoachingFeedback.tsx`
-
-- `createFeedback(data)` -- inserts into `coaching_feedback`, then sends auto-message to inbox
-- `getFeedbackForAthlete(athleteId)` -- coach fetching feedback they wrote
-- `getMyCoachFeedback()` -- athlete fetching feedback addressed to them
-- `updateFeedback(id, data)` -- edit existing feedback
-
-The auto-message logic:
-1. Call `start_or_get_conversation` RPC to get/create the coach-athlete conversation
-2. Insert a system-style message: "New coach update: {title}. View your Coach Updates in your profile."
-
----
-
-## 8. Notification Click Routing
-
-### File: `src/components/hub/NotificationsPanel.tsx`
-
-Add handling for `type: 'coaching_feedback'` notifications:
-- On click, navigate to `/profile?tab=coach-updates&feedback={data.feedback_id}`
-
----
-
-## Summary of Changes
-
-**New database objects:**
-- Table: `coaching_feedback` with RLS
-- Trigger: `notify_athlete_on_coaching_feedback` (inserts into `notifications`)
-- UPDATE RLS policies on `training_programs`, `cardio_programs`, `meal_plans`, `meal_plan_items` for coaches
-- Enable realtime on `coaching_feedback`
-
-**New files:**
-- `src/components/coaching/CoachFeedbackPanel.tsx` -- structured feedback form
-- `src/components/coaching/CoachUpdatesView.tsx` -- athlete-facing feedback history
-- `src/hooks/useCoachingFeedback.tsx` -- CRUD + auto-message logic
+**New file:**
+- `src/components/coaching/BuildingForBanner.tsx` -- reusable "Building for [athlete]" banner
 
 **Modified files:**
-- `src/components/coaching/AthleteDataViewer.tsx` -- add Feedback tab + edit buttons on programmes
-- `src/pages/Profile.tsx` -- add Coach Updates section
-- `src/components/hub/NotificationsPanel.tsx` -- route coaching_feedback notification clicks
-
+- `src/hooks/useTrainingPrograms.tsx` -- `forUserId` param on `saveProgram`
+- `src/hooks/useCardioPrograms.tsx` -- `forUserId` param on `saveProgram`
+- `src/hooks/useMealPlans.tsx` -- `forUserId` param on `createMealPlan`
+- `src/hooks/useMindsetProgrammes.tsx` -- `forUserId` param on `saveProgramme`
+- `src/pages/ProgrammingCreate.tsx` -- read `?for=`, show banner, pass to save
+- `src/pages/TrackerCreate.tsx` -- read `?for=`, show banner, pass to save
+- `src/pages/FuelPlanning.tsx` -- read `?for=`, show banner, pass to save
+- `src/components/coaching/AthleteDataViewer.tsx` -- add Mindset to BUILD PLAN dropdown, fetch cardio/meal plans for EDIT buttons
+- `src/pages/CoachDashboard.tsx` -- add "Build My Own" quick actions and "Build Plan For..." search flow
