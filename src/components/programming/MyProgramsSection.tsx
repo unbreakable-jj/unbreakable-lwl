@@ -22,6 +22,7 @@ import {
   Target,
   Sparkles,
 } from 'lucide-react';
+import { StartDatePickerDialog } from '@/components/cardio/StartDatePickerDialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 
@@ -46,6 +47,8 @@ export function MyProgramsSection() {
   } = useTrainingPrograms();
   const [expandedProgramId, setExpandedProgramId] = useState<string | null>(null);
   const [executingProgramId, setExecutingProgramId] = useState<string | null>(null);
+  const [startDateProgramId, setStartDateProgramId] = useState<string | null>(null);
+  const startDateProgram = programs?.find(p => p.id === startDateProgramId);
 
   // Find the program being executed
   const executingProgram = programs?.find(p => p.id === executingProgramId);
@@ -91,14 +94,19 @@ export function MyProgramsSection() {
     setExpandedProgramId(expandedProgramId === programId ? null : programId);
   };
 
-  const handleStartProgramme = async (programId: string, e: React.MouseEvent) => {
+  const handleStartProgramme = (programId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    setStartDateProgramId(programId);
+  };
+
+  const handleConfirmStart = async (date: Date) => {
+    if (!startDateProgramId) return;
     try {
-      await startProgrammeExecution.mutateAsync(programId);
-      // Open execution view after successful start
-      setExecutingProgramId(programId);
+      await startProgrammeExecution.mutateAsync(startDateProgramId);
+      setStartDateProgramId(null);
+      setExecutingProgramId(startDateProgramId);
       setExpandedProgramId(null);
-    } catch (error) {
+    } catch {
       // Error handled by mutation
     }
   };
@@ -279,6 +287,14 @@ export function MyProgramsSection() {
           </AnimatePresence>
         </div>
       ))}
+      {/* Start Date Picker Dialog */}
+      <StartDatePickerDialog
+        open={!!startDateProgramId}
+        onOpenChange={(open) => { if (!open) setStartDateProgramId(null); }}
+        onConfirm={handleConfirmStart}
+        isPending={startProgrammeExecution.isPending}
+        programName={startDateProgram?.name || ''}
+      />
     </div>
   );
 }

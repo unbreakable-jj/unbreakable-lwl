@@ -1,45 +1,76 @@
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Footprints, 
-  Zap, 
-  Bike, 
-  Calendar,
+import {
+  Footprints,
+  Zap,
+  Bike,
+  Waves,
+  Droplets,
+  Calendar as CalendarIcon,
   Trash2,
   Eye,
-  AlertCircle
+  Play,
+  Pause,
+  Target,
+  ChevronRight,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react';
-import { useCardioPrograms, CardioProgram } from '@/hooks/useCardioPrograms';
-import { GeneratedCardioProgram, activityLabels } from '@/lib/cardioTypes';
+import { useCardioPrograms, CardioProgram, CardioProgramStatus } from '@/hooks/useCardioPrograms';
+import { GeneratedCardioProgram, activityLabels, ActivityType } from '@/lib/cardioTypes';
 import { format } from 'date-fns';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CardioProgramDisplay } from './CardioProgramDisplay';
+import { MovementExecutionView } from './MovementExecutionView';
+import { StartDatePickerDialog } from './StartDatePickerDialog';
 
 interface SavedCardioProgramsProps {
   onViewProgram: (program: GeneratedCardioProgram) => void;
 }
 
-const MAX_CARDIO_PROGRAMS = 2;
+const statusConfig: Record<CardioProgramStatus, { label: string; className: string }> = {
+  not_started: { label: 'Not Started', className: 'bg-muted text-muted-foreground border-muted' },
+  active: { label: 'Active', className: 'bg-primary text-primary-foreground border-primary' },
+  completed: { label: 'Completed', className: 'bg-green-500/20 text-green-400 border-green-500/30' },
+  paused: { label: 'Paused', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
+};
+
+const getActivityIcon = (type: ActivityType) => {
+  switch (type) {
+    case 'walk': return <Footprints className="w-5 h-5 text-primary" />;
+    case 'run': return <Zap className="w-5 h-5 text-primary" />;
+    case 'cycle': return <Bike className="w-5 h-5 text-primary" />;
+    case 'row': return <Waves className="w-5 h-5 text-primary" />;
+    case 'swim': return <Droplets className="w-5 h-5 text-primary" />;
+    default: return <Zap className="w-5 h-5 text-primary" />;
+  }
+};
 
 export function SavedCardioPrograms({ onViewProgram }: SavedCardioProgramsProps) {
-  const { programs, isLoading, deleteProgram } = useCardioPrograms();
+  const {
+    programs,
+    isLoading,
+    activeProgramCount,
+    canActivateMore,
+    maxActivePrograms,
+    startProgrammeExecution,
+    deactivateProgram,
+    deleteProgram,
+  } = useCardioPrograms();
 
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'walk': return <Footprints className="w-5 h-5 text-primary" />;
-      case 'run': return <Zap className="w-5 h-5 text-primary" />;
-      case 'cycle': return <Bike className="w-5 h-5 text-primary" />;
-      default: return <Zap className="w-5 h-5 text-primary" />;
-    }
-  };
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [executingProgramId, setExecutingProgramId] = useState<string | null>(null);
+  const [startDateProgram, setStartDateProgram] = useState<CardioProgram | null>(null);
 
-  const activeProgramCount = programs?.length ?? 0;
-  const canAddMore = activeProgramCount < MAX_CARDIO_PROGRAMS;
+  const executingProgram = programs?.find(p => p.id === executingProgramId);
 
   if (isLoading) {
     return (
       <Card className="bg-card border-border">
-        <CardContent className="p-6 text-center">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+        <CardContent className="p-6 flex items-center justify-center">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
         </CardContent>
       </Card>
     );
@@ -49,77 +80,207 @@ export function SavedCardioPrograms({ onViewProgram }: SavedCardioProgramsProps)
     return null;
   }
 
+  // Show execution view if tracking
+  if (executingProgram) {
+    return (
+      <MovementExecutionView
+        program={executingProgram}
+        onClose={() => setExecutingProgramId(null)}
+      />
+    );
+  }
+
+  const handleStartClick = (program: CardioProgram, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setStartDateProgram(program);
+  };
+
+  const handleConfirmStart = async (date: Date) => {
+    if (!startDateProgram) return;
+    try {
+      await startProgrammeExecution.mutateAsync({
+        programId: startDateProgram.id,
+        startDate: date,
+      });
+      setStartDateProgram(null);
+      setExecutingProgramId(startDateProgram.id);
+      setExpandedId(null);
+    } catch {
+      // handled by mutation
+    }
+  };
+
+  const handleResumeClick = (programId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExecutingProgramId(programId);
+    setExpandedId(null);
+  };
+
+  const handleDeactivate = (programId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    deactivateProgram.mutate(programId);
+  };
+
+  const handleDelete = (programId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm('Are you sure you want to delete this programme? This will also delete all scheduled sessions.')) {
+      deleteProgram.mutate(programId);
+      if (expandedId === programId) setExpandedId(null);
+      if (executingProgramId === programId) setExecutingProgramId(null);
+    }
+  };
+
+  const handleExpand = (programId: string) => {
+    if (executingProgramId) return;
+    setExpandedId(expandedId === programId ? null : programId);
+  };
+
   return (
-    <Card className="bg-card border-border overflow-hidden neon-border-subtle">
-      <div className="bg-primary/10 border-b border-border px-6 py-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-display text-lg text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-primary" />
-            MY PROGRAMMES
-          </h3>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">
-              {activeProgramCount} / {MAX_CARDIO_PROGRAMS}
-            </span>
-            {!canAddMore && (
-              <Badge variant="outline" className="text-xs border-yellow-500/50 text-yellow-400">
-                Max Reached
-              </Badge>
-            )}
-          </div>
+    <div className="space-y-4">
+      {/* Header with status */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-card rounded-lg border border-border neon-border-subtle">
+        <div className="flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-primary shrink-0" />
+          <span className="text-sm md:text-base text-muted-foreground">
+            Active: <span className="text-foreground font-medium">{activeProgramCount}</span> / {maxActivePrograms}
+          </span>
+          {!canActivateMore && (
+            <Badge variant="outline" className="border-yellow-500/50 text-yellow-400 shrink-0">
+              Max Reached
+            </Badge>
+          )}
         </div>
       </div>
-      <CardContent className="p-6">
-        <div className="space-y-3">
-          {programs.map((program) => (
-            <div
-              key={program.id}
-              className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border hover:border-primary/50 transition-colors"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  {getActivityIcon(program.program_data.activityType)}
-                </div>
-                <div>
-                  <p className="font-display tracking-wide text-foreground">
-                    {program.name}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge variant="outline" className="text-xs">
-                      {activityLabels[program.program_data.activityType]}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-muted">
-                      Not Started
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {format(new Date(program.created_at), 'dd MMM yyyy')}
-                    </span>
+
+      {programs.map((program) => (
+        <div key={program.id}>
+          <Card
+            className={`p-4 border bg-card cursor-pointer transition-all hover:border-primary/50 ${
+              program.is_active ? 'border-primary neon-border-subtle' : 'border-border'
+            }`}
+            onClick={() => handleExpand(program.id)}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    {getActivityIcon(program.program_data.activityType)}
                   </div>
+                  <h3 className="font-display text-lg text-foreground truncate">
+                    {program.name}
+                  </h3>
+                  <Badge variant="outline" className={statusConfig[program.status].className}>
+                    {statusConfig[program.status].label}
+                  </Badge>
+                  <Badge variant="outline" className="text-xs">
+                    {activityLabels[program.program_data.activityType]}
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground line-clamp-1 ml-10">
+                  {program.overview || 'Custom movement programme'}
+                </p>
+                <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground ml-10">
+                  <span className="flex items-center gap-1">
+                    <CalendarIcon className="w-3 h-3" />
+                    {format(new Date(program.created_at), 'MMM d, yyyy')}
+                  </span>
+                  {program.is_active && program.current_week && (
+                    <span className="flex items-center gap-1">
+                      Week {program.current_week}, Day {program.current_day}
+                    </span>
+                  )}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+
+              <div className="flex items-center gap-2 ml-4">
+                {program.is_active ? (
+                  <>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={(e) => handleResumeClick(program.id, e)}
+                      className="gap-1"
+                    >
+                      <Target className="w-4 h-4" />
+                      Track
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => handleDeactivate(program.id, e)}
+                      disabled={deactivateProgram.isPending}
+                      className="gap-1"
+                    >
+                      {deactivateProgram.isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Pause className="w-4 h-4" />
+                      )}
+                      Pause
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={(e) => handleStartClick(program, e)}
+                    disabled={startProgrammeExecution.isPending || !canActivateMore}
+                    className="gap-1"
+                    title={!canActivateMore ? `Maximum ${maxActivePrograms} active programmes` : undefined}
+                  >
+                    {startProgrammeExecution.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Play className="w-4 h-4" />
+                    )}
+                    Start
+                  </Button>
+                )}
                 <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => onViewProgram(program.program_data)}
-                  className="font-display tracking-wide"
-                >
-                  <Eye className="w-4 h-4 mr-1" />
-                  VIEW
-                </Button>
-                <Button
-                  size="sm"
                   variant="ghost"
-                  onClick={() => deleteProgram.mutate(program.id)}
-                  className="text-muted-foreground hover:text-destructive"
+                  size="icon"
+                  onClick={(e) => handleDelete(program.id, e)}
+                  className="text-destructive hover:text-destructive"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
+                <ChevronRight className={`w-5 h-5 text-muted-foreground transition-transform ${
+                  expandedId === program.id ? 'rotate-90' : ''
+                }`} />
               </div>
             </div>
-          ))}
+          </Card>
+
+          <AnimatePresence>
+            {expandedId === program.id && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <div className="pt-4">
+                  <CardioProgramDisplay
+                    program={program.program_data}
+                    onBack={() => setExpandedId(null)}
+                    isSaving={false}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </CardContent>
-    </Card>
+      ))}
+
+      {/* Start Date Picker Dialog */}
+      <StartDatePickerDialog
+        open={!!startDateProgram}
+        onOpenChange={(open) => { if (!open) setStartDateProgram(null); }}
+        onConfirm={handleConfirmStart}
+        isPending={startProgrammeExecution.isPending}
+        programName={startDateProgram?.name || ''}
+      />
+    </div>
   );
 }

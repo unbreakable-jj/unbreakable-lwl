@@ -190,7 +190,7 @@ export function useTrainingPrograms() {
         const programData = programRow.program_data as any;
         const templateDays = programData.templateWeek?.days || programData.weeks?.[0]?.days || [];
         const startDate = new Date();
-        
+        // Note: startDate could be parameterized in future via mutation args
         if (templateDays.length > 0) {
           const plannerEntries: any[] = [];
           
