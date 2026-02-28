@@ -10,8 +10,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   ArrowLeft, Dumbbell, Utensils, Brain, Activity,
   Target, MessageSquare, Loader2, Calendar, TrendingUp,
-  Flame, Droplets, BookOpen, PenLine, Check
+  Flame, Droplets, BookOpen, PenLine, Check, Footprints
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 
@@ -105,15 +111,39 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
             </h1>
             <p className="text-sm text-muted-foreground">@{profile?.username || 'unknown'}</p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate(`/inbox?compose=1&to=${athleteId}`)}
-            className="font-display text-xs"
-          >
-            <MessageSquare className="w-4 h-4 mr-1" />
-            MESSAGE
-          </Button>
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="default" size="sm" className="font-display text-xs">
+                  <Dumbbell className="w-4 h-4 mr-1" />
+                  BUILD PLAN
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => navigate(`/programming/create?for=${athleteId}`)}>
+                  <Dumbbell className="w-4 h-4 mr-2" />
+                  Power Programme
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate(`/tracker/create?for=${athleteId}`)}>
+                  <Footprints className="w-4 h-4 mr-2" />
+                  Movement Programme
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate(`/fuel/planning?for=${athleteId}`)}>
+                  <Utensils className="w-4 h-4 mr-2" />
+                  Meal Plan
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/inbox?compose=1&to=${athleteId}`)}
+              className="font-display text-xs"
+            >
+              <MessageSquare className="w-4 h-4 mr-1" />
+              MESSAGE
+            </Button>
+          </div>
         </div>
 
         {/* Quick Stats */}

@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/navigation-menu';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import {
@@ -31,149 +32,26 @@ import {
   History,
   MessageCircle,
   GraduationCap,
+  User,
+  Shield,
+  UserCheck,
 } from 'lucide-react';
 
-// Navigation structure based on current site content
-const NAV_STRUCTURE = [
-  {
-    title: 'CALCULATORS',
-    href: '/calculators',
-    items: [
-      { 
-        title: 'Strength Calculator', 
-        href: '/calculators?tab=strength', 
-        description: 'Calculate your 1RM and strength level',
-        icon: Dumbbell 
-      },
-      { 
-        title: 'Fuel Calculator', 
-        href: '/calculators?tab=fuel', 
-        description: 'Get your calorie and macro targets',
-        icon: Flame 
-      },
-      { 
-        title: 'Speed Calculator', 
-        href: '/calculators?tab=speed', 
-        description: 'Analyze your race times and pace',
-        icon: Timer 
-      },
-    ],
-  },
-  {
-    title: 'POWER',
-    href: '/programming',
-    items: [
-      { 
-        title: 'Create', 
-        href: '/programming/create', 
-        description: 'Build a new programme with Auto or Manual builder',
-        icon: Dumbbell 
-      },
-      { 
-        title: 'Library', 
-        href: '/programming/my-programmes', 
-        description: 'View saved programmes, track progress, and log workouts',
-        icon: BookOpen 
-      },
-    ],
-  },
-  {
-    title: 'MOVEMENT',
-    href: '/tracker',
-    items: [
-      { 
-        title: 'Create', 
-        href: '/tracker/create', 
-        description: 'Build a new cardio programme',
-        icon: Footprints 
-      },
-      { 
-        title: 'Library', 
-        href: '/tracker/my-programmes', 
-        description: 'View saved programmes and activity logs',
-        icon: BookOpen 
-      },
-    ],
-  },
-  {
-    title: 'FUEL',
-    href: '/fuel',
-    items: [
-      { 
-        title: 'Food Tracker', 
-        href: '/fuel', 
-        description: 'Log meals and track daily nutrition',
-        icon: UtensilsCrossed 
-      },
-      { 
-        title: 'Nutrition History', 
-        href: '/fuel/history', 
-        description: 'View past nutrition logs',
-        icon: History 
-      },
-      { 
-        title: 'Recipe Library', 
-        href: '/fuel/recipes', 
-        description: 'Browse and save recipes',
-        icon: BookOpen 
-      },
-      { 
-        title: 'Meal Planning', 
-        href: '/fuel/planning', 
-        description: 'Build weekly meal plans',
-        icon: Calendar 
-      },
-      { 
-        title: 'Food Library', 
-        href: '/fuel/foods', 
-        description: 'Manage saved foods',
-        icon: Apple 
-      },
-      { 
-        title: 'My Fuel', 
-        href: '/fuel/my-fuel', 
-        description: 'Goals and progress overview',
-        icon: BarChart3 
-      },
-    ],
-  },
-  {
-    title: 'MINDSET',
-    href: '/mindset',
-    items: [
-      { 
-        title: 'Breathing Exercises', 
-        href: '/mindset', 
-        description: 'Mental conditioning through controlled breathing',
-        icon: Heart 
-      },
-    ],
-  },
-  {
-    title: 'COACHING',
-    href: '/help',
-    highlight: true,
-    items: [
-      { 
-        title: 'Ask Your Coach', 
-        href: '/help', 
-        description: 'Get personalised guidance on training, nutrition, and mindset',
-        icon: MessageCircle 
-      },
-    ],
-  },
-  {
-    title: 'UNIVERSITY',
-    href: '/university',
-    items: [
-      { 
-        title: 'Unbreakable University', 
-        href: '/university', 
-        description: 'Learn the science behind the strength — coming soon',
-        icon: GraduationCap 
-      },
-    ],
-  },
+// All hub items consolidated into one dropdown
+const COACHING_HUB_ITEMS = [
+  { title: 'Strength Calculator', href: '/calculators?tab=strength', description: 'Calculate your 1RM and strength level', icon: Dumbbell, group: 'Calculators' },
+  { title: 'Fuel Calculator', href: '/calculators?tab=fuel', description: 'Get your calorie and macro targets', icon: Flame, group: 'Calculators' },
+  { title: 'Speed Calculator', href: '/calculators?tab=speed', description: 'Analyze your race times and pace', icon: Timer, group: 'Calculators' },
+  { title: 'Power: Create', href: '/programming/create', description: 'Build a new programme', icon: Dumbbell, group: 'Power' },
+  { title: 'Power: Library', href: '/programming/my-programmes', description: 'View saved programmes', icon: BookOpen, group: 'Power' },
+  { title: 'Movement: Create', href: '/tracker/create', description: 'Build a cardio programme', icon: Footprints, group: 'Movement' },
+  { title: 'Movement: Library', href: '/tracker/my-programmes', description: 'View saved programmes', icon: BookOpen, group: 'Movement' },
+  { title: 'Food Tracker', href: '/fuel', description: 'Log meals and track nutrition', icon: UtensilsCrossed, group: 'Fuel' },
+  { title: 'Recipes', href: '/fuel/recipes', description: 'Browse and save recipes', icon: BookOpen, group: 'Fuel' },
+  { title: 'Meal Planning', href: '/fuel/planning', description: 'Build weekly meal plans', icon: Calendar, group: 'Fuel' },
+  { title: 'Mindset', href: '/mindset', description: 'Mental conditioning', icon: Brain, group: 'Mindset' },
+  { title: 'AI Coaching', href: '/help', description: 'Personalised guidance', icon: MessageCircle, group: 'Coaching' },
+  { title: 'University', href: '/university', description: 'Learn the science', icon: GraduationCap, group: 'Learn' },
 ];
 
 interface ListItemProps extends React.ComponentPropsWithoutRef<'a'> {
@@ -209,13 +87,20 @@ const ListItem = ({ className, title, children, icon: Icon, href, ...props }: Li
 
 export function MainNavigation() {
   const { user } = useAuth();
+  const { role } = useUserRole();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const location = useLocation();
+
+  const isCoach = role === 'coach';
+  const isDev = role === 'dev';
 
   const isActive = (href: string) => {
     if (href === '/') return location.pathname === '/';
     return location.pathname.startsWith(href.split('?')[0]);
   };
+
+  const hubActive = ['/calculators', '/programming', '/tracker', '/fuel', '/mindset', '/help', '/university']
+    .some(p => location.pathname.startsWith(p));
 
   return (
     <>
@@ -236,33 +121,80 @@ export function MainNavigation() {
             {/* Center: Desktop Navigation */}
             <NavigationMenu className="hidden lg:flex">
               <NavigationMenuList>
-                {NAV_STRUCTURE.map((section) => (
-                  <NavigationMenuItem key={section.title}>
-                    <NavigationMenuTrigger 
+                {/* COACHING HUB mega dropdown */}
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger
+                    className={cn(
+                      'font-display tracking-wide text-sm',
+                      hubActive && 'text-primary'
+                    )}
+                  >
+                    COACHING HUB
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[500px] gap-2 p-4 md:w-[600px] md:grid-cols-3 lg:w-[700px]">
+                      {COACHING_HUB_ITEMS.map((item) => (
+                        <ListItem
+                          key={item.title}
+                          title={item.title}
+                          href={item.href}
+                          icon={item.icon}
+                        >
+                          {item.description}
+                        </ListItem>
+                      ))}
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+
+                {/* MY PROFILE */}
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      to="/profile"
                       className={cn(
-                        'font-display tracking-wide text-sm',
-                        isActive(section.href) && 'text-primary',
-                        section.highlight && 'text-primary'
+                        'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-colors hover:bg-accent hover:text-accent-foreground',
+                        isActive('/profile') && 'text-primary'
                       )}
                     >
-                      {section.title}
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                        {section.items.map((item) => (
-                          <ListItem
-                            key={item.title}
-                            title={item.title}
-                            href={item.href}
-                            icon={item.icon}
-                          >
-                            {item.description}
-                          </ListItem>
-                        ))}
-                      </ul>
-                    </NavigationMenuContent>
+                      MY PROFILE
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+
+                {/* COACH - for coach role */}
+                {(isCoach || isDev) && (
+                  <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                      <Link
+                        to="/coach"
+                        className={cn(
+                          'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-colors hover:bg-accent hover:text-accent-foreground text-primary',
+                          isActive('/coach') && 'bg-primary/10'
+                        )}
+                      >
+                        COACH
+                      </Link>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
-                ))}
+                )}
+
+                {/* DEV - for dev role only */}
+                {isDev && (
+                  <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                      <Link
+                        to="/admin"
+                        className={cn(
+                          'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-colors hover:bg-accent hover:text-accent-foreground',
+                          isActive('/admin') ? 'bg-accent/50 text-accent-foreground' : 'text-muted-foreground'
+                        )}
+                      >
+                        DEV
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                )}
               </NavigationMenuList>
             </NavigationMenu>
 

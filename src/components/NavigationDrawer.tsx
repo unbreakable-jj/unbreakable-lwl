@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Home, Calculator, Activity, User, LogOut, Settings, Brain, Sparkles, Flame, Dumbbell, Footprints, Apple, Shield, GraduationCap, UserCheck } from 'lucide-react';
+import { Menu, X, Home, Calculator, Activity, User, LogOut, Settings, Brain, Sparkles, Flame, Dumbbell, Footprints, Apple, Shield, GraduationCap, UserCheck, ChevronDown } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -14,13 +15,27 @@ interface NavigationDrawerProps {
   variant?: 'default' | 'minimal';
 }
 
+const hubLinks = [
+  { to: '/calculators', label: 'CALCULATORS', icon: Calculator },
+  { to: '/programming', label: 'POWER', icon: Dumbbell },
+  { to: '/tracker', label: 'MOVEMENT', icon: Footprints },
+  { to: '/fuel', label: 'FUEL', icon: Apple },
+  { to: '/mindset', label: 'MINDSET', icon: Brain },
+  { to: '/help', label: 'AI COACHING', icon: Flame },
+  { to: '/university', label: 'UNIVERSITY', icon: GraduationCap },
+];
+
 export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps) {
   const [open, setOpen] = useState(false);
+  const [hubOpen, setHubOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
-  const { isAdminOrOwner, role } = useUserRole();
+  const { isAdminOrOwner, isOwner, role } = useUserRole();
   const location = useLocation();
+
+  const isCoach = role === 'coach';
+  const isDev = role === 'dev';
 
   const getInitials = () => {
     if (profile?.display_name) {
@@ -34,22 +49,8 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
     return user?.email?.[0].toUpperCase() || 'U';
   };
 
-  const navLinks = [
-    { to: '/', label: 'HOME', icon: Home },
-    { to: '/calculators', label: 'CALCULATORS', icon: Calculator },
-    { to: '/programming', label: 'POWER', icon: Dumbbell },
-    { to: '/tracker', label: 'MOVEMENT', icon: Footprints },
-    { to: '/fuel', label: 'FUEL', icon: Apple },
-    { to: '/mindset', label: 'MINDSET', icon: Brain },
-    { to: '/help', label: 'COACHING', icon: Flame, highlight: true },
-    { to: '/university', label: 'UNIVERSITY', icon: GraduationCap },
-    { to: '/profile', label: 'MY PROFILE', icon: User },
-    ...(isAdminOrOwner ? [
-      { to: '/admin', label: 'DEV', icon: Shield, admin: true },
-    ] : []),
-  ];
-
   const isActive = (path: string) => location.pathname === path;
+  const isHubActive = hubLinks.some(l => location.pathname.startsWith(l.to.split('?')[0]));
 
   const handleNavClick = () => setOpen(false);
 
@@ -57,6 +58,17 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
     await signOut();
     setOpen(false);
   };
+
+  const linkClass = (path: string, highlight?: boolean, admin?: boolean) =>
+    `flex items-center gap-3 px-4 py-3 rounded-lg font-display tracking-wide transition-all ${
+      isActive(path)
+        ? 'bg-primary text-primary-foreground shadow-[0_0_15px_hsl(24_100%_50%/0.4)]'
+        : admin
+          ? 'text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 border border-amber-500/30'
+          : highlight
+            ? 'text-primary hover:text-primary-foreground hover:bg-primary/80 border border-primary/30'
+            : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
+    }`;
 
   return (
     <>
@@ -114,26 +126,70 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
             )}
 
             {/* Navigation Links */}
-            <nav className="flex-1 space-y-2">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  onClick={handleNavClick}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg font-display tracking-wide transition-all ${
-                    isActive(link.to)
-                      ? 'bg-primary text-primary-foreground shadow-[0_0_15px_hsl(24_100%_50%/0.4)]'
-                      : (link as any).admin
-                        ? 'text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 border border-amber-500/30'
-                        : (link as any).highlight
-                          ? 'text-primary hover:text-primary-foreground hover:bg-primary/80 border border-primary/30'
+            <nav className="flex-1 space-y-2 overflow-y-auto">
+              {/* HOME */}
+              <Link to="/" onClick={handleNavClick} className={linkClass('/')}>
+                <Home className={`w-5 h-5 ${isActive('/') ? '' : 'text-primary'}`} />
+                HOME
+              </Link>
+
+              {/* COACHING HUB - Collapsible */}
+              <Collapsible open={hubOpen || isHubActive} onOpenChange={setHubOpen}>
+                <CollapsibleTrigger className={`flex items-center gap-3 px-4 py-3 rounded-lg font-display tracking-wide transition-all w-full text-left ${
+                  isHubActive
+                    ? 'text-primary bg-primary/10'
+                    : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
+                }`}>
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  <span className="flex-1">COACHING HUB</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${(hubOpen || isHubActive) ? 'rotate-180' : ''}`} />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pl-4 space-y-1 mt-1">
+                  {hubLinks.map((link) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      onClick={handleNavClick}
+                      className={`flex items-center gap-3 px-4 py-2.5 rounded-lg font-display tracking-wide text-sm transition-all ${
+                        isActive(link.to)
+                          ? 'bg-primary text-primary-foreground'
                           : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
-                  }`}
-                >
-                  <link.icon className={`w-5 h-5 ${isActive(link.to) ? '' : 'text-primary'}`} />
-                  {link.label}
+                      }`}
+                    >
+                      <link.icon className={`w-4 h-4 ${isActive(link.to) ? '' : 'text-primary'}`} />
+                      {link.label}
+                    </Link>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
+
+              {/* MY PROFILE */}
+              <Link to="/profile" onClick={handleNavClick} className={linkClass('/profile')}>
+                <User className={`w-5 h-5 ${isActive('/profile') ? '' : 'text-primary'}`} />
+                MY PROFILE
+              </Link>
+
+              {/* COACH - only for coach role */}
+              {isCoach && (
+                <Link to="/coach" onClick={handleNavClick} className={linkClass('/coach', true)}>
+                  <UserCheck className={`w-5 h-5 ${isActive('/coach') ? '' : 'text-primary'}`} />
+                  COACH
                 </Link>
-              ))}
+              )}
+
+              {/* DEV - only for dev role */}
+              {isDev && (
+                <>
+                  <Link to="/coach" onClick={handleNavClick} className={linkClass('/coach', true)}>
+                    <UserCheck className={`w-5 h-5 ${isActive('/coach') ? '' : 'text-primary'}`} />
+                    COACH
+                  </Link>
+                  <Link to="/admin" onClick={handleNavClick} className={linkClass('/admin', false, true)}>
+                    <Shield className={`w-5 h-5 ${isActive('/admin') ? '' : 'text-amber-500'}`} />
+                    DEV
+                  </Link>
+                </>
+              )}
             </nav>
 
             {/* User Actions */}
