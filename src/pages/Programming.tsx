@@ -27,6 +27,8 @@ export default function Programming() {
           >
             <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wide leading-none">
               <span className="text-primary neon-glow-subtle">UNBREAKABLE</span>
+              <br />
+              <span className="text-foreground">POWER</span>
             </h1>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
               Build bespoke training programmes tailored to your goals. Execute with precision.
