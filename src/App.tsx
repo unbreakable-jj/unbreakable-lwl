@@ -35,6 +35,7 @@ import UserProfile from "./pages/UserProfile";
 import Onboarding from "./pages/Onboarding";
 import Habits from "./pages/Habits";
 import CoachDashboard from "./pages/CoachDashboard";
+import MyCoaching from "./pages/MyCoaching";
 
 const queryClient = new QueryClient();
 
@@ -145,6 +146,10 @@ const App = () => (
               {/* Coach Dashboard - role-protected */}
               <Route path="/coach" element={
                 <ProtectedRoute><CoachDashboard /></ProtectedRoute>
+              } />
+              {/* Athlete coaching page */}
+              <Route path="/my-coaching" element={
+                <MyCoaching />
               } />
               {/* Admin Dashboard - Hidden, role-protected */}
               <Route path="/admin" element={<Admin />} />
