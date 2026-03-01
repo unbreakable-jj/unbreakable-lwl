@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { useOnboardingCheck } from '@/hooks/useOnboardingCheck';
 import { UnifiedFeed } from '@/components/hub/UnifiedFeed';
@@ -22,6 +23,7 @@ const Index = () => {
   const { user, loading } = useAuth();
   const { needsOnboarding, loading: onboardingLoading } = useOnboardingCheck();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>('feed');
   const [showActionMenu, setShowActionMenu] = useState(false);
   const [showRecordModal, setShowRecordModal] = useState(false);
@@ -33,6 +35,14 @@ const Index = () => {
 
   // Initialize presence tracking
   usePresence();
+
+  // Handle checkout success redirect
+  useEffect(() => {
+    if (searchParams.get('checkout') === 'success') {
+      toast.success('Welcome to UNBREAKABLE! Your 7-day free trial has started. 💪');
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Redirect to onboarding if needed
   useEffect(() => {
