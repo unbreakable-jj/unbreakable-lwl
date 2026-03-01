@@ -56,12 +56,13 @@ export function ProfileView() {
   const { uploadAvatar, removeAvatar, uploading } = useAvatarUpload();
   const { runs } = useUserRuns(user?.id);
   // const { getTrophyCounts } = useTrophies(); // Trophy system hidden for now
-  const { activeProgram } = useTrainingPrograms();
+  const { activeProgram, programs } = useTrainingPrograms();
   const { sessions } = useWorkoutSessions();
   const { programs: cardioPrograms } = useCardioPrograms();
   const { programmes: mindsetProgrammes } = useMindsetProgrammes();
   const { mealPlans } = useMealPlans();
   const [isEditing, setIsEditing] = useState(false);
+  const [libraryOpen, setLibraryOpen] = useState(false);
   const [editData, setEditData] = useState({
     display_name: '',
     username: '',
@@ -74,6 +75,7 @@ export function ProfileView() {
   const [activeProfileTab, setActiveProfileTab] = useState<'overview' | 'stats' | 'records' | 'settings'>('overview');
   // const trophyCounts = getTrophyCounts(); // Trophy system hidden for now
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const totalProgrammeCount = (programs?.length ?? 0) + (cardioPrograms?.length ?? 0) + (mindsetProgrammes?.length ?? 0) + (mealPlans?.length ?? 0);
 
   const normalizeUsernameInput = (raw: string) => {
     let v = raw.trim();
@@ -444,73 +446,92 @@ export function ProfileView() {
           {/* Coaching Profile (About Section) */}
           <CoachingBioForm />
 
-          {/* My Programmes */}
+          {/* Combined Programme Library */}
           <Card className="bg-card border-border p-6">
-            <div className="flex items-center justify-between gap-3 mb-4">
-              <div>
-                <h3 className="font-display text-xl text-foreground tracking-wide">MY PROGRAMMES</h3>
-                <p className="text-sm text-muted-foreground">
-                  {activeProgram ? `Active: ${activeProgram.name}` : 'Save a programme to start tracking workouts.'}
-                </p>
-              </div>
-              <Dumbbell className="w-5 h-5 text-primary" />
-            </div>
-            <MyProgramsSection />
-          </Card>
-
-          {/* Cardio Programmes */}
-          {cardioPrograms && cardioPrograms.length > 0 && (
-            <Card className="bg-card border-border p-6">
-              <div className="flex items-center justify-between gap-3 mb-4">
-                <div>
-                  <h3 className="font-display text-xl text-foreground tracking-wide">CARDIO PROGRAMMES</h3>
+            <button
+              onClick={() => setLibraryOpen(!libraryOpen)}
+              className="flex items-center justify-between w-full"
+            >
+              <div className="flex items-center gap-3">
+                <Dumbbell className="w-5 h-5 text-primary" />
+                <div className="text-left">
+                  <h3 className="font-display text-xl text-foreground tracking-wide">MY PROGRAMMES</h3>
                   <p className="text-sm text-muted-foreground">
-                    {cardioPrograms.length} saved programme{cardioPrograms.length !== 1 ? 's' : ''}
+                    {totalProgrammeCount} programme{totalProgrammeCount !== 1 ? 's' : ''} saved
                   </p>
                 </div>
-                <Activity className="w-5 h-5 text-primary" />
               </div>
-              <SavedCardioPrograms onViewProgram={() => {}} />
-            </Card>
-          )}
-
-          {/* Mindset Programmes */}
-          <Card className="bg-card border-border p-6">
-            <MindsetProgrammes />
-          </Card>
-
-          {/* Meal Plans */}
-          {mealPlans && mealPlans.length > 0 && (
-            <Card className="bg-card border-border p-6">
-              <div className="flex items-center justify-between gap-3 mb-4">
-                <div>
-                  <h3 className="font-display text-xl text-foreground tracking-wide">MEAL PLANS</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {mealPlans.filter(p => p.is_active).length > 0 
-                      ? `${mealPlans.filter(p => p.is_active).length} active plan${mealPlans.filter(p => p.is_active).length !== 1 ? 's' : ''}`
-                      : `${mealPlans.length} saved plan${mealPlans.length !== 1 ? 's' : ''}`
-                    }
-                  </p>
-                </div>
+              <motion.div animate={{ rotate: libraryOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
                 <TrendingUp className="w-5 h-5 text-primary" />
-              </div>
-              <div className="space-y-2">
-                {mealPlans.map((plan) => (
-                  <div key={plan.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
-                    <div>
-                      <p className="font-display text-sm text-foreground">{plan.name}</p>
-                      {plan.description && (
-                        <p className="text-xs text-muted-foreground line-clamp-1">{plan.description}</p>
-                      )}
-                    </div>
-                    {plan.is_active && (
-                      <Badge variant="default" className="bg-primary/20 text-primary text-xs">Active</Badge>
-                    )}
+              </motion.div>
+            </button>
+
+            {libraryOpen && (
+              <div className="mt-6 space-y-6">
+                {/* Power */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Dumbbell className="w-4 h-4 text-primary" />
+                    <h4 className="font-display text-sm tracking-wide text-foreground">POWER</h4>
+                    <Badge variant="outline" className="text-xs ml-auto">{programs?.length ?? 0}/2</Badge>
                   </div>
-                ))}
+                  <MyProgramsSection />
+                </div>
+
+                {/* Movement */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Activity className="w-4 h-4 text-primary" />
+                    <h4 className="font-display text-sm tracking-wide text-foreground">MOVEMENT</h4>
+                    <Badge variant="outline" className="text-xs ml-auto">{cardioPrograms?.length ?? 0}/2</Badge>
+                  </div>
+                  {cardioPrograms && cardioPrograms.length > 0 ? (
+                    <SavedCardioPrograms onViewProgram={() => {}} />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No movement programmes saved.</p>
+                  )}
+                </div>
+
+                {/* Mindset */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <User className="w-4 h-4 text-primary" />
+                    <h4 className="font-display text-sm tracking-wide text-foreground">MINDSET</h4>
+                    <Badge variant="outline" className="text-xs ml-auto">{mindsetProgrammes?.length ?? 0}/2</Badge>
+                  </div>
+                  <MindsetProgrammes />
+                </div>
+
+                {/* Fuel */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <TrendingUp className="w-4 h-4 text-primary" />
+                    <h4 className="font-display text-sm tracking-wide text-foreground">FUEL</h4>
+                    <Badge variant="outline" className="text-xs ml-auto">{mealPlans?.length ?? 0}/2</Badge>
+                  </div>
+                  {mealPlans && mealPlans.length > 0 ? (
+                    <div className="space-y-2">
+                      {mealPlans.map((plan) => (
+                        <div key={plan.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
+                          <div>
+                            <p className="font-display text-sm text-foreground">{plan.name}</p>
+                            {plan.description && (
+                              <p className="text-xs text-muted-foreground line-clamp-1">{plan.description}</p>
+                            )}
+                          </div>
+                          {plan.is_active && (
+                            <Badge variant="default" className="bg-primary/20 text-primary text-xs">Active</Badge>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No meal plans saved.</p>
+                  )}
+                </div>
               </div>
-            </Card>
-          )}
+            )}
+          </Card>
 
           {/* Trophy Case - hidden for now */}
         </TabsContent>

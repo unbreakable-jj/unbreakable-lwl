@@ -67,9 +67,20 @@ export function useCardioPrograms() {
   const activeProgramCount = programs?.filter(p => p.is_active).length ?? 0;
   const canActivateMore = activeProgramCount < MAX_ACTIVE_PROGRAMS;
 
+  const MAX_SAVED_PROGRAMS = 2;
+
   const saveProgram = useMutation({
     mutationFn: async ({ program, forUserId }: { program: GeneratedCardioProgram; forUserId?: string }) => {
       if (!user) throw new Error('Must be logged in');
+
+      // Check total saved limit (dev/coach bypass)
+      const bypassLimit = isDev || isCoach;
+      if (!bypassLimit) {
+        const currentCount = programs?.length ?? 0;
+        if (currentCount >= MAX_SAVED_PROGRAMS) {
+          throw new Error(`Maximum ${MAX_SAVED_PROGRAMS} Movement programmes allowed. Delete one to save a new one.`);
+        }
+      }
       
       const { data, error } = await supabase
         .from('cardio_programs')
