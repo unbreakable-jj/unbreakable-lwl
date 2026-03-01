@@ -149,22 +149,7 @@ export default function University() {
                       </a>
                     </Button>
 
-                    {(isDev || isCoach) && (
-                      <Button
-                        variant="outline"
-                        size="lg"
-                        className="font-display tracking-wide gap-2 border-primary/30 text-primary"
-                        onClick={handleGenerateEbook}
-                        disabled={generating}
-                      >
-                        {generating ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Flame className="w-4 h-4" />
-                        )}
-                        {generating ? 'GENERATING...' : 'REGENERATE'}
-                      </Button>
-                    )}
+                    {/* REGENERATE button hidden – PDF already generated */}
                   </div>
                 </div>
               </div>
