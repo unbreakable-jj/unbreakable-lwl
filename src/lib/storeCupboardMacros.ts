@@ -15,16 +15,54 @@ interface BespokeMacros {
   totalIngredients: number;
 }
 
+// Normalise name for fuzzy matching
+const normalise = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/**
+ * Build a lookup from store cupboard items for fuzzy matching.
+ */
+function buildCupboardMap(storeCupboard: SavedFood[]): Map<string, SavedFood> {
+  const cupboardMap = new Map<string, SavedFood>();
+  for (const item of storeCupboard) {
+    cupboardMap.set(normalise(item.food_name), item);
+    const words = normalise(item.food_name).slice(0, 20);
+    if (!cupboardMap.has(words)) {
+      cupboardMap.set(words, item);
+    }
+  }
+  return cupboardMap;
+}
+
+/**
+ * Find a matching store cupboard item for an ingredient name.
+ */
+function findMatch(key: string, cupboardMap: Map<string, SavedFood>): SavedFood | undefined {
+  let match = cupboardMap.get(key);
+  if (!match) {
+    for (const [mapKey, item] of cupboardMap.entries()) {
+      if (key.includes(mapKey) || mapKey.includes(key)) {
+        match = item;
+        break;
+      }
+    }
+  }
+  return match;
+}
+
+/**
+ * Attempts to parse a serving size string like "100g", "per 100g", "1 slice (30g)"
+ * into a gram value. Returns 100 as default (most barcode data is per 100g).
+ */
+function parseServingGrams(servingSize?: string | null): number {
+  if (!servingSize) return 100;
+  const match = servingSize.match(/(\d+\.?\d*)\s*g/i);
+  if (match) return parseFloat(match[1]);
+  return 100;
+}
+
 /**
  * Calculates bespoke macros for a recipe by matching its ingredients
  * against the user's store cupboard (saved_foods from barcode scans).
- *
- * For each ingredient:
- *   - If a matching store cupboard item exists (by name), use its per-gram
- *     macros scaled to the recipe quantity.
- *   - Otherwise, fall back to the recipe's reference macros (per serving).
- *
- * Returns the bespoke per-serving macros + how many ingredients were matched.
  */
 export function calculateBespokeMacros(
   ingredients: RecipeIngredientBasic[],
@@ -40,19 +78,7 @@ export function calculateBespokeMacros(
     };
   }
 
-  // Normalise name for fuzzy matching
-  const normalise = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-  // Build a lookup from store cupboard
-  const cupboardMap = new Map<string, SavedFood>();
-  for (const item of storeCupboard) {
-    cupboardMap.set(normalise(item.food_name), item);
-    // Also index by first two words for partial matching
-    const words = normalise(item.food_name).slice(0, 20);
-    if (!cupboardMap.has(words)) {
-      cupboardMap.set(words, item);
-    }
-  }
+  const cupboardMap = buildCupboardMap(storeCupboard);
 
   let totalCal = 0;
   let totalP = 0;
@@ -62,23 +88,10 @@ export function calculateBespokeMacros(
 
   for (const ing of ingredients) {
     const key = normalise(ing.name);
-
-    // Try exact match, then partial
-    let cupboardItem = cupboardMap.get(key);
-    if (!cupboardItem) {
-      // Try matching first significant word
-      for (const [mapKey, item] of cupboardMap.entries()) {
-        if (key.includes(mapKey) || mapKey.includes(key)) {
-          cupboardItem = item;
-          break;
-        }
-      }
-    }
+    const cupboardItem = findMatch(key, cupboardMap);
 
     if (cupboardItem && ing.quantity) {
       matched++;
-      // Store cupboard items have macros per serving_size (usually per 100g or per item)
-      // Parse serving size to get the gram base
       const servingGrams = parseServingGrams(cupboardItem.serving_size);
       const ratio = servingGrams > 0 ? ing.quantity / servingGrams : 1;
 
@@ -87,10 +100,8 @@ export function calculateBespokeMacros(
       totalC += (cupboardItem.carbs_g || 0) * ratio;
       totalF += (cupboardItem.fat_g || 0) * ratio;
     }
-    // Unmatched ingredients are ignored; we'll use fallback if no matches
   }
 
-  // If we matched at least one ingredient, return bespoke per-serving macros
   if (matched > 0) {
     const servings = recipeServings || 1;
     return {
@@ -103,7 +114,6 @@ export function calculateBespokeMacros(
     };
   }
 
-  // No matches — use reference macros
   return {
     ...fallbackMacros,
     matchedCount: 0,
@@ -112,12 +122,38 @@ export function calculateBespokeMacros(
 }
 
 /**
- * Attempts to parse a serving size string like "100g", "per 100g", "1 slice (30g)"
- * into a gram value. Returns 100 as default (most barcode data is per 100g).
+ * Calculates depletion amounts for store cupboard items when a recipe is logged.
+ * Returns a list of { foodId, amountUsed, unit } to apply via DB update.
  */
-function parseServingGrams(servingSize?: string | null): number {
-  if (!servingSize) return 100;
-  const match = servingSize.match(/(\d+\.?\d*)\s*g/i);
-  if (match) return parseFloat(match[1]);
-  return 100; // Default assumption: per 100g
+export function depleteStoreCupboard(
+  ingredients: RecipeIngredientBasic[],
+  storeCupboard: SavedFood[],
+  recipeServings: number,
+  servingsUsed: number
+): { foodId: string; amountUsed: number; newRemaining: number | null }[] {
+  if (!ingredients.length || !storeCupboard.length) return [];
+
+  const cupboardMap = buildCupboardMap(storeCupboard);
+  const depletions: { foodId: string; amountUsed: number; newRemaining: number | null }[] = [];
+  const servingRatio = servingsUsed / (recipeServings || 1);
+
+  for (const ing of ingredients) {
+    if (!ing.quantity) continue;
+    const key = normalise(ing.name);
+    const cupboardItem = findMatch(key, cupboardMap);
+
+    if (cupboardItem && (cupboardItem as any).quantity_remaining != null) {
+      const amountUsed = ing.quantity * servingRatio;
+      const currentRemaining = (cupboardItem as any).quantity_remaining as number;
+      const newRemaining = Math.max(0, currentRemaining - amountUsed);
+
+      depletions.push({
+        foodId: cupboardItem.id,
+        amountUsed,
+        newRemaining,
+      });
+    }
+  }
+
+  return depletions;
 }
