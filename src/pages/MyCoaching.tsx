@@ -9,27 +9,73 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CoachUpdatesView } from '@/components/coaching/CoachUpdatesView';
-import { RequestCoachCard } from '@/components/coaching/RequestCoachCard';
 import { useAuth } from '@/hooks/useAuth';
 import { useCoachingAssignments } from '@/hooks/useCoachingAssignments';
 import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
 import { useCardioPrograms } from '@/hooks/useCardioPrograms';
 import { useMealPlans } from '@/hooks/useMealPlans';
 import { AuthModal } from '@/components/tracker/AuthModal';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import {
   UserCheck, MessageSquare, ClipboardList, Dumbbell, Footprints,
-  Utensils, Loader2, User
+  Utensils, Loader2, User, Video, Image, CalendarCheck, Send,
+  CheckCircle2
 } from 'lucide-react';
 
 export default function MyCoaching() {
   const { user, loading: authLoading } = useAuth();
-  const { myCoach, loading: coachLoading } = useCoachingAssignments();
+  const { myCoach, myPendingRequest, loading: coachLoading, refetch } = useCoachingAssignments();
   const { programs: trainingPrograms } = useTrainingPrograms();
   const { programs: cardioPrograms } = useCardioPrograms();
   const { mealPlans } = useMealPlans();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [requesting, setRequesting] = useState(false);
 
   const loading = authLoading || coachLoading;
+
+  const handleRequestCoach = async () => {
+    if (!user) return;
+    setRequesting(true);
+    try {
+      // Find dev user to send request to
+      const { data: devRoles } = await supabase
+        .from('user_roles' as any)
+        .select('user_id')
+        .eq('role', 'dev')
+        .limit(1);
+
+      const devUserId = (devRoles as any)?.[0]?.user_id;
+      if (!devUserId) {
+        toast.error('Unable to send request right now');
+        setRequesting(false);
+        return;
+      }
+
+      const { error } = await supabase
+        .from('coaching_assignments')
+        .insert({
+          coach_id: devUserId,
+          athlete_id: user.id,
+          status: 'pending',
+        });
+
+      if (error) {
+        if (error.code === '23505') {
+          toast.error('You already have a pending request');
+        } else {
+          toast.error('Failed to send request');
+          console.error(error);
+        }
+      } else {
+        toast.success('Coaching request sent! We\'ll be in touch.');
+        refetch();
+      }
+    } catch (err) {
+      toast.error('Something went wrong');
+    }
+    setRequesting(false);
+  };
 
   if (loading) {
     return (
@@ -39,16 +85,24 @@ export default function MyCoaching() {
     );
   }
 
-  // Active plans count
   const activeTraining = trainingPrograms?.filter(p => p.is_active) || [];
   const activeCardio = cardioPrograms?.filter(p => p.is_active) || [];
   const activeMeals = mealPlans?.filter(p => p.is_active) || [];
+
+  const features = [
+    { icon: UserCheck, title: 'DEDICATED COACH', desc: 'Matched with a coach who understands your goals and builds around your life.' },
+    { icon: ClipboardList, title: 'WEEKLY CHECK-INS', desc: 'Structured weekly reviews to track progress, adjust plans and keep you accountable.' },
+    { icon: Video, title: 'VIDEO REVIEW', desc: 'Upload workout videos for expert form feedback and technique corrections.' },
+    { icon: Image, title: 'IMAGE UPLOADS', desc: 'Share progress photos, meal shots and anything your coach needs to see.' },
+    { icon: Dumbbell, title: 'BESPOKE PROGRAMMING', desc: 'Power, Movement, Fuel and Mindset plans built specifically for you.' },
+    { icon: MessageSquare, title: 'DIRECT MESSAGING', desc: 'Message your coach anytime through the inbox for guidance between sessions.' },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
       <MainNavigation />
 
-      {/* Compact Hero */}
+      {/* Hero */}
       <section className="pt-24 pb-8 md:pt-28 md:pb-10 border-b border-border">
         <div className="container mx-auto px-4 text-center max-w-3xl">
           <motion.div
@@ -61,45 +115,97 @@ export default function MyCoaching() {
               <UserCheck className="w-7 h-7 text-primary" />
             </div>
             <h1 className="font-display text-3xl sm:text-4xl tracking-wide leading-none">
-              <span className="text-primary">MY </span>
+              <span className="text-primary">121 </span>
               <span className="text-foreground">COACHING</span>
             </h1>
-            <p className="text-muted-foreground text-sm max-w-lg mx-auto">
-              Your coaching hub — view your coach, feedback, and assigned plans.
-            </p>
           </motion.div>
         </div>
       </section>
 
       <main className="container mx-auto px-4 py-8 max-w-3xl">
         {!user ? (
-          <Card className="p-8 text-center border-2 border-primary/30">
-            <User className="w-12 h-12 text-primary mx-auto mb-4" />
-            <h2 className="font-display text-xl tracking-wide mb-3">SIGN IN TO VIEW COACHING</h2>
-            <p className="text-muted-foreground text-sm mb-4">Access your coaching dashboard and feedback.</p>
-            <Button className="font-display tracking-wide" onClick={() => setShowAuthModal(true)}>
-              GET STARTED
-            </Button>
-          </Card>
-        ) : !myCoach ? (
-          <div className="space-y-6">
-            <Card className="border-border">
-              <CardContent className="py-12 text-center">
-                <UserCheck className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h2 className="font-display text-lg tracking-wide text-foreground mb-2">NO COACH ASSIGNED</h2>
-                <p className="text-muted-foreground text-sm max-w-md mx-auto">
-                  You don't have a coach yet. Request one from your profile or wait for an assignment.
-                </p>
-                <Link to="/profile">
-                  <Button variant="outline" className="mt-4 font-display text-xs tracking-wide">
-                    GO TO PROFILE
-                  </Button>
-                </Link>
-              </CardContent>
+          /* Unauthenticated - show hero pitch + sign in */
+          <div className="space-y-8">
+            <Card className="border-primary/20 bg-primary/5 p-6 text-center">
+              <p className="text-muted-foreground text-sm max-w-lg mx-auto leading-relaxed">
+                Online hybrid coaching — a real human coach paired with you for personalised programming, 
+                weekly check-ins, video and image upload review, direct feedback on your workouts, 
+                and bespoke plans across Power, Movement, Fuel and Mindset.
+              </p>
             </Card>
-            <RequestCoachCard />
+
+            <div className="grid grid-cols-2 gap-3">
+              {features.map((f) => (
+                <Card key={f.title} className="border-border">
+                  <CardContent className="p-4 text-center space-y-2">
+                    <f.icon className="w-6 h-6 text-primary mx-auto" />
+                    <h3 className="font-display text-[11px] tracking-wider text-foreground">{f.title}</h3>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">{f.desc}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <Card className="p-8 text-center border-2 border-primary/30">
+              <User className="w-12 h-12 text-primary mx-auto mb-4" />
+              <h2 className="font-display text-xl tracking-wide mb-3">GET STARTED</h2>
+              <p className="text-muted-foreground text-sm mb-4">Sign in to request your coach.</p>
+              <Button className="font-display tracking-wide" onClick={() => setShowAuthModal(true)}>
+                SIGN IN
+              </Button>
+            </Card>
+          </div>
+        ) : !myCoach ? (
+          /* Authenticated but no coach */
+          <div className="space-y-8">
+            <Card className="border-primary/20 bg-primary/5 p-6 text-center">
+              <p className="text-muted-foreground text-sm max-w-lg mx-auto leading-relaxed">
+                Online hybrid coaching — a real human coach paired with you for personalised programming, 
+                weekly check-ins, video and image upload review, direct feedback on your workouts, 
+                and bespoke plans across Power, Movement, Fuel and Mindset.
+              </p>
+            </Card>
+
+            <div className="grid grid-cols-2 gap-3">
+              {features.map((f) => (
+                <Card key={f.title} className="border-border">
+                  <CardContent className="p-4 text-center space-y-2">
+                    <f.icon className="w-6 h-6 text-primary mx-auto" />
+                    <h3 className="font-display text-[11px] tracking-wider text-foreground">{f.title}</h3>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">{f.desc}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {myPendingRequest ? (
+              <Card className="border-primary/30 bg-primary/5 p-6 text-center">
+                <CheckCircle2 className="w-10 h-10 text-primary mx-auto mb-3" />
+                <h2 className="font-display text-lg tracking-wide text-foreground mb-2">REQUEST SENT</h2>
+                <p className="text-muted-foreground text-sm">
+                  Your coaching request is being reviewed. We'll match you with the right coach.
+                </p>
+              </Card>
+            ) : (
+              <Card className="border-border p-6 text-center">
+                <UserCheck className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h2 className="font-display text-lg tracking-wide text-foreground mb-2">READY TO START?</h2>
+                <p className="text-muted-foreground text-sm max-w-md mx-auto mb-4">
+                  Request a coach and we'll pair you with someone who fits your goals.
+                </p>
+                <Button
+                  className="font-display tracking-wide gap-2"
+                  onClick={handleRequestCoach}
+                  disabled={requesting}
+                >
+                  {requesting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  REQUEST A COACH
+                </Button>
+              </Card>
+            )}
           </div>
         ) : (
+          /* Has a coach - show dashboard */
           <div className="space-y-6">
             {/* Coach Card */}
             <Card className="border-primary/20 bg-primary/5">
@@ -132,7 +238,7 @@ export default function MyCoaching() {
               </CardContent>
             </Card>
 
-            {/* Tabs: Updates + My Plans */}
+            {/* Tabs */}
             <Tabs defaultValue="updates" className="w-full">
               <TabsList className="w-full grid grid-cols-2">
                 <TabsTrigger value="updates" className="font-display text-xs tracking-wide">

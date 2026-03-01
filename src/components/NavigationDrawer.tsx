@@ -21,8 +21,6 @@ const hubLinks = [
   { to: '/tracker', label: 'MOVEMENT', icon: Footprints },
   { to: '/fuel', label: 'FUEL', icon: Apple },
   { to: '/mindset', label: 'MINDSET', icon: Brain },
-  { to: '/help', label: 'AI COACHING', icon: Flame },
-  { to: '/university', label: 'UNIVERSITY', icon: GraduationCap },
 ];
 
 export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps) {
@@ -133,7 +131,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                 HOME
               </Link>
 
-              {/* COACHING HUB - Collapsible */}
+              {/* PROGRAMMING HUB - Collapsible */}
               <Collapsible open={hubOpen || isHubActive} onOpenChange={setHubOpen}>
                 <CollapsibleTrigger className={`flex items-center gap-3 px-4 py-3 rounded-lg font-display tracking-wide transition-all w-full text-left ${
                   isHubActive
@@ -141,7 +139,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                     : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
                 }`}>
                   <Sparkles className="w-5 h-5 text-primary" />
-                  <span className="flex-1">COACHING HUB</span>
+                  <span className="flex-1">PROGRAMMING HUB</span>
                   <ChevronDown className={`w-4 h-4 transition-transform ${(hubOpen || isHubActive) ? 'rotate-180' : ''}`} />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pl-4 space-y-1 mt-1">
@@ -169,14 +167,26 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                 MY PROFILE
               </Link>
 
-              {/* COACHING - role-aware */}
+              {/* ASK COACH */}
+              <Link to="/help" onClick={handleNavClick} className={linkClass('/help')}>
+                <Flame className={`w-5 h-5 ${isActive('/help') ? '' : 'text-primary'}`} />
+                ASK COACH
+              </Link>
+
+              {/* 121 COACHING - role-aware */}
               <Link
                 to={(isCoach || isDev) ? '/coach' : '/my-coaching'}
                 onClick={handleNavClick}
                 className={linkClass((isCoach || isDev) ? '/coach' : '/my-coaching', true)}
               >
                 <UserCheck className={`w-5 h-5 ${(isActive('/coach') || isActive('/my-coaching')) ? '' : 'text-primary'}`} />
-                COACHING
+                121 COACHING
+              </Link>
+
+              {/* UNIVERSITY */}
+              <Link to="/university" onClick={handleNavClick} className={linkClass('/university')}>
+                <GraduationCap className={`w-5 h-5 ${isActive('/university') ? '' : 'text-primary'}`} />
+                UNIVERSITY
               </Link>
 
               {/* DEV - only for dev role */}
