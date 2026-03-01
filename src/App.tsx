@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { SubscribedRoute } from "@/components/SubscribedRoute";
 import Index from "./pages/Index";
 import Calculators from "./pages/Calculators";
 import Tracker from "./pages/Tracker";
@@ -55,83 +56,17 @@ const App = () => (
               {/* Onboarding wizard - mandatory for new users */}
               <Route path="/onboarding" element={<Onboarding />} />
               
-              {/* Profile - dedicated page */}
+              {/* Profile - free access (has membership tab) */}
               <Route path="/profile" element={
                 <ProtectedRoute><Profile /></ProtectedRoute>
               } />
               
-              {/* Calculators */}
-              <Route path="/calculators" element={
-                <ProtectedRoute><Calculators /></ProtectedRoute>
+              {/* Plans - subscription selection */}
+              <Route path="/plans" element={
+                <ProtectedRoute><Plans /></ProtectedRoute>
               } />
               
-              {/* Programming (Power) routes */}
-              <Route path="/programming" element={
-                <ProtectedRoute><Programming /></ProtectedRoute>
-              } />
-              <Route path="/programming/create" element={
-                <ProtectedRoute><ProgrammingCreate /></ProtectedRoute>
-              } />
-              <Route path="/programming/my-programmes" element={
-                <ProtectedRoute><ProgrammingMyProgrammes /></ProtectedRoute>
-              } />
-              <Route path="/programming/logs" element={
-                <ProtectedRoute><ProgrammingLogs /></ProtectedRoute>
-              } />
-              
-              {/* Tracker (Movement) routes */}
-              <Route path="/tracker" element={
-                <ProtectedRoute><Tracker /></ProtectedRoute>
-              } />
-              <Route path="/tracker/create" element={
-                <ProtectedRoute><TrackerCreate /></ProtectedRoute>
-              } />
-              <Route path="/tracker/my-programmes" element={
-                <ProtectedRoute><TrackerMyProgrammes /></ProtectedRoute>
-              } />
-              
-              {/* Fuel routes */}
-              <Route path="/fuel" element={
-                <ProtectedRoute><Fuel /></ProtectedRoute>
-              } />
-              <Route path="/fuel/history" element={
-                <ProtectedRoute><FuelHistory /></ProtectedRoute>
-              } />
-              <Route path="/fuel/recipes" element={
-                <ProtectedRoute><FuelRecipes /></ProtectedRoute>
-              } />
-              <Route path="/fuel/planning" element={
-                <ProtectedRoute><FuelPlanning /></ProtectedRoute>
-              } />
-              <Route path="/fuel/foods" element={
-                <ProtectedRoute><FuelFoods /></ProtectedRoute>
-              } />
-              <Route path="/fuel/my-fuel" element={
-                <ProtectedRoute><FuelMyFuel /></ProtectedRoute>
-              } />
-              
-              {/* Mindset routes */}
-              <Route path="/mindset" element={
-                <ProtectedRoute><Mindset /></ProtectedRoute>
-              } />
-              <Route path="/mindset/breathing" element={
-                <ProtectedRoute><MindsetBreathing /></ProtectedRoute>
-              } />
-              <Route path="/mindset/games" element={
-                <ProtectedRoute><MindsetGames /></ProtectedRoute>
-              } />
-              
-              {/* Coaching (Help) */}
-              <Route path="/help" element={
-                <ProtectedRoute><Help /></ProtectedRoute>
-              } />
-              
-              {/* University */}
-              <Route path="/university" element={
-                <ProtectedRoute><University /></ProtectedRoute>
-              } />
-              
-              {/* Inbox */}
+              {/* Inbox - free (hub feature) */}
               <Route path="/inbox" element={
                 <ProtectedRoute><Inbox /></ProtectedRoute>
               } />
@@ -139,26 +74,96 @@ const App = () => (
               {/* User Profile - Public profile viewing */}
               <Route path="/user/:userId" element={<UserProfile />} />
               
-              {/* Habits */}
-              <Route path="/habits" element={
-                <ProtectedRoute><Habits /></ProtectedRoute>
+              {/* ============ SUBSCRIBED ROUTES ============ */}
+              
+              {/* Calculators */}
+              <Route path="/calculators" element={
+                <SubscribedRoute><Calculators /></SubscribedRoute>
               } />
               
-              {/* Coach Dashboard - role-protected */}
-              <Route path="/coach" element={
-                <ProtectedRoute><CoachDashboard /></ProtectedRoute>
+              {/* Programming (Power) routes */}
+              <Route path="/programming" element={
+                <SubscribedRoute><Programming /></SubscribedRoute>
               } />
+              <Route path="/programming/create" element={
+                <SubscribedRoute><ProgrammingCreate /></SubscribedRoute>
+              } />
+              <Route path="/programming/my-programmes" element={
+                <SubscribedRoute><ProgrammingMyProgrammes /></SubscribedRoute>
+              } />
+              <Route path="/programming/logs" element={
+                <SubscribedRoute><ProgrammingLogs /></SubscribedRoute>
+              } />
+              
+              {/* Tracker (Movement) routes */}
+              <Route path="/tracker" element={
+                <SubscribedRoute><Tracker /></SubscribedRoute>
+              } />
+              <Route path="/tracker/create" element={
+                <SubscribedRoute><TrackerCreate /></SubscribedRoute>
+              } />
+              <Route path="/tracker/my-programmes" element={
+                <SubscribedRoute><TrackerMyProgrammes /></SubscribedRoute>
+              } />
+              
+              {/* Fuel routes */}
+              <Route path="/fuel" element={
+                <SubscribedRoute><Fuel /></SubscribedRoute>
+              } />
+              <Route path="/fuel/history" element={
+                <SubscribedRoute><FuelHistory /></SubscribedRoute>
+              } />
+              <Route path="/fuel/recipes" element={
+                <SubscribedRoute><FuelRecipes /></SubscribedRoute>
+              } />
+              <Route path="/fuel/planning" element={
+                <SubscribedRoute><FuelPlanning /></SubscribedRoute>
+              } />
+              <Route path="/fuel/foods" element={
+                <SubscribedRoute><FuelFoods /></SubscribedRoute>
+              } />
+              <Route path="/fuel/my-fuel" element={
+                <SubscribedRoute><FuelMyFuel /></SubscribedRoute>
+              } />
+              
+              {/* Mindset routes */}
+              <Route path="/mindset" element={
+                <SubscribedRoute><Mindset /></SubscribedRoute>
+              } />
+              <Route path="/mindset/breathing" element={
+                <SubscribedRoute><MindsetBreathing /></SubscribedRoute>
+              } />
+              <Route path="/mindset/games" element={
+                <SubscribedRoute><MindsetGames /></SubscribedRoute>
+              } />
+              
+              {/* Coaching (Help) */}
+              <Route path="/help" element={
+                <SubscribedRoute><Help /></SubscribedRoute>
+              } />
+              
+              {/* University */}
+              <Route path="/university" element={
+                <SubscribedRoute><University /></SubscribedRoute>
+              } />
+              
+              {/* Habits */}
+              <Route path="/habits" element={
+                <SubscribedRoute><Habits /></SubscribedRoute>
+              } />
+              
+              {/* Coach Dashboard - role-protected + subscribed */}
+              <Route path="/coach" element={
+                <SubscribedRoute><CoachDashboard /></SubscribedRoute>
+              } />
+              
               {/* Athlete coaching page */}
               <Route path="/my-coaching" element={
                 <MyCoaching />
               } />
+              
               {/* Admin Dashboard - Hidden, role-protected */}
               <Route path="/admin" element={<Admin />} />
-              
-              {/* Plan Selection */}
-              <Route path="/plans" element={
-                <ProtectedRoute><Plans /></ProtectedRoute>
-              } />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
