@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.seed-high-protein-recipes]
 verify_jwt = false
+
+[functions.generate-recipe-ebook]
+verify_jwt = false
