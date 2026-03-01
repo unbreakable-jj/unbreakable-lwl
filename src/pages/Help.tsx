@@ -16,6 +16,7 @@ import { VoiceSettingsSheet } from '@/components/coaching/VoiceSettingsSheet';
 import { ChatMediaUpload, ChatMedia } from '@/components/coaching/ChatMediaUpload';
 import { ProfileButton } from '@/components/coaching/ProfileButton';
 import { PlanDisplayCard } from '@/components/coaching/PlanDisplayCard';
+import { BuildingForBanner } from '@/components/coaching/BuildingForBanner';
 import { useAIPreferences } from '@/hooks/useAIPreferences';
 import { useBreathingAudio } from '@/hooks/useBreathingAudio';
 import { AIPlanReviewModal } from '@/components/ai/AIPlanReviewModal';
@@ -24,6 +25,7 @@ import { useAIMealPlan } from '@/hooks/useAIMealPlan';
 import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
 import { useMindsetProgrammes } from '@/hooks/useMindsetProgrammes';
 import { useMealPlans } from '@/hooks/useMealPlans';
+import { useUserRole } from '@/hooks/useUserRole';
 import { toast } from '@/hooks/use-toast';
 import { GeneratedProgram } from '@/lib/programTypes';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -256,6 +258,8 @@ export default function Help() {
   const [playingMessageId, setPlayingMessageId] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [targetAthleteId, setTargetAthleteId] = useState<string | null>(null);
+  const [targetAthleteName, setTargetAthleteName] = useState<string | null>(null);
 
   // TTS for coach messages
   const { preferences: aiPrefs } = useAIPreferences();
@@ -293,6 +297,8 @@ export default function Help() {
   const { updateProgram, saveProgram } = useTrainingPrograms();
   const { updateMealPlan } = useMealPlans();
   const { saveProgramme: saveMindsetProgramme, generateProgramme: generateMindsetProgramme } = useMindsetProgrammes();
+  const { isDev, isCoach, role } = useUserRole();
+  const callerRole = (isDev ? 'dev' : isCoach ? 'coach' : 'user') as 'dev' | 'coach' | 'user';
   const queryClient = useQueryClient();
 
   const lastProcessedMsgRef = useRef<string | null>(null);
@@ -388,6 +394,31 @@ export default function Help() {
     if (!user) { setShowAuthModal(true); return; }
 
     let messageContent = input;
+    
+    // Detect @mention for coach/dev client targeting
+    if ((isDev || isCoach) && !targetAthleteId) {
+      const mentionMatch = messageContent.match(/@(\w+)/);
+      if (mentionMatch) {
+        const username = mentionMatch[1];
+        const { data: matchedProfile } = await supabase
+          .from('profiles')
+          .select('user_id, display_name, username')
+          .eq('username', username)
+          .maybeSingle();
+        if (matchedProfile) {
+          setTargetAthleteId(matchedProfile.user_id);
+          setTargetAthleteName(matchedProfile.display_name || matchedProfile.username || username);
+          // Strip @mention from message
+          messageContent = messageContent.replace(/@\w+/, '').trim();
+          if (!messageContent && selectedMedia) {
+            messageContent = `Please review this for ${matchedProfile.display_name || username}`;
+          } else if (!messageContent) {
+            messageContent = `I'd like to work on something for ${matchedProfile.display_name || username}`;
+          }
+        }
+      }
+    }
+
     if (selectedMedia) {
       const mediaContext = selectedMedia.type === 'video'
         ? `[Attached video: ${selectedMedia.name}]`
@@ -399,7 +430,12 @@ export default function Help() {
     if (selectedMedia) {
       setMessagesWithMedia(prev => new Map(prev).set(`content:${messageContent}`, selectedMedia));
     }
-    sendMessage(messageContent, { mediaAttachments });
+    sendMessage(messageContent, {
+      mediaAttachments,
+      targetAthleteId: targetAthleteId || undefined,
+      targetAthleteName: targetAthleteName || undefined,
+      callerRole,
+    });
     setInput(''); setSelectedMedia(null);
   };
 
@@ -412,9 +448,10 @@ export default function Help() {
   const handleEditPlan = (plan: GeneratedPlanInfo) => { setEditingPlan(plan); setShowEditModal(true); };
   
   const handleSavePlanToLibrary = async (plan: GeneratedPlanInfo) => {
+    const saveUserId = targetAthleteId || user!.id;
     try {
       if (plan.type === 'programme') {
-        const result = await saveProgram.mutateAsync({ program: plan.planData as GeneratedProgram });
+        const result = await saveProgram.mutateAsync({ program: plan.planData as GeneratedProgram, forUserId: targetAthleteId || undefined });
         setGeneratedPlans(prev => prev.map(p => p === plan ? { ...p, planId: result.id, savedToHub: true } : p));
       } else if (plan.type === 'mindset') {
         const result = await saveMindsetProgramme.mutateAsync({
@@ -427,14 +464,15 @@ export default function Help() {
             focus_areas: plan.planData.focusAreas || [],
             programme_data: plan.planData,
           },
+          forUserId: targetAthleteId || undefined,
         });
         setGeneratedPlans(prev => prev.map(p => p === plan ? { ...p, planId: result.id, savedToHub: true } : p));
         toast({ title: 'Mindset Programme Saved!', description: 'View it in Mindset → My Programmes' });
       } else {
-        // Save meal plan via supabase directly
+        // Save meal plan via supabase directly — use athlete's ID if building for client
         const { data: savedPlan, error } = await supabase
           .from('meal_plans')
-          .insert({ user_id: user!.id, name: plan.planData.planName || 'AI Meal Plan', description: plan.planData.overview, is_active: false })
+          .insert({ user_id: saveUserId, name: plan.planData.planName || 'AI Meal Plan', description: plan.planData.overview, is_active: false })
           .select()
           .single();
         if (error) throw error;
@@ -444,7 +482,7 @@ export default function Help() {
         for (const day of plan.planData.days || []) {
           const addMeal = (meal: any, mealType: string) => {
             if (!meal) return;
-            planItems.push({ user_id: user!.id, meal_plan_id: savedPlan.id, day_of_week: (day.dayNumber || 1) - 1, meal_type: mealType, food_name: meal.name, recipe_id: meal.recipeId || null, calories: meal.calories, protein_g: meal.protein, carbs_g: meal.carbs, fat_g: meal.fat, notes: meal.prepNotes || null });
+            planItems.push({ user_id: saveUserId, meal_plan_id: savedPlan.id, day_of_week: (day.dayNumber || 1) - 1, meal_type: mealType, food_name: meal.name, recipe_id: meal.recipeId || null, calories: meal.calories, protein_g: meal.protein, carbs_g: meal.carbs, fat_g: meal.fat, notes: meal.prepNotes || null });
           };
           addMeal(day.meals?.breakfast, 'breakfast');
           addMeal(day.meals?.lunch, 'lunch');
@@ -558,7 +596,7 @@ export default function Help() {
               currentConversationId={currentConversationId}
               onSelect={loadConversation}
               onDelete={deleteConversation}
-              onNewConversation={startNewConversation}
+              onNewConversation={() => { startNewConversation(); setTargetAthleteId(null); setTargetAthleteName(null); setGeneratedPlans([]); }}
               isOpen={sidebarOpen}
               onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
@@ -597,6 +635,21 @@ export default function Help() {
               )}
               <ProfileButton />
             </div>
+
+            {/* Building For Banner (coach/dev mode) */}
+            {targetAthleteId && (
+              <div className="px-4 pt-3">
+                <BuildingForBanner forUserId={targetAthleteId} />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-muted-foreground mt-1"
+                  onClick={() => { setTargetAthleteId(null); setTargetAthleteName(null); }}
+                >
+                  Stop building for athlete
+                </Button>
+              </div>
+            )}
 
             {/* Messages area */}
             <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6">
