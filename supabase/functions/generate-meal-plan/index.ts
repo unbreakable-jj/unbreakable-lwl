@@ -123,6 +123,28 @@ serve(async (req) => {
       console.error("Failed to fetch recipes:", recipesError);
     }
 
+    // Fetch user's store cupboard inventory
+    let inventorySection = '';
+    if (userContext.userId) {
+      const { data: cupboardItems } = await supabase
+        .from('saved_foods')
+        .select('food_name, quantity_remaining, quantity_unit')
+        .eq('user_id', userContext.userId)
+        .order('food_name');
+
+      if (cupboardItems && cupboardItems.length > 0) {
+        const inStock = cupboardItems
+          .filter(i => i.quantity_remaining == null || i.quantity_remaining > 0)
+          .map(i => {
+            const qty = i.quantity_remaining != null ? ` (${i.quantity_remaining}${i.quantity_unit || 'g'} left)` : '';
+            return `${i.food_name}${qty}`;
+          });
+        if (inStock.length > 0) {
+          inventorySection = `\n\nATHLETE'S STORE CUPBOARD (ingredients they already own — PRIORITISE recipes using these):\n${inStock.join(', ')}`;
+        }
+      }
+    }
+
     // Compact recipe catalogue — name,category,macros,ID only to minimize tokens
     const recipeCatalogue = (libraryRecipes || []).map(r => 
       `${r.name}|${r.category}|${r.calories_per_serving}kcal|P${r.protein_g}C${r.carbs_g}F${r.fat_g}|${r.id}`
@@ -131,12 +153,13 @@ serve(async (req) => {
     const systemPrompt = `UNBREAKABLE NUTRITION COACH. Build meal plans using ONLY recipes from the library below. Do NOT invent meals — pick from library. Include recipe ID for every selection.
 
 RECIPE LIBRARY (format: Name|Category|Cals|Macros|ID):
-${recipeCatalogue}
+${recipeCatalogue}${inventorySection}
 
 CRITICAL RULES:
 - You MUST generate ALL 7 DAYS (Monday through Sunday). No exceptions. Never generate fewer than 7 days.
 - Each day MUST have breakfast, lunch, dinner, and at least 1 snack.
 - Prioritize library recipes. Use the exact recipe ID from the library.
+- When the athlete has a STORE CUPBOARD, STRONGLY PREFER recipes whose ingredients overlap with what they already own. This reduces waste and shopping.
 - Adjust calories for training vs rest days. Higher carbs on training days.
 - Vary meals across the week — avoid repeating the same recipe on consecutive days.
 
