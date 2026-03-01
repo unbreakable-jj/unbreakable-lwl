@@ -33,7 +33,7 @@ export function useHelpChat() {
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { gatherContext, formatContextForAI } = useCoachContext();
+  const { gatherContext, gatherContextForUser, formatContextForAI } = useCoachContext();
 
   // Fetch all conversations
   const { data: conversations = [], isLoading: conversationsLoading } = useQuery({
@@ -140,6 +140,9 @@ export function useHelpChat() {
     input: string,
     options?: {
       mediaAttachments?: MediaAttachment[];
+      targetAthleteId?: string;
+      targetAthleteName?: string;
+      callerRole?: 'dev' | 'coach' | 'user';
     }
   ) => {
     if (!user || !input.trim()) return;
@@ -147,8 +150,10 @@ export function useHelpChat() {
     setIsLoading(true);
     
     try {
-      // Gather user context for personalized coaching
-      const userContextData = await gatherContext();
+      // Gather user context — use athlete's data if building for a client
+      const userContextData = options?.targetAthleteId
+        ? await gatherContextForUser(options.targetAthleteId)
+        : await gatherContext();
       const formattedContext = formatContextForAI(userContextData);
       
       // Create or use existing conversation
@@ -192,6 +197,7 @@ export function useHelpChat() {
       }
 
       // Stream response with context and media
+      const coachMode = !!options?.targetAthleteId;
       const resp = await fetch(CHAT_URL, {
         method: 'POST',
         headers: {
@@ -202,6 +208,9 @@ export function useHelpChat() {
           messages: apiMessages,
           userContext: formattedContext,
           mediaUrls: mediaUrls.length > 0 ? mediaUrls : undefined,
+          coachMode,
+          callerRole: options?.callerRole || 'user',
+          targetAthleteName: options?.targetAthleteName || undefined,
         }),
       });
       
@@ -277,7 +286,7 @@ export function useHelpChat() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, currentConversationId, messages, createConversation, saveMessage, queryClient, gatherContext, formatContextForAI]);
+  }, [user, currentConversationId, messages, createConversation, saveMessage, queryClient, gatherContext, gatherContextForUser, formatContextForAI]);
 
   // Start new conversation
   const startNewConversation = useCallback(() => {

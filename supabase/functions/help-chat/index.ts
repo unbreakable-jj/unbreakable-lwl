@@ -231,7 +231,7 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const { messages, userContext, mediaUrls } = body;
+    const { messages, userContext, mediaUrls, coachMode, callerRole, targetAthleteName } = body;
 
     // Input validation
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -278,10 +278,22 @@ serve(async (req) => {
       throw new Error("Coaching service is temporarily unavailable");
     }
 
-    // Build enhanced system prompt with user context
+    // Build enhanced system prompt with user context and role awareness
     let enhancedSystemPrompt = systemPrompt;
+
+    // Add coach/dev role awareness
+    if (callerRole === 'dev' || callerRole === 'coach') {
+      const roleLabel = callerRole === 'dev' ? 'Developer (Owner)' : 'Coach';
+      if (coachMode && targetAthleteName) {
+        enhancedSystemPrompt += `\n\nROLE AWARENESS: You are speaking with a ${roleLabel}. They are currently building plans for their athlete: ${targetAthleteName}. All programme/meal plan/mindset builds should be tailored to this athlete's data provided below. When you reference "you" or give coaching advice, you are advising the ${roleLabel} about their athlete. Saved plans will go to the athlete's account.`;
+      } else {
+        enhancedSystemPrompt += `\n\nROLE AWARENESS: You are speaking with a ${roleLabel}. They have authority to build and manage plans for their athletes. If they have not specified who they're building for, ask whether they're building something for themselves or for one of their athletes. If they mention a specific athlete by name or @mention, all plans should be built using that athlete's data.`;
+      }
+    }
+
     if (userContext) {
-      enhancedSystemPrompt += `\n\n[CURRENT USER DATA]\n${userContext}`;
+      const contextLabel = (coachMode && targetAthleteName) ? `[ATHLETE DATA: ${targetAthleteName}]` : '[CURRENT USER DATA]';
+      enhancedSystemPrompt += `\n\n${contextLabel}\n${userContext}`;
     }
 
     // Process messages to include media as proper multimodal content parts

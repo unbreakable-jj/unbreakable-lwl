@@ -478,8 +478,114 @@ export function useCoachContext() {
     return parts.length > 0 ? `\n\n[USER CONTEXT]\n${parts.join('\n')}` : '';
   };
 
+  /**
+   * Gather context for a specific user (used by coaches/devs building for athletes).
+   * Uses the authenticated client — RLS coach policies grant access to assigned athletes' data.
+   */
+  const gatherContextForUser = async (targetUserId: string): Promise<CoachUserContext> => {
+    const fourteenDaysAgo = subDays(new Date(), 14).toISOString();
+    const thirtyDaysAgo = subDays(new Date(), 30).toISOString();
+
+    // Fetch profile + coaching profile + all data in parallel
+    const [profileRes, coachProfileRes, workoutRes, foodRes, programRes, mealPlanRes, progressionRes, prRes] = await Promise.all([
+      supabase.from('profiles').select('*').eq('user_id', targetUserId).maybeSingle(),
+      supabase.from('coaching_profiles').select('*').eq('user_id', targetUserId).maybeSingle(),
+      supabase.from('workout_sessions').select('*, exercise_logs(*)').eq('user_id', targetUserId).eq('status', 'completed').gte('started_at', fourteenDaysAgo).order('started_at', { ascending: false }).limit(10),
+      supabase.from('food_logs').select('*').eq('user_id', targetUserId).gte('logged_at', fourteenDaysAgo).order('logged_at', { ascending: false }),
+      supabase.from('training_programs').select('name, is_active, current_week, current_day, program_data').eq('user_id', targetUserId).order('updated_at', { ascending: false }).limit(3),
+      supabase.from('meal_plans').select('id, name, description').eq('user_id', targetUserId).eq('is_active', true).limit(2),
+      supabase.from('progression_history').select('*').eq('user_id', targetUserId).gte('recorded_at', thirtyDaysAgo).order('recorded_at', { ascending: false }).limit(30),
+      supabase.from('personal_records').select('*').eq('user_id', targetUserId).order('achieved_at', { ascending: false }).limit(20),
+    ]);
+
+    const targetProfile = profileRes.data;
+    const targetCoachingProfile = coachProfileRes.data;
+
+    // Fetch meal plan items
+    const activePlanIds = (mealPlanRes.data || []).map((p: any) => p.id);
+    let mealPlanItems: any[] = [];
+    if (activePlanIds.length > 0) {
+      const { data } = await supabase.from('meal_plan_items').select('*').in('meal_plan_id', activePlanIds).order('day_of_week', { ascending: true });
+      mealPlanItems = data || [];
+    }
+
+    // Process workouts (same logic as gatherContext)
+    const recentWorkouts = (workoutRes.data || []).map((session: any) => {
+      const logs = session.exercise_logs || [];
+      const exerciseMap = new Map<string, any[]>();
+      logs.forEach((log: any) => {
+        if (!exerciseMap.has(log.exercise_name)) exerciseMap.set(log.exercise_name, []);
+        exerciseMap.get(log.exercise_name)!.push({ setNumber: log.set_number, weightKg: log.weight_kg, actualReps: log.actual_reps, rpe: log.rpe, confidenceRating: log.confidence_rating, painFlag: log.pain_flag });
+      });
+      return {
+        date: format(new Date(session.started_at), 'yyyy-MM-dd'),
+        dayName: session.day_name,
+        sessionType: session.session_type,
+        durationSeconds: session.duration_seconds,
+        exercises: Array.from(exerciseMap.entries()).map(([name, sets]) => ({ name, sets: sets.sort((a: any, b: any) => a.setNumber - b.setNumber) })),
+      };
+    });
+
+    // Process nutrition by day
+    const nutritionByDay = new Map<string, { calories: number; protein: number; carbs: number; fat: number; count: number }>();
+    (foodRes.data || []).forEach((log: any) => {
+      const date = format(new Date(log.logged_at), 'yyyy-MM-dd');
+      const servings = log.servings || 1;
+      if (!nutritionByDay.has(date)) nutritionByDay.set(date, { calories: 0, protein: 0, carbs: 0, fat: 0, count: 0 });
+      const day = nutritionByDay.get(date)!;
+      day.calories += (log.calories || 0) * servings;
+      day.protein += (log.protein_g || 0) * servings;
+      day.carbs += (log.carbs_g || 0) * servings;
+      day.fat += (log.fat_g || 0) * servings;
+      day.count++;
+    });
+
+    const recentNutrition = Array.from(nutritionByDay.entries()).map(([date, data]) => ({
+      date, totalCalories: Math.round(data.calories), totalProtein: Math.round(data.protein), totalCarbs: Math.round(data.carbs), totalFat: Math.round(data.fat), mealCount: data.count,
+    }));
+
+    const activeMealPlans = (mealPlanRes.data || []).map((plan: any) => ({
+      name: plan.name, description: plan.description,
+      items: mealPlanItems.filter((item: any) => item.meal_plan_id === plan.id).map((item: any) => ({
+        dayOfWeek: item.day_of_week, mealType: item.meal_type, foodName: item.food_name, calories: item.calories, proteinG: item.protein_g, carbsG: item.carbs_g, fatG: item.fat_g,
+      })),
+    }));
+
+    return {
+      profile: targetProfile ? {
+        displayName: targetProfile.display_name, username: targetProfile.username, bio: targetProfile.bio,
+        totalRuns: targetProfile.total_runs || 0, totalDistanceKm: targetProfile.total_distance_km || 0, totalTimeSeconds: targetProfile.total_time_seconds || 0,
+      } : null,
+      coachingProfile: targetCoachingProfile ? {
+        ageYears: targetCoachingProfile.age_years, heightCm: targetCoachingProfile.height_cm, weightKg: targetCoachingProfile.weight_kg,
+        gender: targetCoachingProfile.gender, experienceLevel: targetCoachingProfile.experience_level, trainingGoal: targetCoachingProfile.training_goal,
+        daysPerWeek: targetCoachingProfile.days_per_week, sessionLengthMinutes: targetCoachingProfile.session_length_minutes,
+        benchMaxKg: targetCoachingProfile.bench_max_kg, squatMaxKg: targetCoachingProfile.squat_max_kg, deadliftMaxKg: targetCoachingProfile.deadlift_max_kg,
+        preferredCardio: targetCoachingProfile.preferred_cardio, fitnessLevel: targetCoachingProfile.fitness_level, raceGoals: targetCoachingProfile.race_goals,
+        weeklyCardioFrequency: targetCoachingProfile.weekly_cardio_frequency, dietaryPreferences: targetCoachingProfile.dietary_preferences,
+        nutritionGoal: targetCoachingProfile.nutrition_goal, allergies: targetCoachingProfile.allergies, mealsPerDay: targetCoachingProfile.meals_per_day,
+        primaryMotivation: targetCoachingProfile.primary_motivation, biggestChallenge: targetCoachingProfile.biggest_challenge,
+        sleepHours: targetCoachingProfile.sleep_hours, sleepQuality: targetCoachingProfile.sleep_quality, stressLevel: targetCoachingProfile.stress_level,
+        injuries: targetCoachingProfile.injuries,
+      } : null,
+      recentWorkouts,
+      recentNutrition,
+      trainingPrograms: (programRes.data || []).map((p: any) => ({ name: p.name, isActive: p.is_active, currentWeek: p.current_week, currentDay: p.current_day, programData: p.program_data })),
+      activeMealPlans,
+      progressionHistory: (progressionRes.data || []).map((p: any) => ({
+        exerciseName: p.exercise_name, previousWeightKg: p.previous_weight_kg, newWeightKg: p.new_weight_kg,
+        previousReps: p.previous_reps, newReps: p.new_reps, adjustmentReason: p.adjustment_reason, recordedAt: format(new Date(p.recorded_at), 'yyyy-MM-dd'),
+      })),
+      personalRecords: (prRes.data || []).map((pr: any) => ({
+        distanceType: pr.distance_type, activityType: pr.activity_type, timeSeconds: pr.time_seconds,
+        distanceKm: pr.distance_km, pacePerKmSeconds: pr.pace_per_km_seconds, achievedAt: format(new Date(pr.achieved_at), 'yyyy-MM-dd'),
+      })),
+    };
+  };
+
   return {
     gatherContext,
+    gatherContextForUser,
     formatContextForAI,
   };
 }
