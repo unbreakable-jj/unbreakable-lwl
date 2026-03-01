@@ -153,6 +153,20 @@ export function MainNavigation() {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
+                {/* 121 COACHING */}
+                {user && (
+                  <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                      <Link
+                        to={(isCoach || isDev) ? '/coach' : '/my-coaching'}
+                        className={navLinkClass(isActive('/coach') || isActive('/my-coaching'), true)}
+                      >
+                        121 COACHING
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                )}
+
                 {/* UNIVERSITY */}
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
@@ -185,12 +199,6 @@ export function MainNavigation() {
                     DEV
                   </Link>
                 )}
-                <Link
-                  to={(isCoach || isDev) ? '/coach' : '/my-coaching'}
-                  className={navLinkClass(isActive('/coach') || isActive('/my-coaching'), true)}
-                >
-                  121 COACHING
-                </Link>
               </div>
               {!user && (
                 <Button
