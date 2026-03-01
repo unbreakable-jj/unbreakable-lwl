@@ -43,6 +43,8 @@ export function useMindsetProgrammes() {
 
   const activeProgrammes = programmes?.filter(p => p.is_active) || [];
 
+  const MAX_SAVED_MINDSET = 2;
+
   const saveProgramme = useMutation({
     mutationFn: async ({ programme, forUserId }: {
       programme: {
@@ -57,6 +59,15 @@ export function useMindsetProgrammes() {
       forUserId?: string;
     }) => {
       if (!user) throw new Error('Not authenticated');
+
+      // Check total saved limit (dev/coach bypass)
+      const bypassLimit = isDev || isCoach;
+      if (!bypassLimit) {
+        const currentCount = programmes?.length ?? 0;
+        if (currentCount >= MAX_SAVED_MINDSET) {
+          throw new Error(`Maximum ${MAX_SAVED_MINDSET} Mindset programmes allowed. Delete one to save a new one.`);
+        }
+      }
       const { data, error } = await supabase
         .from('mindset_programmes')
         .insert({

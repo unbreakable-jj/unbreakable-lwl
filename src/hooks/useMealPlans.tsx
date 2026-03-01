@@ -56,9 +56,19 @@ export function useMealPlans() {
   const bypassLimit = isDev || isCoach;
   const canActivateMore = bypassLimit || activePlansCount < MAX_ACTIVE_MEAL_PLANS;
 
+  const MAX_SAVED_MEAL_PLANS = 2;
+
   const createMealPlan = useMutation({
     mutationFn: async ({ plan, forUserId }: { plan: Omit<MealPlan, 'id' | 'user_id' | 'created_at' | 'updated_at'>; forUserId?: string }) => {
       if (!user) throw new Error('Not authenticated');
+
+      // Check total saved limit (dev/coach bypass)
+      if (!bypassLimit) {
+        const currentCount = mealPlans?.length ?? 0;
+        if (currentCount >= MAX_SAVED_MEAL_PLANS) {
+          throw new Error(`Maximum ${MAX_SAVED_MEAL_PLANS} Meal Plans allowed. Delete one to save a new one.`);
+        }
+      }
 
       // Check if trying to activate and already at limit
       if (plan.is_active && !canActivateMore) {
