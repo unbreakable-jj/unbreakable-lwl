@@ -66,7 +66,7 @@ export function PlanSelectionPage({ onSelectPlan, loading }: PlanSelectionPagePr
           <h1 className="font-display text-4xl md:text-6xl text-foreground tracking-wide mb-1">CHOOSE YOUR</h1>
           <h1 className="font-display text-4xl md:text-6xl text-primary tracking-wide neon-glow-subtle mb-4">UNBREAKABLE PLAN</h1>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-            14-day free trial on every plan. Cancel anytime before your first payment.
+            7-day free trial on every plan. Cancel anytime before your first payment.
           </p>
         </motion.div>
 
@@ -134,7 +134,7 @@ export function PlanSelectionPage({ onSelectPlan, loading }: PlanSelectionPagePr
 
         {/* Footer */}
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="text-center text-muted-foreground text-sm mt-10">
-          All plans include a 14-day free trial. Payment details collected upfront.
+          All plans include a 7-day free trial. Payment details collected upfront.
           <br />Cancel from your profile anytime before the trial ends — no charge.
           <br />After your 3-month commitment, billing continues monthly until cancelled.
         </motion.p>
