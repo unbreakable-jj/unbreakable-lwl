@@ -26,6 +26,7 @@ import { Badge } from '@/components/ui/badge';
 import { CombinedStatsView } from '@/components/tracker/CombinedStatsView';
 import { CombinedRecordsView } from '@/components/tracker/CombinedRecordsView';
 import { SettingsPanel } from '@/components/settings/SettingsPanel';
+import { MembershipTab } from '@/components/profile/MembershipTab';
 import { toast } from 'sonner';
 import { 
   Edit2, 
@@ -42,6 +43,7 @@ import {
   Globe,
   Lock,
   Dumbbell,
+  CreditCard,
   BarChart2,
   Medal,
   User,
@@ -72,7 +74,7 @@ export function ProfileView() {
     is_public: true,
   });
   const [saving, setSaving] = useState(false);
-  const [activeProfileTab, setActiveProfileTab] = useState<'overview' | 'stats' | 'records' | 'settings'>('overview');
+  const [activeProfileTab, setActiveProfileTab] = useState<'overview' | 'stats' | 'records' | 'membership' | 'settings'>('overview');
   // const trophyCounts = getTrophyCounts(); // Trophy system hidden for now
   const fileInputRef = useRef<HTMLInputElement>(null);
   const totalProgrammeCount = (programs?.length ?? 0) + (cardioPrograms?.length ?? 0) + (mindsetProgrammes?.length ?? 0) + (mealPlans?.length ?? 0);
@@ -435,6 +437,11 @@ export function ProfileView() {
             <span className="hidden sm:inline">RECORDS</span>
             <span className="sm:hidden">PRs</span>
           </TabsTrigger>
+          <TabsTrigger value="membership" className="flex-1 font-display tracking-wide text-xs sm:text-sm">
+            <CreditCard className="w-4 h-4 mr-1 sm:mr-2 text-primary" />
+            <span className="hidden sm:inline">MEMBERSHIP</span>
+            <span className="sm:hidden">💳</span>
+          </TabsTrigger>
           <TabsTrigger value="settings" className="flex-1 font-display tracking-wide text-xs sm:text-sm">
             <Settings className="w-4 h-4 mr-1 sm:mr-2 text-primary" />
             <span className="hidden sm:inline">SETTINGS</span>
@@ -544,6 +551,10 @@ export function ProfileView() {
 
         <TabsContent value="records" className="mt-6">
           <CombinedRecordsView />
+        </TabsContent>
+
+        <TabsContent value="membership" className="mt-6">
+          <MembershipTab />
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">

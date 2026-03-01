@@ -4,9 +4,8 @@ import { motion } from 'framer-motion';
 import { MainNavigation } from '@/components/MainNavigation';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
 import { ProfileView } from '@/components/tracker/ProfileView';
-import { RequestCoachCard } from '@/components/coaching/RequestCoachCard';
+import { AthleteCoachSection } from '@/components/profile/AthleteCoachSection';
 import { useAuth } from '@/hooks/useAuth';
-
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,6 @@ import { User, Flame, ArrowRight } from 'lucide-react';
 
 export default function Profile() {
   const { user, loading } = useAuth();
-  
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   if (loading) {
@@ -60,6 +58,7 @@ export default function Profile() {
       <main className="container mx-auto px-4 py-8 md:py-12">
         {user ? (
           <div className="max-w-4xl mx-auto space-y-6">
+            <AthleteCoachSection />
             <ProfileView />
           </div>
         ) : (
