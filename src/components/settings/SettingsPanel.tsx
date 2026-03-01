@@ -341,17 +341,17 @@ export function SettingsPanel() {
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-sm text-muted-foreground mb-2">
-            Configure your coaching and voice feedback preferences — built on 10+ years of coaching experience
+            Configure your coaching preferences — built on 10+ years of coaching experience
           </p>
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label className="text-foreground font-medium flex items-center gap-2">
                 <Volume2 className="w-4 h-4 text-primary" />
-                Voice Feedback
+                Breathing Voice
               </Label>
               <p className="text-sm text-muted-foreground">
-                Enable audio responses from your coach
+                Voice guidance for breathing meditation exercises
               </p>
             </div>
             <Switch

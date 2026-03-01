@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Send, MessageSquarePlus, Trash2, Loader2, Flame, Sparkles, Video, UtensilsCrossed, PanelLeftClose, PanelLeftOpen, Dumbbell, TrendingUp, BarChart3, Brain, Zap, Heart, Volume2, VolumeX } from 'lucide-react';
+import { Send, MessageSquarePlus, Trash2, Loader2, Flame, Sparkles, Video, UtensilsCrossed, PanelLeftClose, PanelLeftOpen, Dumbbell, TrendingUp, BarChart3, Brain, Zap, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -12,13 +12,11 @@ import { AuthModal } from '@/components/tracker/AuthModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useHelpChat, Message } from '@/hooks/useHelpChat';
 import { ThemedLogo } from '@/components/ThemedLogo';
-import { VoiceSettingsSheet } from '@/components/coaching/VoiceSettingsSheet';
 import { ChatMediaUpload, ChatMedia } from '@/components/coaching/ChatMediaUpload';
 import { ProfileButton } from '@/components/coaching/ProfileButton';
 import { PlanDisplayCard } from '@/components/coaching/PlanDisplayCard';
 import { BuildingForBanner } from '@/components/coaching/BuildingForBanner';
 import { useAIPreferences } from '@/hooks/useAIPreferences';
-import { useBreathingAudio } from '@/hooks/useBreathingAudio';
 import { AIPlanReviewModal } from '@/components/ai/AIPlanReviewModal';
 import { useAIProgramme } from '@/hooks/useAIProgramme';
 import { useAIMealPlan } from '@/hooks/useAIMealPlan';
@@ -45,7 +43,7 @@ interface GeneratedPlanInfo {
 }
 
 // ─── Neon Glass Message Bubble ───────────────────────────────────────────────
-function MessageBubble({ message, onPlayAudio, isPlayingId }: { message: MessageWithMedia; onPlayAudio?: (text: string, id: string) => void; isPlayingId?: string | null }) {
+function MessageBubble({ message }: { message: MessageWithMedia }) {
   const isUser = message.role === 'user';
 
   const formatContent = (content: string) => {
@@ -95,19 +93,6 @@ function MessageBubble({ message, onPlayAudio, isPlayingId }: { message: Message
           <p className="text-[11px] text-muted-foreground">
             {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </p>
-          {!isUser && onPlayAudio && message.content && (
-            <button
-              onClick={() => onPlayAudio(message.content, message.id)}
-              className="p-1 rounded-full hover:bg-muted/50 transition-colors"
-              title="Read aloud"
-            >
-              {isPlayingId === message.id ? (
-                <VolumeX className="w-3.5 h-3.5 text-primary" />
-              ) : (
-                <Volume2 className="w-3.5 h-3.5 text-muted-foreground hover:text-primary" />
-              )}
-            </button>
-          )}
         </div>
       </div>
     </div>
@@ -255,35 +240,13 @@ export default function Help() {
   const [generatedPlans, setGeneratedPlans] = useState<GeneratedPlanInfo[]>([]);
   const [editingPlan, setEditingPlan] = useState<GeneratedPlanInfo | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [playingMessageId, setPlayingMessageId] = useState<string | null>(null);
+  
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [targetAthleteId, setTargetAthleteId] = useState<string | null>(null);
   const [targetAthleteName, setTargetAthleteName] = useState<string | null>(null);
 
-  // TTS for coach messages
   const { preferences: aiPrefs } = useAIPreferences();
-  const { playAudio, stopAudio } = useBreathingAudio({
-    voiceType: aiPrefs?.voice_gender || 'female',
-    enabled: aiPrefs?.voice_feedback_enabled ?? false,
-  });
-
-  const handlePlayAudio = useCallback(async (text: string, msgId: string) => {
-    if (!aiPrefs?.voice_feedback_enabled) {
-      toast({ title: 'Voice disabled', description: 'Enable voice feedback in Settings → Coaching to use read-aloud.' });
-      return;
-    }
-    if (playingMessageId === msgId) {
-      stopAudio();
-      setPlayingMessageId(null);
-      return;
-    }
-    setPlayingMessageId(msgId);
-    // Truncate long messages for TTS (ElevenLabs limit)
-    const truncated = text.length > 4000 ? text.slice(0, 4000) + '...' : text;
-    await playAudio(truncated);
-    setPlayingMessageId(null);
-  }, [aiPrefs, playingMessageId, playAudio, stopAudio]);
 
   const { user } = useAuth();
   const {
@@ -577,7 +540,6 @@ export default function Help() {
               </Link>
             </div>
             <div className="flex items-center gap-2">
-              <VoiceSettingsSheet />
               <NavigationDrawer />
             </div>
           </div>
@@ -683,7 +645,7 @@ export default function Help() {
                 /* ─── Chat Messages ─── */
                 <div className="max-w-3xl mx-auto">
                   {enrichedMessages.map((msg) => (
-                    <MessageBubble key={msg.id} message={msg} onPlayAudio={handlePlayAudio} isPlayingId={playingMessageId} />
+                    <MessageBubble key={msg.id} message={msg} />
                   ))}
                   {isLoading && enrichedMessages[enrichedMessages.length - 1]?.role === 'user' && !isGenerating && (
                     <div className="flex items-center gap-3 mb-5 animate-fade-in">
