@@ -37,8 +37,8 @@ import {
   UserCheck,
 } from 'lucide-react';
 
-// All hub items consolidated into one dropdown
-const COACHING_HUB_ITEMS = [
+// Programming Hub items (no AI Coach or University - they're standalone)
+const PROGRAMMING_HUB_ITEMS = [
   { title: 'Strength Calculator', href: '/calculators?tab=strength', description: 'Calculate your 1RM and strength level', icon: Dumbbell, group: 'Calculators' },
   { title: 'Fuel Calculator', href: '/calculators?tab=fuel', description: 'Get your calorie and macro targets', icon: Flame, group: 'Calculators' },
   { title: 'Speed Calculator', href: '/calculators?tab=speed', description: 'Analyze your race times and pace', icon: Timer, group: 'Calculators' },
@@ -50,8 +50,6 @@ const COACHING_HUB_ITEMS = [
   { title: 'Recipes', href: '/fuel/recipes', description: 'Browse and save recipes', icon: BookOpen, group: 'Fuel' },
   { title: 'Meal Planning', href: '/fuel/planning', description: 'Build weekly meal plans', icon: Calendar, group: 'Fuel' },
   { title: 'Mindset', href: '/mindset', description: 'Mental conditioning', icon: Brain, group: 'Mindset' },
-  { title: 'AI Coaching', href: '/help', description: 'Personalised guidance', icon: MessageCircle, group: 'Coaching' },
-  { title: 'University', href: '/university', description: 'Learn the science', icon: GraduationCap, group: 'Learn' },
 ];
 
 interface ListItemProps extends React.ComponentPropsWithoutRef<'a'> {
@@ -99,7 +97,7 @@ export function MainNavigation() {
     return location.pathname.startsWith(href.split('?')[0]);
   };
 
-  const hubActive = ['/calculators', '/programming', '/tracker', '/fuel', '/mindset', '/help', '/university']
+  const hubActive = ['/calculators', '/programming', '/tracker', '/fuel', '/mindset']
     .some(p => location.pathname.startsWith(p));
 
   return (
@@ -121,7 +119,7 @@ export function MainNavigation() {
             {/* Center: Desktop Navigation */}
             <NavigationMenu className="hidden lg:flex">
               <NavigationMenuList>
-                {/* COACHING HUB mega dropdown */}
+                {/* PROGRAMMING HUB mega dropdown */}
                 <NavigationMenuItem>
                   <NavigationMenuTrigger
                     className={cn(
@@ -129,11 +127,11 @@ export function MainNavigation() {
                       hubActive && 'text-primary'
                     )}
                   >
-                    COACHING HUB
+                    PROGRAMMING HUB
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[500px] gap-2 p-4 md:w-[600px] md:grid-cols-3 lg:w-[700px]">
-                      {COACHING_HUB_ITEMS.map((item) => (
+                      {PROGRAMMING_HUB_ITEMS.map((item) => (
                         <ListItem
                           key={item.title}
                           title={item.title}
@@ -162,7 +160,22 @@ export function MainNavigation() {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
-                {/* COACHING - role-aware routing */}
+                {/* ASK COACH - standalone */}
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      to="/help"
+                      className={cn(
+                        'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-colors hover:bg-accent hover:text-accent-foreground',
+                        isActive('/help') ? 'text-primary' : 'text-muted-foreground'
+                      )}
+                    >
+                      ASK COACH
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+
+                {/* 121 COACHING - role-aware routing */}
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
                     <Link
@@ -172,7 +185,22 @@ export function MainNavigation() {
                         (isActive('/coach') || isActive('/my-coaching')) && 'bg-primary/10'
                       )}
                     >
-                      COACHING
+                      121 COACHING
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+
+                {/* UNIVERSITY - standalone */}
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      to="/university"
+                      className={cn(
+                        'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-colors hover:bg-accent hover:text-accent-foreground',
+                        isActive('/university') ? 'text-primary' : 'text-muted-foreground'
+                      )}
+                    >
+                      UNIVERSITY
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>

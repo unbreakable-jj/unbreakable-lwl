@@ -32,7 +32,7 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
   const [selectedAthleteId, setSelectedAthleteId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('athletes');
 
-  const dashboardLabel = role === 'dev' ? 'DEV' : 'COACH';
+  const dashboardLabel = '121 COACHING';
 
   if (selectedAthleteId) {
     return (
@@ -306,7 +306,7 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageHeader sectionLabel="COACHING" />
+      <PageHeader sectionLabel="121 COACHING" />
       <main>{content}</main>
     </div>
   );
