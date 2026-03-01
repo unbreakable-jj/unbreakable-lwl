@@ -11,7 +11,7 @@ import { useNutritionGoals } from '@/hooks/useNutritionGoals';
 import { useRecipes } from '@/hooks/useRecipes';
 import { MealType, mealTypeLabels, dayLabels, RecipeIngredient } from '@/lib/fuelTypes';
 import { NutritionCoachCTA } from './NutritionCoachCTA';
-import { ShoppingList } from './ShoppingList';
+
 import { useSavedFoods } from '@/hooks/useSavedFoods';
 import { calculateBespokeMacros, depleteStoreCupboard } from '@/lib/storeCupboardMacros';
 import { RecipeDetailModal } from './RecipeDetailModal';
@@ -316,9 +316,6 @@ export function MealPlanExecutionView({ planId, onBack }: MealPlanExecutionViewP
           );
         })}
       </div>
-
-      {/* Shopping List */}
-      <ShoppingList planItems={allItems} />
 
       {/* AI Coaching CTA */}
       <NutritionCoachCTA

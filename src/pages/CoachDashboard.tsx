@@ -8,8 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Users, UserCheck, Clock, Eye, MessageSquare,
   Check, X, Loader2, UserPlus,
-  Dumbbell, Footprints, Utensils, Brain, ChevronRight, MoreHorizontal,
-  UserX, UserMinus, RotateCcw, Trash2
+  Dumbbell, Footprints, Utensils, Brain, MoreHorizontal,
+  UserMinus, RotateCcw, Trash2
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -73,7 +73,7 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
               {dashboardLabel} DASHBOARD
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Manage athletes and build plans
+              Manage athletes and provide feedback
             </p>
           </div>
           <Badge variant="outline" className="font-display text-[10px] tracking-wider border-primary/30 text-primary">
@@ -83,10 +83,10 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
       )}
 
       {/* Quick Actions Row */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="flex justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-auto py-3 px-4 flex flex-col items-center gap-1.5 border-border hover:border-primary/40 hover:bg-primary/5 transition-all">
+            <Button variant="outline" className="h-auto py-3 px-6 flex flex-col items-center gap-1.5 border-border hover:border-primary/40 hover:bg-primary/5 transition-all">
               <Dumbbell className="w-5 h-5 text-primary" />
               <span className="font-display text-[11px] tracking-wide">BUILD MY OWN</span>
             </Button>
@@ -98,47 +98,6 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                 {opt.label}
               </DropdownMenuItem>
             ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-auto py-3 px-4 flex flex-col items-center gap-1.5 border-border hover:border-primary/40 hover:bg-primary/5 transition-all">
-              <UserCheck className="w-5 h-5 text-primary" />
-              <span className="font-display text-[11px] tracking-wide">BUILD FOR ATHLETE</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" className="w-64 max-h-72 overflow-y-auto">
-            {myAthletes.length === 0 ? (
-              <div className="px-3 py-4 text-center text-sm text-muted-foreground">
-                No athletes assigned yet
-              </div>
-            ) : (
-              myAthletes.map(assignment => (
-                <DropdownMenu key={assignment.id}>
-                  <DropdownMenuTrigger asChild>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center gap-2">
-                      <Avatar className="h-6 w-6">
-                        <AvatarImage src={assignment.athlete_profile?.avatar_url || undefined} />
-                        <AvatarFallback className="text-[10px] font-display">
-                          {(assignment.athlete_profile?.display_name || '?')[0].toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="flex-1 text-sm truncate">{assignment.athlete_profile?.display_name || 'Unknown'}</span>
-                      <ChevronRight className="w-3 h-3 text-muted-foreground" />
-                    </DropdownMenuItem>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent side="right" align="start">
-                    {buildPlanOptions.map(opt => (
-                      <DropdownMenuItem key={opt.path} onClick={() => navigate(`${opt.path}?for=${assignment.athlete_id}`)}>
-                        <opt.icon className="w-4 h-4 mr-2" />
-                        {opt.label}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ))
-            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -236,13 +195,6 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                               <Eye className="w-4 h-4 mr-2" />
                               View Profile
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            {buildPlanOptions.map(opt => (
-                              <DropdownMenuItem key={opt.path} onClick={() => navigate(`${opt.path}?for=${assignment.athlete_id}`)}>
-                                <opt.icon className="w-4 h-4 mr-2" />
-                                Build {opt.label}
-                              </DropdownMenuItem>
-                            ))}
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => updateStatus(assignment.id, 'ended')}>
                               <UserMinus className="w-4 h-4 mr-2" />

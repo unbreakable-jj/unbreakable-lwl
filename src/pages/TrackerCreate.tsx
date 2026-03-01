@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MainNavigation } from '@/components/MainNavigation';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
@@ -32,7 +32,6 @@ import {
   Home,
   Wrench
 } from 'lucide-react';
-import { BuildingForBanner } from '@/components/coaching/BuildingForBanner';
 import {
   ActivityType as CardioActivityType,
   CardioGoal,
@@ -51,8 +50,6 @@ type ViewState = 'select' | 'wizard' | 'program';
 export default function TrackerCreate() {
   const { user, loading } = useAuth();
   const { saveProgram: saveProgramMutation } = useCardioPrograms();
-  const [searchParams] = useSearchParams();
-  const forUserId = searchParams.get('for') || undefined;
   const { toast } = useToast();
   const [showAuthModal, setShowAuthModal] = useState(false);
   
@@ -155,7 +152,7 @@ export default function TrackerCreate() {
     if (!generatedProgram) return;
     setIsSaving(true);
     try {
-      await saveProgramMutation.mutateAsync({ program: generatedProgram, forUserId });
+      await saveProgramMutation.mutateAsync({ program: generatedProgram });
       handleReset();
     } finally {
       setIsSaving(false);
@@ -212,7 +209,6 @@ export default function TrackerCreate() {
       <div className="min-h-screen bg-background">
         <MainNavigation />
         <main className="container mx-auto px-4 py-24 md:py-28">
-          {forUserId && <BuildingForBanner forUserId={forUserId} />}
           <CardioProgramDisplay
             program={generatedProgram}
             onSave={handleSaveProgram}

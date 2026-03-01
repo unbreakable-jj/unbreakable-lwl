@@ -15,7 +15,7 @@ import { ThemedLogo } from '@/components/ThemedLogo';
 import { ChatMediaUpload, ChatMedia } from '@/components/coaching/ChatMediaUpload';
 import { ProfileButton } from '@/components/coaching/ProfileButton';
 import { PlanDisplayCard } from '@/components/coaching/PlanDisplayCard';
-import { BuildingForBanner } from '@/components/coaching/BuildingForBanner';
+
 import { useAIPreferences } from '@/hooks/useAIPreferences';
 import { AIPlanReviewModal } from '@/components/ai/AIPlanReviewModal';
 import { useAIProgramme } from '@/hooks/useAIProgramme';
@@ -243,8 +243,6 @@ export default function Help() {
   
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const [targetAthleteId, setTargetAthleteId] = useState<string | null>(null);
-  const [targetAthleteName, setTargetAthleteName] = useState<string | null>(null);
 
   const { preferences: aiPrefs } = useAIPreferences();
 
@@ -357,30 +355,6 @@ export default function Help() {
     if (!user) { setShowAuthModal(true); return; }
 
     let messageContent = input;
-    
-    // Detect @mention for coach/dev client targeting
-    if ((isDev || isCoach) && !targetAthleteId) {
-      const mentionMatch = messageContent.match(/@(\w+)/);
-      if (mentionMatch) {
-        const username = mentionMatch[1];
-        const { data: matchedProfile } = await supabase
-          .from('profiles')
-          .select('user_id, display_name, username')
-          .eq('username', username)
-          .maybeSingle();
-        if (matchedProfile) {
-          setTargetAthleteId(matchedProfile.user_id);
-          setTargetAthleteName(matchedProfile.display_name || matchedProfile.username || username);
-          // Strip @mention from message
-          messageContent = messageContent.replace(/@\w+/, '').trim();
-          if (!messageContent && selectedMedia) {
-            messageContent = `Please review this for ${matchedProfile.display_name || username}`;
-          } else if (!messageContent) {
-            messageContent = `I'd like to work on something for ${matchedProfile.display_name || username}`;
-          }
-        }
-      }
-    }
 
     if (selectedMedia) {
       const mediaContext = selectedMedia.type === 'video'
@@ -395,8 +369,6 @@ export default function Help() {
     }
     sendMessage(messageContent, {
       mediaAttachments,
-      targetAthleteId: targetAthleteId || undefined,
-      targetAthleteName: targetAthleteName || undefined,
       callerRole,
     });
     setInput(''); setSelectedMedia(null);
@@ -411,10 +383,10 @@ export default function Help() {
   const handleEditPlan = (plan: GeneratedPlanInfo) => { setEditingPlan(plan); setShowEditModal(true); };
   
   const handleSavePlanToLibrary = async (plan: GeneratedPlanInfo) => {
-    const saveUserId = targetAthleteId || user!.id;
+    const saveUserId = user!.id;
     try {
       if (plan.type === 'programme') {
-        const result = await saveProgram.mutateAsync({ program: plan.planData as GeneratedProgram, forUserId: targetAthleteId || undefined });
+        const result = await saveProgram.mutateAsync({ program: plan.planData as GeneratedProgram });
         setGeneratedPlans(prev => prev.map(p => p === plan ? { ...p, planId: result.id, savedToHub: true } : p));
       } else if (plan.type === 'mindset') {
         const result = await saveMindsetProgramme.mutateAsync({
@@ -427,7 +399,6 @@ export default function Help() {
             focus_areas: plan.planData.focusAreas || [],
             programme_data: plan.planData,
           },
-          forUserId: targetAthleteId || undefined,
         });
         setGeneratedPlans(prev => prev.map(p => p === plan ? { ...p, planId: result.id, savedToHub: true } : p));
         toast({ title: 'Mindset Programme Saved!', description: 'View it in Mindset → My Programmes' });
@@ -558,7 +529,7 @@ export default function Help() {
               currentConversationId={currentConversationId}
               onSelect={loadConversation}
               onDelete={deleteConversation}
-              onNewConversation={() => { startNewConversation(); setTargetAthleteId(null); setTargetAthleteName(null); setGeneratedPlans([]); }}
+              onNewConversation={() => { startNewConversation(); setGeneratedPlans([]); }}
               isOpen={sidebarOpen}
               onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
@@ -598,20 +569,8 @@ export default function Help() {
               <ProfileButton />
             </div>
 
-            {/* Building For Banner (coach/dev mode) */}
-            {targetAthleteId && (
-              <div className="px-4 pt-3">
-                <BuildingForBanner forUserId={targetAthleteId} />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs text-muted-foreground mt-1"
-                  onClick={() => { setTargetAthleteId(null); setTargetAthleteName(null); }}
-                >
-                  Stop building for athlete
-                </Button>
-              </div>
-            )}
+
+
 
             {/* Messages area */}
             <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6">
