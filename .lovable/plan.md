@@ -1,116 +1,100 @@
 
 
-# Dashboard Rework: Dev, Coach & Athlete Coaching Page
-
-## Overview
-
-Clean up and consolidate the Dev Dashboard and Coach Dashboard layouts, removing duplication and improving visual hierarchy. Then create a dedicated `/my-coaching` page for athletes to view their coach, feedback history, and assigned plans.
+## Plan: Navigation Rework, Habit Cleanup, Swap Scroll Fix, Start Date Logic, and Mindset Games
 
 ---
 
-## 1. Dev Dashboard (Admin.tsx) -- Consolidate Tabs
+### 1. Relocate My Profile, Dev, and 121 Coaching tabs to bottom of navigation (above Sign Out)
 
-**Problem**: Currently has 6 tabs including "ATHLETES", "CLIENTS", and "USERS" which overlap. The "ATHLETES" tab embeds the entire CoachDashboard (which itself has sub-tabs including another "USERS" tab), creating confusing nested navigation.
+**Files:** `NavigationDrawer.tsx`, `MainNavigation.tsx`
 
-**Solution**: Restructure to 2 clear sections:
-
-```text
-+-----------------------------------------------+
-|  DEV DASHBOARD                                 |
-|  Logged in as DEV                              |
-+-----------------------------------------------+
-|  COACHING | USERS | REPORTS | SETTINGS | LOGS  |
-+-----------------------------------------------+
-```
-
-- **COACHING** tab: Embeds the cleaned-up CoachDashboard (athletes, search users, requests, quick build actions -- all in one)
-- Remove the standalone "CLIENTS" tab (merged into CoachDashboard's USERS sub-tab)
-- **USERS** tab: AdminUsersPanel (full user management with roles, suspend, delete)
-- **REPORTS**, **SETTINGS**, **LOGS**: Unchanged
+- In the mobile drawer (`NavigationDrawer.tsx`), move MY PROFILE, DEV, and 121 COACHING links out of the main `<nav>` section and into the bottom section (before SIGN OUT), separated by a divider.
+- In the desktop nav (`MainNavigation.tsx`), reorder so the main bar shows: HOME, PROGRAMMING HUB, ASK COACH, UNIVERSITY. Then MY PROFILE, DEV, and 121 COACHING move to a right-side cluster or dropdown near the user/auth area.
 
 ---
 
-## 2. CoachDashboard.tsx -- Visual Rework
+### 2. Add Friends and User Search icons to the home page header
 
-Redesign the layout for a cleaner, more professional look. Same design for both dev and coach roles.
+**File:** `SocialHeader.tsx`
 
-**Header**: Compact role badge + dashboard title (no large icon circle)
-
-**Quick Actions Row**: Two action cards side-by-side with dropdowns (keep current BUILD MY OWN / BUILD FOR ATHLETE pattern but improve styling):
-- Tighter padding, subtle gradient borders, icon + label only (remove sub-description text)
-- The BUILD FOR ATHLETE dropdown uses a cleaner scrollable list with avatars
-
-**Tabs**: Keep 3 tabs (ATHLETES, USERS, REQUESTS) but improve content:
-
-- **ATHLETES tab**: 
-  - Summary stat bar at top: total athletes count, pending requests count
-  - Athlete cards: Avatar + name + username on left; action buttons (Message, View, Build Plan dropdown) on right with a compact `...` more menu instead of multiple visible buttons
-  - Empty state with a clear CTA to search users
-
-- **USERS tab**: ClientSearchPanel (unchanged, already clean)
-
-- **REQUESTS tab**: Cleaner request cards with Accept/Decline as primary/ghost buttons
-
-**Empty state text fix**: Change "Use the CLIENTS tab" to "Use the USERS tab"
+- Add a `Users` (friends) icon button and a `UserPlus` (search users) icon button to the top header bar on mobile (currently they are `hidden sm:flex` desktop-only).
+- These already exist in the component but are hidden on mobile. Make them visible alongside messages and notifications icons.
+- Privacy settings are already respected via `useUserSearch` and `useFriends` hooks.
 
 ---
 
-## 3. New Page: `/my-coaching` -- Athlete Coaching Hub
+### 3. Matching orange edging and text on all tab/navigation buttons
 
-A dedicated page for athletes (regular users) who have an assigned coach. Accessible from the COACHING nav item.
+**Files:** `MainNavigation.tsx`, `SocialHeader.tsx`, `NavigationDrawer.tsx`
 
-**Layout**:
-```text
-+-----------------------------------------------+
-|  MY COACHING                                   |
-+-----------------------------------------------+
-|  YOUR COACH                                    |
-|  [Avatar] Coach Name  @username     [MESSAGE]  |
-+-----------------------------------------------+
-|  UPDATES | MY PLANS                            |
-+-----------------------------------------------+
-|  (Coach feedback cards / assigned plans)        |
-+-----------------------------------------------+
-```
-
-**Content**:
-- **Coach Card** at top: Shows assigned coach's avatar, name, username, and MESSAGE button
-- **UPDATES tab**: Renders the existing `CoachUpdatesView` component (feedback history from coach)
-- **MY PLANS tab**: Shows plans assigned by the coach (training, cardio, meal, mindset programmes where the user_id matches but was created by the coach). Uses existing data from the save hooks.
-
-**No coach state**: If user has no coach, show a clean empty state: "You don't have a coach yet. Request one from your profile or wait for an assignment."
-
-**Navigation routing**: The COACHING nav item will route to `/my-coaching` for regular users and `/coach` for coach/dev roles.
+- Add `border border-primary/30` to all nav tab buttons in their default state.
+- Active state keeps full orange fill (`bg-primary text-primary-foreground`) with glow shadow.
+- Ensure text is orange-tinted (`text-primary`) in default state with orange border, matching the brand consistently across desktop nav, social header tabs, and mobile drawer links.
 
 ---
 
-## 4. Profile Page Cleanup
+### 4. Remove "Do The Hard Thing" from Daily Habits
 
-Since the athlete now has a dedicated `/my-coaching` page:
-- Remove the "COACH UPDATES" tab from `Profile.tsx`
-- Keep the `RequestCoachCard` on Profile as a subtle info card
-- Profile page returns to a single-view layout (no tabs needed)
+**Files:** `DailyHabitDiary.tsx`, `useDailyHabits.tsx`, `Habits.tsx`, `ActiveWorkoutModal.tsx`, `AthleteDataViewer.tsx`
 
----
+- Remove `doTheHardThing` from the `HabitState` interface and the `HABITS` array in `DailyHabitDiary.tsx`.
+- Update the default state in `useDailyHabits.tsx` and `ActiveWorkoutModal.tsx`.
+- Remove from the mapping logic in `useDailyHabits.tsx` (still read `do_the_hard_thing` from DB but ignore it).
+- Update count in `Habits.tsx` from 6 to 5 ("Daily 5").
+- Remove the badge reference in `AthleteDataViewer.tsx`.
+- Update all labels from "DAILY 6" to "DAILY 5" across the UI.
 
-## 5. Navigation Update
-
-Update the COACHING nav link logic:
-- If user role is `coach` or `dev`: navigate to `/coach` (Coach Dashboard)
-- If user role is `user` and has an active coach: navigate to `/my-coaching`
-- If user role is `user` and has no coach: navigate to `/my-coaching` (shows empty state with request option)
+**Note:** The database column `do_the_hard_thing` remains (no migration needed) -- we simply stop writing to it and exclude it from the UI.
 
 ---
 
-## Files Summary
+### 5. Fix Exercise Swap Sheet scrolling
 
-**New file:**
-- `src/pages/MyCoaching.tsx` -- Dedicated athlete coaching page
+**File:** `ExerciseSwapSheet.tsx`
 
-**Modified files:**
-- `src/pages/Admin.tsx` -- Remove "CLIENTS" tab, rename "ATHLETES" to "COACHING"
-- `src/pages/CoachDashboard.tsx` -- Visual rework: cleaner cards, better layout, compact actions
-- `src/pages/Profile.tsx` -- Remove Coach Updates tab, simplify back to single view
-- `src/App.tsx` -- Add `/my-coaching` route
-- `src/components/MainNavigation.tsx` or relevant nav component -- Update COACHING link routing based on user role
+Two issues prevent scrolling:
+- The suggestion list is capped at 6 items (`.slice(0, 6)`) -- too few to need scrolling.
+- When the user types a search query, it only filters the 6 pre-computed suggestions rather than searching the full exercise library.
+
+**Fix:**
+- Remove the `.slice(0, 6)` cap from `getSmartSuggestions` so all matching alternatives are returned.
+- When a search query is entered, search the **entire** `EXERCISE_LIBRARY` (150+ exercises) for matches, not just the pre-computed suggestions.
+- Add an explicit `max-h` to the `ScrollArea` container to ensure it scrolls properly within the bottom sheet.
+
+---
+
+### 6. Programme start date respects day-of-week alignment
+
+**Files:** `useTrainingPrograms.tsx`, `useSessionPlanners.tsx`
+
+Currently, session planners are generated by simply adding `dayIndex` to the start date, meaning Day 1 always maps to the start date, Day 2 to start+1, etc. This ignores what type of session each day is.
+
+**Fix:**
+- When generating session planners, use the selected start date as-is for the first session. The programme's Day 1 session maps to the chosen start date, Day 2 to start+1, etc.
+- This already works correctly -- if a user picks a Sunday, Day 1 lands on Sunday. The real issue is that programmes with rest days baked in (e.g., "Day 1: Run, Day 2: Rest, Day 3: Weights") should skip rest days in scheduling.
+- Update the planner generation to only create entries for training days (not rest days), advancing the calendar date for each actual training day while respecting the programme's rest day pattern.
+- Apply the same fix in `useCardioSessionPlanners` for Movement programmes.
+
+---
+
+### 7. Mindset games -- reframe as "switch off" time, not high scores
+
+**Files:** `supabase/functions/generate-mindset-programme/index.ts`, `MindsetProgrammeDetail.tsx`
+
+- Update the AI prompt in `generate-mindset-programme` to instruct: games are prescribed as "switch-off" time (e.g., "10 minutes of Tetris to decompress"), not as score-chasing. Remove `targetScore` references from the prompt instructions.
+- In `MindsetProgrammeDetail.tsx`, when rendering `focus_game` activities, display them as "Switch Off -- [Game Name] -- [duration] mins" rather than showing target scores.
+
+---
+
+### Technical Summary
+
+| Change | Files |
+|--------|-------|
+| Nav relocation (Profile/Dev/Coach to bottom) | `NavigationDrawer.tsx`, `MainNavigation.tsx` |
+| Friends + search icons in header | `SocialHeader.tsx` |
+| Orange border theming on all nav buttons | `MainNavigation.tsx`, `SocialHeader.tsx`, `NavigationDrawer.tsx` |
+| Remove "Do The Hard Thing" | `DailyHabitDiary.tsx`, `useDailyHabits.tsx`, `Habits.tsx`, `ActiveWorkoutModal.tsx`, `AthleteDataViewer.tsx` |
+| Swap sheet full scroll | `ExerciseSwapSheet.tsx` |
+| Start date day-of-week alignment | `useTrainingPrograms.tsx`, `useSessionPlanners.tsx` |
+| Mindset games as "switch off" | `generate-mindset-programme/index.ts`, `MindsetProgrammeDetail.tsx` |
 
