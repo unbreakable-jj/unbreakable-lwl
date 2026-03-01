@@ -8,8 +8,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Users, UserCheck, Clock, Eye, MessageSquare,
   Check, X, Loader2, UserPlus,
-  Dumbbell, Footprints, Utensils, Brain, ChevronRight, MoreHorizontal
+  Dumbbell, Footprints, Utensils, Brain, ChevronRight, MoreHorizontal,
+  UserX, UserMinus, RotateCcw, Trash2
 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Switch } from '@/components/ui/switch';
 import { useCoachingAssignments } from '@/hooks/useCoachingAssignments';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -28,9 +40,11 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
   const { user } = useAuth();
   const { role } = useUserRole();
   const navigate = useNavigate();
-  const { myAthletes, pendingRequests, loading, updateStatus } = useCoachingAssignments();
+  const { myAthletes, endedAthletes, pendingRequests, loading, updateStatus, removeAssignment } = useCoachingAssignments();
   const [selectedAthleteId, setSelectedAthleteId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('athletes');
+  const [showDeactivated, setShowDeactivated] = useState(false);
+  const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
 
   const dashboardLabel = '121 COACHING';
 
@@ -167,7 +181,7 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
             <div className="flex justify-center py-12">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
             </div>
-          ) : myAthletes.length === 0 ? (
+          ) : myAthletes.length === 0 && !showDeactivated ? (
             <Card className="border-border">
               <CardContent className="py-12 text-center">
                 <Users className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
@@ -176,65 +190,115 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
               </CardContent>
             </Card>
           ) : (
-            myAthletes.map(assignment => (
-              <Card key={assignment.id} className="border-border hover:border-primary/20 transition-colors">
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <Avatar className="h-10 w-10 shrink-0">
-                        <AvatarImage src={assignment.athlete_profile?.avatar_url || undefined} />
-                        <AvatarFallback className="font-display text-sm">
-                          {(assignment.athlete_profile?.display_name || '?')[0].toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0">
-                        <p className="font-display text-sm tracking-wide text-foreground truncate">
-                          {assignment.athlete_profile?.display_name || 'Unknown'}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground truncate">
-                          @{assignment.athlete_profile?.username || 'unknown'}
-                        </p>
+            <>
+              {myAthletes.map(assignment => (
+                <Card key={assignment.id} className="border-border hover:border-primary/20 transition-colors">
+                  <CardContent className="p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Avatar className="h-10 w-10 shrink-0">
+                          <AvatarImage src={assignment.athlete_profile?.avatar_url || undefined} />
+                          <AvatarFallback className="font-display text-sm">
+                            {(assignment.athlete_profile?.display_name || '?')[0].toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0">
+                          <p className="font-display text-sm tracking-wide text-foreground truncate">
+                            {assignment.athlete_profile?.display_name || 'Unknown'}
+                          </p>
+                          <p className="text-[11px] text-muted-foreground truncate">
+                            @{assignment.athlete_profile?.username || 'unknown'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => setSelectedAthleteId(assignment.athlete_id)}
+                          title="View athlete data"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => navigate(`/inbox?compose=1&to=${assignment.athlete_id}`)}>
+                              <MessageSquare className="w-4 h-4 mr-2" />
+                              Message
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate(`/user/${assignment.athlete_id}`)}>
+                              <Eye className="w-4 h-4 mr-2" />
+                              View Profile
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            {buildPlanOptions.map(opt => (
+                              <DropdownMenuItem key={opt.path} onClick={() => navigate(`${opt.path}?for=${assignment.athlete_id}`)}>
+                                <opt.icon className="w-4 h-4 mr-2" />
+                                Build {opt.label}
+                              </DropdownMenuItem>
+                            ))}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => updateStatus(assignment.id, 'ended')}>
+                              <UserMinus className="w-4 h-4 mr-2" />
+                              Deactivate
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setConfirmRemoveId(assignment.id)} className="text-destructive">
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Remove
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => setSelectedAthleteId(assignment.athlete_id)}
-                        title="View athlete data"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => navigate(`/inbox?compose=1&to=${assignment.athlete_id}`)}>
-                            <MessageSquare className="w-4 h-4 mr-2" />
-                            Message
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => navigate(`/user/${assignment.athlete_id}`)}>
-                            <Eye className="w-4 h-4 mr-2" />
-                            View Profile
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          {buildPlanOptions.map(opt => (
-                            <DropdownMenuItem key={opt.path} onClick={() => navigate(`${opt.path}?for=${assignment.athlete_id}`)}>
-                              <opt.icon className="w-4 h-4 mr-2" />
-                              Build {opt.label}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                  </CardContent>
+                </Card>
+              ))}
+
+              {/* Show deactivated toggle */}
+              {endedAthletes.length > 0 && (
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-xs text-muted-foreground font-display tracking-wide">SHOW DEACTIVATED ({endedAthletes.length})</span>
+                  <Switch checked={showDeactivated} onCheckedChange={setShowDeactivated} />
+                </div>
+              )}
+
+              {showDeactivated && endedAthletes.map(assignment => (
+                <Card key={assignment.id} className="border-border opacity-60">
+                  <CardContent className="p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Avatar className="h-10 w-10 shrink-0">
+                          <AvatarImage src={assignment.athlete_profile?.avatar_url || undefined} />
+                          <AvatarFallback className="font-display text-sm">
+                            {(assignment.athlete_profile?.display_name || '?')[0].toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0">
+                          <p className="font-display text-sm tracking-wide text-foreground truncate">
+                            {assignment.athlete_profile?.display_name || 'Unknown'}
+                          </p>
+                          <Badge variant="outline" className="text-[9px]">DEACTIVATED</Badge>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => updateStatus(assignment.id, 'active')}>
+                          <RotateCcw className="w-3 h-3 mr-1" /> Reactivate
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setConfirmRemoveId(assignment.id)}>
+                          <Trash2 className="w-3 h-3 text-destructive" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                  </CardContent>
+                </Card>
+              ))}
+            </>
           )}
         </TabsContent>
 
@@ -302,12 +366,48 @@ const CoachDashboard = ({ embedded = false }: { embedded?: boolean }) => {
     </div>
   );
 
-  if (embedded) return content;
+  if (embedded) return (
+    <>
+      {content}
+      <AlertDialog open={!!confirmRemoveId} onOpenChange={() => setConfirmRemoveId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-display">Remove Athlete</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove the athlete from your coaching hub. Their account and data remain intact — they simply won't appear in your athlete list.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { if (confirmRemoveId) { removeAssignment(confirmRemoveId); setConfirmRemoveId(null); } }}>
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-background">
       <PageHeader sectionLabel="121 COACHING" />
       <main>{content}</main>
+      <AlertDialog open={!!confirmRemoveId} onOpenChange={() => setConfirmRemoveId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-display">Remove Athlete</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove the athlete from your coaching hub. Their account and data remain intact — they simply won't appear in your athlete list.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { if (confirmRemoveId) { removeAssignment(confirmRemoveId); setConfirmRemoveId(null); } }}>
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
+import { useUserRole } from './useUserRole';
 import { GeneratedProgram } from '@/lib/programTypes';
 import { Json } from '@/integrations/supabase/types';
 
@@ -58,6 +59,7 @@ const MAX_ACTIVE_PROGRAMS = 2;
 export function useTrainingPrograms() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isDev, isCoach } = useUserRole();
   const queryClient = useQueryClient();
 
   const { data: programs, isLoading } = useQuery({
@@ -152,7 +154,9 @@ export function useTrainingPrograms() {
       
       const isAlreadyActive = currentActive?.some(p => p.id === programId);
       
-      if (!isAlreadyActive && (currentActive?.length ?? 0) >= MAX_ACTIVE_PROGRAMS) {
+      // Coach/dev bypass for own library
+      const bypassLimit = isDev || isCoach;
+      if (!bypassLimit && !isAlreadyActive && (currentActive?.length ?? 0) >= MAX_ACTIVE_PROGRAMS) {
         throw new Error(`Maximum ${MAX_ACTIVE_PROGRAMS} active programmes allowed. Please pause one first.`);
       }
 

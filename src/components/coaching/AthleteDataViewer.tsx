@@ -15,6 +15,7 @@ import {
 import { CoachFeedbackPanel } from './CoachFeedbackPanel';
 import { useCoachingFeedback, CoachingFeedback } from '@/hooks/useCoachingFeedback';
 import { formatDistanceToNow } from 'date-fns';
+import { InlineProgramEditor } from '@/components/programming/InlineProgramEditor';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,6 +42,8 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
   const [personalRecords, setPersonalRecords] = useState<any[]>([]);
   const [recentFoodLogs, setRecentFoodLogs] = useState<any[]>([]);
   const [feedbackHistory, setFeedbackHistory] = useState<CoachingFeedback[]>([]);
+  const [editingProgramId, setEditingProgramId] = useState<string | null>(null);
+  const [fullPrograms, setFullPrograms] = useState<any[]>([]);
 
   useEffect(() => {
     loadAthleteData();
@@ -62,7 +65,7 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
       supabase.from('coaching_profiles').select('*').eq('user_id', athleteId).maybeSingle(),
       supabase.from('workout_sessions').select('*').eq('user_id', athleteId).order('started_at', { ascending: false }).limit(10),
       supabase.from('daily_habits').select('*').eq('user_id', athleteId).order('habit_date', { ascending: false }).limit(7),
-      supabase.from('training_programs').select('id, name, is_active, current_week, current_day, created_at').eq('user_id', athleteId).order('created_at', { ascending: false }).limit(5),
+      supabase.from('training_programs').select('*').eq('user_id', athleteId).order('created_at', { ascending: false }).limit(5),
       supabase.from('personal_records').select('*').eq('user_id', athleteId).order('achieved_at', { ascending: false }).limit(10),
       supabase.from('food_logs').select('*').eq('user_id', athleteId).order('logged_at', { ascending: false }).limit(20),
     ]);
@@ -72,6 +75,7 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
     setRecentSessions(sessions || []);
     setRecentHabits(habits || []);
     setPrograms(progs || []);
+    setFullPrograms(progs || []);
     setPersonalRecords(prs || []);
     setRecentFoodLogs(foods || []);
 
@@ -224,7 +228,19 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
           </TabsList>
 
           <TabsContent value="training" className="space-y-3 mt-4">
-            {programs.length > 0 && (
+            {editingProgramId && (() => {
+              const prog = fullPrograms.find(p => p.id === editingProgramId);
+              if (!prog) return null;
+              return (
+                <InlineProgramEditor
+                  programId={editingProgramId}
+                  programData={prog.program_data}
+                  onClose={() => setEditingProgramId(null)}
+                  onSaved={loadAthleteData}
+                />
+              );
+            })()}
+            {!editingProgramId && programs.length > 0 && (
               <div className="space-y-2">
                 <p className="font-display text-xs tracking-wide text-muted-foreground">PROGRAMMES</p>
                 {programs.map(p => (
@@ -241,7 +257,7 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => navigate(`/programming/create?edit=${p.id}&for=${athleteId}`)}
+                          onClick={() => setEditingProgramId(p.id)}
                           className="h-7 px-2 text-xs"
                         >
                           <Edit className="w-3 h-3 mr-1" />
