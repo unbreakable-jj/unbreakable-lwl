@@ -15,6 +15,7 @@ import { CompactRestTimer } from './CompactRestTimer';
 import { DailyHabitDiary, HabitState } from './DailyHabitDiary';
 import { ExerciseCoachingPanel } from './ExerciseCoachingPanel';
 import { ExerciseSwapSheet } from './ExerciseSwapSheet';
+import { AddExerciseSheet } from './AddExerciseSheet';
 import { 
   Square, 
   X,
@@ -25,6 +26,7 @@ import {
   BookOpen,
   Lightbulb,
   Shuffle,
+  Plus,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getExerciseDetails } from '@/lib/exerciseLibrary';
@@ -42,7 +44,9 @@ interface ActiveWorkoutModalProps {
   onComplete: (notes?: string, visibility?: 'public' | 'friends' | 'private') => void;
   onCancel: () => void;
   onSwapExercise?: (oldName: string, newExercise: { name: string; equipment: string }) => void;
+  onAddExercise?: (exercise: { name: string; equipment: string; sets: number; reps: string }) => void;
   isSwapping?: boolean;
+  isAddingExercise?: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -55,7 +59,9 @@ export function ActiveWorkoutModal({
   onComplete,
   onCancel,
   onSwapExercise,
+  onAddExercise,
   isSwapping,
+  isAddingExercise,
   open,
   onOpenChange,
 }: ActiveWorkoutModalProps) {
@@ -73,6 +79,7 @@ export function ActiveWorkoutModal({
   });
   const [expandedExercise, setExpandedExercise] = useState<string | null>(null);
   const [swappingExercise, setSwappingExercise] = useState<string | null>(null);
+  const [showAddExercise, setShowAddExercise] = useState(false);
 
   const exerciseLogs = session.exercise_logs || [];
   const completedSets = exerciseLogs.filter((l) => l.completed).length;
@@ -363,6 +370,18 @@ export function ActiveWorkoutModal({
 
           {/* Daily 6 Habit Diary - temporarily removed from session view */}
 
+          {/* Add Exercise Button */}
+          {onAddExercise && (
+            <Button
+              variant="outline"
+              className="w-full gap-2 font-display tracking-wide border-primary/30 hover:bg-primary/5"
+              onClick={() => setShowAddExercise(true)}
+            >
+              <Plus className="w-4 h-4 text-primary" />
+              ADD EXERCISE
+            </Button>
+          )}
+
           {/* Action Buttons */}
           <div className="flex gap-2 pt-4 border-t border-border">
             <Button
@@ -395,6 +414,19 @@ export function ActiveWorkoutModal({
               setSwappingExercise(null);
             }}
             isSwapping={isSwapping}
+          />
+        )}
+
+        {/* Add Exercise Sheet */}
+        {onAddExercise && (
+          <AddExerciseSheet
+            open={showAddExercise}
+            onOpenChange={setShowAddExercise}
+            onAddExercise={(exercise) => {
+              onAddExercise(exercise);
+              setShowAddExercise(false);
+            }}
+            isAdding={isAddingExercise}
           />
         )}
       </DialogContent>

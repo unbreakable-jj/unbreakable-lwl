@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Shuffle, Loader2, Search, Dumbbell } from 'lucide-react';
 import { getExerciseDetails, EXERCISE_LIBRARY, findExerciseByName } from '@/lib/exerciseLibrary';
 
@@ -114,7 +113,7 @@ export function ExerciseSwapSheet({
             />
           </div>
 
-          <ScrollArea className="flex-1 min-h-0 max-h-[50vh]">
+          <div className="flex-1 min-h-0 max-h-[50vh] overflow-y-auto" style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}>
             <div className="space-y-2">
               {filteredSuggestions.length === 0 && (
                 <p className="text-sm text-muted-foreground text-center py-4">
@@ -153,7 +152,7 @@ export function ExerciseSwapSheet({
                 </Card>
               ))}
             </div>
-          </ScrollArea>
+          </div>
         </div>
       </SheetContent>
     </Sheet>

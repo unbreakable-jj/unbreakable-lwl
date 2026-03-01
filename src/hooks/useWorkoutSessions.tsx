@@ -377,6 +377,48 @@ export function useWorkoutSessions() {
     },
   });
 
+  const addExerciseToSession = useMutation({
+    mutationFn: async ({
+      sessionId,
+      exercise,
+    }: {
+      sessionId: string;
+      exercise: { name: string; equipment: string; sets: number; reps: string };
+    }) => {
+      if (!user) throw new Error('Must be logged in');
+
+      // Get existing logs to find the next set numbers
+      const { data: existingLogs } = await supabase
+        .from('exercise_logs')
+        .select('exercise_name, set_number')
+        .eq('session_id', sessionId)
+        .eq('exercise_name', exercise.name);
+
+      const maxSet = existingLogs?.reduce((max, l) => Math.max(max, l.set_number), 0) || 0;
+
+      const newLogs = Array.from({ length: exercise.sets }, (_, i) => ({
+        session_id: sessionId,
+        user_id: user.id,
+        exercise_name: exercise.name,
+        equipment: exercise.equipment,
+        set_number: maxSet + i + 1,
+        target_reps: exercise.reps,
+        completed: false,
+      }));
+
+      const { error } = await supabase.from('exercise_logs').insert(newLogs);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['active-session'] });
+      queryClient.invalidateQueries({ queryKey: ['workout-sessions'] });
+      toast({ title: 'Exercise Added', description: 'New exercise added to your session.' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
   return {
     sessions,
     activeSession,
@@ -387,5 +429,6 @@ export function useWorkoutSessions() {
     cancelSession,
     updateSession,
     swapExercise,
+    addExerciseToSession,
   };
 }
