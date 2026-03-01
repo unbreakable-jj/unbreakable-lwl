@@ -102,15 +102,10 @@ export default function Onboarding() {
 
   const numVal = (v: string) => v === '' ? null : Number(v);
 
+  // Only step 0 (Personal) has required fields; all other steps are fully skippable
   const canProceed = () => {
-    switch (step) {
-      case 0: return data.gender && data.age_years && data.height_cm && data.weight_kg;
-      case 1: return data.experience_level && data.training_goal && data.days_per_week;
-      case 2: return data.fitness_level;
-      case 3: return data.nutrition_goal;
-      case 4: return data.primary_motivation && data.stress_level;
-      default: return true;
-    }
+    // All steps are optional — always allow proceeding
+    return true;
   };
 
   const handleSubmit = async () => {
@@ -201,7 +196,7 @@ export default function Onboarding() {
           <div className="space-y-6">
             <div>
               <h2 className="font-display text-2xl text-foreground mb-1">PERSONAL INFO</h2>
-              <p className="text-sm text-muted-foreground">Tell your coach about you</p>
+              <p className="text-sm text-muted-foreground">Tell your coach about you — all fields optional. Your AI coach can gather this info later via chat.</p>
             </div>
 
             <div className="space-y-4">
@@ -278,7 +273,7 @@ export default function Onboarding() {
           <div className="space-y-6">
             <div>
               <h2 className="font-display text-2xl text-foreground mb-1">POWER</h2>
-              <p className="text-sm text-muted-foreground">Your strength training profile</p>
+              <p className="text-sm text-muted-foreground">Optional — your AI coach can gather this later</p>
             </div>
 
             <div className="space-y-4">
@@ -362,7 +357,7 @@ export default function Onboarding() {
           <div className="space-y-6">
             <div>
               <h2 className="font-display text-2xl text-foreground mb-1">MOVEMENT</h2>
-              <p className="text-sm text-muted-foreground">Your cardio & activity profile</p>
+              <p className="text-sm text-muted-foreground">Optional — your AI coach can gather this later</p>
             </div>
 
             <div className="space-y-4">
@@ -413,7 +408,7 @@ export default function Onboarding() {
           <div className="space-y-6">
             <div>
               <h2 className="font-display text-2xl text-foreground mb-1">FUEL</h2>
-              <p className="text-sm text-muted-foreground">Your nutrition profile</p>
+              <p className="text-sm text-muted-foreground">Optional — your AI coach can gather this later</p>
             </div>
 
             <div className="space-y-4">
@@ -464,7 +459,7 @@ export default function Onboarding() {
           <div className="space-y-6">
             <div>
               <h2 className="font-display text-2xl text-foreground mb-1">MINDSET</h2>
-              <p className="text-sm text-muted-foreground">Your mental game & recovery</p>
+              <p className="text-sm text-muted-foreground">Optional — your AI coach can gather this later</p>
             </div>
 
             <div className="space-y-4">
@@ -543,7 +538,7 @@ export default function Onboarding() {
       {/* Header */}
       <div className="p-6 text-center">
         <h1 className="font-display text-3xl text-primary tracking-wider">UNBREAKABLE</h1>
-        <p className="text-sm text-muted-foreground mt-1">Let's build your coaching profile</p>
+        <p className="text-sm text-muted-foreground mt-1">Build your coaching profile — skip what you like, your AI coach can fill gaps later</p>
       </div>
 
       {/* Progress */}
@@ -582,13 +577,23 @@ export default function Onboarding() {
             </Button>
           )}
           {step < STEPS.length - 1 ? (
-            <Button className="flex-1 gap-2" disabled={!canProceed()} onClick={() => setStep(s => s + 1)}>
-              Next <ChevronRight className="w-4 h-4" />
-            </Button>
+            <>
+              <Button variant="ghost" className="gap-1 text-muted-foreground" onClick={() => setStep(s => s + 1)}>
+                Skip
+              </Button>
+              <Button className="flex-1 gap-2" onClick={() => setStep(s => s + 1)}>
+                Next <ChevronRight className="w-4 h-4" />
+              </Button>
+            </>
           ) : (
-            <Button className="flex-1 gap-2" disabled={!canProceed() || saving} onClick={handleSubmit}>
-              {saving ? 'Saving...' : 'Complete Setup'} <Check className="w-4 h-4" />
-            </Button>
+            <>
+              <Button variant="ghost" className="gap-1 text-muted-foreground" onClick={handleSubmit} disabled={saving}>
+                Skip & Finish
+              </Button>
+              <Button className="flex-1 gap-2" disabled={saving} onClick={handleSubmit}>
+                {saving ? 'Saving...' : 'Complete Setup'} <Check className="w-4 h-4" />
+              </Button>
+            </>
           )}
         </div>
       </div>
