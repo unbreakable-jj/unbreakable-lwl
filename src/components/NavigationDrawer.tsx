@@ -167,6 +167,18 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                 ASK COACH
               </Link>
 
+              {/* 121 COACHING */}
+              {user && (
+                <Link
+                  to={(isCoach || isDev) ? '/coach' : '/my-coaching'}
+                  onClick={handleNavClick}
+                  className={linkClass((isCoach || isDev) ? '/coach' : '/my-coaching', true)}
+                >
+                  <UserCheck className={`w-5 h-5 ${(isActive('/coach') || isActive('/my-coaching')) ? '' : 'text-primary'}`} />
+                  121 COACHING
+                </Link>
+              )}
+
               {/* UNIVERSITY */}
               <Link to="/university" onClick={handleNavClick} className={linkClass('/university')}>
                 <GraduationCap className={`w-5 h-5 ${isActive('/university') ? '' : 'text-primary'}`} />
@@ -191,14 +203,6 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                     </Link>
                   )}
 
-                  <Link
-                    to={(isCoach || isDev) ? '/coach' : '/my-coaching'}
-                    onClick={handleNavClick}
-                    className={linkClass((isCoach || isDev) ? '/coach' : '/my-coaching', true)}
-                  >
-                    <UserCheck className={`w-5 h-5 ${(isActive('/coach') || isActive('/my-coaching')) ? '' : 'text-primary'}`} />
-                    121 COACHING
-                  </Link>
 
                   <Separator className="bg-primary/20 my-2" />
 
