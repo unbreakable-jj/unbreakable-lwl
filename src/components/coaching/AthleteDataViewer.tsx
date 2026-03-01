@@ -16,12 +16,6 @@ import { CoachFeedbackPanel } from './CoachFeedbackPanel';
 import { useCoachingFeedback, CoachingFeedback } from '@/hooks/useCoachingFeedback';
 import { formatDistanceToNow } from 'date-fns';
 import { InlineProgramEditor } from '@/components/programming/InlineProgramEditor';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 
@@ -39,6 +33,9 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
   const [recentSessions, setRecentSessions] = useState<any[]>([]);
   const [recentHabits, setRecentHabits] = useState<any[]>([]);
   const [programs, setPrograms] = useState<any[]>([]);
+  const [cardioPrograms, setCardioPrograms] = useState<any[]>([]);
+  const [mealPlans, setMealPlans] = useState<any[]>([]);
+  const [mindsetProgrammes, setMindsetProgrammes] = useState<any[]>([]);
   const [personalRecords, setPersonalRecords] = useState<any[]>([]);
   const [recentFoodLogs, setRecentFoodLogs] = useState<any[]>([]);
   const [feedbackHistory, setFeedbackHistory] = useState<CoachingFeedback[]>([]);
@@ -58,6 +55,9 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
       { data: sessions },
       { data: habits },
       { data: progs },
+      { data: cardioProgs },
+      { data: meals },
+      { data: mindset },
       { data: prs },
       { data: foods },
     ] = await Promise.all([
@@ -66,6 +66,9 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
       supabase.from('workout_sessions').select('*').eq('user_id', athleteId).order('started_at', { ascending: false }).limit(10),
       supabase.from('daily_habits').select('*').eq('user_id', athleteId).order('habit_date', { ascending: false }).limit(7),
       supabase.from('training_programs').select('*').eq('user_id', athleteId).order('created_at', { ascending: false }).limit(5),
+      supabase.from('cardio_programs').select('*').eq('user_id', athleteId).order('created_at', { ascending: false }).limit(5),
+      supabase.from('meal_plans').select('*').eq('user_id', athleteId).order('created_at', { ascending: false }).limit(5),
+      supabase.from('mindset_programmes').select('*').eq('user_id', athleteId).order('created_at', { ascending: false }).limit(5),
       supabase.from('personal_records').select('*').eq('user_id', athleteId).order('achieved_at', { ascending: false }).limit(10),
       supabase.from('food_logs').select('*').eq('user_id', athleteId).order('logged_at', { ascending: false }).limit(20),
     ]);
@@ -76,6 +79,9 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
     setRecentHabits(habits || []);
     setPrograms(progs || []);
     setFullPrograms(progs || []);
+    setCardioPrograms(cardioProgs || []);
+    setMealPlans(meals || []);
+    setMindsetProgrammes(mindset || []);
     setPersonalRecords(prs || []);
     setRecentFoodLogs(foods || []);
 
@@ -125,43 +131,15 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
             </h1>
             <p className="text-sm text-muted-foreground">@{profile?.username || 'unknown'}</p>
           </div>
-          <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="default" size="sm" className="font-display text-xs">
-                  <Dumbbell className="w-4 h-4 mr-1" />
-                  BUILD PLAN
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => navigate(`/programming/create?for=${athleteId}`)}>
-                  <Dumbbell className="w-4 h-4 mr-2" />
-                  Power Programme
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate(`/tracker/create?for=${athleteId}`)}>
-                  <Footprints className="w-4 h-4 mr-2" />
-                  Movement Programme
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate(`/fuel/planning?for=${athleteId}`)}>
-                  <Utensils className="w-4 h-4 mr-2" />
-                  Meal Plan
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate(`/mindset?for=${athleteId}`)}>
-                  <Brain className="w-4 h-4 mr-2" />
-                  Mindset Programme
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(`/inbox?compose=1&to=${athleteId}`)}
-              className="font-display text-xs"
-            >
-              <MessageSquare className="w-4 h-4 mr-1" />
-              MESSAGE
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(`/inbox?compose=1&to=${athleteId}`)}
+            className="font-display text-xs"
+          >
+            <MessageSquare className="w-4 h-4 mr-1" />
+            MESSAGE
+          </Button>
         </div>
 
         {/* Quick Stats */}
@@ -183,7 +161,7 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
           <Card className="border-border">
             <CardContent className="p-3 text-center">
               <Activity className="w-5 h-5 mx-auto text-primary mb-1" />
-              <p className="font-display text-lg text-foreground">{programs.filter(p => p.is_active).length}</p>
+              <p className="font-display text-lg text-foreground">{programs.filter(p => p.is_active).length + cardioPrograms.filter(p => p.is_active).length + mealPlans.filter(p => p.is_active).length + mindsetProgrammes.filter(p => p.is_active).length}</p>
               <p className="text-[10px] text-muted-foreground">ACTIVE PROGRAMS</p>
             </CardContent>
           </Card>
@@ -240,35 +218,97 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
                 />
               );
             })()}
-            {!editingProgramId && programs.length > 0 && (
-              <div className="space-y-2">
-                <p className="font-display text-xs tracking-wide text-muted-foreground">PROGRAMMES</p>
-                {programs.map(p => (
-                  <Card key={p.id} className="border-border">
-                    <CardContent className="p-3 flex items-center justify-between">
-                      <div>
-                        <p className="font-display text-sm text-foreground">{p.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Week {p.current_week} • Day {p.current_day}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {p.is_active && <Badge className="bg-primary/20 text-primary border-primary/30 text-xs">ACTIVE</Badge>}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setEditingProgramId(p.id)}
-                          className="h-7 px-2 text-xs"
-                        >
-                          <Edit className="w-3 h-3 mr-1" />
-                          EDIT
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+            {!editingProgramId && (
+              <>
+                {/* Power Programmes */}
+                {programs.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="font-display text-xs tracking-wide text-muted-foreground flex items-center gap-1"><Dumbbell className="w-3 h-3" /> POWER PROGRAMMES</p>
+                    {programs.map(p => (
+                      <Card key={p.id} className="border-border">
+                        <CardContent className="p-3 flex items-center justify-between">
+                          <div>
+                            <p className="font-display text-sm text-foreground">{p.name}</p>
+                            <p className="text-xs text-muted-foreground">Week {p.current_week} • Day {p.current_day}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {p.is_active && <Badge className="bg-primary/20 text-primary border-primary/30 text-xs">ACTIVE</Badge>}
+                            <Button variant="ghost" size="sm" onClick={() => setEditingProgramId(p.id)} className="h-7 px-2 text-xs">
+                              <Edit className="w-3 h-3 mr-1" />EDIT
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+
+                {/* Movement (Cardio) Programmes */}
+                {cardioPrograms.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="font-display text-xs tracking-wide text-muted-foreground flex items-center gap-1"><Footprints className="w-3 h-3" /> MOVEMENT PROGRAMMES</p>
+                    {cardioPrograms.map(p => (
+                      <Card key={p.id} className="border-border">
+                        <CardContent className="p-3 flex items-center justify-between">
+                          <div>
+                            <p className="font-display text-sm text-foreground">{p.name}</p>
+                            <p className="text-xs text-muted-foreground">Week {p.current_week} • Day {p.current_day}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {p.is_active && <Badge className="bg-primary/20 text-primary border-primary/30 text-xs">ACTIVE</Badge>}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+
+                {/* Meal Plans */}
+                {mealPlans.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="font-display text-xs tracking-wide text-muted-foreground flex items-center gap-1"><Utensils className="w-3 h-3" /> MEAL PLANS</p>
+                    {mealPlans.map(p => (
+                      <Card key={p.id} className="border-border">
+                        <CardContent className="p-3 flex items-center justify-between">
+                          <div>
+                            <p className="font-display text-sm text-foreground">{p.name}</p>
+                            <p className="text-xs text-muted-foreground">{p.description || 'No description'}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {p.is_active && <Badge className="bg-primary/20 text-primary border-primary/30 text-xs">ACTIVE</Badge>}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+
+                {/* Mindset Programmes */}
+                {mindsetProgrammes.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="font-display text-xs tracking-wide text-muted-foreground flex items-center gap-1"><BrainIcon className="w-3 h-3" /> MINDSET PROGRAMMES</p>
+                    {mindsetProgrammes.map(p => (
+                      <Card key={p.id} className="border-border">
+                        <CardContent className="p-3 flex items-center justify-between">
+                          <div>
+                            <p className="font-display text-sm text-foreground">{p.name}</p>
+                            <p className="text-xs text-muted-foreground">{p.goal || p.description || 'No description'}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {p.is_active && <Badge className="bg-primary/20 text-primary border-primary/30 text-xs">ACTIVE</Badge>}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+
+                {programs.length === 0 && cardioPrograms.length === 0 && mealPlans.length === 0 && mindsetProgrammes.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">No programmes found</p>
+                )}
+              </>
             )}
+
             <div className="space-y-2">
               <p className="font-display text-xs tracking-wide text-muted-foreground">RECENT SESSIONS</p>
               {recentSessions.length === 0 ? (
