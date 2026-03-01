@@ -42,25 +42,25 @@ export function SocialHeader({
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
+    <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-primary/15">
       <div className="container mx-auto px-4 sm:px-6 py-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-2 shrink-0">
             <ThemedLogo className="h-8 w-8" />
             <span className="font-display text-lg tracking-wide text-foreground hidden sm:block">
               UNBREAKABLE
             </span>
           </Link>
 
-          {/* Desktop Navigation Tabs */}
-          <div className="hidden md:flex items-center gap-1 bg-card border border-border rounded-lg p-1">
+          {/* Desktop Navigation Tabs — themed to match main nav */}
+          <div className="hidden md:flex items-center gap-1 bg-card/60 border border-primary/15 rounded-lg p-1">
             <button
               onClick={() => onTabChange('feed')}
               className={`flex items-center gap-2 px-4 py-2 rounded-md font-display text-sm tracking-wide transition-all ${
                 activeTab === 'feed'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  ? 'bg-primary text-primary-foreground shadow-[0_0_12px_hsl(24_100%_50%/0.35)]'
+                  : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
               }`}
             >
               <Home className="w-4 h-4" />
@@ -73,8 +73,8 @@ export function SocialHeader({
               }}
               className={`relative flex items-center gap-2 px-4 py-2 rounded-md font-display text-sm tracking-wide transition-all ${
                 activeTab === 'messages'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  ? 'bg-primary text-primary-foreground shadow-[0_0_12px_hsl(24_100%_50%/0.35)]'
+                  : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
               }`}
             >
               <MessageCircle className="w-4 h-4" />
@@ -92,8 +92,8 @@ export function SocialHeader({
               }}
               className={`relative flex items-center gap-2 px-4 py-2 rounded-md font-display text-sm tracking-wide transition-all ${
                 activeTab === 'notifications'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  ? 'bg-primary text-primary-foreground shadow-[0_0_12px_hsl(24_100%_50%/0.35)]'
+                  : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
               }`}
             >
               <Bell className="w-4 h-4" />
