@@ -1,0 +1,1 @@
+DELETE FROM coaching_assignments WHERE id IN ('be96a58d-cace-4c2d-9614-b899ed9c1a04', '15a817ae-8a9b-4cba-8efc-28081f7e759b')
