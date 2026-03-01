@@ -13,7 +13,7 @@ import { MealType, mealTypeLabels, dayLabels, RecipeIngredient } from '@/lib/fue
 import { NutritionCoachCTA } from './NutritionCoachCTA';
 import { ShoppingList } from './ShoppingList';
 import { useSavedFoods } from '@/hooks/useSavedFoods';
-import { calculateBespokeMacros } from '@/lib/storeCupboardMacros';
+import { calculateBespokeMacros, depleteStoreCupboard } from '@/lib/storeCupboardMacros';
 import { RecipeDetailModal } from './RecipeDetailModal';
 import { 
   Calendar,
@@ -47,7 +47,7 @@ export function MealPlanExecutionView({ planId, onBack }: MealPlanExecutionViewP
   const { dailySummary, addFoodLog } = useFoodLogs();
   const { goals } = useNutritionGoals();
   const { recipes: allRecipes, toggleFavourite } = useRecipes();
-  const { savedFoods } = useSavedFoods();
+  const { savedFoods, depleteFoods: depleteFoodsMutation } = useSavedFoods();
   const [selectedDay, setSelectedDay] = useState(new Date().getDay());
   const [viewingRecipeId, setViewingRecipeId] = useState<string | null>(null);
   
@@ -94,6 +94,19 @@ export function MealPlanExecutionView({ planId, onBack }: MealPlanExecutionViewP
       logged_at: new Date().toISOString(),
       notes: item.notes,
     });
+
+    // Auto-deplete store cupboard if recipe-based
+    if (item.recipe_id && recipeIngredients && recipeIngredients.length > 0) {
+      const depletions = depleteStoreCupboard(
+        recipeIngredients,
+        savedFoods || [],
+        item.servings || 1,
+        1
+      );
+      if (depletions.length > 0) {
+        depleteFoodsMutation.mutate(depletions.map(d => ({ foodId: d.foodId, newRemaining: d.newRemaining })));
+      }
+    }
   };
 
   // Check if a planned meal has been logged today
@@ -355,6 +368,16 @@ export function MealPlanExecutionView({ planId, onBack }: MealPlanExecutionViewP
               logged_at: new Date().toISOString(),
               recipe_id: recipe.id,
             });
+            // Auto-deplete store cupboard
+            const depletions = depleteStoreCupboard(
+              ingredients,
+              savedFoods || [],
+              recipe.servings || 1,
+              1
+            );
+            if (depletions.length > 0) {
+              depleteFoodsMutation.mutate(depletions.map(d => ({ foodId: d.foodId, newRemaining: d.newRemaining })));
+            }
             setViewingRecipeId(null);
           }}
         />

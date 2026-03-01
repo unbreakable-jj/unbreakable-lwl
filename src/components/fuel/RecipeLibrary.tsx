@@ -32,7 +32,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { useFoodLogs } from '@/hooks/useFoodLogs';
 import { useSavedFoods } from '@/hooks/useSavedFoods';
-import { calculateBespokeMacros } from '@/lib/storeCupboardMacros';
+import { calculateBespokeMacros, depleteStoreCupboard } from '@/lib/storeCupboardMacros';
 import { toast } from 'sonner';
 import { RecipeDetailModal } from './RecipeDetailModal';
 
@@ -71,6 +71,7 @@ const CATEGORY_TABS = [
   { value: 'breakfast', label: 'BREAKFAST', icon: '🌅' },
   { value: 'lunch', label: 'LUNCH', icon: '🥗' },
   { value: 'main', label: 'MAIN', icon: '🍽️' },
+  { value: 'snack', label: 'SNACKS', icon: '🍿' },
   { value: 'desserts', label: 'DESSERTS', icon: '🍫' },
   { value: 'shakes', label: 'SHAKES', icon: '🥤' },
 ];
@@ -101,7 +102,7 @@ export function RecipeLibrary() {
   const { recipes, myRecipes, favouriteRecipes, isLoading, createRecipe, deleteRecipe, toggleFavourite } = useRecipes();
   const { mealPlans, addPlanItem } = useMealPlans();
   const { addFoodLog } = useFoodLogs();
-  const { savedFoods } = useSavedFoods();
+  const { savedFoods, depleteFoods: depleteFoodsMutation } = useSavedFoods();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -197,11 +198,23 @@ export function RecipeLibrary() {
         recipe_id: recipe.id,
       });
 
+      // Auto-deplete store cupboard
+      const depletions = depleteStoreCupboard(
+        ingredients,
+        savedFoods || [],
+        recipe.servings || 1,
+        1
+      );
+      if (depletions.length > 0) {
+        depleteFoodsMutation.mutate(depletions.map(d => ({ foodId: d.foodId, newRemaining: d.newRemaining })));
+      }
+
       const bespokeNote = macros.matchedCount > 0
         ? ` (${macros.matchedCount}/${macros.totalIngredients} ingredients matched from your store cupboard)`
         : '';
+      const depletionNote = depletions.length > 0 ? ` · ${depletions.length} cupboard items updated` : '';
       toast.success('LOGGED ✓', {
-        description: `${recipe.name} added to your tracker${bespokeNote}`,
+        description: `${recipe.name} added to your tracker${bespokeNote}${depletionNote}`,
         duration: 3000,
       });
     } catch {

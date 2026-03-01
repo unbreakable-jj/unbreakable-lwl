@@ -221,11 +221,11 @@ const HIGH_PROTEIN_RECIPES = [
     ],
   },
 
-  // DINNER (5)
+  // MAIN (5)
   {
     name: "Herb-Crusted Salmon with Asparagus",
     pack: "high-protein",
-    category: "dinner",
+    category: "main",
     servings: 2,
     prep_time_minutes: 10,
     cook_time_minutes: 18,
@@ -246,7 +246,7 @@ const HIGH_PROTEIN_RECIPES = [
   {
     name: "Lean Beef Bolognese with Zoodles",
     pack: "high-protein",
-    category: "dinner",
+    category: "main",
     servings: 4,
     prep_time_minutes: 10,
     cook_time_minutes: 30,
@@ -267,7 +267,7 @@ const HIGH_PROTEIN_RECIPES = [
   {
     name: "Chicken & Broccoli Stir Fry",
     pack: "high-protein",
-    category: "dinner",
+    category: "main",
     servings: 2,
     prep_time_minutes: 10,
     cook_time_minutes: 12,
@@ -288,7 +288,7 @@ const HIGH_PROTEIN_RECIPES = [
   {
     name: "Baked Cod with Sweet Potato Mash",
     pack: "high-protein",
-    category: "dinner",
+    category: "main",
     servings: 2,
     prep_time_minutes: 10,
     cook_time_minutes: 25,
@@ -309,7 +309,7 @@ const HIGH_PROTEIN_RECIPES = [
   {
     name: "Lamb Kofta with Tzatziki",
     pack: "high-protein",
-    category: "dinner",
+    category: "main",
     servings: 4,
     prep_time_minutes: 15,
     cook_time_minutes: 12,
