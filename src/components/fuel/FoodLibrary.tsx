@@ -308,13 +308,21 @@ export function FoodLibrary() {
         <TabsContent value={activeTab === 'api' ? 'hidden' : activeTab} className="mt-6">
           {activeTab !== 'api' && (
             <div className="space-y-2">
-              {filteredFoods.map((food) => (
+              {filteredFoods.map((food) => {
+                const remaining = (food as any).quantity_remaining;
+                const unit = (food as any).quantity_unit || '';
+                const hasStock = remaining != null;
+                const isLow = hasStock && remaining > 0 && remaining <= 100;
+                const isOut = hasStock && remaining <= 0;
+                const stockPct = hasStock && remaining > 0 ? Math.min(100, (remaining / (remaining + 200)) * 100) : 0;
+                
+                return (
                 <motion.div
                   key={food.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  <Card className="hover:border-primary/50 transition-all">
+                  <Card className={`hover:border-primary/50 transition-all ${isOut ? 'opacity-50' : ''}`}>
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
@@ -325,11 +333,37 @@ export function FoodLibrary() {
                                 {food.brand}
                               </Badge>
                             )}
+                            {isOut && (
+                              <Badge variant="destructive" className="text-[10px] font-display tracking-wider">
+                                OUT OF STOCK
+                              </Badge>
+                            )}
+                            {isLow && !isOut && (
+                              <Badge variant="outline" className="text-[10px] font-display tracking-wider text-amber-500 border-amber-500/50">
+                                LOW
+                              </Badge>
+                            )}
                           </div>
                           <p className="text-sm text-muted-foreground">
                             {food.serving_size && `${food.serving_size} · `}
                             P: {food.protein_g || 0}g | C: {food.carbs_g || 0}g | F: {food.fat_g || 0}g
                           </p>
+                          {hasStock && !isOut && (
+                            <div className="mt-2">
+                              <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
+                                <span>Stock remaining</span>
+                                <span className="font-display text-primary">{Math.round(remaining)}{unit}</span>
+                              </div>
+                              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full transition-all ${
+                                    isLow ? 'bg-amber-500' : 'bg-primary'
+                                  }`}
+                                  style={{ width: `${stockPct}%` }}
+                                />
+                              </div>
+                            </div>
+                          )}
                         </div>
                         
                         <div className="flex items-center gap-2">
@@ -355,7 +389,8 @@ export function FoodLibrary() {
                     </CardContent>
                   </Card>
                 </motion.div>
-              ))}
+                );
+              })}
               
               {filteredFoods.length === 0 && (
                 <div className="text-center py-12">

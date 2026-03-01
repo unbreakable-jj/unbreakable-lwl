@@ -119,7 +119,7 @@ export function RecipeDetailModal({
             </h2>
             {recipe.pack && (
               <p className="text-xs font-display tracking-widest text-primary mt-1 neon-glow-subtle">
-                UNBREAKABLE {packLabel} PACK
+                {packLabel} PACK
               </p>
             )}
           </div>
