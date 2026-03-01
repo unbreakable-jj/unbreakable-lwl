@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Send, MessageSquarePlus, Trash2, Loader2, Flame, Sparkles, Video, UtensilsCrossed, PanelLeftClose, PanelLeftOpen, Dumbbell, TrendingUp, BarChart3, Brain, Zap, Heart } from 'lucide-react';
+import { Send, MessageSquarePlus, Trash2, Loader2, Flame, Sparkles, Video, UtensilsCrossed, PanelLeftClose, PanelLeftOpen, Dumbbell, TrendingUp, BarChart3, Brain, Zap, Heart, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -105,19 +105,21 @@ const QUICK_ACTIONS = [
   { icon: TrendingUp, label: 'MOVEMENT', description: 'Build a cardio & mobility plan', prompt: "I'd like to build a movement and cardio plan.", color: 'from-primary/15 to-primary/5' },
   { icon: UtensilsCrossed, label: 'FUEL', description: 'Create a nutrition plan', prompt: "I'd like to create a nutrition plan.", color: 'from-primary/20 to-primary/5' },
   { icon: Brain, label: 'MINDSET', description: 'Build a mindset & recovery routine', prompt: "I'd like to build a mindset and recovery routine.", color: 'from-primary/15 to-primary/5' },
+  { icon: MessageCircle, label: 'GENERAL CHAT', description: 'Just chat, unwind & catch up', prompt: "Hey coach, just wanted to have a general chat and unwind. No specific training topic — just a catch-up.", color: 'from-muted/30 to-muted/10' },
 ];
 
 function QuickActionTiles({ onSelect, disabled }: { onSelect: (prompt: string) => void; disabled?: boolean }) {
   return (
     <div className="grid grid-cols-2 gap-3 max-w-lg mx-auto">
-      {QUICK_ACTIONS.map(({ icon: Icon, label, description, prompt, color }) => (
+      {QUICK_ACTIONS.map(({ icon: Icon, label, description, prompt, color }, idx) => (
         <button
           key={label}
           onClick={() => onSelect(prompt)}
           disabled={disabled}
           className={`group relative p-5 rounded-xl border border-primary/20 bg-gradient-to-br ${color}
             hover:border-primary/50 hover:shadow-[0_0_20px_hsl(24_100%_50%/0.15)] 
-            transition-all duration-300 text-left disabled:opacity-50 disabled:cursor-not-allowed`}
+            transition-all duration-300 text-left disabled:opacity-50 disabled:cursor-not-allowed
+            ${idx === QUICK_ACTIONS.length - 1 && QUICK_ACTIONS.length % 2 !== 0 ? 'col-span-2' : ''}`}
         >
           <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center mb-3
             group-hover:bg-primary/30 group-hover:shadow-[0_0_12px_hsl(24_100%_50%/0.3)] transition-all">
