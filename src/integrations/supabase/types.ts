@@ -1840,6 +1840,8 @@ export type Database = {
           is_favourite: boolean | null
           last_used_at: string | null
           protein_g: number | null
+          quantity_remaining: number | null
+          quantity_unit: string | null
           serving_size: string | null
           sodium_mg: number | null
           sugar_g: number | null
@@ -1860,6 +1862,8 @@ export type Database = {
           is_favourite?: boolean | null
           last_used_at?: string | null
           protein_g?: number | null
+          quantity_remaining?: number | null
+          quantity_unit?: string | null
           serving_size?: string | null
           sodium_mg?: number | null
           sugar_g?: number | null
@@ -1880,6 +1884,8 @@ export type Database = {
           is_favourite?: boolean | null
           last_used_at?: string | null
           protein_g?: number | null
+          quantity_remaining?: number | null
+          quantity_unit?: string | null
           serving_size?: string | null
           sodium_mg?: number | null
           sugar_g?: number | null

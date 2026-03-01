@@ -45,25 +45,36 @@ function normaliseUnit(unit: string | null | undefined): string {
   return u;
 }
 
-// Format quantity for display
+// Convert to base unit (g or ml) for aggregation across compatible units
+function toBaseUnit(qty: number, unit: string): { qty: number; baseUnit: string } {
+  if (unit === 'kg') return { qty: qty * 1000, baseUnit: 'g' };
+  if (unit === 'l') return { qty: qty * 1000, baseUnit: 'ml' };
+  return { qty, baseUnit: unit };
+}
+
+// Format quantity for display — auto-convert large values
 function formatQuantity(qty: number, unit: string): string {
-  if (unit === 'kg' || (unit === 'g' && qty >= 1000)) {
-    const kg = unit === 'g' ? qty / 1000 : qty;
-    return `${Math.round(kg * 100) / 100}kg`;
+  if (unit === 'g' && qty >= 1000) {
+    return `${Math.round((qty / 1000) * 100) / 100}kg`;
   }
-  if (unit === 'l' || (unit === 'ml' && qty >= 1000)) {
-    const l = unit === 'ml' ? qty / 1000 : qty;
-    return `${Math.round(l * 100) / 100}L`;
+  if (unit === 'ml' && qty >= 1000) {
+    return `${Math.round((qty / 1000) * 100) / 100}L`;
   }
   const rounded = Math.round(qty * 10) / 10;
   return unit ? `${rounded}${unit}` : `${rounded}`;
 }
 
-interface ShoppingItem {
-  name: string;
-  quantity?: number;
-  unit?: string;
+// Title-case a name for display
+function titleCase(s: string): string {
+  return s.replace(/\b\w/g, c => c.toUpperCase());
+}
+
+interface AggregatedItem {
+  displayName: string;
+  quantity: number;
+  unit: string;
   category: string;
+  count: number; // how many times it appears (for items without quantity)
 }
 
 interface ShoppingListProps {
@@ -106,29 +117,37 @@ export function ShoppingList({ planItems }: ShoppingListProps) {
     enabled: recipeIds.length > 0,
   });
 
-  // Build aggregated shopping list
+  // Build aggregated shopping list with proper deduplication
   const categorisedList = useMemo(() => {
-    const itemMap = new Map<string, ShoppingItem>();
+    const itemMap = new Map<string, AggregatedItem>();
 
     // Aggregate ingredients across filtered plan items
     (allIngredients || []).forEach(ing => {
       const normName = ing.name.trim().toLowerCase();
       const normUnit = normaliseUnit(ing.unit);
-      const key = `${normName}-${normUnit}`;
+      
+      // Convert to base unit for aggregation (g/ml)
+      const rawQty = (ing.quantity || 0);
+      const { qty: baseQty, baseUnit } = toBaseUnit(rawQty, normUnit);
+      
+      // Key by normalised name + base unit
+      const key = `${normName}-${baseUnit}`;
 
       // Count usages of this recipe across filtered plan days
       const recipeUsageCount = filteredPlanItems.filter(pi => pi.recipe_id === ing.recipe_id).length;
-      const qty = (ing.quantity || 0) * recipeUsageCount;
+      const qty = baseQty * recipeUsageCount;
 
       const existing = itemMap.get(key);
       if (existing) {
-        existing.quantity = (existing.quantity || 0) + qty;
+        existing.quantity += qty;
+        existing.count += recipeUsageCount;
       } else {
         itemMap.set(key, {
-          name: ing.name,
-          quantity: qty || undefined,
-          unit: normUnit || undefined,
+          displayName: titleCase(normName),
+          quantity: qty,
+          unit: baseUnit,
           category: categoriseIngredient(ing.name),
+          count: recipeUsageCount,
         });
       }
     });
@@ -138,17 +157,23 @@ export function ShoppingList({ planItems }: ShoppingListProps) {
       if (!item.recipe_id && item.food_name) {
         const normName = item.food_name.trim().toLowerCase();
         const key = `custom-${normName}`;
-        if (!itemMap.has(key)) {
+        const existing = itemMap.get(key);
+        if (existing) {
+          existing.count += 1;
+        } else {
           itemMap.set(key, {
-            name: item.food_name,
+            displayName: titleCase(normName),
+            quantity: 0,
+            unit: '',
             category: categoriseIngredient(item.food_name),
+            count: 1,
           });
         }
       }
     });
 
     // Group by category
-    const grouped: Record<string, ShoppingItem[]> = {};
+    const grouped: Record<string, AggregatedItem[]> = {};
     itemMap.forEach(item => {
       if (!grouped[item.category]) grouped[item.category] = [];
       grouped[item.category].push(item);
@@ -161,7 +186,7 @@ export function ShoppingList({ planItems }: ShoppingListProps) {
       const bi = aisleOrder.indexOf(b);
       return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
     });
-    sorted.forEach(([, items]) => items.sort((a, b) => a.name.localeCompare(b.name)));
+    sorted.forEach(([, items]) => items.sort((a, b) => a.displayName.localeCompare(b.displayName)));
 
     return sorted;
   }, [allIngredients, filteredPlanItems]);
@@ -286,7 +311,7 @@ export function ShoppingList({ planItems }: ShoppingListProps) {
         ) : (
           categorisedList.map(([category, items]) => {
             const isCollapsed = collapsedCategories.has(category);
-            const catChecked = items.filter(i => checkedItems.has(`${i.name}-${i.unit || ''}`)).length;
+            const catChecked = items.filter(i => checkedItems.has(`${i.displayName}-${i.unit}`)).length;
 
             return (
               <div key={category}>
@@ -316,7 +341,7 @@ export function ShoppingList({ planItems }: ShoppingListProps) {
                     >
                       <div className="space-y-1 pl-1">
                         {items.map(item => {
-                          const key = `${item.name}-${item.unit || ''}`;
+                          const key = `${item.displayName}-${item.unit}`;
                           const checked = checkedItems.has(key);
                           return (
                             <label
@@ -330,13 +355,16 @@ export function ShoppingList({ planItems }: ShoppingListProps) {
                                 onCheckedChange={() => toggleItem(key)}
                               />
                               <span className={`flex-1 text-sm ${checked ? 'line-through text-muted-foreground' : ''}`}>
-                                {item.name}
+                                {item.displayName}
                               </span>
-                              {item.quantity && item.quantity > 0 && (
-                                <span className={`text-xs font-display ${checked ? 'text-muted-foreground' : 'text-primary'}`}>
-                                  {formatQuantity(item.quantity, item.unit || '')}
-                                </span>
-                              )}
+                              <span className={`text-xs font-display ${checked ? 'text-muted-foreground' : 'text-primary'}`}>
+                                {item.quantity > 0
+                                  ? `${formatQuantity(item.quantity, item.unit)} total`
+                                  : item.count > 1
+                                    ? `x${item.count}`
+                                    : ''
+                                }
+                              </span>
                             </label>
                           );
                         })}

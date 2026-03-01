@@ -20,7 +20,7 @@ export function useSavedFoods() {
         .order('use_count', { ascending: false });
 
       if (error) throw error;
-      return data as SavedFood[];
+      return data as (SavedFood & { quantity_remaining?: number | null; quantity_unit?: string | null })[];
     },
     enabled: !!user,
   });
@@ -29,16 +29,14 @@ export function useSavedFoods() {
   const recents = savedFoods?.slice(0, 10) || [];
 
   const saveFood = useMutation({
-    mutationFn: async (food: Omit<SavedFood, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'use_count' | 'last_used_at'>) => {
+    mutationFn: async (food: Omit<SavedFood, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'use_count' | 'last_used_at'> & { quantity_remaining?: number; quantity_unit?: string }) => {
       if (!user) throw new Error('Not authenticated');
 
-      // Check if food with same name already exists
       const existing = savedFoods?.find(
         (f) => f.food_name.toLowerCase() === food.food_name.toLowerCase() && f.brand === food.brand
       );
 
       if (existing) {
-        // Update use count
         const { data, error } = await supabase
           .from('saved_foods')
           .update({
@@ -53,14 +51,19 @@ export function useSavedFoods() {
         return data;
       }
 
+      const { quantity_remaining, quantity_unit, ...rest } = food;
+      const insertData: any = {
+        user_id: user.id,
+        use_count: 1,
+        last_used_at: new Date().toISOString(),
+        ...rest,
+      };
+      if (quantity_remaining != null) insertData.quantity_remaining = quantity_remaining;
+      if (quantity_unit) insertData.quantity_unit = quantity_unit;
+
       const { data, error } = await supabase
         .from('saved_foods')
-        .insert({
-          user_id: user.id,
-          use_count: 1,
-          last_used_at: new Date().toISOString(),
-          ...food,
-        })
+        .insert(insertData)
         .select()
         .single();
 
@@ -125,6 +128,43 @@ export function useSavedFoods() {
     },
   });
 
+  const updateQuantity = useMutation({
+    mutationFn: async ({ id, quantity_remaining }: { id: string; quantity_remaining: number | null }) => {
+      if (!user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('saved_foods')
+        .update({ quantity_remaining } as any)
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['saved-foods'] });
+    },
+  });
+
+  const depleteFoods = useMutation({
+    mutationFn: async (depletions: { foodId: string; newRemaining: number | null }[]) => {
+      if (!user) throw new Error('Not authenticated');
+      
+      for (const d of depletions) {
+        await supabase
+          .from('saved_foods')
+          .update({ quantity_remaining: d.newRemaining } as any)
+          .eq('id', d.foodId)
+          .eq('user_id', user.id);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['saved-foods'] });
+    },
+  });
+
   return {
     savedFoods,
     favourites,
@@ -133,5 +173,7 @@ export function useSavedFoods() {
     saveFood,
     toggleFavourite,
     deleteFood,
+    updateQuantity,
+    depleteFoods,
   };
 }
