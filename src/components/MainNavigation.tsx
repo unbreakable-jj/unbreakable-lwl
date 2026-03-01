@@ -26,18 +26,12 @@ import {
   BookOpen,
   Calendar,
   Apple,
-  BarChart3,
   Brain,
-  Heart,
-  History,
-  MessageCircle,
   GraduationCap,
-  User,
-  Shield,
   UserCheck,
+  Shield,
 } from 'lucide-react';
 
-// Programming Hub items (no AI Coach or University - they're standalone)
 const PROGRAMMING_HUB_ITEMS = [
   { title: 'Strength Calculator', href: '/calculators?tab=strength', description: 'Calculate your 1RM and strength level', icon: Dumbbell, group: 'Calculators' },
   { title: 'Fuel Calculator', href: '/calculators?tab=fuel', description: 'Get your calorie and macro targets', icon: Flame, group: 'Calculators' },
@@ -58,30 +52,38 @@ interface ListItemProps extends React.ComponentPropsWithoutRef<'a'> {
   href: string;
 }
 
-const ListItem = ({ className, title, children, icon: Icon, href, ...props }: ListItemProps) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <Link
-          to={href}
-          className={cn(
-            'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
-            className
-          )}
-          {...props}
-        >
-          <div className="flex items-center gap-2">
-            {Icon && <Icon className="w-4 h-4 text-primary" />}
-            <div className="text-sm font-display tracking-wide leading-none">{title}</div>
-          </div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </Link>
-      </NavigationMenuLink>
-    </li>
+const ListItem = ({ className, title, children, icon: Icon, href, ...props }: ListItemProps) => (
+  <li>
+    <NavigationMenuLink asChild>
+      <Link
+        to={href}
+        className={cn(
+          'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary',
+          className
+        )}
+        {...props}
+      >
+        <div className="flex items-center gap-2">
+          {Icon && <Icon className="w-4 h-4 text-primary" />}
+          <div className="text-sm font-display tracking-wide leading-none">{title}</div>
+        </div>
+        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+          {children}
+        </p>
+      </Link>
+    </NavigationMenuLink>
+  </li>
+);
+
+const navLinkClass = (active: boolean, highlight?: boolean) =>
+  cn(
+    'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-all',
+    active
+      ? 'bg-primary text-primary-foreground shadow-[0_0_12px_hsl(24_100%_50%/0.35)]'
+      : highlight
+        ? 'text-primary hover:bg-primary/10'
+        : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
   );
-};
 
 export function MainNavigation() {
   const { user } = useAuth();
@@ -104,11 +106,11 @@ export function MainNavigation() {
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-primary/15">
         <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             {/* Left: Theme Toggle + Logo */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 shrink-0">
               <ThemeToggle />
-              <Link to="/" className="flex items-center gap-3">
+              <Link to="/" className="flex items-center gap-2">
                 <ThemedLogo />
                 <span className="font-display text-lg tracking-wide text-foreground hidden md:block">
                   UNBREAKABLE
@@ -116,15 +118,26 @@ export function MainNavigation() {
               </Link>
             </div>
 
-            {/* Center: Desktop Navigation */}
+            {/* Center: Desktop Navigation — well spaced */}
             <NavigationMenu className="hidden lg:flex">
-              <NavigationMenuList>
+              <NavigationMenuList className="gap-1">
+                {/* MY PROFILE */}
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link to="/profile" className={navLinkClass(isActive('/profile'))}>
+                      MY PROFILE
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+
                 {/* PROGRAMMING HUB mega dropdown */}
                 <NavigationMenuItem>
                   <NavigationMenuTrigger
                     className={cn(
                       'font-display tracking-wide text-sm',
-                      hubActive && 'text-primary'
+                      hubActive
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-muted-foreground hover:text-primary'
                     )}
                   >
                     PROGRAMMING HUB
@@ -132,12 +145,7 @@ export function MainNavigation() {
                   <NavigationMenuContent>
                     <ul className="grid w-[500px] gap-2 p-4 md:w-[600px] md:grid-cols-3 lg:w-[700px]">
                       {PROGRAMMING_HUB_ITEMS.map((item) => (
-                        <ListItem
-                          key={item.title}
-                          title={item.title}
-                          href={item.href}
-                          icon={item.icon}
-                        >
+                        <ListItem key={item.title} title={item.title} href={item.href} icon={item.icon}>
                           {item.description}
                         </ListItem>
                       ))}
@@ -145,61 +153,19 @@ export function MainNavigation() {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
 
-                {/* MY PROFILE */}
+                {/* ASK COACH */}
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
-                    <Link
-                      to="/profile"
-                      className={cn(
-                        'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-colors hover:bg-accent hover:text-accent-foreground',
-                        isActive('/profile') && 'text-primary'
-                      )}
-                    >
-                      MY PROFILE
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-
-                {/* ASK COACH - standalone */}
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      to="/help"
-                      className={cn(
-                        'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-colors hover:bg-accent hover:text-accent-foreground',
-                        isActive('/help') ? 'text-primary' : 'text-muted-foreground'
-                      )}
-                    >
+                    <Link to="/help" className={navLinkClass(isActive('/help'))}>
                       ASK COACH
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
-                {/* 121 COACHING - role-aware routing */}
+                {/* UNIVERSITY */}
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
-                    <Link
-                      to={(isCoach || isDev) ? '/coach' : '/my-coaching'}
-                      className={cn(
-                        'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-colors hover:bg-accent hover:text-accent-foreground text-primary',
-                        (isActive('/coach') || isActive('/my-coaching')) && 'bg-primary/10'
-                      )}
-                    >
-                      121 COACHING
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-
-                {/* UNIVERSITY - standalone */}
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      to="/university"
-                      className={cn(
-                        'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-colors hover:bg-accent hover:text-accent-foreground',
-                        isActive('/university') ? 'text-primary' : 'text-muted-foreground'
-                      )}
-                    >
+                    <Link to="/university" className={navLinkClass(isActive('/university'))}>
                       UNIVERSITY
                     </Link>
                   </NavigationMenuLink>
@@ -212,8 +178,10 @@ export function MainNavigation() {
                       <Link
                         to="/admin"
                         className={cn(
-                          'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-colors hover:bg-accent hover:text-accent-foreground',
-                          isActive('/admin') ? 'bg-accent/50 text-accent-foreground' : 'text-muted-foreground'
+                          'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-all border',
+                          isActive('/admin')
+                            ? 'bg-primary text-primary-foreground shadow-[0_0_12px_hsl(24_100%_50%/0.35)]'
+                            : 'text-amber-500 border-amber-500/30 hover:bg-amber-500/10'
                         )}
                       >
                         DEV
@@ -221,11 +189,23 @@ export function MainNavigation() {
                     </NavigationMenuLink>
                   </NavigationMenuItem>
                 )}
+
+                {/* 121 COACHING */}
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      to={(isCoach || isDev) ? '/coach' : '/my-coaching'}
+                      className={navLinkClass(isActive('/coach') || isActive('/my-coaching'), true)}
+                    >
+                      121 COACHING
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
 
             {/* Right: Auth + Mobile Menu */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 shrink-0">
               {!user && (
                 <Button
                   size="sm"
