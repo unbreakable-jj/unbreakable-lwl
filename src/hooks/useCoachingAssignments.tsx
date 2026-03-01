@@ -157,6 +157,7 @@ export function useCoachingAssignments() {
 
   // Helpers
   const myAthletes = assignments.filter(a => a.coach_id === user?.id && a.status === 'active');
+  const endedAthletes = assignments.filter(a => a.coach_id === user?.id && a.status === 'ended');
   const pendingRequests = assignments.filter(a => a.coach_id === user?.id && a.status === 'pending');
   const myCoach = assignments.find(a => a.athlete_id === user?.id && a.status === 'active');
   const myPendingRequest = assignments.find(a => a.athlete_id === user?.id && a.status === 'pending');
@@ -164,6 +165,7 @@ export function useCoachingAssignments() {
   return {
     assignments,
     myAthletes,
+    endedAthletes,
     pendingRequests,
     myCoach,
     myPendingRequest,

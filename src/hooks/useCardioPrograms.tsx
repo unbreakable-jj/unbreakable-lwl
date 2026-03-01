@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
+import { useUserRole } from './useUserRole';
 import { GeneratedCardioProgram } from '@/lib/cardioTypes';
 
 export type CardioProgramStatus = 'not_started' | 'active' | 'completed' | 'paused';
@@ -43,6 +44,7 @@ const MAX_ACTIVE_PROGRAMS = 2;
 export function useCardioPrograms() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isDev, isCoach } = useUserRole();
   const queryClient = useQueryClient();
 
   const { data: programs, isLoading } = useQuery({
@@ -96,9 +98,10 @@ export function useCardioPrograms() {
     mutationFn: async ({ programId, startDate }: { programId: string; startDate: Date }) => {
       if (!user) throw new Error('Must be logged in');
 
-      // Check active count
+      // Check active count — coach/dev bypass for own library
       const currentActive = programs?.filter(p => p.is_active && p.id !== programId) || [];
-      if (currentActive.length >= MAX_ACTIVE_PROGRAMS) {
+      const bypassLimit = isDev || isCoach;
+      if (!bypassLimit && currentActive.length >= MAX_ACTIVE_PROGRAMS) {
         throw new Error(`Maximum ${MAX_ACTIVE_PROGRAMS} active programmes allowed. Please pause one first.`);
       }
 

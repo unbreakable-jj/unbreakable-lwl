@@ -1,11 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { toast } from 'sonner';
 import { MealPlan, MealPlanItem } from '@/lib/fuelTypes';
 
+const MAX_ACTIVE_MEAL_PLANS = 2;
+
 export function useMealPlans() {
   const { user } = useAuth();
+  const { isDev, isCoach } = useUserRole();
   const queryClient = useQueryClient();
 
   const { data: mealPlans, isLoading } = useQuery({
@@ -47,9 +51,10 @@ export function useMealPlans() {
     enabled: !!user && planIds.length > 0,
   });
 
-  // Count active plans
+  // Count active plans — coach/dev bypass for own library
   const activePlansCount = mealPlans?.filter(p => p.is_active).length || 0;
-  const canActivateMore = activePlansCount < 3;
+  const bypassLimit = isDev || isCoach;
+  const canActivateMore = bypassLimit || activePlansCount < MAX_ACTIVE_MEAL_PLANS;
 
   const createMealPlan = useMutation({
     mutationFn: async ({ plan, forUserId }: { plan: Omit<MealPlan, 'id' | 'user_id' | 'created_at' | 'updated_at'>; forUserId?: string }) => {
@@ -57,7 +62,7 @@ export function useMealPlans() {
 
       // Check if trying to activate and already at limit
       if (plan.is_active && !canActivateMore) {
-        throw new Error('Maximum 3 active meal plans allowed');
+        throw new Error(`Maximum ${MAX_ACTIVE_MEAL_PLANS} active meal plans allowed`);
       }
 
       const { data, error } = await supabase
@@ -120,7 +125,7 @@ export function useMealPlans() {
 
       // Check active plan limit (only if activating a new one)
       if (!canActivateMore) {
-        throw new Error('Maximum 3 active meal plans allowed. Deactivate one first.');
+        throw new Error(`Maximum ${MAX_ACTIVE_MEAL_PLANS} active meal plans allowed. Deactivate one first.`);
       }
 
       // Activate the selected plan (don't deactivate others - allow multiple active)

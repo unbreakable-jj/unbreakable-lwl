@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { toast } from 'sonner';
 
 export interface MindsetProgramme {
@@ -19,8 +20,11 @@ export interface MindsetProgramme {
   updated_at: string;
 }
 
+const MAX_ACTIVE_MINDSET = 2;
+
 export function useMindsetProgrammes() {
   const { user } = useAuth();
+  const { isDev, isCoach } = useUserRole();
   const queryClient = useQueryClient();
 
   const { data: programmes, isLoading } = useQuery({
@@ -79,8 +83,9 @@ export function useMindsetProgrammes() {
       const prog = programmes?.find(p => p.id === id);
       if (!prog) throw new Error('Not found');
 
-      if (!prog.is_active && activeProgrammes.length >= 2) {
-        throw new Error('Maximum 2 active programmes. Deactivate one first.');
+      const bypassLimit = isDev || isCoach;
+      if (!bypassLimit && !prog.is_active && activeProgrammes.length >= MAX_ACTIVE_MINDSET) {
+        throw new Error('Maximum 2 active mindset programmes. Deactivate one first.');
       }
 
       const { error } = await supabase
