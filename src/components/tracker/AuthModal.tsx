@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
-import { Mail, Lock, User } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Mail, Lock, User, Cake } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface AuthModalProps {
@@ -19,6 +20,7 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -51,6 +53,13 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
           setLoading(false);
           return;
         }
+
+        if (!dateOfBirth) {
+          setFormError('Please enter your date of birth.');
+          toast.error('Please enter your date of birth');
+          setLoading(false);
+          return;
+        }
         
         if (password.length < 6) {
           setFormError('Password must be at least 6 characters.');
@@ -77,6 +86,18 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
           setFormError(msg);
           toast.error(msg);
         } else {
+          // Save DOB to profile after successful signup
+          try {
+            const { data: { user: newUser } } = await supabase.auth.getUser();
+            if (newUser && dateOfBirth) {
+              await supabase
+                .from('profiles')
+                .update({ date_of_birth: dateOfBirth })
+                .eq('user_id', newUser.id);
+            }
+          } catch (dobErr) {
+            console.error('Failed to save DOB:', dobErr);
+          }
           toast.success('Account created! Welcome to the movement.');
           onClose();
         }
@@ -106,27 +127,49 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
         <div className="space-y-6 py-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName" className="text-muted-foreground">
-                  Full Name
-                </Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    id="fullName"
-                    type="text"
-                    placeholder="Your name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="pl-10 bg-input border-border"
-                  />
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="fullName" className="text-muted-foreground">
+                    Full Name <span className="text-destructive">*</span>
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="fullName"
+                      type="text"
+                      placeholder="Your name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="pl-10 bg-input border-border"
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="dob" className="text-muted-foreground">
+                    Date of Birth <span className="text-destructive">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Cake className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="dob"
+                      type="date"
+                      value={dateOfBirth}
+                      onChange={(e) => setDateOfBirth(e.target.value)}
+                      className="pl-10 bg-input border-border"
+                      required
+                      max={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">Required for age-group features & leaderboards</p>
+                </div>
+              </>
             )}
 
             <div className="space-y-2">
               <Label htmlFor="email" className="text-muted-foreground">
-                Email
+                Email <span className="text-destructive">*</span>
               </Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -144,7 +187,7 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
 
             <div className="space-y-2">
               <Label htmlFor="password" className="text-muted-foreground">
-                Password
+                Password <span className="text-destructive">*</span>
               </Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
