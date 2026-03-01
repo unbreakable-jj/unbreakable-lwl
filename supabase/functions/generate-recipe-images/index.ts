@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
 
     for (const recipe of recipes) {
       try {
-        const prompt = `Professional food photography of "${recipe.name}", beautifully plated on a dark slate surface, dramatic lighting, shallow depth of field, overhead angle, restaurant quality, appetizing, ${recipe.category || 'meal'} dish. IMPORTANT: absolutely NO text, NO labels, NO words, NO titles, NO watermarks, NO overlays of any kind on the image. Pure food photography only. Ultra high resolution.`;
+        const prompt = `Generate a photorealistic food photograph of "${recipe.name}". Show the actual finished dish as it would appear served on a plate or in its cooking vessel. British home-cooked style, warm natural lighting, overhead angle, shallow depth of field, appetizing, ${recipe.category || 'meal'} dish. IMPORTANT: absolutely NO text, NO labels, NO words, NO titles, NO watermarks, NO overlays of any kind on the image. Pure food photography only. Ultra high resolution.`;
 
         const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
