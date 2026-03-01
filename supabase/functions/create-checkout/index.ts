@@ -55,7 +55,7 @@ serve(async (req) => {
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
       subscription_data: {
-        trial_period_days: 14,
+        trial_period_days: 7,
         metadata: { user_id: user.id },
       },
       success_url: `${origin}/?checkout=success`,
