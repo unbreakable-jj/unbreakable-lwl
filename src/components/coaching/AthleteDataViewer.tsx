@@ -93,7 +93,7 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
   const habitCompletionRate = recentHabits.length > 0
     ? Math.round(
         recentHabits.reduce((sum, h) => {
-          const count = [h.train, h.learn_daily, h.water, h.do_the_hard_thing, h.hit_your_numbers].filter(Boolean).length;
+          const count = [h.train, h.learn_daily, h.water, h.hit_your_numbers].filter(Boolean).length;
           const journalDone = (h.journal || '').trim().split(/\s+/).filter(Boolean).length >= 150 ? 1 : 0;
           return sum + count + journalDone;
         }, 0) / (recentHabits.length * 6) * 100
@@ -283,7 +283,7 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
               <p className="text-sm text-muted-foreground text-center py-4">No habit data</p>
             ) : (
               recentHabits.map(h => {
-                const completed = [h.train, h.learn_daily, h.water, h.do_the_hard_thing, h.hit_your_numbers].filter(Boolean).length;
+                const completed = [h.train, h.learn_daily, h.water, h.hit_your_numbers].filter(Boolean).length;
                 const journalWords = (h.journal || '').trim().split(/\s+/).filter(Boolean).length;
                 const journalDone = journalWords >= 150;
                 const total = completed + (journalDone ? 1 : 0);
@@ -294,15 +294,14 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
                         <p className="font-display text-sm text-foreground">
                           {format(new Date(h.habit_date), 'EEE, d MMM')}
                         </p>
-                        <Badge variant="outline" className={`text-xs ${total === 6 ? 'border-primary/40 text-primary' : ''}`}>
-                          {total}/6
+                        <Badge variant="outline" className={`text-xs ${total === 5 ? 'border-primary/40 text-primary' : ''}`}>
+                          {total}/5
                         </Badge>
                       </div>
                       <div className="flex gap-2 flex-wrap">
                         {h.train && <Badge variant="secondary" className="text-[10px]"><Dumbbell className="w-3 h-3 mr-1" />Train</Badge>}
                         {h.learn_daily && <Badge variant="secondary" className="text-[10px]"><BookOpen className="w-3 h-3 mr-1" />Learn</Badge>}
                         {h.water && <Badge variant="secondary" className="text-[10px]"><Droplets className="w-3 h-3 mr-1" />Water</Badge>}
-                        {h.do_the_hard_thing && <Badge variant="secondary" className="text-[10px]"><Flame className="w-3 h-3 mr-1" />Hard Thing</Badge>}
                         {h.hit_your_numbers && <Badge variant="secondary" className="text-[10px]"><Target className="w-3 h-3 mr-1" />Numbers</Badge>}
                         {journalDone && <Badge variant="secondary" className="text-[10px]"><PenLine className="w-3 h-3 mr-1" />Journal</Badge>}
                       </div>

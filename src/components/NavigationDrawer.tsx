@@ -58,14 +58,14 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
   };
 
   const linkClass = (path: string, highlight?: boolean, admin?: boolean) =>
-    `flex items-center gap-3 px-4 py-3 rounded-lg font-display tracking-wide transition-all ${
+    `flex items-center gap-3 px-4 py-3 rounded-lg font-display tracking-wide transition-all border ${
       isActive(path)
-        ? 'bg-primary text-primary-foreground shadow-[0_0_15px_hsl(24_100%_50%/0.4)]'
+        ? 'bg-primary text-primary-foreground border-primary shadow-[0_0_15px_hsl(24_100%_50%/0.4)]'
         : admin
-          ? 'text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 border border-amber-500/30'
+          ? 'text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 border-amber-500/30'
           : highlight
-            ? 'text-primary hover:text-primary-foreground hover:bg-primary/80 border border-primary/30'
-            : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
+            ? 'text-primary hover:text-primary-foreground hover:bg-primary/80 border-primary/30'
+            : 'text-muted-foreground border-primary/20 hover:text-primary hover:bg-primary/10 hover:border-primary/40'
     }`;
 
   return (
@@ -161,26 +161,10 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                 </CollapsibleContent>
               </Collapsible>
 
-              {/* MY PROFILE */}
-              <Link to="/profile" onClick={handleNavClick} className={linkClass('/profile')}>
-                <User className={`w-5 h-5 ${isActive('/profile') ? '' : 'text-primary'}`} />
-                MY PROFILE
-              </Link>
-
               {/* ASK COACH */}
               <Link to="/help" onClick={handleNavClick} className={linkClass('/help')}>
                 <Flame className={`w-5 h-5 ${isActive('/help') ? '' : 'text-primary'}`} />
                 ASK COACH
-              </Link>
-
-              {/* 121 COACHING - role-aware */}
-              <Link
-                to={(isCoach || isDev) ? '/coach' : '/my-coaching'}
-                onClick={handleNavClick}
-                className={linkClass((isCoach || isDev) ? '/coach' : '/my-coaching', true)}
-              >
-                <UserCheck className={`w-5 h-5 ${(isActive('/coach') || isActive('/my-coaching')) ? '' : 'text-primary'}`} />
-                121 COACHING
               </Link>
 
               {/* UNIVERSITY */}
@@ -188,21 +172,36 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                 <GraduationCap className={`w-5 h-5 ${isActive('/university') ? '' : 'text-primary'}`} />
                 UNIVERSITY
               </Link>
-
-              {/* DEV - only for dev role */}
-              {isDev && (
-                <Link to="/admin" onClick={handleNavClick} className={linkClass('/admin', false, true)}>
-                  <Shield className={`w-5 h-5 ${isActive('/admin') ? '' : 'text-amber-500'}`} />
-                  DEV
-                </Link>
-              )}
             </nav>
 
-            {/* User Actions */}
+            {/* Bottom section: Profile, Dev, Coaching, Sign Out */}
             {user && (
-              <div className="mt-auto pt-6">
-                <Separator className="bg-primary/20 mb-6" />
+              <div className="mt-auto pt-4">
+                <Separator className="bg-primary/20 mb-4" />
                 <div className="space-y-2">
+                  <Link to="/profile" onClick={handleNavClick} className={linkClass('/profile')}>
+                    <User className={`w-5 h-5 ${isActive('/profile') ? '' : 'text-primary'}`} />
+                    MY PROFILE
+                  </Link>
+
+                  {isDev && (
+                    <Link to="/admin" onClick={handleNavClick} className={linkClass('/admin', false, true)}>
+                      <Shield className={`w-5 h-5 ${isActive('/admin') ? '' : 'text-amber-500'}`} />
+                      DEV
+                    </Link>
+                  )}
+
+                  <Link
+                    to={(isCoach || isDev) ? '/coach' : '/my-coaching'}
+                    onClick={handleNavClick}
+                    className={linkClass((isCoach || isDev) ? '/coach' : '/my-coaching', true)}
+                  >
+                    <UserCheck className={`w-5 h-5 ${(isActive('/coach') || isActive('/my-coaching')) ? '' : 'text-primary'}`} />
+                    121 COACHING
+                  </Link>
+
+                  <Separator className="bg-primary/20 my-2" />
+
                   <button
                     onClick={handleSignOut}
                     className="flex items-center gap-3 px-4 py-3 rounded-lg font-display tracking-wide text-destructive hover:bg-destructive/10 transition-all w-full text-left"

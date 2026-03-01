@@ -89,7 +89,7 @@ export function RecordActionMenu({ isOpen, onClose, onOpenRunModal }: RecordActi
                   <ClipboardCheck className="w-8 h-8 text-primary" />
                 </div>
                 <h3 className="font-display text-xl text-foreground tracking-wide mb-1">HABIT TRACKER</h3>
-                <p className="text-sm text-muted-foreground">Track your Daily 6</p>
+                <p className="text-sm text-muted-foreground">Track your Daily 5</p>
               </div>
             </Card>
           </motion.div>

@@ -36,7 +36,7 @@ const activityLabels: Record<string, string> = {
   journaling: 'Journaling',
   mental_drill: 'Mental Drill',
   reflection: 'Reflection',
-  focus_game: 'Focus Game',
+  focus_game: 'Switch Off',
   retention: 'Breath Retention',
   exposure: 'Exposure',
 };
@@ -227,8 +227,7 @@ export function MindsetProgrammeDetail({ programme, onBack }: Props) {
 
                                         {activity.gameName && (
                                           <Badge variant="secondary" className="text-xs mt-2">
-                                            🎮 {activity.gameName}
-                                            {activity.targetScore && ` · Target: ${activity.targetScore}`}
+                                            🎮 Switch Off — {activity.gameName} — {activity.durationMinutes} mins
                                           </Badge>
                                         )}
 
