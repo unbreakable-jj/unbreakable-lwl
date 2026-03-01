@@ -76,7 +76,7 @@ SESSION TYPES you can prescribe:
 - journaling: Structured journaling with specific prompts
 - mental_drill: Cognitive exercises (visualisation, focus drills, positive self-talk scripts, reframing exercises)
 - reflection: End-of-day review and self-assessment
-- focus_game: Cognitive training games that sharpen reactions and focus. Available games: "Snake" (spatial awareness & planning), "Alleyway" (hand-eye coordination & reflexes), "Tetris" (pattern recognition & spatial reasoning). Prescribe a specific game and a target score or duration.
+- focus_game: "Switch Off" time — casual gaming for mental decompression, NOT competitive score-chasing. Available games: "Snake", "Alleyway", "Tetris". Prescribe a specific game and a duration (e.g. 10 minutes). Do NOT set targetScore — these are relaxation tools, not performance tests.
 - retention: Wim Hof style breath retention challenge — 3 rounds of 30 power breaths followed by max breath hold. Include target retention times that progress across weeks.
 - exposure: Cold or sauna exposure protocol. Sub-types: "cold_shower", "ice_bath", "sauna". Include progressive duration targets and safety guidance.
 
@@ -115,8 +115,7 @@ Return ONLY valid JSON matching this structure:
               "instructions": "string",
               "breathingPattern": "optional - only for breathing type",
               "journalPrompts": ["optional - only for journaling type"],
-              "gameName": "optional - Snake|Alleyway|Tetris - only for focus_game type",
-              "targetScore": "optional number - only for focus_game type",
+              "gameName": "optional - Snake|Alleyway|Tetris - only for focus_game type (switch-off time, no scores)",
               "retentionTargetSeconds": "optional number - target breath hold in seconds, only for retention type",
               "exposureType": "optional - cold_shower|ice_bath|sauna - only for exposure type",
               "targetDurationSeconds": "optional number - target exposure duration, only for exposure type",

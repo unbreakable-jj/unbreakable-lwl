@@ -8,7 +8,6 @@ const DEFAULT_HABITS: HabitState = {
   train: false,
   learnDaily: false,
   water: false,
-  doTheHardThing: false,
   hitYourNumbers: false,
   journal: '',
 };
@@ -38,7 +37,6 @@ export function useDailyHabits() {
         train: data.train,
         learnDaily: data.learn_daily,
         water: data.water,
-        doTheHardThing: data.do_the_hard_thing,
         hitYourNumbers: data.hit_your_numbers,
         journal: data.journal || '',
       });
@@ -65,7 +63,7 @@ export function useDailyHabits() {
         train: newHabits.train,
         learn_daily: newHabits.learnDaily,
         water: newHabits.water,
-        do_the_hard_thing: newHabits.doTheHardThing,
+        do_the_hard_thing: false,
         hit_your_numbers: newHabits.hitYourNumbers,
         journal: newHabits.journal,
       }, { onConflict: 'user_id,habit_date' });

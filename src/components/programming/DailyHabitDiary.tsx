@@ -8,7 +8,6 @@ import {
   Dumbbell, 
   BookOpen, 
   Droplets, 
-  Flame, 
   Target, 
   PenLine,
   ChevronDown,
@@ -19,7 +18,6 @@ export interface HabitState {
   train: boolean;
   learnDaily: boolean;
   water: boolean;
-  doTheHardThing: boolean;
   hitYourNumbers: boolean;
   journal: string;
 }
@@ -37,7 +35,6 @@ const HABITS = [
   { key: 'train' as const, label: 'TRAIN', description: 'Complete your session', icon: Dumbbell },
   { key: 'learnDaily' as const, label: 'LEARN DAILY', description: 'Read, watch, or study something new', icon: BookOpen },
   { key: 'water' as const, label: 'WATER (3L)', description: 'Drink at least 3 litres of water', icon: Droplets },
-  { key: 'doTheHardThing' as const, label: 'DO THE HARD THING', description: 'Face one uncomfortable task today', icon: Flame },
   { key: 'hitYourNumbers' as const, label: 'HIT YOUR NUMBERS', description: 'Meet your nutrition targets', icon: Target },
 ];
 
@@ -74,7 +71,7 @@ export function DailyHabitDiary({ habits, onChange, compact = false, readOnly = 
               )}
             </div>
             <div className="text-left">
-              <span className="font-display text-foreground tracking-wide text-base">DAILY 6 HABITS</span>
+              <span className="font-display text-foreground tracking-wide text-base">DAILY 5 HABITS</span>
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="outline" className="text-xs">
                   {completedCount}/{totalCount}

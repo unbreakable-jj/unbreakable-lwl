@@ -77,12 +77,12 @@ const ListItem = ({ className, title, children, icon: Icon, href, ...props }: Li
 
 const navLinkClass = (active: boolean, highlight?: boolean) =>
   cn(
-    'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-all',
+    'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-all border',
     active
-      ? 'bg-primary text-primary-foreground shadow-[0_0_12px_hsl(24_100%_50%/0.35)]'
+      ? 'bg-primary text-primary-foreground border-primary shadow-[0_0_12px_hsl(24_100%_50%/0.35)]'
       : highlight
-        ? 'text-primary hover:bg-primary/10'
-        : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
+        ? 'text-primary border-primary/30 hover:bg-primary/10'
+        : 'text-muted-foreground border-primary/20 hover:text-primary hover:bg-primary/10 hover:border-primary/40'
   );
 
 export function MainNavigation() {
@@ -121,15 +121,6 @@ export function MainNavigation() {
             {/* Center: Desktop Navigation — well spaced */}
             <NavigationMenu className="hidden lg:flex">
               <NavigationMenuList className="gap-1">
-                {/* MY PROFILE */}
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link to="/profile" className={navLinkClass(isActive('/profile'))}>
-                      MY PROFILE
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-
                 {/* PROGRAMMING HUB mega dropdown */}
                 <NavigationMenuItem>
                   <NavigationMenuTrigger
@@ -171,41 +162,36 @@ export function MainNavigation() {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
-                {/* DEV - for dev role only */}
-                {isDev && (
-                  <NavigationMenuItem>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        to="/admin"
-                        className={cn(
-                          'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-all border',
-                          isActive('/admin')
-                            ? 'bg-primary text-primary-foreground shadow-[0_0_12px_hsl(24_100%_50%/0.35)]'
-                            : 'text-amber-500 border-amber-500/30 hover:bg-amber-500/10'
-                        )}
-                      >
-                        DEV
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                )}
-
-                {/* 121 COACHING */}
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      to={(isCoach || isDev) ? '/coach' : '/my-coaching'}
-                      className={navLinkClass(isActive('/coach') || isActive('/my-coaching'), true)}
-                    >
-                      121 COACHING
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
 
-            {/* Right: Auth + Mobile Menu */}
+            {/* Right: Profile/Dev/Coach cluster + Auth + Mobile Menu */}
             <div className="flex items-center gap-2 shrink-0">
+              {/* Desktop-only secondary nav items */}
+              <div className="hidden lg:flex items-center gap-1">
+                <Link to="/profile" className={navLinkClass(isActive('/profile'))}>
+                  MY PROFILE
+                </Link>
+                {isDev && (
+                  <Link
+                    to="/admin"
+                    className={cn(
+                      'inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-display tracking-wide transition-all border',
+                      isActive('/admin')
+                        ? 'bg-primary text-primary-foreground shadow-[0_0_12px_hsl(24_100%_50%/0.35)]'
+                        : 'text-amber-500 border-amber-500/30 hover:bg-amber-500/10'
+                    )}
+                  >
+                    DEV
+                  </Link>
+                )}
+                <Link
+                  to={(isCoach || isDev) ? '/coach' : '/my-coaching'}
+                  className={navLinkClass(isActive('/coach') || isActive('/my-coaching'), true)}
+                >
+                  121 COACHING
+                </Link>
+              </div>
               {!user && (
                 <Button
                   size="sm"

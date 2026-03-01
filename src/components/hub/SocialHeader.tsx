@@ -57,10 +57,10 @@ export function SocialHeader({
           <div className="hidden md:flex items-center gap-1 bg-card/60 border border-primary/15 rounded-lg p-1">
             <button
               onClick={() => onTabChange('feed')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md font-display text-sm tracking-wide transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-md font-display text-sm tracking-wide transition-all border ${
                 activeTab === 'feed'
-                  ? 'bg-primary text-primary-foreground shadow-[0_0_12px_hsl(24_100%_50%/0.35)]'
-                  : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
+                  ? 'bg-primary text-primary-foreground border-primary shadow-[0_0_12px_hsl(24_100%_50%/0.35)]'
+                  : 'text-muted-foreground border-primary/20 hover:text-primary hover:bg-primary/10 hover:border-primary/40'
               }`}
             >
               <Home className="w-4 h-4" />
@@ -71,10 +71,10 @@ export function SocialHeader({
                 onTabChange('messages');
                 navigate('/inbox?compose=1');
               }}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-md font-display text-sm tracking-wide transition-all ${
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-md font-display text-sm tracking-wide transition-all border ${
                 activeTab === 'messages'
-                  ? 'bg-primary text-primary-foreground shadow-[0_0_12px_hsl(24_100%_50%/0.35)]'
-                  : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
+                  ? 'bg-primary text-primary-foreground border-primary shadow-[0_0_12px_hsl(24_100%_50%/0.35)]'
+                  : 'text-muted-foreground border-primary/20 hover:text-primary hover:bg-primary/10 hover:border-primary/40'
               }`}
             >
               <MessageCircle className="w-4 h-4" />
@@ -90,10 +90,10 @@ export function SocialHeader({
                 onTabChange('notifications');
                 setShowNotifications(true);
               }}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-md font-display text-sm tracking-wide transition-all ${
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-md font-display text-sm tracking-wide transition-all border ${
                 activeTab === 'notifications'
-                  ? 'bg-primary text-primary-foreground shadow-[0_0_12px_hsl(24_100%_50%/0.35)]'
-                  : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
+                  ? 'bg-primary text-primary-foreground border-primary shadow-[0_0_12px_hsl(24_100%_50%/0.35)]'
+                  : 'text-muted-foreground border-primary/20 hover:text-primary hover:bg-primary/10 hover:border-primary/40'
               }`}
             >
               <Bell className="w-4 h-4" />
@@ -125,7 +125,7 @@ export function SocialHeader({
                   </Badge>
                 )}
               </Button>
-              <Button
+            <Button
                 variant="ghost"
                 size="sm"
                 className="relative"
@@ -137,6 +137,12 @@ export function SocialHeader({
                     {notificationCount > 9 ? '9+' : notificationCount}
                   </Badge>
                 )}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={onShowFriendsList}>
+                <Users className="w-5 h-5 text-primary" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={onShowUserSearch}>
+                <UserPlus className="w-5 h-5 text-primary" />
               </Button>
             </div>
 

@@ -57,7 +57,7 @@ function getSmartSuggestions(exerciseName: string): Array<{ name: string; equipm
     });
   }
 
-  return suggestions.slice(0, 6);
+  return suggestions;
 }
 
 export function ExerciseSwapSheet({
@@ -74,11 +74,21 @@ export function ExerciseSwapSheet({
   const filteredSuggestions = useMemo(() => {
     if (!searchQuery.trim()) return suggestions;
     const q = searchQuery.toLowerCase();
-    return suggestions.filter(s =>
-      s.name.toLowerCase().includes(q) ||
-      s.equipment.toLowerCase().includes(q)
+    // Search entire library when user types a query
+    const libraryMatches = EXERCISE_LIBRARY
+      .filter(e =>
+        e.name.toLowerCase() !== exerciseName.toLowerCase() &&
+        (e.name.toLowerCase().includes(q) || e.equipment.some(eq => eq.toLowerCase().includes(q)) || e.bodyPart.toLowerCase().includes(q))
+      )
+      .map(e => ({ name: e.name, equipment: e.equipment[0], reason: `${e.bodyPart} — ${e.equipment[0]}` }));
+    // Merge: suggestion matches first, then library matches (deduplicated)
+    const suggestionMatches = suggestions.filter(s =>
+      s.name.toLowerCase().includes(q) || s.equipment.toLowerCase().includes(q)
     );
-  }, [suggestions, searchQuery]);
+    const seen = new Set(suggestionMatches.map(s => s.name.toLowerCase()));
+    const extra = libraryMatches.filter(m => !seen.has(m.name.toLowerCase()));
+    return [...suggestionMatches, ...extra];
+  }, [suggestions, searchQuery, exerciseName]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -104,7 +114,7 @@ export function ExerciseSwapSheet({
             />
           </div>
 
-          <ScrollArea className="flex-1 min-h-0">
+          <ScrollArea className="flex-1 min-h-0 max-h-[50vh]">
             <div className="space-y-2">
               {filteredSuggestions.length === 0 && (
                 <p className="text-sm text-muted-foreground text-center py-4">

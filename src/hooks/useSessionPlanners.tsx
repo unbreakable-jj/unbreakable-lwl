@@ -83,12 +83,18 @@ export function useSessionPlanners(programId?: string) {
       const templateDays = programData.templateWeek?.days || programData.weeks?.[0]?.days || [];
       const start = startDate || new Date();
       
-      // Generate 12 weeks of planners using Day X format (not weekday names)
+      // Generate 12 weeks of planners — only training days, skip rest days
+      // Each training day advances the calendar sequentially from start date
+      const trainingDays = templateDays.filter((day: any) => {
+        const type = (day.sessionType || '').toLowerCase();
+        return type !== 'rest' && type !== 'off' && type !== 'recovery';
+      });
+      
+      let currentDate = new Date(start);
       for (let week = 1; week <= 12; week++) {
-        templateDays.forEach((day: any, dayIndex: number) => {
-          // Calculate scheduled date based on start date and day offset
-          const scheduledDate = new Date(start);
-          scheduledDate.setDate(scheduledDate.getDate() + ((week - 1) * 7) + dayIndex);
+        trainingDays.forEach((day: any, dayIndex: number) => {
+          const scheduledDate = new Date(currentDate);
+          scheduledDate.setDate(scheduledDate.getDate() + dayIndex);
           
           plannerEntries.push({
             user_id: user.id,
@@ -111,6 +117,8 @@ export function useSessionPlanners(programId?: string) {
             status: 'pending',
           });
         });
+        // Advance currentDate by 7 days for the next week
+        currentDate.setDate(currentDate.getDate() + 7);
       }
       
       const { error } = await supabase

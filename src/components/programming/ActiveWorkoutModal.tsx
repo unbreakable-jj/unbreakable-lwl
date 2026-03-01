@@ -68,7 +68,6 @@ export function ActiveWorkoutModal({
     train: false,
     learnDaily: false,
     water: false,
-    doTheHardThing: false,
     hitYourNumbers: false,
     journal: '',
   });
