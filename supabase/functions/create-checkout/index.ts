@@ -54,6 +54,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
+      allow_promotion_codes: true,
       subscription_data: {
         trial_period_days: 7,
         metadata: { user_id: user.id },
