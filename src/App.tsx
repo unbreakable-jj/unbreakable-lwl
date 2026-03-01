@@ -36,6 +36,7 @@ import Onboarding from "./pages/Onboarding";
 import Habits from "./pages/Habits";
 import CoachDashboard from "./pages/CoachDashboard";
 import MyCoaching from "./pages/MyCoaching";
+import Plans from "./pages/Plans";
 
 const queryClient = new QueryClient();
 
@@ -153,6 +154,11 @@ const App = () => (
               } />
               {/* Admin Dashboard - Hidden, role-protected */}
               <Route path="/admin" element={<Admin />} />
+              
+              {/* Plan Selection */}
+              <Route path="/plans" element={
+                <ProtectedRoute><Plans /></ProtectedRoute>
+              } />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
