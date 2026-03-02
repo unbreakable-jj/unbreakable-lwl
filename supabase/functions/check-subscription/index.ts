@@ -75,7 +75,8 @@ serve(async (req) => {
     // Trial users can always cancel. After trial (active), 3-month lock-in applies.
     let canCancel = isTrialing;
     if (!isTrialing) {
-      const subscriptionStart = new Date(activeSub.start_date * 1000);
+      const startTs = activeSub.start_date ?? activeSub.created;
+      const subscriptionStart = new Date((startTs || 0) * 1000);
       const now = new Date();
       const monthsActive = (now.getFullYear() - subscriptionStart.getFullYear()) * 12 +
         (now.getMonth() - subscriptionStart.getMonth());
