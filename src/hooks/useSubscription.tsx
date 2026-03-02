@@ -9,6 +9,7 @@ interface SubscriptionState {
   tierName: string | null;
   subscriptionEnd: string | null;
   status: string | null;
+  isTrialing: boolean;
   canCancel: boolean;
   loading: boolean;
 }
@@ -21,6 +22,7 @@ export function useSubscription() {
     tierName: null,
     subscriptionEnd: null,
     status: null,
+    isTrialing: false,
     canCancel: false,
     loading: true,
   });
@@ -56,6 +58,7 @@ export function useSubscription() {
         tierName,
         subscriptionEnd: data?.subscription_end ?? null,
         status: data?.status ?? null,
+        isTrialing: data?.is_trialing ?? false,
         canCancel: data?.can_cancel ?? false,
         loading: false,
       });

@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { useState } from 'react';
 
 export function MembershipTab() {
-  const { subscribed, tierName, subscriptionEnd, status, canCancel, loading, openCustomerPortal } = useSubscription();
+  const { subscribed, tierName, subscriptionEnd, status, isTrialing, canCancel, loading, openCustomerPortal } = useSubscription();
   const navigate = useNavigate();
   const [portalLoading, setPortalLoading] = useState(false);
 
@@ -56,19 +56,27 @@ export function MembershipTab() {
           <div className="flex items-center gap-2">
             <h3 className="font-display text-lg tracking-wide text-foreground">{tierName || 'ACTIVE PLAN'}</h3>
             <Badge className="bg-primary/20 text-primary text-xs font-display">
-              {status === 'trialing' ? 'TRIAL' : 'ACTIVE'}
+              {isTrialing ? 'FREE TRIAL' : 'ACTIVE'}
             </Badge>
           </div>
           {subscriptionEnd && (
             <p className="text-sm text-muted-foreground flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5" />
-              {status === 'trialing' ? 'Trial ends' : 'Renews'} {format(parseISO(subscriptionEnd), 'dd MMM yyyy')}
+              {isTrialing ? 'Trial ends' : 'Renews'} {format(parseISO(subscriptionEnd), 'dd MMM yyyy')}
             </p>
           )}
         </div>
       </div>
 
-      {!canCancel && (
+      {/* Trial info */}
+      {isTrialing && (
+        <p className="text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg">
+          You're on a <span className="text-primary font-semibold">7-day free trial</span>. You can cancel anytime before the trial ends and you won't be charged. After your trial, your subscription begins with a 3-month commitment.
+        </p>
+      )}
+
+      {/* Post-trial commitment info */}
+      {!isTrialing && !canCancel && (
         <p className="text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg">
           You're within your 3-month commitment period. After this period, your plan will continue as a monthly subscription that you can cancel anytime.
         </p>
@@ -81,7 +89,7 @@ export function MembershipTab() {
         className="w-full font-display tracking-wide"
       >
         {portalLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ExternalLink className="w-4 h-4 mr-2" />}
-        MANAGE SUBSCRIPTION
+        {isTrialing ? 'MANAGE TRIAL' : 'MANAGE SUBSCRIPTION'}
       </Button>
     </Card>
   );
