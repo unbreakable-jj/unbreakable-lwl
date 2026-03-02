@@ -68,19 +68,37 @@ serve(async (req) => {
       });
     }
 
+    // Log raw subscription fields to debug date issues
+    logStep("Raw sub fields", {
+      status: activeSub.status,
+      current_period_end: activeSub.current_period_end,
+      trial_end: (activeSub as any).trial_end,
+      created: activeSub.created,
+      typeof_cpe: typeof activeSub.current_period_end,
+    });
+
     const productId = activeSub.items.data[0]?.price?.product as string;
-    const subscriptionEnd = new Date(activeSub.current_period_end * 1000).toISOString();
     const isTrialing = activeSub.status === "trialing";
+
+    // Safely determine subscription end date
+    let subscriptionEnd: string | null = null;
+    // Try current_period_end, then trial_end for trialing subs
+    const endTs = activeSub.current_period_end ?? (activeSub as any).trial_end;
+    if (typeof endTs === "number" && endTs > 0) {
+      subscriptionEnd = new Date(endTs * 1000).toISOString();
+    }
 
     // Trial users can always cancel. After trial (active), 3-month lock-in applies.
     let canCancel = isTrialing;
     if (!isTrialing) {
-      const startTs = activeSub.start_date ?? activeSub.created;
-      const subscriptionStart = new Date((startTs || 0) * 1000);
-      const now = new Date();
-      const monthsActive = (now.getFullYear() - subscriptionStart.getFullYear()) * 12 +
-        (now.getMonth() - subscriptionStart.getMonth());
-      canCancel = monthsActive >= 3;
+      const startTs = (activeSub as any).start_date ?? activeSub.created ?? 0;
+      if (typeof startTs === "number" && startTs > 0) {
+        const subscriptionStart = new Date(startTs * 1000);
+        const now = new Date();
+        const monthsActive = (now.getFullYear() - subscriptionStart.getFullYear()) * 12 +
+          (now.getMonth() - subscriptionStart.getMonth());
+        canCancel = monthsActive >= 3;
+      }
     }
 
     logStep("Active subscription found", { productId, subscriptionEnd, isTrialing, canCancel });
