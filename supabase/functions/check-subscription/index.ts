@@ -70,19 +70,26 @@ serve(async (req) => {
 
     const productId = activeSub.items.data[0]?.price?.product as string;
     const subscriptionEnd = new Date(activeSub.current_period_end * 1000).toISOString();
-    const subscriptionStart = new Date(activeSub.start_date * 1000);
-    const now = new Date();
-    const monthsActive = (now.getFullYear() - subscriptionStart.getFullYear()) * 12 +
-      (now.getMonth() - subscriptionStart.getMonth());
-    const canCancel = monthsActive >= 3;
+    const isTrialing = activeSub.status === "trialing";
 
-    logStep("Active subscription found", { productId, subscriptionEnd, canCancel });
+    // Trial users can always cancel. After trial (active), 3-month lock-in applies.
+    let canCancel = isTrialing;
+    if (!isTrialing) {
+      const subscriptionStart = new Date(activeSub.start_date * 1000);
+      const now = new Date();
+      const monthsActive = (now.getFullYear() - subscriptionStart.getFullYear()) * 12 +
+        (now.getMonth() - subscriptionStart.getMonth());
+      canCancel = monthsActive >= 3;
+    }
+
+    logStep("Active subscription found", { productId, subscriptionEnd, isTrialing, canCancel });
 
     return new Response(JSON.stringify({
       subscribed: true,
       product_id: productId,
       subscription_end: subscriptionEnd,
       status: activeSub.status,
+      is_trialing: isTrialing,
       can_cancel: canCancel,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

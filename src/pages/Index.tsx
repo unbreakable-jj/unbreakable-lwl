@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { useOnboardingCheck } from '@/hooks/useOnboardingCheck';
+import { useSubscription } from '@/hooks/useSubscription';
 import { UnifiedFeed } from '@/components/hub/UnifiedFeed';
 import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
 import { RecordActionMenu } from '@/components/hub/RecordActionMenu';
@@ -22,6 +23,7 @@ type Tab = 'feed' | 'messages' | 'notifications';
 const Index = () => {
   const { user, loading } = useAuth();
   const { needsOnboarding, loading: onboardingLoading } = useOnboardingCheck();
+  const { refresh: refreshSubscription } = useSubscription();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>('feed');
@@ -36,13 +38,18 @@ const Index = () => {
   // Initialize presence tracking
   usePresence();
 
-  // Handle checkout success redirect
+  // Handle checkout success redirect - refresh subscription with retries
   useEffect(() => {
     if (searchParams.get('checkout') === 'success') {
       toast.success('Welcome to UNBREAKABLE! Your 7-day free trial has started. 💪');
       setSearchParams({}, { replace: true });
+      // Retry subscription check to give Stripe time to finalize
+      const retryDelays = [1000, 3000, 6000];
+      retryDelays.forEach((delay) => {
+        setTimeout(() => refreshSubscription(), delay);
+      });
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, refreshSubscription]);
 
   // Redirect to onboarding if needed
   useEffect(() => {
