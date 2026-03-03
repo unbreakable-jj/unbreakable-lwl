@@ -99,38 +99,7 @@ export function PlanSelectionPage({ onSelectPlan, loading }: PlanSelectionPagePr
           </Card>
         </motion.div>
 
-        {/* Tier 2 */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Card className="relative bg-card border-2 border-primary/40 neon-border-subtle p-6 md:p-8">
-            <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground font-display tracking-wide text-xs px-3">
-              PREMIUM
-            </Badge>
-
-            <h2 className="font-display text-2xl md:text-3xl text-foreground tracking-wide mb-1 text-center mt-2">
-              UNBREAKABLE <span className="text-primary neon-glow-subtle">1-TO-1</span>
-            </h2>
-            <p className="text-muted-foreground text-center mb-6">Everything in Coaching, plus a dedicated human coach</p>
-
-            <div className="text-center mb-6">
-              <p className="font-display text-5xl text-primary neon-glow-subtle">£{t2.totalPrice}</p>
-              <p className="text-muted-foreground text-sm mt-1">
-                every 3 months · just <span className="text-foreground font-semibold">£{t2PerDay}/day</span>
-              </p>
-              <p className="text-muted-foreground text-xs mt-1">Billed £{t2.monthlyPrice}/mo · 3-month minimum commitment</p>
-            </div>
-
-            <Button
-              className="w-full font-display tracking-wide text-lg py-6 mb-6"
-              onClick={() => onSelectPlan('tier2')}
-              disabled={loading}
-            >
-              <Crown className="w-5 h-5 mr-2" /> START FREE TRIAL
-            </Button>
-
-            <p className="font-display text-lg tracking-wide text-foreground mb-4">EVERYTHING IN COACHING, PLUS:</p>
-            <FeatureList features={tier2Extras} icon={Crown} />
-          </Card>
-        </motion.div>
+        {/* Tier 2 hidden for now */}
 
         {/* Footer */}
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="text-center text-muted-foreground text-sm mt-10">

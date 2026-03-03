@@ -14,13 +14,14 @@ import { useCoachingAssignments } from '@/hooks/useCoachingAssignments';
 import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
 import { useCardioPrograms } from '@/hooks/useCardioPrograms';
 import { useMealPlans } from '@/hooks/useMealPlans';
+import { useSubscription } from '@/hooks/useSubscription';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import {
   UserCheck, MessageSquare, ClipboardList, Dumbbell, Footprints,
   Utensils, Loader2, User, Video, Image, CalendarCheck, Send,
-  CheckCircle2
+  CheckCircle2, Lock
 } from 'lucide-react';
 
 export default function MyCoaching() {
@@ -29,13 +30,22 @@ export default function MyCoaching() {
   const { programs: trainingPrograms } = useTrainingPrograms();
   const { programs: cardioPrograms } = useCardioPrograms();
   const { mealPlans } = useMealPlans();
+  const { subscribed, isTrialing, loading: subLoading } = useSubscription();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [requesting, setRequesting] = useState(false);
 
-  const loading = authLoading || coachLoading;
+  const loading = authLoading || coachLoading || subLoading;
+  const hasActiveSubscription = subscribed || isTrialing;
 
   const handleRequestCoach = async () => {
     if (!user) return;
+
+    // Gate: must have active subscription (trial or paid)
+    if (!hasActiveSubscription) {
+      toast.error('You need an active subscription to request a coach. Start your free trial first.');
+      return;
+    }
+
     setRequesting(true);
     try {
       // Find dev user to send request to
@@ -68,6 +78,15 @@ export default function MyCoaching() {
           console.error(error);
         }
       } else {
+        // Notify the dev about the new coaching request
+        await supabase.from('notifications').insert({
+          user_id: devUserId,
+          type: 'coaching_request',
+          title: 'New Coaching Request',
+          body: `A user has requested 121 coaching. Review in your coaching dashboard.`,
+          data: { athlete_id: user.id },
+        });
+
         toast.success('Coaching request sent! We\'ll be in touch.');
         refetch();
       }
@@ -185,6 +204,19 @@ export default function MyCoaching() {
                 <p className="text-muted-foreground text-sm">
                   Your coaching request is being reviewed. We'll match you with the right coach.
                 </p>
+              </Card>
+            ) : !hasActiveSubscription ? (
+              <Card className="border-border p-6 text-center">
+                <Lock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h2 className="font-display text-lg tracking-wide text-foreground mb-2">SUBSCRIPTION REQUIRED</h2>
+                <p className="text-muted-foreground text-sm max-w-md mx-auto mb-4">
+                  Start your free trial and provide payment details to request a 121 coach.
+                </p>
+                <Link to="/plans">
+                  <Button className="font-display tracking-wide">
+                    VIEW PLANS
+                  </Button>
+                </Link>
               </Card>
             ) : (
               <Card className="border-border p-6 text-center">

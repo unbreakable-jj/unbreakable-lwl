@@ -25,8 +25,13 @@ interface NotificationsPanelProps {
 
 function getNotificationLink(notification: Notification): string | null {
   if (notification.type === 'coaching_feedback' && notification.data) {
-    const feedbackId = (notification.data as any)?.feedback_id;
-    return `/profile?tab=coach-updates${feedbackId ? `&feedback=${feedbackId}` : ''}`;
+    return '/my-coaching';
+  }
+  if (notification.type === 'coaching_request') {
+    return '/coach';
+  }
+  if (notification.type === 'programme_updated') {
+    return '/my-coaching';
   }
   return null;
 }
@@ -46,7 +51,11 @@ function getNotificationIcon(type: string) {
     case 'trophy':
       return <Trophy className="w-4 h-4" />;
     case 'workout':
+    case 'programme_updated':
       return <Dumbbell className="w-4 h-4" />;
+    case 'coaching_feedback':
+    case 'coaching_request':
+      return <UserPlus className="w-4 h-4" />;
     default:
       return <Bell className="w-4 h-4" />;
   }
