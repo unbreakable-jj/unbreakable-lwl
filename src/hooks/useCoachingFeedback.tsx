@@ -73,7 +73,7 @@ export function useCoachingFeedback() {
         await supabase.from('messages').insert({
           conversation_id: convId,
           sender_id: user.id,
-          content: `📋 New coach update: "${data.title}". View your Coach Updates in your profile.`,
+          content: `📋 New coach update: "${data.title}". View your updates in 121 Coaching.`,
         });
       }
     } catch (e) {

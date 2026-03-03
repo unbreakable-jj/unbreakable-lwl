@@ -1,4 +1,15 @@
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,11 +87,40 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
     });
   };
 
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const handleSave = async () => {
+    setShowConfirm(true);
+  };
+
+  const confirmSave = async () => {
+    setShowConfirm(false);
     setSaving(true);
     try {
       await updateProgram.mutateAsync({ programId, programData: data });
-      toast.success('Programme updated and published');
+
+      // Notify athlete about the programme update
+      try {
+        const { data: program } = await supabase
+          .from('training_programs')
+          .select('user_id, name')
+          .eq('id', programId)
+          .single();
+
+        if (program && program.user_id) {
+          await supabase.from('notifications').insert({
+            user_id: program.user_id,
+            type: 'programme_updated',
+            title: 'Programme Updated',
+            body: `Your coach has updated your programme: "${program.name || 'Untitled'}"`,
+            data: { program_id: programId },
+          });
+        }
+      } catch (notifErr) {
+        console.error('Failed to notify athlete:', notifErr);
+      }
+
+      toast.success('Programme updated and athlete notified');
       onSaved();
       onClose();
     } catch (err) {
@@ -231,6 +271,20 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
           </CardContent>
         </Card>
       ))}
+      <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-display">Publish Programme Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will update the athlete's programme and notify them of the changes. Are you sure?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmSave}>Save & Notify</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
