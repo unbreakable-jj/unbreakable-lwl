@@ -9,12 +9,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   ArrowLeft, Dumbbell, Utensils, Brain, Activity,
   Target, MessageSquare, Loader2, Calendar, TrendingUp,
   Flame, Droplets, BookOpen, PenLine, Check, Footprints, ClipboardList, Star, Edit,
-  ChevronDown, ChevronRight, Trash2, Eye, Search, Filter, BarChart3, Weight, Repeat
+  ChevronDown, ChevronRight, Trash2, Eye, Search, Filter, BarChart3, Weight, Repeat,
+  Save, X, Heart
 } from 'lucide-react';
 import { CoachFeedbackPanel } from './CoachFeedbackPanel';
 import { useCoachingFeedback, CoachingFeedback } from '@/hooks/useCoachingFeedback';
