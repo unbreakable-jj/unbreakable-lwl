@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { FullScreenToolView } from './FullScreenToolView';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { WorkoutSession, ExerciseLog } from '@/hooks/useWorkoutSessions';
+import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
+import { Input } from '@/components/ui/input';
 import { useWorkoutFeedback } from '@/hooks/useWorkoutFeedback';
 import { AskCoachCTA } from '@/components/coaching/AskCoachCTA';
 import { format } from 'date-fns';
@@ -20,6 +22,7 @@ import {
   Target,
   CheckCircle,
   MessageSquare,
+  Edit3,
 } from 'lucide-react';
 
 interface SessionResultsViewProps {
@@ -30,7 +33,11 @@ interface SessionResultsViewProps {
 
 export function SessionResultsView({ session, onClose, onViewFeedback }: SessionResultsViewProps) {
   const { feedback } = useWorkoutFeedback(session.id);
+  const { updateSession } = useWorkoutSessions();
   const sessionFeedback = feedback?.[0];
+  const [editingDuration, setEditingDuration] = useState(false);
+  const [durationHours, setDurationHours] = useState('');
+  const [durationMinutes, setDurationMinutes] = useState('');
   
   const logs = session.exercise_logs || [];
   const completedSets = logs.filter(l => l.completed).length;
@@ -107,12 +114,54 @@ export function SessionResultsView({ session, onClose, onViewFeedback }: Session
 
           {/* Stats Grid */}
           <div className="grid grid-cols-3 gap-3">
-            <Card className="p-3 border-border bg-card text-center">
+            <Card className="p-3 border-border bg-card text-center relative">
               <Clock className="w-5 h-5 text-primary mx-auto mb-1" />
               <p className="text-xs text-muted-foreground">Duration</p>
-              <p className="font-display text-lg text-foreground">
-                {formatDuration(session.duration_seconds)}
-              </p>
+              {editingDuration ? (
+                <div className="flex items-center gap-1 justify-center mt-1">
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    placeholder="H"
+                    value={durationHours}
+                    onChange={(e) => setDurationHours(e.target.value)}
+                    className="h-7 w-10 text-center text-xs p-0"
+                    min="0"
+                  />
+                  <span className="text-xs text-muted-foreground">:</span>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    placeholder="M"
+                    value={durationMinutes}
+                    onChange={(e) => setDurationMinutes(e.target.value)}
+                    className="h-7 w-10 text-center text-xs p-0"
+                    min="0"
+                    max="59"
+                  />
+                  <button
+                    onClick={() => {
+                      const secs = (parseInt(durationHours) || 0) * 3600 + (parseInt(durationMinutes) || 0) * 60;
+                      if (secs > 0) {
+                        updateSession.mutate({ sessionId: session.id, durationSeconds: secs });
+                      }
+                      setEditingDuration(false);
+                    }}
+                    className="text-primary text-xs font-display"
+                  >
+                    ✓
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-1">
+                  <p className="font-display text-lg text-foreground">
+                    {formatDuration(session.duration_seconds)}
+                  </p>
+                  <button onClick={() => setEditingDuration(true)} className="p-0.5">
+                    <Edit3 className="w-3 h-3 text-muted-foreground hover:text-primary" />
+                  </button>
+                </div>
+              )}
             </Card>
             
             <Card className="p-3 border-border bg-card text-center">
