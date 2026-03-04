@@ -1,71 +1,54 @@
 
 
-## Plan: Three Feature Removals/Fixes
+## Plan: Full-Flow Coach/Dev Athlete Data Viewer Rework
 
-### 1. Remove Shopping List
+### Current State
+The `AthleteDataViewer` has 5 tabs (Training, Habits, Fuel, Records, Feedback) but several gaps:
 
-**What changes:**
-- `src/pages/FuelPlanning.tsx` -- Remove the Shopping List tab entirely. The page becomes a single Meal Planner view (no Tabs wrapper needed). Remove the `ShoppingList` import and `ShoppingCart` icon import.
-- `src/components/fuel/MealPlanExecutionView.tsx` -- Remove the `<ShoppingList planItems={allItems} />` rendering and its import.
-- `src/components/fuel/ShoppingList.tsx` -- Delete the entire file.
+1. **Training tab** — Shows Power, Movement, Meal Plans, Mindset programmes, session planners, and recent sessions. Only Power programmes have an EDIT button. Movement/Mindset/Meal Plans lack edit capability.
+2. **Fuel tab** — Only shows raw food logs. No meal plan visibility, no daily macro summaries, no collapsible grouping.
+3. **Records tab** — Only shows personal records (run times). Missing: progression history (weight/rep PRs), workout volume stats.
+4. **Feedback tab** — Has the feedback form + collapsible history. Generally functional but could use search/filter for large history.
+5. **Habits tab** — Functional but basic.
 
-Barcode scanning and Store Cupboard remain untouched.
+### Changes Required
 
----
+#### 1. Training Tab Enhancements
+- Add EDIT buttons to **Movement (cardio) programmes** — create a lightweight inline cardio editor or link to the cardio builder with athlete context
+- Add EDIT buttons to **Meal Plans** — open inline meal plan editor or navigate to `/fuel/planning` with athlete context
+- Make **Session Planners** section a collapsible dropdown, searchable by week/status
+- Make **Recent Sessions** section filterable (completed/cancelled/all)
+- Add ability for coach to click into a session planner to view its planned exercises
 
-### 2. Fix ExerciseSwapSheet Scroll + Add Exercise to Live Session
+#### 2. Fuel Tab Rework
+- Add **Active Meal Plans** section at the top (with collapsible meal plan items by day)
+- Add **Daily Macro Summary** — group food logs by date, show daily totals (calories, protein, carbs, fat)
+- Keep individual food logs in a collapsible section beneath
+- Add **Nutrition Goals** display if athlete has them set
 
-**Scroll Fix:**
-The `ExerciseSwapSheet` uses a Radix `ScrollArea` inside a bottom `Sheet`. The issue is that `ScrollArea` with `max-h-[50vh]` inside a flex column within the sheet content doesn't properly allow touch scrolling on mobile. 
+#### 3. Records Tab Rework
+- Keep **Personal Records** (running PRs) in a collapsible section
+- Add **Progression History** section — fetch from `progression_history` table, show exercise name, previous vs new weight/reps, adjustment reason
+- Add **Workout Volume Stats** — total sessions completed (last 30 days), average RPE, total volume
+- Group progression history by exercise in collapsible cards
 
-Fix in `src/components/programming/ExerciseSwapSheet.tsx`:
-- Replace the `ScrollArea` with a plain `div` using `overflow-y-auto` and a fixed `max-h-[50vh]`. This gives native scroll behavior which works reliably on mobile touch devices.
-- Add `overscrollBehavior: 'contain'` to prevent the sheet from intercepting scroll events.
+#### 4. Feedback Tab Enhancements
+- Add a **search/filter** input at the top of feedback history to filter by type or title
+- Keep existing collapsible cards and delete functionality
+- No major structural changes needed — already functional
 
-**Add Exercise to Live Session:**
+#### 5. Data Fetching
+- Load `meal_plan_items` for the athlete's meal plans
+- Load `progression_history` for the athlete (last 90 days)
+- Load `nutrition_goals` if the table exists
+- Load `cardio_session_planners` for movement programme visibility
 
-In `src/components/programming/ActiveWorkoutModal.tsx`:
-- Add an "ADD EXERCISE" button to the session view.
-- When tapped, open a new bottom sheet (`AddExerciseSheet`) with two options:
-  1. **Library picker** -- reuse the `InlineExerciseLibrary` component to browse/search 230+ movements.
-  2. **Quick custom entry** -- a simple form with exercise name, sets count, and target reps.
-- On selection/submission, call a new `onAddExercise` callback prop.
+### Technical Approach
+- All changes in `src/components/coaching/AthleteDataViewer.tsx`
+- Add collapsible `Collapsible` sections throughout for clean organization
+- Use existing Supabase RLS policies (coach policies already exist on all relevant tables)
+- No database migrations needed — all tables already have coach SELECT policies
 
-In `src/hooks/useWorkoutSessions.tsx`:
-- Add an `addExerciseToSession` mutation that inserts new `exercise_logs` rows into the active session with the next available set numbers.
-
-In `src/components/programming/ProgrammeExecutionView.tsx`:
-- Wire up the new `onAddExercise` prop when rendering `ActiveWorkoutModal`.
-
-New file: `src/components/programming/AddExerciseSheet.tsx` -- bottom sheet with library picker tab and quick-add tab.
-
----
-
-### 3. Remove Coach "Build for Athlete" Features
-
-**What changes:**
-
-- `src/pages/CoachDashboard.tsx` -- Remove the "BUILD FOR ATHLETE" dropdown button and the `buildPlanOptions` array. Remove the "Build [plan type]" menu items from athlete action dropdowns. Keep: athlete list, view data, message, assign/deactivate.
-- `src/pages/ProgrammingCreate.tsx` -- Remove `forUserId` logic and `BuildingForBanner` usage. The `?for=` query param is no longer read.
-- `src/pages/TrackerCreate.tsx` -- Same removal of `forUserId` and `BuildingForBanner`.
-- `src/pages/FuelPlanning.tsx` -- Remove `forUserId` and `BuildingForBanner` (already simplified by shopping list removal).
-- `src/pages/Help.tsx` -- Remove all `targetAthleteId`/`targetAthleteName` state, the `@mention` detection logic, the `BuildingForBanner` in chat, and the "Stop building for athlete" button. Plans generated in chat always save to the current user's own account. Remove the `forUserId` param from `saveProgram` and meal plan save calls.
-- `src/components/coaching/BuildingForBanner.tsx` -- Delete the entire file (no longer used anywhere).
-
-**What is preserved:**
-- Coach assignment system (assign/deactivate athletes)
-- `AthleteDataViewer` (view athlete info, programmes, logs)
-- Coach feedback forms
-- Direct messaging between coach and athlete
-- All RLS policies for coach viewing athlete data remain in the database
-
----
-
-### Technical Summary
-
-| Area | Files Modified | Files Deleted | Files Created |
-|------|---------------|--------------|---------------|
-| Shopping List | 2 | 1 | 0 |
-| Swap Scroll + Add Exercise | 3-4 | 0 | 1 |
-| Coach Build Removal | 5 | 1 | 0 |
+### Files to Edit
+- `src/components/coaching/AthleteDataViewer.tsx` — Main rework (all 5 tabs)
 
