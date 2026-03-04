@@ -38,9 +38,9 @@ const DESSERT_RECIPES = [
       "A golden-brown bread pudding (Wet Nelly) in a white ceramic baking dish, sticky syrup glistening on top, rustic kitchen setting, warm lighting, close-up overhead angle, no text or labels",
   },
   {
-    name: "Liverpool Tart",
+    name: "Coconut & Jam Tart",
     description:
-      "A classic Merseyside jam and desiccated coconut tart with a shortcrust base. Sweet, chewy and unmistakably Scouse.",
+      "A classic jam and desiccated coconut tart with a shortcrust base. Sweet, chewy and unmistakably British.",
     instructions:
       "1. Preheat oven to 190°C.\n2. Roll out shortcrust pastry and line a 20cm tart tin. Blind bake for 10 minutes.\n3. Spread a generous layer of raspberry jam across the pastry base.\n4. In a bowl, mix desiccated coconut, sugar, beaten eggs and vanilla.\n5. Spread the coconut mixture evenly over the jam layer.\n6. Bake for 25-30 minutes until the coconut topping is golden brown.\n7. Allow to cool before slicing.\n8. Serve at room temperature or slightly warm.",
     calories_per_serving: 310,
@@ -63,12 +63,12 @@ const DESSERT_RECIPES = [
       { name: "Vanilla Extract", quantity: 1, unit: "tsp" },
     ],
     image_prompt:
-      "A whole round jam and coconut tart (Liverpool Tart) on a wire cooling rack, golden toasted coconut topping with raspberry jam visible at the edges, one slice cut, rustic wooden table, warm natural light, no text or labels",
+      "A whole round jam and coconut tart on a wire cooling rack, golden toasted coconut topping with raspberry jam visible at the edges, one slice cut, rustic wooden table, warm natural light, no text or labels",
   },
   {
-    name: "Scouse Cake",
+    name: "Dark Treacle Fruit Cake",
     description:
-      "A rich, dense fruit cake inspired by the docks — packed with dried fruit, treacle and warming spices. A Liverpool teatime tradition.",
+      "A rich, dense fruit cake packed with dried fruit, treacle and warming spices. A British teatime tradition.",
     instructions:
       "1. Preheat oven to 160°C. Line a 20cm round cake tin.\n2. In a saucepan, melt butter with brown sugar and treacle over low heat.\n3. Stir in mixed dried fruit, mixed spice, cinnamon and orange zest. Simmer for 5 minutes. Cool slightly.\n4. Beat in eggs one at a time.\n5. Fold in self-raising flour and ground almonds until just combined.\n6. Pour into the prepared tin.\n7. Bake for 60-70 minutes until a skewer comes out clean.\n8. Cool in the tin for 15 minutes, then turn out.\n9. Serve sliced, with or without butter.",
     calories_per_serving: 320,
@@ -95,7 +95,7 @@ const DESSERT_RECIPES = [
       { name: "Orange Zest", quantity: 1, unit: "orange" },
     ],
     image_prompt:
-      "A dark rich fruit cake (Scouse Cake) sliced on a wooden board, dense texture with visible dried fruit and dark treacle colour, one slice leaning against the cake, rustic kitchen, warm moody lighting, no text or labels",
+      "A dark rich fruit cake sliced on a wooden board, dense texture with visible dried fruit and dark treacle colour, one slice leaning against the cake, rustic kitchen, warm moody lighting, no text or labels",
   },
 ];
 
