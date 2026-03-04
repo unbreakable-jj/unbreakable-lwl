@@ -50,7 +50,7 @@ export function DailyHabitDiary({ habits, onChange, compact = false, readOnly = 
   const wordCount = countWords(habits.journal);
   const journalComplete = wordCount >= MIN_WORDS;
   const completedCount = HABITS.filter(h => habits[h.key]).length + (journalComplete ? 1 : 0);
-  const totalCount = 6;
+  const totalCount = 5;
   const allComplete = completedCount === totalCount;
 
   const toggleHabit = (key: keyof Omit<HabitState, 'journal'>) => {

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +29,7 @@ const activityIcons: Record<string, React.ReactNode> = {
   focus_game: <Gamepad2 className="w-4 h-4" />,
   retention: <Timer className="w-4 h-4" />,
   exposure: <Snowflake className="w-4 h-4" />,
+  daily_habits_check: <BookOpen className="w-4 h-4" />,
 };
 
 const activityLabels: Record<string, string> = {
@@ -39,6 +41,7 @@ const activityLabels: Record<string, string> = {
   focus_game: 'Switch Off',
   retention: 'Breath Retention',
   exposure: 'Exposure',
+  daily_habits_check: 'Daily 5 Check',
 };
 
 interface Props {
@@ -249,6 +252,13 @@ export function MindsetProgrammeDetail({ programme, onBack }: Props) {
                                               </p>
                                             )}
                                           </div>
+                                        )}
+
+                                        {activity.type === 'daily_habits_check' && (
+                                          <Link to="/habits" className="inline-flex items-center gap-2 mt-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-display tracking-wide hover:bg-primary/20 transition-colors">
+                                            <BookOpen className="w-3.5 h-3.5" />
+                                            OPEN DAILY 5 TRACKER
+                                          </Link>
                                         )}
                                       </div>
                                     ))}

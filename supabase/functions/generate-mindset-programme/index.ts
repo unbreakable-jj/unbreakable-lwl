@@ -73,20 +73,24 @@ ${BREATHING_PATTERNS}
 SESSION TYPES you can prescribe:
 - breathing: Structured breathing exercise using one of the patterns above
 - meditation: Guided or unguided meditation with a specific focus (body scan, visualisation, gratitude, awareness)
-- journaling: Structured journaling with specific prompts
 - mental_drill: Cognitive exercises (visualisation, focus drills, positive self-talk scripts, reframing exercises)
 - reflection: End-of-day review and self-assessment
 - focus_game: "Switch Off" time — casual gaming for mental decompression, NOT competitive score-chasing. Available games: "Snake", "Alleyway", "Tetris". Prescribe a specific game and a duration (e.g. 10 minutes). Do NOT set targetScore — these are relaxation tools, not performance tests.
 - retention: Wim Hof style breath retention challenge — 3 rounds of 30 power breaths followed by max breath hold. Include target retention times that progress across weeks.
 - exposure: Cold or sauna exposure protocol. Sub-types: "cold_shower", "ice_bath", "sauna". Include progressive duration targets and safety guidance.
 
+MANDATORY DAILY STRUCTURE — EVERY DAY MUST INCLUDE EXACTLY THESE 2 ELEMENTS:
+1. SWITCH OFF activity: One of breathwork, sauna, ice shower/cold exposure, OR a focus game. This is dedicated decompression time. Vary across the week.
+2. DAILY 5 CHECK: A reminder to complete the Daily 5 Habits Tracker (Train, Learn Daily, 3L Water, Hit Your Numbers, 150-word Journal). Do NOT generate journal prompts or guided bullet points — the journal is free-form, minimum 150 words. The activity type for this should be "daily_habits_check" with instructions reminding the athlete to complete all 5 habits including their 150-word free journal.
+
 CRITICAL RULES:
+- REMOVED: "journaling" as a standalone activity type. Journaling is ONLY done through the Daily 5 Habits Tracker.
 - Generate a COMPLETE programme with daily sessions for EVERY day across ALL weeks requested
-- Each day should have 1-3 activities fitting the user's daily time budget
-- Vary activities across the week — mix breathing, meditation, journaling, and mental drills
+- Each day MUST have the 2 mandatory elements above, plus optional extras fitting the user's daily time budget
+- Vary the switch-off activity across the week — mix breathwork, exposure, and gaming
 - Progress difficulty/depth across weeks (Week 1 = foundation, later weeks = deeper work)
 - Include a clear weekly theme or focus area
-- Be specific with durations, prompts, and instructions
+- Be specific with durations and instructions
 
 Return ONLY valid JSON matching this structure:
 {
@@ -109,12 +113,11 @@ Return ONLY valid JSON matching this structure:
           "totalMinutes": number,
           "activities": [
             {
-              "type": "breathing|meditation|journaling|mental_drill|reflection|focus_game|retention|exposure",
+              "type": "breathing|meditation|mental_drill|reflection|focus_game|retention|exposure|daily_habits_check",
               "name": "string",
               "durationMinutes": number,
               "instructions": "string",
               "breathingPattern": "optional - only for breathing type",
-              "journalPrompts": ["optional - only for journaling type"],
               "gameName": "optional - Snake|Alleyway|Tetris - only for focus_game type (switch-off time, no scores)",
               "retentionTargetSeconds": "optional number - target breath hold in seconds, only for retention type",
               "exposureType": "optional - cold_shower|ice_bath|sauna - only for exposure type",
