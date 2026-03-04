@@ -28,6 +28,7 @@ const activityIcons: Record<string, React.ReactNode> = {
   focus_game: <Gamepad2 className="w-4 h-4" />,
   retention: <Timer className="w-4 h-4" />,
   exposure: <Snowflake className="w-4 h-4" />,
+  daily_habits_check: <BookOpen className="w-4 h-4" />,
 };
 
 const activityLabels: Record<string, string> = {
@@ -39,6 +40,7 @@ const activityLabels: Record<string, string> = {
   focus_game: 'Switch Off',
   retention: 'Breath Retention',
   exposure: 'Exposure',
+  daily_habits_check: 'Daily 5 Check',
 };
 
 interface Props {
