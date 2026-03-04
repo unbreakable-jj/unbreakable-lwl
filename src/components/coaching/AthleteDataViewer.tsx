@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -17,8 +18,9 @@ import {
   Target, MessageSquare, Loader2, Calendar, TrendingUp,
   Flame, Droplets, BookOpen, PenLine, Check, Footprints, ClipboardList, Star, Edit,
   ChevronDown, ChevronRight, Trash2, Eye, Search, Filter, BarChart3, Weight, Repeat,
-  Save, X, Heart, CheckCircle2, Reply
+  Save, X, Heart, CheckCircle2, Reply, Send, RefreshCw
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { CoachFeedbackPanel } from './CoachFeedbackPanel';
 import { useCoachingFeedback, CoachingFeedback, FeedbackResponse } from '@/hooks/useCoachingFeedback';
 import { formatDistanceToNow, format, subDays } from 'date-fns';
@@ -660,35 +662,7 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
                   </Collapsible>
                 )}
 
-                {/* Meal Plans (in training for overview) */}
-                {mealPlans.length > 0 && (
-                  <Collapsible defaultOpen>
-                    <CollapsibleTrigger className="w-full flex items-center justify-between py-1 group">
-                      <p className="font-display text-xs tracking-wide text-muted-foreground flex items-center gap-1">
-                        <Utensils className="w-3 h-3" /> MEAL PLANS ({mealPlans.length})
-                      </p>
-                      <ChevronDown className="w-4 h-4 text-muted-foreground group-data-[state=closed]:rotate-[-90deg] transition-transform" />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="space-y-2 mt-1">
-                      {mealPlans.map(p => (
-                        <Card key={p.id} className="border-border">
-                          <CardContent className="p-3 flex items-center justify-between">
-                            <div>
-                              <p className="font-display text-sm text-foreground">{p.name}</p>
-                              <p className="text-xs text-muted-foreground">{p.description || 'No description'}</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {p.is_active && <Badge className="bg-primary/20 text-primary border-primary/30 text-xs">ACTIVE</Badge>}
-                              <Button variant="ghost" size="sm" onClick={() => navigate('/fuel/planning')} className="h-7 px-2 text-xs">
-                                <Eye className="w-3 h-3 mr-1" />VIEW
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </CollapsibleContent>
-                  </Collapsible>
-                )}
+                {/* Meal Plans removed from Training tab — view in Fuel tab */}
 
                 {/* Mindset Programmes */}
                 {mindsetProgrammes.length > 0 && (
@@ -720,69 +694,92 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
                   </Collapsible>
                 )}
 
-                {programs.length === 0 && cardioPrograms.length === 0 && mealPlans.length === 0 && mindsetProgrammes.length === 0 && (
+                {programs.length === 0 && cardioPrograms.length === 0 && mindsetProgrammes.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-4">No programmes found</p>
                 )}
               </>
             )}
 
-            {/* Session Planners — Collapsible with Search */}
-            {sessionPlanners.length > 0 && !editingProgramId && (
-              <Collapsible open={expandedPlanners} onOpenChange={setExpandedPlanners}>
-                <CollapsibleTrigger className="w-full flex items-center justify-between py-1 group">
-                  <p className="font-display text-xs tracking-wide text-muted-foreground flex items-center gap-1">
-                    <Calendar className="w-3 h-3" /> SESSION PLANNERS ({sessionPlanners.length})
-                  </p>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground group-data-[state=closed]:rotate-[-90deg] transition-transform" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-2 space-y-2">
-                  <div className="relative">
-                    <Search className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      placeholder="Search week, type, status..."
-                      value={plannerSearch}
-                      onChange={e => setPlannerSearch(e.target.value)}
-                      className="h-7 text-xs pl-7"
-                    />
-                  </div>
-                  <ScrollArea className="max-h-[300px]">
-                    <div className="space-y-1">
-                      {filteredPlanners.slice(0, 20).map(sp => (
-                        <Collapsible key={sp.id}>
+            {/* Session Planners — 4-Week Dropdown */}
+            {sessionPlanners.length > 0 && !editingProgramId && (() => {
+              // Group planners into upcoming 4 weeks
+              const weekGroups: Record<number, any[]> = {};
+              sessionPlanners.forEach((sp: any) => {
+                const wk = sp.week_number;
+                if (!weekGroups[wk]) weekGroups[wk] = [];
+                weekGroups[wk].push(sp);
+              });
+              const weekNums = Object.keys(weekGroups).map(Number).sort((a, b) => a - b).slice(0, 4);
+
+              return (
+                <Collapsible defaultOpen>
+                  <CollapsibleTrigger className="w-full flex items-center justify-between py-1 group">
+                    <p className="font-display text-xs tracking-wide text-muted-foreground flex items-center gap-1">
+                      <Calendar className="w-3 h-3" /> SESSION PLANNERS ({sessionPlanners.length})
+                    </p>
+                    <ChevronDown className="w-4 h-4 text-muted-foreground group-data-[state=closed]:rotate-[-90deg] transition-transform" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-2 space-y-2">
+                    {weekNums.map(wk => {
+                      const weekSessions = weekGroups[wk].sort((a: any, b: any) => a.day_number - b.day_number);
+                      const completedCount = weekSessions.filter((s: any) => s.status === 'completed').length;
+                      return (
+                        <Collapsible key={wk}>
                           <CollapsibleTrigger className="w-full p-2 border border-border rounded text-xs flex items-center justify-between hover:bg-muted/30 transition-colors">
                             <div className="flex items-center gap-2">
-                              <span className="font-medium text-foreground">W{sp.week_number}D{sp.day_number}</span>
-                              <span className="text-muted-foreground">{sp.session_type}</span>
-                              {sp.scheduled_date && <span className="text-muted-foreground">{format(new Date(sp.scheduled_date), 'MMM d')}</span>}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Badge variant="outline" className="text-[10px]">{sp.status}</Badge>
-                              <ChevronRight className="w-3 h-3 text-muted-foreground" />
-                            </div>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent>
-                            <div className="p-2 ml-4 border-l border-border text-xs space-y-1">
-                              {sp.exercises && Array.isArray(sp.exercises) ? (
-                                sp.exercises.map((ex: any, i: number) => (
-                                  <div key={i} className="text-foreground">
-                                    {ex.name || ex.exercise_name} — {ex.sets}×{ex.reps}
-                                    {ex.weight_kg ? ` @ ${ex.weight_kg}kg` : ''}
-                                  </div>
-                                ))
-                              ) : sp.notes ? (
-                                <p className="text-muted-foreground">{sp.notes}</p>
-                              ) : (
-                                <p className="text-muted-foreground">No exercise details</p>
+                              <span className="font-display text-foreground">WEEK {wk}</span>
+                              <span className="text-muted-foreground">{weekSessions.length} sessions</span>
+                              {completedCount > 0 && (
+                                <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[10px]">{completedCount} done</Badge>
                               )}
                             </div>
+                            <ChevronRight className="w-3 h-3 text-muted-foreground group-data-[state=open]:rotate-90 transition-transform" />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="mt-1 ml-2 space-y-1">
+                            {weekSessions.map((sp: any) => (
+                              <Collapsible key={sp.id}>
+                                <CollapsibleTrigger className="w-full p-2 border border-border/50 rounded text-xs flex items-center justify-between hover:bg-muted/20 transition-colors">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium text-foreground">Day {sp.day_number}</span>
+                                    <span className="text-muted-foreground">{sp.session_type}</span>
+                                    {sp.scheduled_date && <span className="text-muted-foreground">{format(new Date(sp.scheduled_date), 'MMM d')}</span>}
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Badge variant="outline" className={`text-[10px] ${
+                                      sp.status === 'completed' ? 'border-green-500/40 text-green-400' :
+                                      sp.status === 'skipped' ? 'border-muted text-muted-foreground' :
+                                      'border-primary/40 text-primary'
+                                    }`}>{sp.status}</Badge>
+                                    <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                                  </div>
+                                </CollapsibleTrigger>
+                                <CollapsibleContent>
+                                  <div className="p-2 ml-4 border-l border-border text-xs space-y-1">
+                                    {sp.planned_exercises && Array.isArray(sp.planned_exercises) ? (
+                                      sp.planned_exercises.map((ex: any, i: number) => (
+                                        <div key={i} className="text-foreground">
+                                          {ex.name || ex.exercise_name} — {ex.sets}×{ex.reps}
+                                          {ex.weight_kg ? ` @ ${ex.weight_kg}kg` : ''}
+                                          {ex.intensity ? ` (${ex.intensity})` : ''}
+                                        </div>
+                                      ))
+                                    ) : sp.notes ? (
+                                      <p className="text-muted-foreground">{sp.notes}</p>
+                                    ) : (
+                                      <p className="text-muted-foreground">No exercise details</p>
+                                    )}
+                                  </div>
+                                </CollapsibleContent>
+                              </Collapsible>
+                            ))}
                           </CollapsibleContent>
                         </Collapsible>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </CollapsibleContent>
-              </Collapsible>
-            )}
+                      );
+                    })}
+                  </CollapsibleContent>
+                </Collapsible>
+              );
+            })()}
 
             {/* Recent Sessions — Filterable */}
             <div className="space-y-2">
@@ -882,28 +879,44 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
                 const journalDone = journalWords >= 150;
                 const total = completed + (journalDone ? 1 : 0);
                 return (
-                  <Card key={h.id} className="border-border">
-                    <CardContent className="p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="font-display text-sm text-foreground">
-                          {format(new Date(h.habit_date), 'EEE, d MMM')}
-                        </p>
-                        <Badge variant="outline" className={`text-xs ${total === 5 ? 'border-primary/40 text-primary' : ''}`}>
-                          {total}/5
-                        </Badge>
-                      </div>
-                      <div className="flex gap-2 flex-wrap">
-                        {h.train && <Badge variant="secondary" className="text-[10px]"><Dumbbell className="w-3 h-3 mr-1" />Train</Badge>}
-                        {h.learn_daily && <Badge variant="secondary" className="text-[10px]"><BookOpen className="w-3 h-3 mr-1" />Learn</Badge>}
-                        {h.water && <Badge variant="secondary" className="text-[10px]"><Droplets className="w-3 h-3 mr-1" />Water</Badge>}
-                        {h.hit_your_numbers && <Badge variant="secondary" className="text-[10px]"><Target className="w-3 h-3 mr-1" />Numbers</Badge>}
-                        {journalDone && <Badge variant="secondary" className="text-[10px]"><PenLine className="w-3 h-3 mr-1" />Journal</Badge>}
-                      </div>
-                      {h.journal && (
-                        <p className="text-xs text-muted-foreground mt-2 line-clamp-3">{h.journal}</p>
-                      )}
-                    </CardContent>
-                  </Card>
+                  <Collapsible key={h.id}>
+                    <Card className="border-border">
+                      <CardContent className="p-3">
+                        <CollapsibleTrigger className="w-full text-left">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="font-display text-sm text-foreground">
+                              {format(new Date(h.habit_date), 'EEE, d MMM')}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className={`text-xs ${total === 5 ? 'border-primary/40 text-primary' : ''}`}>
+                                {total}/5
+                              </Badge>
+                              <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                            </div>
+                          </div>
+                          <div className="flex gap-2 flex-wrap">
+                            {h.train && <Badge variant="secondary" className="text-[10px]"><Dumbbell className="w-3 h-3 mr-1" />Train</Badge>}
+                            {h.learn_daily && <Badge variant="secondary" className="text-[10px]"><BookOpen className="w-3 h-3 mr-1" />Learn</Badge>}
+                            {h.water && <Badge variant="secondary" className="text-[10px]"><Droplets className="w-3 h-3 mr-1" />Water</Badge>}
+                            {h.hit_your_numbers && <Badge variant="secondary" className="text-[10px]"><Target className="w-3 h-3 mr-1" />Numbers</Badge>}
+                            {journalDone && <Badge variant="secondary" className="text-[10px]"><PenLine className="w-3 h-3 mr-1" />Journal</Badge>}
+                          </div>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <div className="mt-3 space-y-3 border-t border-border pt-3">
+                            {h.journal && (
+                              <div>
+                                <p className="text-[10px] font-display text-muted-foreground mb-1">JOURNAL ENTRY</p>
+                                <p className="text-xs text-foreground whitespace-pre-wrap">{h.journal}</p>
+                              </div>
+                            )}
+                            {/* Inline Coach Comment */}
+                            <HabitCoachComment habitId={h.id} athleteId={athleteId} />
+                          </div>
+                        </CollapsibleContent>
+                      </CardContent>
+                    </Card>
+                  </Collapsible>
                 );
               })
             )}
@@ -940,7 +953,7 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
               </Card>
             )}
 
-            {/* Active Meal Plans with Items */}
+            {/* Active Meal Plans with Editable Items */}
             {mealPlans.filter(p => p.is_active).length > 0 && (
               <Collapsible defaultOpen>
                 <CollapsibleTrigger className="w-full flex items-center justify-between py-1 group">
@@ -950,51 +963,17 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
                   <ChevronDown className="w-4 h-4 text-muted-foreground group-data-[state=closed]:rotate-[-90deg] transition-transform" />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-2 mt-1">
-                  {mealPlans.filter(p => p.is_active).map(mp => {
-                    const items = mealPlanItems.filter(i => i.meal_plan_id === mp.id);
-                    const isOpen = expandedMealPlanIds.has(mp.id);
-                    // Group by day
-                    const byDay: Record<number, any[]> = {};
-                    items.forEach(i => {
-                      if (!byDay[i.day_of_week]) byDay[i.day_of_week] = [];
-                      byDay[i.day_of_week].push(i);
-                    });
-                    return (
-                      <Collapsible key={mp.id} open={isOpen} onOpenChange={() => toggleMealPlan(mp.id)}>
-                        <Card className="border-border">
-                          <CardContent className="p-0">
-                            <CollapsibleTrigger className="w-full p-3 flex items-center justify-between text-left hover:bg-muted/30 transition-colors">
-                              <div>
-                                <p className="font-display text-sm text-foreground">{mp.name}</p>
-                                <p className="text-xs text-muted-foreground">{items.length} items across {Object.keys(byDay).length} days</p>
-                              </div>
-                              {isOpen ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
-                            </CollapsibleTrigger>
-                            <CollapsibleContent>
-                              <div className="px-3 pb-3 border-t border-border pt-2 space-y-2">
-                                {Object.entries(byDay).sort(([a], [b]) => Number(a) - Number(b)).map(([day, dayItems]) => (
-                                  <div key={day}>
-                                    <p className="text-[10px] font-display text-muted-foreground mb-1">{dayLabels[Number(day)] || `Day ${day}`}</p>
-                                    {dayItems.map(item => (
-                                      <div key={item.id} className="flex items-center justify-between text-xs py-0.5">
-                                        <div>
-                                          <span className="text-foreground">{item.food_name || 'Unnamed'}</span>
-                                          <span className="text-muted-foreground ml-1">({item.meal_type})</span>
-                                        </div>
-                                        <span className="text-muted-foreground">
-                                          {item.calories || 0}kcal
-                                        </span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                ))}
-                              </div>
-                            </CollapsibleContent>
-                          </CardContent>
-                        </Card>
-                      </Collapsible>
-                    );
-                  })}
+                  {mealPlans.filter(p => p.is_active).map(mp => (
+                    <MealPlanEditor
+                      key={mp.id}
+                      mealPlan={mp}
+                      items={mealPlanItems.filter(i => i.meal_plan_id === mp.id)}
+                      athleteId={athleteId}
+                      isOpen={expandedMealPlanIds.has(mp.id)}
+                      onToggle={() => toggleMealPlan(mp.id)}
+                      onRefresh={loadAthleteData}
+                    />
+                  ))}
                 </CollapsibleContent>
               </Collapsible>
             )}
@@ -1194,116 +1173,426 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
 
             {feedbackHistory.length > 0 && (
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <p className="font-display text-xs tracking-wide text-muted-foreground">FEEDBACK HISTORY ({filteredFeedback.length})</p>
-                </div>
-                <div className="relative">
-                  <Search className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search feedback by title, type..."
-                    value={feedbackSearch}
-                    onChange={e => setFeedbackSearch(e.target.value)}
-                    className="h-7 text-xs pl-7"
-                  />
-                </div>
-                <ScrollArea className="max-h-[400px]">
-                  <div className="space-y-2">
-                    {filteredFeedback.map(fb => {
-                      const isExpanded = expandedFeedbackIds.has(fb.id);
-                      const fbResps = feedbackResponses[fb.id] || [];
-                      const hasAck = fbResps.some(r => r.response_type === 'acknowledged');
-                      const replies = fbResps.filter(r => r.response_type === 'reply').length;
-                      return (
-                        <Collapsible key={fb.id} open={isExpanded} onOpenChange={() => toggleFeedback(fb.id)}>
-                          <Card className="border-border">
-                            <CardContent className="p-0">
-                              <CollapsibleTrigger className="w-full p-3 flex items-center justify-between text-left hover:bg-muted/30 transition-colors">
-                                <div className="flex-1 min-w-0">
+                <Tabs defaultValue="sent" className="w-full">
+                  <TabsList className="w-full grid grid-cols-2">
+                    <TabsTrigger value="sent" className="text-xs">
+                      <Send className="w-3 h-3 mr-1" />Sent ({feedbackHistory.length})
+                    </TabsTrigger>
+                    <TabsTrigger value="received" className="text-xs">
+                      <Reply className="w-3 h-3 mr-1" />Received ({Object.values(feedbackResponses).flat().length})
+                    </TabsTrigger>
+                  </TabsList>
+
+                  {/* SENT TAB */}
+                  <TabsContent value="sent" className="mt-2 space-y-2">
+                    <div className="relative">
+                      <Search className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        placeholder="Search feedback by title, type..."
+                        value={feedbackSearch}
+                        onChange={e => setFeedbackSearch(e.target.value)}
+                        className="h-7 text-xs pl-7"
+                      />
+                    </div>
+                    <ScrollArea className="max-h-[400px]">
+                      <div className="space-y-2">
+                        {filteredFeedback.map(fb => {
+                          const isExpanded = expandedFeedbackIds.has(fb.id);
+                          const fbResps = feedbackResponses[fb.id] || [];
+                          const hasAck = fbResps.some(r => r.response_type === 'acknowledged');
+                          const replies = fbResps.filter(r => r.response_type === 'reply').length;
+                          return (
+                            <Collapsible key={fb.id} open={isExpanded} onOpenChange={() => toggleFeedback(fb.id)}>
+                              <Card className="border-border">
+                                <CardContent className="p-0">
+                                  <CollapsibleTrigger className="w-full p-3 flex items-center justify-between text-left hover:bg-muted/30 transition-colors">
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        <p className="font-display text-sm text-foreground">{fb.title}</p>
+                                        <Badge variant="outline" className="text-[10px]">{fb.feedback_type.replace('_', ' ')}</Badge>
+                                        {hasAck && (
+                                          <Badge className="text-[10px] bg-green-500/20 text-green-400 border-green-500/30">
+                                            <CheckCircle2 className="w-3 h-3 mr-0.5" /> Acknowledged
+                                          </Badge>
+                                        )}
+                                        {replies > 0 && (
+                                          <Badge variant="outline" className="text-[10px]">
+                                            <Reply className="w-3 h-3 mr-0.5" /> {replies}
+                                          </Badge>
+                                        )}
+                                      </div>
+                                      <p className="text-xs text-muted-foreground">
+                                        {formatDistanceToNow(new Date(fb.created_at), { addSuffix: true })}
+                                      </p>
+                                    </div>
+                                    <div className="flex items-center gap-1 shrink-0">
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                                        onClick={(e) => { e.stopPropagation(); handleDeleteFeedback(fb.id); }}
+                                      >
+                                        <Trash2 className="w-3 h-3" />
+                                      </Button>
+                                      {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                                    </div>
+                                  </CollapsibleTrigger>
+                                  <CollapsibleContent>
+                                    <div className="px-3 pb-3 border-t border-border pt-2 space-y-2">
+                                      {fb.performance_rating && (
+                                        <div className="flex gap-0.5">
+                                          {[1, 2, 3, 4, 5].map(n => (
+                                            <Star key={n} className={`w-3 h-3 ${n <= fb.performance_rating! ? 'fill-primary text-primary' : 'text-muted-foreground/20'}`} />
+                                          ))}
+                                        </div>
+                                      )}
+                                      {fb.technique_notes && <p className="text-xs text-muted-foreground">{fb.technique_notes}</p>}
+                                      {fb.next_session_goals && (
+                                        <p className="text-xs text-foreground"><span className="text-muted-foreground">Goals:</span> {fb.next_session_goals}</p>
+                                      )}
+                                      {fb.general_comments && <p className="text-xs text-muted-foreground">{fb.general_comments}</p>}
+
+                                      {/* Athlete responses thread */}
+                                      {fbResps.length > 0 && (
+                                        <div className="border-t border-border pt-2 space-y-2">
+                                          <p className="text-[10px] font-display tracking-wide text-muted-foreground">ATHLETE RESPONSES</p>
+                                          {fbResps.map(r => (
+                                            <div key={r.id} className="flex items-start gap-2 py-1">
+                                              {r.response_type === 'acknowledged' ? (
+                                                <div className="flex items-center gap-1 text-xs text-green-400">
+                                                  <CheckCircle2 className="w-3 h-3" />
+                                                  <span>Acknowledged</span>
+                                                  <span className="text-muted-foreground ml-1">
+                                                    {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
+                                                  </span>
+                                                </div>
+                                              ) : (
+                                                <div className="flex-1 bg-muted/30 rounded-lg p-2">
+                                                  <p className="text-xs text-foreground">{r.content}</p>
+                                                  <p className="text-[10px] text-muted-foreground mt-1">
+                                                    {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
+                                                  </p>
+                                                </div>
+                                              )}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </CollapsibleContent>
+                                </CardContent>
+                              </Card>
+                            </Collapsible>
+                          );
+                        })}
+                      </div>
+                    </ScrollArea>
+                  </TabsContent>
+
+                  {/* RECEIVED TAB — athlete replies grouped by feedback */}
+                  <TabsContent value="received" className="mt-2 space-y-2">
+                    <ScrollArea className="max-h-[400px]">
+                      <div className="space-y-2">
+                        {feedbackHistory
+                          .filter(fb => (feedbackResponses[fb.id] || []).length > 0)
+                          .map(fb => {
+                            const fbResps = feedbackResponses[fb.id] || [];
+                            return (
+                              <Card key={fb.id} className="border-border">
+                                <CardContent className="p-3 space-y-2">
                                   <div className="flex items-center gap-2 flex-wrap">
                                     <p className="font-display text-sm text-foreground">{fb.title}</p>
                                     <Badge variant="outline" className="text-[10px]">{fb.feedback_type.replace('_', ' ')}</Badge>
-                                    {hasAck && (
-                                      <Badge className="text-[10px] bg-green-500/20 text-green-400 border-green-500/30">
-                                        <CheckCircle2 className="w-3 h-3 mr-0.5" /> Acknowledged
-                                      </Badge>
-                                    )}
-                                    {replies > 0 && (
-                                      <Badge variant="outline" className="text-[10px]">
-                                        <Reply className="w-3 h-3 mr-0.5" /> {replies}
-                                      </Badge>
-                                    )}
                                   </div>
-                                  <p className="text-xs text-muted-foreground">
-                                    {formatDistanceToNow(new Date(fb.created_at), { addSuffix: true })}
-                                  </p>
-                                </div>
-                                <div className="flex items-center gap-1 shrink-0">
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                                    onClick={(e) => { e.stopPropagation(); handleDeleteFeedback(fb.id); }}
-                                  >
-                                    <Trash2 className="w-3 h-3" />
-                                  </Button>
-                                  {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                                </div>
-                              </CollapsibleTrigger>
-                              <CollapsibleContent>
-                                <div className="px-3 pb-3 border-t border-border pt-2 space-y-2">
-                                  {fb.performance_rating && (
-                                    <div className="flex gap-0.5">
-                                      {[1, 2, 3, 4, 5].map(n => (
-                                        <Star key={n} className={`w-3 h-3 ${n <= fb.performance_rating! ? 'fill-primary text-primary' : 'text-muted-foreground/20'}`} />
-                                      ))}
-                                    </div>
-                                  )}
-                                  {fb.technique_notes && <p className="text-xs text-muted-foreground">{fb.technique_notes}</p>}
-                                  {fb.next_session_goals && (
-                                    <p className="text-xs text-foreground"><span className="text-muted-foreground">Goals:</span> {fb.next_session_goals}</p>
-                                  )}
-                                  {fb.general_comments && <p className="text-xs text-muted-foreground">{fb.general_comments}</p>}
-
-                                  {/* Athlete responses */}
-                                  {fbResps.length > 0 && (
-                                    <div className="border-t border-border pt-2 space-y-2">
-                                      <p className="text-[10px] font-display tracking-wide text-muted-foreground">ATHLETE RESPONSES</p>
-                                      {fbResps.map(r => (
-                                        <div key={r.id} className="flex items-start gap-2 py-1">
-                                          {r.response_type === 'acknowledged' ? (
-                                            <div className="flex items-center gap-1 text-xs text-green-400">
-                                              <CheckCircle2 className="w-3 h-3" />
-                                              <span>Acknowledged</span>
-                                              <span className="text-muted-foreground ml-1">
-                                                {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
-                                              </span>
-                                            </div>
-                                          ) : (
-                                            <div className="flex-1 bg-muted/30 rounded-lg p-2">
-                                              <p className="text-xs text-foreground">{r.content}</p>
-                                              <p className="text-[10px] text-muted-foreground mt-1">
-                                                {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
-                                              </p>
-                                            </div>
-                                          )}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              </CollapsibleContent>
-                            </CardContent>
-                          </Card>
-                        </Collapsible>
-                      );
-                    })}
-                  </div>
-                </ScrollArea>
+                                  <div className="space-y-2 border-l-2 border-primary/30 pl-3">
+                                    {fbResps.map(r => (
+                                      <div key={r.id} className="py-1">
+                                        {r.response_type === 'acknowledged' ? (
+                                          <div className="flex items-center gap-1 text-xs text-green-400">
+                                            <CheckCircle2 className="w-3 h-3" />
+                                            <span>Acknowledged</span>
+                                            <span className="text-muted-foreground ml-1">
+                                              {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
+                                            </span>
+                                          </div>
+                                        ) : (
+                                          <div>
+                                            <p className="text-xs text-foreground">{r.content}</p>
+                                            <p className="text-[10px] text-muted-foreground mt-0.5">
+                                              {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
+                                            </p>
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
+                        {feedbackHistory.filter(fb => (feedbackResponses[fb.id] || []).length > 0).length === 0 && (
+                          <p className="text-sm text-muted-foreground text-center py-4">No responses received yet</p>
+                        )}
+                      </div>
+                    </ScrollArea>
+                  </TabsContent>
+                </Tabs>
               </div>
             )}
           </TabsContent>
         </Tabs>
       </main>
     </div>
+  );
+}
+
+// ===== Inline Coach Comment for Habits =====
+function HabitCoachComment({ habitId, athleteId }: { habitId: string; athleteId: string }) {
+  const { user } = useAuth();
+  const { createFeedback } = useCoachingFeedback();
+  const [comment, setComment] = useState('');
+  const [sending, setSending] = useState(false);
+
+  const handleSend = async () => {
+    if (!comment.trim() || !user) return;
+    setSending(true);
+    const { error } = await createFeedback({
+      athlete_id: athleteId,
+      feedback_type: 'general',
+      title: `Habit feedback`,
+      general_comments: comment.trim(),
+    });
+    setSending(false);
+    if (!error) {
+      setComment('');
+      toast.success('Feedback sent to athlete');
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <p className="text-[10px] font-display tracking-wide text-muted-foreground flex items-center gap-1">
+        <MessageSquare className="w-3 h-3" /> COACH COMMENT
+      </p>
+      <div className="flex gap-2">
+        <Textarea
+          placeholder="Leave feedback on this day's habits..."
+          value={comment}
+          onChange={e => setComment(e.target.value)}
+          className="min-h-[40px] text-xs flex-1"
+          rows={2}
+        />
+        <Button
+          size="sm"
+          onClick={handleSend}
+          disabled={sending || !comment.trim()}
+          className="h-10 px-3 self-end"
+        >
+          {sending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ===== Meal Plan Editor — Coach can swap meals, save & publish =====
+function MealPlanEditor({
+  mealPlan,
+  items,
+  athleteId,
+  isOpen,
+  onToggle,
+  onRefresh,
+}: {
+  mealPlan: any;
+  items: any[];
+  athleteId: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  onRefresh: () => void;
+}) {
+  const { user } = useAuth();
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editFoodName, setEditFoodName] = useState('');
+  const [editCalories, setEditCalories] = useState('');
+  const [editProtein, setEditProtein] = useState('');
+  const [editCarbs, setEditCarbs] = useState('');
+  const [editFat, setEditFat] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  const byDay: Record<number, any[]> = {};
+  items.forEach(i => {
+    if (!byDay[i.day_of_week]) byDay[i.day_of_week] = [];
+    byDay[i.day_of_week].push(i);
+  });
+
+  const startEdit = (item: any) => {
+    setEditingItemId(item.id);
+    setEditFoodName(item.food_name || '');
+    setEditCalories(item.calories?.toString() || '0');
+    setEditProtein(item.protein_g?.toString() || '0');
+    setEditCarbs(item.carbs_g?.toString() || '0');
+    setEditFat(item.fat_g?.toString() || '0');
+  };
+
+  const saveSwap = async () => {
+    if (!editingItemId) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from('meal_plan_items')
+      .update({
+        food_name: editFoodName,
+        calories: parseInt(editCalories) || 0,
+        protein_g: parseFloat(editProtein) || 0,
+        carbs_g: parseFloat(editCarbs) || 0,
+        fat_g: parseFloat(editFat) || 0,
+      })
+      .eq('id', editingItemId);
+    
+    setSaving(false);
+    if (!error) {
+      setEditingItemId(null);
+      setHasChanges(true);
+      toast.success('Meal updated');
+      onRefresh();
+    } else {
+      toast.error('Failed to update');
+    }
+  };
+
+  const publishChanges = async () => {
+    if (!user) return;
+    setPublishing(true);
+    
+    // Notify athlete
+    await supabase.from('notifications').insert({
+      user_id: athleteId,
+      type: 'plan_update',
+      title: 'Meal Plan Updated',
+      body: `Your coach updated your meal plan: ${mealPlan.name}`,
+      data: { meal_plan_id: mealPlan.id },
+    });
+
+    // Send inbox message
+    try {
+      const { data: convId } = await supabase.rpc('start_or_get_conversation', {
+        recipient_id: athleteId,
+      });
+      if (convId) {
+        await supabase.from('messages').insert({
+          conversation_id: convId,
+          sender_id: user.id,
+          content: `🍽️ Your meal plan "${mealPlan.name}" has been updated. Check your Fuel section for changes.`,
+        });
+      }
+    } catch (e) {
+      console.error('Publish message failed:', e);
+    }
+
+    setPublishing(false);
+    setHasChanges(false);
+    toast.success('Changes published & athlete notified');
+  };
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={onToggle}>
+      <Card className="border-border">
+        <CardContent className="p-0">
+          <CollapsibleTrigger className="w-full p-3 flex items-center justify-between text-left hover:bg-muted/30 transition-colors">
+            <div>
+              <p className="font-display text-sm text-foreground">{mealPlan.name}</p>
+              <p className="text-xs text-muted-foreground">{items.length} items across {Object.keys(byDay).length} days</p>
+            </div>
+            <div className="flex items-center gap-2">
+              {hasChanges && (
+                <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px]">Unsaved</Badge>
+              )}
+              {isOpen ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="px-3 pb-3 border-t border-border pt-2 space-y-2">
+              {Object.entries(byDay).sort(([a], [b]) => Number(a) - Number(b)).map(([day, dayItems]) => (
+                <div key={day}>
+                  <p className="text-[10px] font-display text-muted-foreground mb-1">{dayLabels[Number(day)] || `Day ${day}`}</p>
+                  {dayItems.map(item => (
+                    <div key={item.id}>
+                      {editingItemId === item.id ? (
+                        <div className="border border-primary/30 rounded p-2 space-y-2 mb-1">
+                          <Input
+                            value={editFoodName}
+                            onChange={e => setEditFoodName(e.target.value)}
+                            placeholder="Food name"
+                            className="h-7 text-xs"
+                          />
+                          <div className="grid grid-cols-4 gap-1">
+                            <div>
+                              <Label className="text-[10px]">Kcal</Label>
+                              <Input type="number" value={editCalories} onChange={e => setEditCalories(e.target.value)} className="h-6 text-xs" />
+                            </div>
+                            <div>
+                              <Label className="text-[10px]">Protein</Label>
+                              <Input type="number" value={editProtein} onChange={e => setEditProtein(e.target.value)} className="h-6 text-xs" />
+                            </div>
+                            <div>
+                              <Label className="text-[10px]">Carbs</Label>
+                              <Input type="number" value={editCarbs} onChange={e => setEditCarbs(e.target.value)} className="h-6 text-xs" />
+                            </div>
+                            <div>
+                              <Label className="text-[10px]">Fat</Label>
+                              <Input type="number" value={editFat} onChange={e => setEditFat(e.target.value)} className="h-6 text-xs" />
+                            </div>
+                          </div>
+                          <div className="flex gap-1 justify-end">
+                            <Button variant="ghost" size="sm" onClick={() => setEditingItemId(null)} className="h-6 text-xs px-2">
+                              <X className="w-3 h-3" />
+                            </Button>
+                            <Button size="sm" onClick={saveSwap} disabled={saving} className="h-6 text-xs px-2">
+                              {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3 mr-1" />}Save
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between text-xs py-0.5 group/item">
+                          <div>
+                            <span className="text-foreground">{item.food_name || 'Unnamed'}</span>
+                            <span className="text-muted-foreground ml-1">({item.meal_type})</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground">{item.calories || 0}kcal</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => startEdit(item)}
+                              className="h-5 w-5 p-0 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                            >
+                              <RefreshCw className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ))}
+
+              {/* Publish button */}
+              {hasChanges && (
+                <Button
+                  onClick={publishChanges}
+                  disabled={publishing}
+                  className="w-full font-display tracking-wide text-xs"
+                >
+                  {publishing ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Send className="w-3 h-3 mr-1" />}
+                  PUBLISH TO ATHLETE
+                </Button>
+              )}
+            </div>
+          </CollapsibleContent>
+        </CardContent>
+      </Card>
+    </Collapsible>
   );
 }
