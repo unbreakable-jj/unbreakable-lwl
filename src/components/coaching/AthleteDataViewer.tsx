@@ -404,11 +404,16 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
           </Card>
         </div>
 
-        {/* Coaching Profile Summary */}
-        {coachingProfile && (
+        {/* Coaching Profile Summary — Editable */}
+        {coachingProfile && !editingBio && (
           <Card className="border-border">
             <CardHeader className="pb-2">
-              <CardTitle className="font-display text-sm tracking-wide">ATHLETE PROFILE</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="font-display text-sm tracking-wide">ATHLETE PROFILE</CardTitle>
+                <Button variant="ghost" size="sm" onClick={startEditingBio} className="h-7 px-2 text-xs">
+                  <Edit className="w-3 h-3 mr-1" />EDIT
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <div className="grid grid-cols-2 gap-2">
@@ -418,15 +423,125 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
                 {coachingProfile.weight_kg && (
                   <div><span className="text-muted-foreground">Weight:</span> {coachingProfile.weight_kg}kg</div>
                 )}
+                {coachingProfile.height_cm && (
+                  <div><span className="text-muted-foreground">Height:</span> {coachingProfile.height_cm}cm</div>
+                )}
+                {coachingProfile.gender && (
+                  <div><span className="text-muted-foreground">Gender:</span> {coachingProfile.gender}</div>
+                )}
                 {coachingProfile.experience_level && (
                   <div><span className="text-muted-foreground">Level:</span> {coachingProfile.experience_level}</div>
                 )}
                 {coachingProfile.training_goal && (
                   <div><span className="text-muted-foreground">Goal:</span> {coachingProfile.training_goal}</div>
                 )}
-                {coachingProfile.injuries && (
-                  <div className="col-span-2"><span className="text-muted-foreground">Injuries:</span> {coachingProfile.injuries}</div>
+                {coachingProfile.days_per_week && (
+                  <div><span className="text-muted-foreground">Days/week:</span> {coachingProfile.days_per_week}</div>
                 )}
+                {coachingProfile.session_length_minutes && (
+                  <div><span className="text-muted-foreground">Session:</span> {coachingProfile.session_length_minutes}min</div>
+                )}
+              </div>
+              {coachingProfile.injuries && (
+                <div className="pt-1 border-t border-border">
+                  <p className="text-xs text-muted-foreground mb-0.5">Physical Injuries:</p>
+                  <p className="text-xs text-foreground">{coachingProfile.injuries}</p>
+                </div>
+              )}
+              {coachingProfile.mental_health && (
+                <div className="pt-1 border-t border-border">
+                  <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1"><Heart className="w-3 h-3" /> Mental Health:</p>
+                  <p className="text-xs text-foreground">{coachingProfile.mental_health}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Editable Bio Form */}
+        {coachingProfile && editingBio && (
+          <Card className="border-border border-primary/30">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="font-display text-sm tracking-wide">EDIT ATHLETE PROFILE</CardTitle>
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => setEditingBio(false)} className="h-7 px-2 text-xs">
+                    <X className="w-3 h-3 mr-1" />CANCEL
+                  </Button>
+                  <Button size="sm" onClick={saveBio} disabled={bioSaving} className="h-7 px-2 text-xs">
+                    {bioSaving ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Save className="w-3 h-3 mr-1" />}SAVE
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Age</Label>
+                  <Input type="number" value={bioAge} onChange={e => setBioAge(e.target.value)} placeholder="e.g. 35" className="h-8 text-xs" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Weight (kg)</Label>
+                  <Input type="number" value={bioWeight} onChange={e => setBioWeight(e.target.value)} placeholder="e.g. 80" className="h-8 text-xs" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Height (cm)</Label>
+                  <Input type="number" value={bioHeight} onChange={e => setBioHeight(e.target.value)} placeholder="e.g. 180" className="h-8 text-xs" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Gender</Label>
+                  <Select value={bioGender} onValueChange={setBioGender}>
+                    <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="non-binary">Non-binary</SelectItem>
+                      <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Experience</Label>
+                  <Select value={bioExperience} onValueChange={setBioExperience}>
+                    <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="beginner">Beginner</SelectItem>
+                      <SelectItem value="intermediate">Intermediate</SelectItem>
+                      <SelectItem value="advanced">Advanced</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Training Goal</Label>
+                  <Select value={bioGoal} onValueChange={setBioGoal}>
+                    <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="strength">Strength</SelectItem>
+                      <SelectItem value="hypertrophy">Hypertrophy</SelectItem>
+                      <SelectItem value="fat_loss">Fat Loss</SelectItem>
+                      <SelectItem value="endurance">Endurance</SelectItem>
+                      <SelectItem value="general_fitness">General Fitness</SelectItem>
+                      <SelectItem value="sport_specific">Sport Specific</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Days/Week</Label>
+                  <Input type="number" min="1" max="7" value={bioDaysPerWeek} onChange={e => setBioDaysPerWeek(e.target.value)} placeholder="e.g. 4" className="h-8 text-xs" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Session (min)</Label>
+                  <Input type="number" value={bioSessionLength} onChange={e => setBioSessionLength(e.target.value)} placeholder="e.g. 60" className="h-8 text-xs" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Physical Injuries / Conditions</Label>
+                <Textarea value={bioInjuries} onChange={e => setBioInjuries(e.target.value)} placeholder="e.g. Lower back disc issue, shoulder impingement..." className="min-h-[50px] text-xs" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs flex items-center gap-1"><Heart className="w-3 h-3" /> Mental Health & Wellbeing</Label>
+                <Textarea value={bioMentalHealth} onChange={e => setBioMentalHealth(e.target.value)} placeholder="e.g. Managing anxiety, ADHD, low motivation periods..." className="min-h-[50px] text-xs" />
+                <p className="text-[10px] text-muted-foreground">Confidential — only visible to assigned coach.</p>
               </div>
             </CardContent>
           </Card>
