@@ -1344,3 +1344,254 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
     </div>
   );
 }
+
+// ===== Inline Coach Comment for Habits =====
+function HabitCoachComment({ habitId, athleteId }: { habitId: string; athleteId: string }) {
+  const { user } = useAuth();
+  const { createFeedback } = useCoachingFeedback();
+  const [comment, setComment] = useState('');
+  const [sending, setSending] = useState(false);
+
+  const handleSend = async () => {
+    if (!comment.trim() || !user) return;
+    setSending(true);
+    const { error } = await createFeedback({
+      athlete_id: athleteId,
+      feedback_type: 'general',
+      title: `Habit feedback`,
+      general_comments: comment.trim(),
+    });
+    setSending(false);
+    if (!error) {
+      setComment('');
+      toast.success('Feedback sent to athlete');
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <p className="text-[10px] font-display tracking-wide text-muted-foreground flex items-center gap-1">
+        <MessageSquare className="w-3 h-3" /> COACH COMMENT
+      </p>
+      <div className="flex gap-2">
+        <Textarea
+          placeholder="Leave feedback on this day's habits..."
+          value={comment}
+          onChange={e => setComment(e.target.value)}
+          className="min-h-[40px] text-xs flex-1"
+          rows={2}
+        />
+        <Button
+          size="sm"
+          onClick={handleSend}
+          disabled={sending || !comment.trim()}
+          className="h-10 px-3 self-end"
+        >
+          {sending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ===== Meal Plan Editor — Coach can swap meals, save & publish =====
+function MealPlanEditor({
+  mealPlan,
+  items,
+  athleteId,
+  isOpen,
+  onToggle,
+  onRefresh,
+}: {
+  mealPlan: any;
+  items: any[];
+  athleteId: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  onRefresh: () => void;
+}) {
+  const { user } = useAuth();
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editFoodName, setEditFoodName] = useState('');
+  const [editCalories, setEditCalories] = useState('');
+  const [editProtein, setEditProtein] = useState('');
+  const [editCarbs, setEditCarbs] = useState('');
+  const [editFat, setEditFat] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  const byDay: Record<number, any[]> = {};
+  items.forEach(i => {
+    if (!byDay[i.day_of_week]) byDay[i.day_of_week] = [];
+    byDay[i.day_of_week].push(i);
+  });
+
+  const startEdit = (item: any) => {
+    setEditingItemId(item.id);
+    setEditFoodName(item.food_name || '');
+    setEditCalories(item.calories?.toString() || '0');
+    setEditProtein(item.protein_g?.toString() || '0');
+    setEditCarbs(item.carbs_g?.toString() || '0');
+    setEditFat(item.fat_g?.toString() || '0');
+  };
+
+  const saveSwap = async () => {
+    if (!editingItemId) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from('meal_plan_items')
+      .update({
+        food_name: editFoodName,
+        calories: parseInt(editCalories) || 0,
+        protein_g: parseFloat(editProtein) || 0,
+        carbs_g: parseFloat(editCarbs) || 0,
+        fat_g: parseFloat(editFat) || 0,
+      })
+      .eq('id', editingItemId);
+    
+    setSaving(false);
+    if (!error) {
+      setEditingItemId(null);
+      setHasChanges(true);
+      toast.success('Meal updated');
+      onRefresh();
+    } else {
+      toast.error('Failed to update');
+    }
+  };
+
+  const publishChanges = async () => {
+    if (!user) return;
+    setPublishing(true);
+    
+    // Notify athlete
+    await supabase.from('notifications').insert({
+      user_id: athleteId,
+      type: 'plan_update',
+      title: 'Meal Plan Updated',
+      body: `Your coach updated your meal plan: ${mealPlan.name}`,
+      data: { meal_plan_id: mealPlan.id },
+    });
+
+    // Send inbox message
+    try {
+      const { data: convId } = await supabase.rpc('start_or_get_conversation', {
+        recipient_id: athleteId,
+      });
+      if (convId) {
+        await supabase.from('messages').insert({
+          conversation_id: convId,
+          sender_id: user.id,
+          content: `🍽️ Your meal plan "${mealPlan.name}" has been updated. Check your Fuel section for changes.`,
+        });
+      }
+    } catch (e) {
+      console.error('Publish message failed:', e);
+    }
+
+    setPublishing(false);
+    setHasChanges(false);
+    toast.success('Changes published & athlete notified');
+  };
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={onToggle}>
+      <Card className="border-border">
+        <CardContent className="p-0">
+          <CollapsibleTrigger className="w-full p-3 flex items-center justify-between text-left hover:bg-muted/30 transition-colors">
+            <div>
+              <p className="font-display text-sm text-foreground">{mealPlan.name}</p>
+              <p className="text-xs text-muted-foreground">{items.length} items across {Object.keys(byDay).length} days</p>
+            </div>
+            <div className="flex items-center gap-2">
+              {hasChanges && (
+                <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px]">Unsaved</Badge>
+              )}
+              {isOpen ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="px-3 pb-3 border-t border-border pt-2 space-y-2">
+              {Object.entries(byDay).sort(([a], [b]) => Number(a) - Number(b)).map(([day, dayItems]) => (
+                <div key={day}>
+                  <p className="text-[10px] font-display text-muted-foreground mb-1">{dayLabels[Number(day)] || `Day ${day}`}</p>
+                  {dayItems.map(item => (
+                    <div key={item.id}>
+                      {editingItemId === item.id ? (
+                        <div className="border border-primary/30 rounded p-2 space-y-2 mb-1">
+                          <Input
+                            value={editFoodName}
+                            onChange={e => setEditFoodName(e.target.value)}
+                            placeholder="Food name"
+                            className="h-7 text-xs"
+                          />
+                          <div className="grid grid-cols-4 gap-1">
+                            <div>
+                              <Label className="text-[10px]">Kcal</Label>
+                              <Input type="number" value={editCalories} onChange={e => setEditCalories(e.target.value)} className="h-6 text-xs" />
+                            </div>
+                            <div>
+                              <Label className="text-[10px]">Protein</Label>
+                              <Input type="number" value={editProtein} onChange={e => setEditProtein(e.target.value)} className="h-6 text-xs" />
+                            </div>
+                            <div>
+                              <Label className="text-[10px]">Carbs</Label>
+                              <Input type="number" value={editCarbs} onChange={e => setEditCarbs(e.target.value)} className="h-6 text-xs" />
+                            </div>
+                            <div>
+                              <Label className="text-[10px]">Fat</Label>
+                              <Input type="number" value={editFat} onChange={e => setEditFat(e.target.value)} className="h-6 text-xs" />
+                            </div>
+                          </div>
+                          <div className="flex gap-1 justify-end">
+                            <Button variant="ghost" size="sm" onClick={() => setEditingItemId(null)} className="h-6 text-xs px-2">
+                              <X className="w-3 h-3" />
+                            </Button>
+                            <Button size="sm" onClick={saveSwap} disabled={saving} className="h-6 text-xs px-2">
+                              {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3 mr-1" />}Save
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between text-xs py-0.5 group/item">
+                          <div>
+                            <span className="text-foreground">{item.food_name || 'Unnamed'}</span>
+                            <span className="text-muted-foreground ml-1">({item.meal_type})</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground">{item.calories || 0}kcal</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => startEdit(item)}
+                              className="h-5 w-5 p-0 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                            >
+                              <RefreshCw className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ))}
+
+              {/* Publish button */}
+              {hasChanges && (
+                <Button
+                  onClick={publishChanges}
+                  disabled={publishing}
+                  className="w-full font-display tracking-wide text-xs"
+                >
+                  {publishing ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Send className="w-3 h-3 mr-1" />}
+                  PUBLISH TO ATHLETE
+                </Button>
+              )}
+            </div>
+          </CollapsibleContent>
+        </CardContent>
+      </Card>
+    </Collapsible>
+  );
+}
