@@ -301,14 +301,17 @@ export function useWorkoutSessions() {
       sessionId,
       notes,
       visibility,
+      durationSeconds,
     }: {
       sessionId: string;
       notes?: string;
       visibility?: string;
+      durationSeconds?: number;
     }) => {
       const updates: Record<string, unknown> = {};
       if (notes !== undefined) updates.notes = notes;
       if (visibility !== undefined) updates.visibility = visibility;
+      if (durationSeconds !== undefined) updates.duration_seconds = durationSeconds;
       
       const { error } = await supabase
         .from('workout_sessions')
