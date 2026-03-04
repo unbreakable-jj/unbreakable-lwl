@@ -59,6 +59,7 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
   const [nutritionGoals, setNutritionGoals] = useState<any>(null);
   const [progressionHistory, setProgressionHistory] = useState<any[]>([]);
   const [cardioSessionPlanners, setCardioSessionPlanners] = useState<any[]>([]);
+  const [feedbackResponses, setFeedbackResponses] = useState<Record<string, FeedbackResponse[]>>({});
 
   // Filters & search
   const [sessionFilter, setSessionFilter] = useState<string>('all');
