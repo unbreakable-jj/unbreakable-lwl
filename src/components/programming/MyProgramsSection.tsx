@@ -22,9 +22,11 @@ import {
   Target,
   Sparkles,
 } from 'lucide-react';
+import { InlineProgramEditor } from './InlineProgramEditor';
 import { StartDatePickerDialog } from '@/components/cardio/StartDatePickerDialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
+import { Edit, Wrench } from 'lucide-react';
 
 const statusConfig: Record<ProgramStatus, { label: string; className: string }> = {
   not_started: { label: 'Not Started', className: 'bg-muted text-muted-foreground border-muted' },
@@ -48,6 +50,7 @@ export function MyProgramsSection() {
   const [expandedProgramId, setExpandedProgramId] = useState<string | null>(null);
   const [executingProgramId, setExecutingProgramId] = useState<string | null>(null);
   const [startDateProgramId, setStartDateProgramId] = useState<string | null>(null);
+  const [editingProgramId, setEditingProgramId] = useState<string | null>(null);
   const startDateProgram = programs?.find(p => p.id === startDateProgramId);
 
   // Find the program being executed
@@ -135,6 +138,21 @@ export function MyProgramsSection() {
     }
   };
 
+  // Show inline editor if editing a program
+  if (editingProgramId) {
+    const editingProgram = programs?.find(p => p.id === editingProgramId);
+    if (editingProgram) {
+      return (
+        <InlineProgramEditor
+          programId={editingProgramId}
+          programData={editingProgram.program_data}
+          onClose={() => setEditingProgramId(null)}
+          onSaved={() => setEditingProgramId(null)}
+        />
+      );
+    }
+  }
+
   // Show execution view if a program is being executed
   if (executingProgram) {
     return (
@@ -147,7 +165,7 @@ export function MyProgramsSection() {
 
   return (
     <div className="space-y-4">
-      {/* Header with AI CTA */}
+      {/* Header with AI CTA + Manual Edit */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-surface rounded-lg border border-border">
         <div className="flex items-center gap-3">
           <AlertCircle className="w-5 h-5 text-primary shrink-0" />
@@ -160,12 +178,14 @@ export function MyProgramsSection() {
             </Badge>
           )}
         </div>
-        <ProgrammeCTA 
-          variant="outline" 
-          size="sm" 
-          label="Build with Coach"
-          className="shrink-0"
-        />
+        <div className="flex items-center gap-2">
+          <ProgrammeCTA 
+            variant="outline" 
+            size="sm" 
+            label="Build with Coach"
+            className="shrink-0"
+          />
+        </div>
       </div>
 
       {programs.map((program) => (
@@ -251,6 +271,14 @@ export function MyProgramsSection() {
                     Start
                   </Button>
                 )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => { e.stopPropagation(); setEditingProgramId(program.id); }}
+                  title="Edit programme"
+                >
+                  <Edit className="w-4 h-4" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"

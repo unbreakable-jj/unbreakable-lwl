@@ -11,6 +11,9 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CREATE-CHECKOUT] ${step}${details ? ` - ${JSON.stringify(details)}` : ''}`);
 };
 
+// Known Tier 2 (121 coaching) price ID
+const TIER2_PRICE_ID = "price_1T6Gc7RgwCgvPuKnfH1WiggU";
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -19,6 +22,12 @@ serve(async (req) => {
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+  );
+
+  const serviceClient = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    { auth: { persistSession: false } }
   );
 
   try {
@@ -64,6 +73,43 @@ serve(async (req) => {
     });
 
     logStep("Checkout session created", { sessionId: session.id });
+
+    // If Tier 2 (121 coaching), notify all dev users
+    if (priceId === TIER2_PRICE_ID) {
+      logStep("Tier 2 (121) selected — notifying devs");
+      try {
+        // Get user profile for display name
+        const { data: profileData } = await serviceClient
+          .from("profiles")
+          .select("display_name, username")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        const displayName = profileData?.display_name || profileData?.username || user.email;
+
+        // Find all dev users
+        const { data: devRoles } = await serviceClient
+          .from("user_roles")
+          .select("user_id")
+          .eq("role", "dev");
+
+        if (devRoles && devRoles.length > 0) {
+          const notifications = devRoles.map((r: any) => ({
+            user_id: r.user_id,
+            type: "tier2_signup",
+            title: "New 121 Coaching Signup",
+            body: `${displayName} has started checkout for Unbreakable 1-to-1 coaching (7-day trial). Review in your coaching dashboard.`,
+            data: { athlete_id: user.id, price_id: priceId },
+          }));
+
+          await serviceClient.from("notifications").insert(notifications);
+          logStep("Dev notifications sent", { count: notifications.length });
+        }
+      } catch (notifyErr) {
+        // Don't fail checkout if notification fails
+        logStep("Notification error (non-fatal)", { error: String(notifyErr) });
+      }
+    }
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
