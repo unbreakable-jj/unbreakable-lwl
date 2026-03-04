@@ -17,8 +17,9 @@ import {
   Target, MessageSquare, Loader2, Calendar, TrendingUp,
   Flame, Droplets, BookOpen, PenLine, Check, Footprints, ClipboardList, Star, Edit,
   ChevronDown, ChevronRight, Trash2, Eye, Search, Filter, BarChart3, Weight, Repeat,
-  Save, X, Heart, CheckCircle2, Reply
+  Save, X, Heart, CheckCircle2, Reply, Send, RefreshCw
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { CoachFeedbackPanel } from './CoachFeedbackPanel';
 import { useCoachingFeedback, CoachingFeedback, FeedbackResponse } from '@/hooks/useCoachingFeedback';
 import { formatDistanceToNow, format, subDays } from 'date-fns';
