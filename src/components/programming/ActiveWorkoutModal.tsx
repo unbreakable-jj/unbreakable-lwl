@@ -28,6 +28,7 @@ import {
   Lightbulb,
   Shuffle,
   Plus,
+  Clock,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getExerciseDetails } from '@/lib/exerciseLibrary';
@@ -212,8 +213,46 @@ export function ActiveWorkoutModal({
         </DialogHeader>
 
         <div className="p-4 space-y-4">
-          {/* Progress Card */}
+          {/* Timer + Progress Card */}
           <Card className="p-4 border-primary/30 bg-primary/5">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Elapsed</span>
+                <span className="font-display text-lg text-primary tabular-nums">{formatElapsed(elapsed)}</span>
+              </div>
+              <button
+                onClick={() => setShowDurationEdit(!showDurationEdit)}
+                className="text-xs text-primary hover:text-primary/80 font-display tracking-wide"
+              >
+                {showDurationEdit ? 'HIDE' : 'EDIT TIME'}
+              </button>
+            </div>
+            {showDurationEdit && (
+              <div className="flex items-center gap-2 mb-3 p-2 rounded bg-muted/30 border border-border">
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="Hrs"
+                  value={manualHours}
+                  onChange={(e) => setManualHours(e.target.value)}
+                  className="h-8 w-16 text-center text-sm"
+                  min="0"
+                />
+                <span className="text-xs text-muted-foreground">h</span>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="Min"
+                  value={manualMinutes}
+                  onChange={(e) => setManualMinutes(e.target.value)}
+                  className="h-8 w-16 text-center text-sm"
+                  min="0"
+                  max="59"
+                />
+                <span className="text-xs text-muted-foreground">m</span>
+                <span className="text-[10px] text-muted-foreground ml-auto">Overrides auto timer</span>
+              </div>
+            )}
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-muted-foreground">Session Progress</span>
               <span className="font-display text-lg text-foreground">
