@@ -50,6 +50,8 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
   const [showWorkoutModal, setShowWorkoutModal] = useState(false);
   const [isStartingSession, setIsStartingSession] = useState(false);
   const [viewingResultIndex, setViewingResultIndex] = useState<number | null>(null);
+  const [showEditor, setShowEditor] = useState(false);
+  const [isSkipping, setIsSkipping] = useState(false);
 
   // Progression state
   const [progressionSuggestions, setProgressionSuggestions] = useState<PowerProgressionSuggestion[]>([]);
@@ -155,6 +157,32 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
         toast({ title: 'Exercise Swapped', description: `Switched to ${newExercise.name}` });
       },
     });
+  };
+
+  const handleSkipSession = async () => {
+    if (!nextSession || isSkipping) return;
+    setIsSkipping(true);
+    try {
+      await markSkipped.mutateAsync(nextSession.id);
+      
+      // Send adherence notification via inbox
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (currentUser) {
+        await supabase.from('notifications').insert({
+          user_id: currentUser.id,
+          type: 'adherence_alert',
+          title: 'Session Skipped',
+          body: `You skipped ${nextSession.session_type} (Week ${nextSession.week_number}, Day ${nextSession.day_number}). Your programme has moved on — consistency is key to hitting your goals.`,
+          data: { program_id: program.id, planner_id: nextSession.id },
+        });
+      }
+      
+      toast({ title: 'Session Skipped', description: 'Programme has moved to the next session.' });
+    } catch (err) {
+      toast({ title: 'Error', description: 'Could not skip session', variant: 'destructive' });
+    } finally {
+      setIsSkipping(false);
+    }
   };
 
   const checkForProgression = useCallback(async () => {
