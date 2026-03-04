@@ -68,6 +68,61 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
   const [expandedMealPlanIds, setExpandedMealPlanIds] = useState<Set<string>>(new Set());
   const [expandedProgressionExercises, setExpandedProgressionExercises] = useState<Set<string>>(new Set());
 
+  // Editable bio state
+  const [editingBio, setEditingBio] = useState(false);
+  const [bioSaving, setBioSaving] = useState(false);
+  const [bioAge, setBioAge] = useState('');
+  const [bioWeight, setBioWeight] = useState('');
+  const [bioHeight, setBioHeight] = useState('');
+  const [bioGender, setBioGender] = useState('');
+  const [bioExperience, setBioExperience] = useState('');
+  const [bioGoal, setBioGoal] = useState('');
+  const [bioInjuries, setBioInjuries] = useState('');
+  const [bioMentalHealth, setBioMentalHealth] = useState('');
+  const [bioDaysPerWeek, setBioDaysPerWeek] = useState('');
+  const [bioSessionLength, setBioSessionLength] = useState('');
+
+  const startEditingBio = () => {
+    if (coachingProfile) {
+      setBioAge(coachingProfile.age_years?.toString() || '');
+      setBioWeight(coachingProfile.weight_kg?.toString() || '');
+      setBioHeight(coachingProfile.height_cm?.toString() || '');
+      setBioGender(coachingProfile.gender || '');
+      setBioExperience(coachingProfile.experience_level || '');
+      setBioGoal(coachingProfile.training_goal || '');
+      setBioInjuries(coachingProfile.injuries || '');
+      setBioMentalHealth(coachingProfile.mental_health || '');
+      setBioDaysPerWeek(coachingProfile.days_per_week?.toString() || '');
+      setBioSessionLength(coachingProfile.session_length_minutes?.toString() || '');
+    }
+    setEditingBio(true);
+  };
+
+  const saveBio = async () => {
+    setBioSaving(true);
+    const { error } = await supabase
+      .from('coaching_profiles')
+      .update({
+        age_years: bioAge ? parseInt(bioAge) : null,
+        weight_kg: bioWeight ? parseFloat(bioWeight) : null,
+        height_cm: bioHeight ? parseFloat(bioHeight) : null,
+        gender: bioGender || null,
+        experience_level: bioExperience || null,
+        training_goal: bioGoal || null,
+        injuries: bioInjuries || null,
+        mental_health: bioMentalHealth || null,
+        days_per_week: bioDaysPerWeek ? parseInt(bioDaysPerWeek) : null,
+        session_length_minutes: bioSessionLength ? parseInt(bioSessionLength) : null,
+      })
+      .eq('user_id', athleteId);
+    
+    setBioSaving(false);
+    if (!error) {
+      setEditingBio(false);
+      loadAthleteData();
+    }
+  };
+
   useEffect(() => {
     loadAthleteData();
   }, [athleteId]);
