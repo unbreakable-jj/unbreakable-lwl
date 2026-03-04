@@ -306,6 +306,7 @@ export type Database = {
           id: string
           injuries: string | null
           meals_per_day: number | null
+          mental_health: string | null
           nutrition_goal: string | null
           onboarding_completed: boolean
           preferred_cardio: string | null
@@ -340,6 +341,7 @@ export type Database = {
           id?: string
           injuries?: string | null
           meals_per_day?: number | null
+          mental_health?: string | null
           nutrition_goal?: string | null
           onboarding_completed?: boolean
           preferred_cardio?: string | null
@@ -374,6 +376,7 @@ export type Database = {
           id?: string
           injuries?: string | null
           meals_per_day?: number | null
+          mental_health?: string | null
           nutrition_goal?: string | null
           onboarding_completed?: boolean
           preferred_cardio?: string | null

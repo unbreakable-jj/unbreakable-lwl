@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -27,13 +28,16 @@ export function CoachingBioForm() {
   const [weightLb, setWeightLb] = useState('');
   const [useMetricHeight, setUseMetricHeight] = useState(true);
   const [useMetricWeight, setUseMetricWeight] = useState(true);
-
+  const [injuries, setInjuries] = useState('');
+  const [mentalHealth, setMentalHealth] = useState('');
   // Populate form when profile loads
   useEffect(() => {
     if (profile) {
       setAge(profile.age_years?.toString() || '');
       setUseMetricHeight(profile.preferred_height_unit === 'cm');
       setUseMetricWeight(profile.preferred_weight_unit === 'kg');
+      setInjuries(profile.injuries || '');
+      setMentalHealth(profile.mental_health || '');
 
       if (profile.height_cm) {
         setHeightCm(profile.height_cm.toString());
@@ -99,6 +103,8 @@ export function CoachingBioForm() {
       weight_kg: finalWeightKg,
       preferred_height_unit: useMetricHeight ? 'cm' : 'ft_in',
       preferred_weight_unit: useMetricWeight ? 'kg' : 'lb',
+      injuries: injuries || null,
+      mental_health: mentalHealth || null,
     };
 
     const { error } = await updateProfile(updates);
@@ -225,7 +231,33 @@ export function CoachingBioForm() {
           />
         </div>
 
-        <Button 
+        {/* Physical Injuries */}
+        <div className="space-y-2">
+          <Label htmlFor="injuries">Physical Injuries / Conditions</Label>
+          <Textarea
+            id="injuries"
+            placeholder="e.g. Lower back disc issue, shoulder impingement..."
+            value={injuries}
+            onChange={(e) => setInjuries(e.target.value)}
+            className="bg-input border-border min-h-[60px]"
+          />
+          <p className="text-xs text-muted-foreground">List any physical injuries, pain points, or medical conditions that affect training.</p>
+        </div>
+
+        {/* Mental Health */}
+        <div className="space-y-2">
+          <Label htmlFor="mentalHealth">Mental Health & Wellbeing</Label>
+          <Textarea
+            id="mentalHealth"
+            placeholder="e.g. Managing anxiety, ADHD, low motivation periods..."
+            value={mentalHealth}
+            onChange={(e) => setMentalHealth(e.target.value)}
+            className="bg-input border-border min-h-[60px]"
+          />
+          <p className="text-xs text-muted-foreground">Any mental health considerations your coach should be aware of. This is kept confidential.</p>
+        </div>
+
+        <Button
           onClick={handleSave} 
           disabled={saving}
           className="w-full font-display tracking-wide"
