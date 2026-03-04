@@ -21,7 +21,6 @@ import {
   Lightbulb,
   BookOpen,
   AlertTriangle,
-  Star
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getExerciseDetails } from '@/lib/exerciseLibrary';
@@ -343,8 +342,8 @@ export function SessionLoggingView({
 
                         {/* Use stable log.id as key - logs are pre-sorted */}
                         {logs.map((log) => (
-                          <div key={log.id} className="space-y-1">
-                            <div className="grid grid-cols-12 gap-2 items-center">
+                          <div key={log.id} className="space-y-0.5">
+                            <div className="grid grid-cols-12 gap-1.5 items-center">
                               <div className="col-span-1">
                                 <span className="font-display text-primary">{log.set_number}</span>
                               </div>
