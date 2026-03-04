@@ -1,16 +1,26 @@
+import { useState, useCallback } from 'react';
 import { useUnifiedFeed } from '@/hooks/useUnifiedFeed';
 import { useAuth } from '@/hooks/useAuth';
+import { useStories } from '@/hooks/useStories';
 import { ActivityCard } from '@/components/tracker/ActivityCard';
 import { StatusCard } from '@/components/tracker/StatusCard';
 import { WorkoutCard } from './WorkoutCard';
 import { MilestoneCard } from './MilestoneCard';
 import { StoriesSection } from './StoriesSection';
 import { CreatePostBox } from '@/components/tracker/CreatePostBox';
+import { StoryEditor } from './StoryEditor';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Activity, RefreshCw, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+
+export interface StoryPreFill {
+  content?: string;
+  image_url?: string;
+  video_url?: string;
+  background_color?: string;
+}
 
 interface UnifiedFeedProps {
   onSignIn?: () => void;
@@ -19,6 +29,8 @@ interface UnifiedFeedProps {
 
 export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
   const { user } = useAuth();
+  const { createStory } = useStories();
+  const [storyPreFill, setStoryPreFill] = useState<StoryPreFill | null>(null);
   const {
     feedItems,
     loading,
@@ -42,6 +54,27 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
     shareMilestone,
     unshareMilestone,
   } = useUnifiedFeed();
+
+  const handleOpenStoryEditor = useCallback((preFill: StoryPreFill) => {
+    setStoryPreFill(preFill);
+  }, []);
+
+  const handlePublishStory = async (data: {
+    content: string | null;
+    image_url: string | null;
+    video_url: string | null;
+    visibility: string;
+    text_overlays: any[];
+    background_color: string | null;
+  }) => {
+    const { error } = await createStory(data);
+    if (error) {
+      toast.error('Failed to share to story');
+    } else {
+      toast.success('Shared to your story!');
+      setStoryPreFill(null);
+    }
+  };
 
   const handleDeleteRun = async (runId: string) => {
     const { error } = await deleteRun(runId);
@@ -193,6 +226,7 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
                   onDelete={handleDeleteRun}
                   onToggleComments={handleToggleRunComments}
                   onUpdateRun={handleUpdateRun}
+                  onOpenStoryEditor={handleOpenStoryEditor}
                 />
               )}
               {item.type === 'post' && (
@@ -206,6 +240,7 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
                   onDelete={handleDeletePost}
                   onToggleComments={handleTogglePostComments}
                   onUpdatePost={handleUpdatePost}
+                  onOpenStoryEditor={handleOpenStoryEditor}
                 />
               )}
               {item.type === 'workout' && (
@@ -215,6 +250,7 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
                   onDelete={handleDeleteWorkout}
                   onToggleComments={handleToggleWorkoutComments}
                   onUpdateWorkout={handleUpdateWorkout}
+                  onOpenStoryEditor={handleOpenStoryEditor}
                 />
               )}
               {item.type === 'milestone' && (
@@ -248,6 +284,24 @@ export function UnifiedFeed({ onSignIn, onOpenMessages }: UnifiedFeedProps) {
           <p className="text-muted-foreground text-sm">You've reached the end of your feed</p>
         </div>
       )}
+
+      {/* Story Editor Overlay - Pre-filled from timeline posts */}
+      <AnimatePresence>
+        {storyPreFill && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-background"
+          >
+            <StoryEditor
+              onPublish={handlePublishStory}
+              onClose={() => setStoryPreFill(null)}
+              preFill={storyPreFill}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

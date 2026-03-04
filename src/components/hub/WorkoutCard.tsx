@@ -7,13 +7,13 @@ import { Heart, MessageCircle, Dumbbell, Clock, Globe, Users, Lock } from 'lucid
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-import { useStories } from '@/hooks/useStories';
 import { PostMenu } from '@/components/tracker/PostMenu';
 import { ShareMenu } from '@/components/tracker/ShareMenu';
 import { WorkoutCommentSection } from './WorkoutCommentSection';
 import { EditWorkoutModal } from '@/components/tracker/EditWorkoutModal';
 import { toast } from 'sonner';
 import type { FeedWorkout, FeedItemBase } from '@/hooks/useUnifiedFeed';
+import type { StoryPreFill } from './UnifiedFeed';
 
 interface WorkoutCardProps {
   workout: FeedWorkout & FeedItemBase;
@@ -21,11 +21,11 @@ interface WorkoutCardProps {
   onDelete: (workoutId: string) => void;
   onToggleComments: (workoutId: string) => void;
   onUpdateWorkout?: (workoutId: string, updates: { notes?: string; visibility?: string }) => Promise<{ error: Error | null }>;
+  onOpenStoryEditor?: (preFill: StoryPreFill) => void;
 }
 
-export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onUpdateWorkout }: WorkoutCardProps) {
+export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onUpdateWorkout, onOpenStoryEditor }: WorkoutCardProps) {
   const { user } = useAuth();
-  const { createStory } = useStories();
   const [isLiking, setIsLiking] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -59,19 +59,12 @@ export function WorkoutCard({ workout, onKudos, onDelete, onToggleComments, onUp
     }
   };
 
-  const handleShareToStory = async () => {
-    const storyData = {
-      visibility: 'public',
-      content: `💪 ${workout.day_name} - ${workout.session_type} • Week ${workout.week_number}\n⏱️ ${formatDuration(workout.duration_seconds)} • ${workout.sets_completed || 0} sets`,
-      text_overlays: [],
-      background_color: '#1C1C1E',
-    };
-
-    const { error } = await createStory(storyData);
-    if (error) {
-      toast.error('Failed to share to story');
-    } else {
-      toast.success('Shared to your story!');
+  const handleShareToStory = () => {
+    if (onOpenStoryEditor) {
+      onOpenStoryEditor({
+        content: `💪 ${workout.day_name} - ${workout.session_type} • Week ${workout.week_number}\n⏱️ ${formatDuration(workout.duration_seconds)} • ${workout.sets_completed || 0} sets${workout.notes ? '\n\n' + workout.notes : ''}`,
+        background_color: '#1C1C1E',
+      });
     }
   };
 
