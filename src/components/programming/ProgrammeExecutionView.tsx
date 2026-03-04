@@ -389,8 +389,10 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
             </Button>
           </div>
           <InlineProgramEditor
-            program={program}
+            programId={program.id}
+            programData={(program as any).program_data}
             onClose={() => setShowEditor(false)}
+            onSaved={() => setShowEditor(false)}
           />
         </Card>
       )}
