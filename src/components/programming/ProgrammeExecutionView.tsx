@@ -11,6 +11,7 @@ import { SessionResultsView } from './SessionResultsView';
 import { PowerProgressionDialog, PowerProgressionSuggestion } from './PowerProgressionDialog';
 import { format, parseISO } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { InlineProgramEditor } from './InlineProgramEditor';
 import { supabase } from '@/integrations/supabase/client';
 import {
   Play,
@@ -23,6 +24,8 @@ import {
   ChevronRight,
   Trophy,
   TrendingUp,
+  SkipForward,
+  Edit3,
 } from 'lucide-react';
 
 interface ProgrammeExecutionViewProps {
@@ -115,7 +118,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
     );
   }, [activeSession, planners]);
 
-  const handleCompleteWorkout = (notes?: string, visibility?: 'public' | 'friends' | 'private') => {
+  const handleCompleteWorkout = (notes?: string, visibility?: 'public' | 'friends' | 'private', manualDurationSeconds?: number) => {
     if (!activeSession) return;
     
     // Complete the workout session
@@ -123,10 +126,10 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
       sessionId: activeSession.id,
       notes,
       visibility,
+      manualDurationSeconds,
     });
     
     // Mark the CURRENT planner (not next) as complete
-    // This ensures we mark the session we just finished, not the next one
     if (currentPlanner) {
       markComplete.mutate(currentPlanner.id);
     }
