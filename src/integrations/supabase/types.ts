@@ -649,6 +649,41 @@ export type Database = {
           },
         ]
       }
+      feedback_responses: {
+        Row: {
+          content: string | null
+          created_at: string
+          feedback_id: string
+          id: string
+          response_type: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          feedback_id: string
+          id?: string
+          response_type?: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          feedback_id?: string
+          id?: string
+          response_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_responses_feedback_id_fkey"
+            columns: ["feedback_id"]
+            isOneToOne: false
+            referencedRelation: "coaching_feedback"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       follows: {
         Row: {
           created_at: string
