@@ -211,9 +211,19 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
       setCardioSessionPlanners(csp || []);
     }
 
-    // Load feedback history
+    // Load feedback history + responses
     const { data: fbData } = await getFeedbackForAthlete(athleteId);
     setFeedbackHistory(fbData);
+
+    if (fbData.length > 0) {
+      const { data: allResp } = await getResponsesForMultipleFeedback(fbData.map(f => f.id));
+      const grouped: Record<string, FeedbackResponse[]> = {};
+      (allResp || []).forEach(r => {
+        if (!grouped[r.feedback_id]) grouped[r.feedback_id] = [];
+        grouped[r.feedback_id].push(r);
+      });
+      setFeedbackResponses(grouped);
+    }
 
     setLoading(false);
   };
