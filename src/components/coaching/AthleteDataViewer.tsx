@@ -20,7 +20,7 @@ import {
   Save, X, Heart
 } from 'lucide-react';
 import { CoachFeedbackPanel } from './CoachFeedbackPanel';
-import { useCoachingFeedback, CoachingFeedback } from '@/hooks/useCoachingFeedback';
+import { useCoachingFeedback, CoachingFeedback, FeedbackResponse } from '@/hooks/useCoachingFeedback';
 import { formatDistanceToNow, format, subDays } from 'date-fns';
 import { InlineProgramEditor } from '@/components/programming/InlineProgramEditor';
 import { useNavigate } from 'react-router-dom';
