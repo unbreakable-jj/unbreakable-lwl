@@ -161,10 +161,10 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                 </CollapsibleContent>
               </Collapsible>
 
-              {/* ASK COACH */}
+              {/* UNBREAKABLE COACHING */}
               <Link to="/help" onClick={handleNavClick} className={linkClass('/help')}>
                 <Flame className={`w-5 h-5 ${isActive('/help') ? '' : 'text-primary'}`} />
-                ASK COACH
+                UNBREAKABLE COACHING
               </Link>
 
               {/* 121 COACHING */}

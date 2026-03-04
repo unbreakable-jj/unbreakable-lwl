@@ -144,11 +144,11 @@ export function MainNavigation() {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
 
-                {/* ASK COACH */}
+                {/* UNBREAKABLE COACHING */}
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
                     <Link to="/help" className={navLinkClass(isActive('/help'))}>
-                      ASK COACH
+                      UNBREAKABLE COACHING
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
