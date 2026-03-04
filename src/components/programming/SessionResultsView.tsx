@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { MotivationalPopup } from '@/components/MotivationalPopup';
 import { FullScreenToolView } from './FullScreenToolView';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +39,14 @@ export function SessionResultsView({ session, onClose, onViewFeedback }: Session
   const [editingDuration, setEditingDuration] = useState(false);
   const [durationHours, setDurationHours] = useState('');
   const [durationMinutes, setDurationMinutes] = useState('');
+  const [showMotivation, setShowMotivation] = useState(false);
+
+  useEffect(() => {
+    if (session.status === 'completed') {
+      const t = setTimeout(() => setShowMotivation(true), 500);
+      return () => clearTimeout(t);
+    }
+  }, [session.status]);
   
   const logs = session.exercise_logs || [];
   const completedSets = logs.filter(l => l.completed).length;
@@ -284,6 +293,12 @@ export function SessionResultsView({ session, onClose, onViewFeedback }: Session
           )}
         </div>
       </ScrollArea>
+      <MotivationalPopup
+        trigger="session_complete"
+        context={`Completed ${completedSets}/${totalSets} sets`}
+        open={showMotivation}
+        onClose={() => setShowMotivation(false)}
+      />
     </FullScreenToolView>
   );
 }
