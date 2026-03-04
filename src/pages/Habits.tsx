@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { DailyHabitDiary } from '@/components/programming/DailyHabitDiary';
 import { Badge } from '@/components/ui/badge';
@@ -22,36 +22,53 @@ const Habits = () => {
     goToToday,
   } = useDailyHabits();
 
-  const [localHabits, setLocalHabits] = useState(habits);
-  const [dirty, setDirty] = useState(false);
+  const [localJournal, setLocalJournal] = useState(habits.journal);
+  const [journalDirty, setJournalDirty] = useState(false);
   const [showMotivation, setShowMotivation] = useState(false);
 
-  // Sync local state when habits load from DB or date changes
-  const [prevHabits, setPrevHabits] = useState(habits);
-  if (habits !== prevHabits) {
-    setPrevHabits(habits);
-    setLocalHabits(habits);
-    setDirty(false);
-  }
+  // Sync local journal when habits load from DB or date changes
+  useEffect(() => {
+    setLocalJournal(habits.journal);
+    setJournalDirty(false);
+  }, [habits.journal]);
 
-  const wordCount = localHabits.journal.trim().split(/\s+/).filter(Boolean).length;
+  // For display purposes, use actual habits for checkboxes but local journal
+  const displayHabits = { ...habits, journal: localJournal };
+
+  const wordCount = localJournal.trim().split(/\s+/).filter(Boolean).length;
   const completedCount = [
-    localHabits.train,
-    localHabits.learnDaily,
-    localHabits.water,
-    localHabits.hitYourNumbers,
+    habits.train,
+    habits.learnDaily,
+    habits.water,
+    habits.hitYourNumbers,
     wordCount >= 150,
   ].filter(Boolean).length;
 
   const handleChange = (newHabits: typeof habits) => {
-    setLocalHabits(newHabits);
-    setDirty(true);
+    // Check if only journal changed
+    const journalChanged = newHabits.journal !== localJournal;
+    const checkboxChanged = 
+      newHabits.train !== habits.train ||
+      newHabits.learnDaily !== habits.learnDaily ||
+      newHabits.water !== habits.water ||
+      newHabits.hitYourNumbers !== habits.hitYourNumbers;
+
+    if (checkboxChanged) {
+      // Auto-save checkboxes immediately (with current local journal)
+      saveHabits({ ...newHabits, journal: localJournal });
+      toast.success('Habit updated!');
+    }
+
+    if (journalChanged) {
+      setLocalJournal(newHabits.journal);
+      setJournalDirty(true);
+    }
   };
 
-  const handleSave = async () => {
-    await saveHabits(localHabits);
-    setDirty(false);
-    toast.success('Habits saved!');
+  const handleSaveJournal = async () => {
+    await saveHabits({ ...habits, journal: localJournal });
+    setJournalDirty(false);
+    toast.success('Journal saved!');
     // Show motivational popup if all 5 complete
     if (completedCount === 5) {
       setShowMotivation(true);
@@ -87,6 +104,12 @@ const Habits = () => {
           </Button>
         </div>
 
+        {saving && (
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="w-3 h-3 animate-spin" /> Saving...
+          </div>
+        )}
+
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -94,18 +117,18 @@ const Habits = () => {
         ) : (
           <>
             <DailyHabitDiary
-              habits={localHabits}
+              habits={displayHabits}
               onChange={handleChange}
               compact={false}
               readOnly={!isToday}
               dateKey={format(selectedDate, 'yyyy-MM-dd')}
             />
 
-            {/* Save Button */}
-            {isToday && (
+            {/* Save Journal Button */}
+            {isToday && journalDirty && (
               <Button
-                onClick={handleSave}
-                disabled={!dirty || saving}
+                onClick={handleSaveJournal}
+                disabled={saving}
                 className="w-full font-display tracking-wider gap-2"
                 size="lg"
               >
@@ -114,7 +137,7 @@ const Habits = () => {
                 ) : (
                   <Save className="w-4 h-4" />
                 )}
-                {saving ? 'SAVING...' : 'SAVE HABITS'}
+                {saving ? 'SAVING...' : 'SAVE JOURNAL'}
               </Button>
             )}
           </>
