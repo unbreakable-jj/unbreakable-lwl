@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Send, MessageSquarePlus, Trash2, Loader2, Flame, Sparkles, Video, UtensilsCrossed, PanelLeftClose, PanelLeftOpen, Dumbbell, TrendingUp, BarChart3, Brain, Zap, Heart, MessageCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -310,6 +311,7 @@ export default function Help() {
   const [generatedPlans, setGeneratedPlans] = useState<GeneratedPlanInfo[]>([]);
   const [editingPlan, setEditingPlan] = useState<GeneratedPlanInfo | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedChatTab, setSelectedChatTab] = useState<string | null>(null);
   
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -668,7 +670,7 @@ export default function Help() {
                   </div>
 
                   {/* Quick Action Tiles */}
-                  <QuickActionTiles onSelect={handleQuickAction} disabled={isLoading || isAnyGenerating} />
+                  <QuickActionTiles onSelect={handleQuickAction} selectedTab={selectedChatTab} onTabSelect={setSelectedChatTab} disabled={isLoading || isAnyGenerating} />
                 </div>
               ) : (
                 /* ─── Chat Messages ─── */
