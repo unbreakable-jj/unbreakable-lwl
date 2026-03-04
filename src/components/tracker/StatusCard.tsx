@@ -7,7 +7,6 @@ import { Card } from '@/components/ui/card';
 import { Heart, MessageCircle, Globe, Users, Lock, Play, Pause, Volume2, VolumeX, Maximize } from 'lucide-react';
 import { PostWithProfile } from '@/hooks/usePosts';
 import { useAuth } from '@/hooks/useAuth';
-import { useStories } from '@/hooks/useStories';
 import { motion } from 'framer-motion';
 import { PostMenu } from './PostMenu';
 import { PostCommentSection } from './PostCommentSection';
@@ -16,6 +15,7 @@ import { EditPostModal } from './EditPostModal';
 import { FullscreenVideoViewer } from '@/components/video/FullscreenVideoViewer';
 import { VideoQualitySelector, useVideoQuality } from '@/components/video/VideoQualitySelector';
 import { toast } from 'sonner';
+import type { StoryPreFill } from '@/components/hub/UnifiedFeed';
 
 interface StatusCardProps {
   post: PostWithProfile;
@@ -23,11 +23,11 @@ interface StatusCardProps {
   onDelete: (postId: string) => void;
   onToggleComments: (postId: string) => void;
   onUpdatePost?: (postId: string, updates: { content?: string; visibility?: string }) => Promise<{ error: Error | null }>;
+  onOpenStoryEditor?: (preFill: StoryPreFill) => void;
 }
 
-export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdatePost }: StatusCardProps) {
+export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdatePost, onOpenStoryEditor }: StatusCardProps) {
   const { user } = useAuth();
-  const { createStory } = useStories();
   const [isLiking, setIsLiking] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -93,28 +93,14 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdate
     }
   };
 
-  const handleShareToStory = async () => {
-    const storyData: { image_url?: string; video_url?: string; content?: string; visibility: string; text_overlays: any[]; background_color: string | null } = {
-      visibility: 'public',
-      text_overlays: [],
-      background_color: '#1C1C1E',
-    };
-
-    if (post.image_url) {
-      storyData.image_url = post.image_url;
-    }
-    if (post.video_url) {
-      storyData.video_url = post.video_url;
-    }
-    if (post.content) {
-      storyData.content = post.content;
-    }
-
-    const { error } = await createStory(storyData);
-    if (error) {
-      toast.error('Failed to share to story');
-    } else {
-      toast.success('Shared to your story!');
+  const handleShareToStory = () => {
+    if (onOpenStoryEditor) {
+      onOpenStoryEditor({
+        content: post.content || undefined,
+        image_url: post.image_url || undefined,
+        video_url: post.video_url || undefined,
+        background_color: '#1C1C1E',
+      });
     }
   };
 

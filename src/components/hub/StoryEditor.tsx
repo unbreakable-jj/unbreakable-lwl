@@ -39,20 +39,28 @@ interface StoryEditorProps {
     background_color: string | null;
   }) => Promise<void>;
   onClose: () => void;
+  preFill?: {
+    content?: string;
+    image_url?: string;
+    video_url?: string;
+    background_color?: string;
+  };
 }
 
-export function StoryEditor({ onPublish, onClose }: StoryEditorProps) {
+export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
   const { user } = useAuth();
   const canvasRef = useRef<HTMLDivElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
 
-  const [bgType, setBgType] = useState<'color' | 'image' | 'video'>('color');
-  const [bgColor, setBgColor] = useState('#1C1C1E');
+  const [bgType, setBgType] = useState<'color' | 'image' | 'video'>(
+    preFill?.video_url ? 'video' : preFill?.image_url ? 'image' : 'color'
+  );
+  const [bgColor, setBgColor] = useState(preFill?.background_color || '#1C1C1E');
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(preFill?.image_url || null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [videoPreview, setVideoPreview] = useState<string | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(preFill?.video_url || null);
 
   const [overlays, setOverlays] = useState<TextOverlayData[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
