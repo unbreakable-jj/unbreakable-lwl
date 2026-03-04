@@ -34,7 +34,7 @@ const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps) {
   const navigate = useNavigate();
-  const { getFeedbackForAthlete, deleteFeedback } = useCoachingFeedback();
+  const { getFeedbackForAthlete, deleteFeedback, getResponsesForMultipleFeedback } = useCoachingFeedback();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [coachingProfile, setCoachingProfile] = useState<any>(null);
