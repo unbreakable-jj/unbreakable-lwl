@@ -62,7 +62,20 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(preFill?.video_url || null);
 
-  const [overlays, setOverlays] = useState<TextOverlayData[]>([]);
+  const [overlays, setOverlays] = useState<TextOverlayData[]>(() => {
+    if (preFill?.content) {
+      const id = crypto.randomUUID();
+      return [{
+        ...DEFAULT_OVERLAY,
+        id,
+        text: preFill.content,
+        x: 50,
+        y: 50,
+        fontSize: 18,
+      }];
+    }
+    return [];
+  });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
