@@ -316,8 +316,8 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
         </p>
       </Card>
 
-      {/* Next Session CTA - Clean & Focused */}
-      {nextSession && (
+      {/* Next Session CTA */}
+      {nextSession && !showEditor && (
         <Card className="p-6 border-2 border-primary bg-card">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -351,6 +351,47 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
               {hasActiveSession ? 'CONTINUE' : 'START WORKOUT'}
             </Button>
           </div>
+
+          {/* Edit & Skip Buttons */}
+          {!hasActiveSession && (
+            <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowEditor(true)}
+                className="gap-1.5 font-display tracking-wide text-xs flex-1"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                EDIT SESSION
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSkipSession}
+                disabled={isSkipping}
+                className="gap-1.5 font-display tracking-wide text-xs flex-1 text-muted-foreground hover:text-destructive hover:border-destructive/50"
+              >
+                {isSkipping ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <SkipForward className="w-3.5 h-3.5" />}
+                SKIP SESSION
+              </Button>
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* Inline Session Editor */}
+      {showEditor && nextSession && (
+        <Card className="border-2 border-primary bg-card p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-display text-foreground tracking-wide">EDIT SESSION</h3>
+            <Button variant="ghost" size="sm" onClick={() => setShowEditor(false)} className="text-xs font-display">
+              CLOSE
+            </Button>
+          </div>
+          <InlineProgramEditor
+            program={program}
+            onClose={() => setShowEditor(false)}
+          />
         </Card>
       )}
 
