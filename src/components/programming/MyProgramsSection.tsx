@@ -274,6 +274,14 @@ export function MyProgramsSection() {
                 <Button
                   variant="ghost"
                   size="icon"
+                  onClick={(e) => { e.stopPropagation(); setEditingProgramId(program.id); }}
+                  title="Edit programme"
+                >
+                  <Edit className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={(e) => handleDelete(program.id, e)}
                   className="text-destructive hover:text-destructive"
                 >
