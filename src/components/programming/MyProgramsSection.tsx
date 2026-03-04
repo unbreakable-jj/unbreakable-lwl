@@ -22,9 +22,11 @@ import {
   Target,
   Sparkles,
 } from 'lucide-react';
+import { InlineProgramEditor } from './InlineProgramEditor';
 import { StartDatePickerDialog } from '@/components/cardio/StartDatePickerDialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
+import { Edit, Wrench } from 'lucide-react';
 
 const statusConfig: Record<ProgramStatus, { label: string; className: string }> = {
   not_started: { label: 'Not Started', className: 'bg-muted text-muted-foreground border-muted' },
@@ -48,6 +50,7 @@ export function MyProgramsSection() {
   const [expandedProgramId, setExpandedProgramId] = useState<string | null>(null);
   const [executingProgramId, setExecutingProgramId] = useState<string | null>(null);
   const [startDateProgramId, setStartDateProgramId] = useState<string | null>(null);
+  const [editingProgramId, setEditingProgramId] = useState<string | null>(null);
   const startDateProgram = programs?.find(p => p.id === startDateProgramId);
 
   // Find the program being executed
