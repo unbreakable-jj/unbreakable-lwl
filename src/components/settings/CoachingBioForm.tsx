@@ -231,7 +231,33 @@ export function CoachingBioForm() {
           />
         </div>
 
-        <Button 
+        {/* Physical Injuries */}
+        <div className="space-y-2">
+          <Label htmlFor="injuries">Physical Injuries / Conditions</Label>
+          <Textarea
+            id="injuries"
+            placeholder="e.g. Lower back disc issue, shoulder impingement..."
+            value={injuries}
+            onChange={(e) => setInjuries(e.target.value)}
+            className="bg-input border-border min-h-[60px]"
+          />
+          <p className="text-xs text-muted-foreground">List any physical injuries, pain points, or medical conditions that affect training.</p>
+        </div>
+
+        {/* Mental Health */}
+        <div className="space-y-2">
+          <Label htmlFor="mentalHealth">Mental Health & Wellbeing</Label>
+          <Textarea
+            id="mentalHealth"
+            placeholder="e.g. Managing anxiety, ADHD, low motivation periods..."
+            value={mentalHealth}
+            onChange={(e) => setMentalHealth(e.target.value)}
+            className="bg-input border-border min-h-[60px]"
+          />
+          <p className="text-xs text-muted-foreground">Any mental health considerations your coach should be aware of. This is kept confidential.</p>
+        </div>
+
+        <Button
           onClick={handleSave} 
           disabled={saving}
           className="w-full font-display tracking-wide"
