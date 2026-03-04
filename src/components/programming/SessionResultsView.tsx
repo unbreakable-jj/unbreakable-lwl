@@ -164,13 +164,8 @@ export function SessionResultsView({ session, onClose, onViewFeedback }: Session
               )}
             </Card>
             
-            <Card className="p-3 border-border bg-card text-center">
-              <TrendingUp className="w-5 h-5 text-primary mx-auto mb-1" />
-              <p className="text-xs text-muted-foreground">Volume</p>
-              <p className="font-display text-lg text-foreground">
-                {stats.totalWeight > 0 ? `${Math.round(stats.totalWeight)}kg` : '-'}
-              </p>
-            </Card>
+            
+
             
             <Card className="p-3 border-border bg-card text-center">
               <Target className="w-5 h-5 text-primary mx-auto mb-1" />

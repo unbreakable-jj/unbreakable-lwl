@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,6 +8,7 @@ import { UnifiedFeed } from '@/components/hub/UnifiedFeed';
 import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
 import { RecordActionMenu } from '@/components/hub/RecordActionMenu';
 import { AuthModal } from '@/components/tracker/AuthModal';
+import { MotivationalPopup } from '@/components/MotivationalPopup';
 
 import { UserSearchModal } from '@/components/tracker/UserSearchModal';
 import { FriendRequestsModal } from '@/components/tracker/FriendRequestsModal';
@@ -34,7 +35,8 @@ const Index = () => {
   const [showUserSearch, setShowUserSearch] = useState(false);
   const [showFriendRequests, setShowFriendRequests] = useState(false);
   const [showFriendsList, setShowFriendsList] = useState(false);
-
+  const [showMotivation, setShowMotivation] = useState(false);
+  const hasShownMotivation = useRef(false);
   // Initialize presence tracking
   usePresence();
 
@@ -57,6 +59,16 @@ const Index = () => {
       navigate('/onboarding');
     }
   }, [user, loading, onboardingLoading, needsOnboarding, navigate]);
+
+  // Show motivational popup on sign-in (once per session)
+  useEffect(() => {
+    if (user && !loading && !hasShownMotivation.current) {
+      hasShownMotivation.current = true;
+      // Small delay so the page loads first
+      const t = setTimeout(() => setShowMotivation(true), 800);
+      return () => clearTimeout(t);
+    }
+  }, [user, loading]);
 
   if (loading || (user && onboardingLoading)) {
     return (
@@ -134,6 +146,11 @@ const Index = () => {
         <UserSearchModal isOpen={showUserSearch} onClose={() => setShowUserSearch(false)} />
         <FriendRequestsModal isOpen={showFriendRequests} onClose={() => setShowFriendRequests(false)} />
         <FriendsListModal isOpen={showFriendsList} onClose={() => setShowFriendsList(false)} />
+        <MotivationalPopup 
+          trigger="sign_in" 
+          open={showMotivation} 
+          onClose={() => setShowMotivation(false)} 
+        />
       </div>
     );
   }
