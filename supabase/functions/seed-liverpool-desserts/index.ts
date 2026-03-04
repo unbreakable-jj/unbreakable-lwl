@@ -10,7 +10,7 @@ const DESSERT_RECIPES = [
   {
     name: "Wet Nelly",
     description:
-      "A traditional Liverpool bread pudding soaked in syrup and baked until golden and sticky. High-protein twist with added egg and Greek yogurt.",
+      "A traditional bread pudding soaked in syrup and baked until golden and sticky. High-protein twist with added egg and Greek yogurt.",
     instructions:
       "1. Preheat oven to 180°C.\n2. Slice day-old bread and arrange a layer in a greased baking dish.\n3. Spread a thin layer of jam (raspberry or blackcurrant) over the bread.\n4. Add another layer of bread on top.\n5. Whisk together eggs, milk, Greek yogurt, golden syrup and vanilla.\n6. Pour the custard mixture over the bread layers, pressing down gently.\n7. Sprinkle with mixed spice and a drizzle of golden syrup.\n8. Bake for 35-40 minutes until set and golden on top.\n9. Rest for 5 minutes, then serve warm.",
     calories_per_serving: 280,
