@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
 import { WorkoutSession } from '@/hooks/useWorkoutSessions';
 import { SessionActionTiles } from './SessionActionTiles';
 import { SessionLoggingView } from './SessionLoggingView';
@@ -41,7 +42,7 @@ interface ActiveWorkoutModalProps {
     completed?: boolean;
     notes?: string;
   }) => void;
-  onComplete: (notes?: string, visibility?: 'public' | 'friends' | 'private') => void;
+  onComplete: (notes?: string, visibility?: 'public' | 'friends' | 'private', manualDurationSeconds?: number) => void;
   onCancel: () => void;
   onSwapExercise?: (oldName: string, newExercise: { name: string; equipment: string }) => void;
   onAddExercise?: (exercise: { name: string; equipment: string; sets: number; reps: string }) => void;
@@ -80,6 +81,20 @@ export function ActiveWorkoutModal({
   const [expandedExercise, setExpandedExercise] = useState<string | null>(null);
   const [swappingExercise, setSwappingExercise] = useState<string | null>(null);
   const [showAddExercise, setShowAddExercise] = useState(false);
+  const [manualHours, setManualHours] = useState('');
+  const [manualMinutes, setManualMinutes] = useState('');
+  const [showDurationEdit, setShowDurationEdit] = useState(false);
+
+  // Live elapsed timer
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (session.status !== 'in_progress' || !session.started_at) return;
+    const start = new Date(session.started_at).getTime();
+    const tick = () => setElapsed(Math.floor((Date.now() - start) / 1000));
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [session.started_at, session.status]);
 
   const exerciseLogs = session.exercise_logs || [];
   const completedSets = exerciseLogs.filter((l) => l.completed).length;
@@ -107,7 +122,18 @@ export function ActiveWorkoutModal({
   };
 
   const handleFinish = () => {
-    onComplete(sessionNotes, visibility);
+    let manualDurationSeconds: number | undefined;
+    if (manualHours || manualMinutes) {
+      manualDurationSeconds = (parseInt(manualHours) || 0) * 3600 + (parseInt(manualMinutes) || 0) * 60;
+    }
+    onComplete(sessionNotes, visibility, manualDurationSeconds);
+  };
+
+  const formatElapsed = (s: number) => {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}` : `${m}:${String(sec).padStart(2, '0')}`;
   };
 
   const toggleExerciseDetails = (exerciseName: string) => {

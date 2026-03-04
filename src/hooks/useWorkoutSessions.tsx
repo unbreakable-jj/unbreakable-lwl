@@ -249,15 +249,17 @@ export function useWorkoutSessions() {
       sessionId,
       notes,
       visibility,
+      manualDurationSeconds,
     }: {
       sessionId: string;
       notes?: string;
       visibility?: 'public' | 'friends' | 'private';
+      manualDurationSeconds?: number;
     }) => {
       const startedAt = activeSession?.started_at;
-      const durationSeconds = startedAt 
+      const durationSeconds = manualDurationSeconds ?? (startedAt 
         ? Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000)
-        : null;
+        : null);
       
       const { error } = await supabase
         .from('workout_sessions')
