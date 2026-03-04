@@ -17,10 +17,10 @@ import {
   Target, MessageSquare, Loader2, Calendar, TrendingUp,
   Flame, Droplets, BookOpen, PenLine, Check, Footprints, ClipboardList, Star, Edit,
   ChevronDown, ChevronRight, Trash2, Eye, Search, Filter, BarChart3, Weight, Repeat,
-  Save, X, Heart
+  Save, X, Heart, CheckCircle2, Reply
 } from 'lucide-react';
 import { CoachFeedbackPanel } from './CoachFeedbackPanel';
-import { useCoachingFeedback, CoachingFeedback } from '@/hooks/useCoachingFeedback';
+import { useCoachingFeedback, CoachingFeedback, FeedbackResponse } from '@/hooks/useCoachingFeedback';
 import { formatDistanceToNow, format, subDays } from 'date-fns';
 import { InlineProgramEditor } from '@/components/programming/InlineProgramEditor';
 import { useNavigate } from 'react-router-dom';
@@ -34,7 +34,7 @@ const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps) {
   const navigate = useNavigate();
-  const { getFeedbackForAthlete, deleteFeedback } = useCoachingFeedback();
+  const { getFeedbackForAthlete, deleteFeedback, getResponsesForMultipleFeedback } = useCoachingFeedback();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [coachingProfile, setCoachingProfile] = useState<any>(null);
@@ -59,6 +59,7 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
   const [nutritionGoals, setNutritionGoals] = useState<any>(null);
   const [progressionHistory, setProgressionHistory] = useState<any[]>([]);
   const [cardioSessionPlanners, setCardioSessionPlanners] = useState<any[]>([]);
+  const [feedbackResponses, setFeedbackResponses] = useState<Record<string, FeedbackResponse[]>>({});
 
   // Filters & search
   const [sessionFilter, setSessionFilter] = useState<string>('all');
@@ -210,9 +211,19 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
       setCardioSessionPlanners(csp || []);
     }
 
-    // Load feedback history
+    // Load feedback history + responses
     const { data: fbData } = await getFeedbackForAthlete(athleteId);
     setFeedbackHistory(fbData);
+
+    if (fbData.length > 0) {
+      const { data: allResp } = await getResponsesForMultipleFeedback(fbData.map(f => f.id));
+      const grouped: Record<string, FeedbackResponse[]> = {};
+      (allResp || []).forEach(r => {
+        if (!grouped[r.feedback_id]) grouped[r.feedback_id] = [];
+        grouped[r.feedback_id].push(r);
+      });
+      setFeedbackResponses(grouped);
+    }
 
     setLoading(false);
   };
@@ -1199,19 +1210,34 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
                   <div className="space-y-2">
                     {filteredFeedback.map(fb => {
                       const isExpanded = expandedFeedbackIds.has(fb.id);
+                      const fbResps = feedbackResponses[fb.id] || [];
+                      const hasAck = fbResps.some(r => r.response_type === 'acknowledged');
+                      const replies = fbResps.filter(r => r.response_type === 'reply').length;
                       return (
                         <Collapsible key={fb.id} open={isExpanded} onOpenChange={() => toggleFeedback(fb.id)}>
                           <Card className="border-border">
                             <CardContent className="p-0">
                               <CollapsibleTrigger className="w-full p-3 flex items-center justify-between text-left hover:bg-muted/30 transition-colors">
                                 <div className="flex-1 min-w-0">
-                                  <p className="font-display text-sm text-foreground">{fb.title}</p>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <p className="font-display text-sm text-foreground">{fb.title}</p>
+                                    <Badge variant="outline" className="text-[10px]">{fb.feedback_type.replace('_', ' ')}</Badge>
+                                    {hasAck && (
+                                      <Badge className="text-[10px] bg-green-500/20 text-green-400 border-green-500/30">
+                                        <CheckCircle2 className="w-3 h-3 mr-0.5" /> Acknowledged
+                                      </Badge>
+                                    )}
+                                    {replies > 0 && (
+                                      <Badge variant="outline" className="text-[10px]">
+                                        <Reply className="w-3 h-3 mr-0.5" /> {replies}
+                                      </Badge>
+                                    )}
+                                  </div>
                                   <p className="text-xs text-muted-foreground">
                                     {formatDistanceToNow(new Date(fb.created_at), { addSuffix: true })}
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-1 shrink-0">
-                                  <Badge variant="outline" className="text-[10px]">{fb.feedback_type.replace('_', ' ')}</Badge>
                                   <Button
                                     variant="ghost"
                                     size="icon"
@@ -1237,6 +1263,33 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
                                     <p className="text-xs text-foreground"><span className="text-muted-foreground">Goals:</span> {fb.next_session_goals}</p>
                                   )}
                                   {fb.general_comments && <p className="text-xs text-muted-foreground">{fb.general_comments}</p>}
+
+                                  {/* Athlete responses */}
+                                  {fbResps.length > 0 && (
+                                    <div className="border-t border-border pt-2 space-y-2">
+                                      <p className="text-[10px] font-display tracking-wide text-muted-foreground">ATHLETE RESPONSES</p>
+                                      {fbResps.map(r => (
+                                        <div key={r.id} className="flex items-start gap-2 py-1">
+                                          {r.response_type === 'acknowledged' ? (
+                                            <div className="flex items-center gap-1 text-xs text-green-400">
+                                              <CheckCircle2 className="w-3 h-3" />
+                                              <span>Acknowledged</span>
+                                              <span className="text-muted-foreground ml-1">
+                                                {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
+                                              </span>
+                                            </div>
+                                          ) : (
+                                            <div className="flex-1 bg-muted/30 rounded-lg p-2">
+                                              <p className="text-xs text-foreground">{r.content}</p>
+                                              <p className="text-[10px] text-muted-foreground mt-1">
+                                                {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
+                                              </p>
+                                            </div>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
                                 </div>
                               </CollapsibleContent>
                             </CardContent>

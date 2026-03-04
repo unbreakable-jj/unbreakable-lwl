@@ -20,6 +20,15 @@ export interface CoachingFeedback {
   updated_at: string;
 }
 
+export interface FeedbackResponse {
+  id: string;
+  feedback_id: string;
+  user_id: string;
+  response_type: 'reply' | 'acknowledged';
+  content: string | null;
+  created_at: string;
+}
+
 interface CreateFeedbackData {
   athlete_id: string;
   feedback_type: string;
@@ -130,5 +139,99 @@ export function useCoachingFeedback() {
     return { error: null };
   }, []);
 
-  return { createFeedback, getFeedbackForAthlete, getMyCoachFeedback, updateFeedback, deleteFeedback, loading };
+  // ===== Feedback Responses =====
+
+  const getResponsesForFeedback = useCallback(async (feedbackId: string) => {
+    const { data, error } = await supabase
+      .from('feedback_responses' as any)
+      .select('*')
+      .eq('feedback_id', feedbackId)
+      .order('created_at', { ascending: true });
+
+    if (error) return { data: [], error };
+    return { data: (data || []) as unknown as FeedbackResponse[], error: null };
+  }, []);
+
+  const getResponsesForMultipleFeedback = useCallback(async (feedbackIds: string[]) => {
+    if (feedbackIds.length === 0) return { data: [], error: null };
+    const { data, error } = await supabase
+      .from('feedback_responses' as any)
+      .select('*')
+      .in('feedback_id', feedbackIds)
+      .order('created_at', { ascending: true });
+
+    if (error) return { data: [], error };
+    return { data: (data || []) as unknown as FeedbackResponse[], error: null };
+  }, []);
+
+  const respondToFeedback = useCallback(async (feedbackId: string, content: string) => {
+    if (!user) return { error: new Error('Not authenticated') };
+
+    const { data, error } = await supabase
+      .from('feedback_responses' as any)
+      .insert({
+        feedback_id: feedbackId,
+        user_id: user.id,
+        response_type: 'reply',
+        content,
+      } as any)
+      .select()
+      .single();
+
+    if (error) {
+      toast.error('Failed to send reply');
+      return { error };
+    }
+    toast.success('Reply sent');
+    return { data: data as unknown as FeedbackResponse, error: null };
+  }, [user]);
+
+  const acknowledgeFeedback = useCallback(async (feedbackId: string) => {
+    if (!user) return { error: new Error('Not authenticated') };
+
+    const { data, error } = await supabase
+      .from('feedback_responses' as any)
+      .insert({
+        feedback_id: feedbackId,
+        user_id: user.id,
+        response_type: 'acknowledged',
+        content: null,
+      } as any)
+      .select()
+      .single();
+
+    if (error) {
+      toast.error('Failed to acknowledge');
+      return { error };
+    }
+    toast.success('Feedback acknowledged');
+    return { data: data as unknown as FeedbackResponse, error: null };
+  }, [user]);
+
+  const deleteResponse = useCallback(async (responseId: string) => {
+    const { error } = await supabase
+      .from('feedback_responses' as any)
+      .delete()
+      .eq('id', responseId);
+
+    if (error) {
+      toast.error('Failed to delete response');
+      return { error };
+    }
+    return { error: null };
+  }, []);
+
+  return {
+    createFeedback,
+    getFeedbackForAthlete,
+    getMyCoachFeedback,
+    updateFeedback,
+    deleteFeedback,
+    getResponsesForFeedback,
+    getResponsesForMultipleFeedback,
+    respondToFeedback,
+    acknowledgeFeedback,
+    deleteResponse,
+    loading,
+  };
 }
