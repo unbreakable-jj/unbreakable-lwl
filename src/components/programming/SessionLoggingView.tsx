@@ -21,7 +21,6 @@ import {
   Lightbulb,
   BookOpen,
   AlertTriangle,
-  Star
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getExerciseDetails } from '@/lib/exerciseLibrary';
@@ -330,21 +329,21 @@ export function SessionLoggingView({
                           )}
                         </AnimatePresence>
 
-                        {/* Header Row */}
-                        <div className="grid grid-cols-12 gap-2 text-xs text-muted-foreground px-1">
+                         {/* Header Row */}
+                        <div className="grid grid-cols-12 gap-1.5 text-xs text-muted-foreground px-1">
                           <div className="col-span-1">Set</div>
                           <div className="col-span-2">Target</div>
                           <div className="col-span-2">Reps</div>
                           <div className="col-span-2">Weight</div>
                           <div className="col-span-1">RPE</div>
-                          <div className="col-span-2 text-center text-[10px]">Conf / Pain</div>
+                          <div className="col-span-2 text-center text-[10px]">Feel</div>
                           <div className="col-span-2 text-center">Done</div>
                         </div>
 
                         {/* Use stable log.id as key - logs are pre-sorted */}
                         {logs.map((log) => (
-                          <div key={log.id} className="space-y-1">
-                            <div className="grid grid-cols-12 gap-2 items-center">
+                          <div key={log.id} className="space-y-0.5">
+                            <div className="grid grid-cols-12 gap-1.5 items-center">
                               <div className="col-span-1">
                                 <span className="font-display text-primary">{log.set_number}</span>
                               </div>
@@ -388,31 +387,36 @@ export function SessionLoggingView({
                                   className="h-9 text-center text-sm px-0.5"
                                 />
                               </div>
-                              <div className="col-span-2 flex items-center justify-center gap-1.5">
-                                {/* Confidence rating 1-5 stars */}
+                              <div className="col-span-2 flex items-center justify-center gap-1">
+                                {/* 3-level comfort: 😊 Good / 😐 Discomfort / 😣 Pain */}
                                 <div className="flex gap-0.5">
-                                  {[1, 2, 3, 4, 5].map((star) => (
+                                  {([
+                                    { value: 1, emoji: '😊', label: 'Good' },
+                                    { value: 2, emoji: '😐', label: 'Discomfort' },
+                                    { value: 3, emoji: '😣', label: 'Pain' },
+                                  ] as const).map((level) => (
                                     <button
-                                      key={star}
+                                      key={level.value}
                                       type="button"
                                       onClick={() => {
                                         const current = (log as any).confidence_rating;
-                                        const newVal = current === star ? undefined : star;
+                                        const newVal = current === level.value ? undefined : level.value;
                                         onUpdateLog(log.id, { confidenceRating: newVal });
                                       }}
-                                      className="p-0"
+                                      className="p-0 leading-none"
+                                      title={level.label}
                                     >
-                                      <Star
-                                        className={`w-3 h-3 ${
-                                          star <= ((log as any).confidence_rating || 0)
-                                            ? 'text-amber-400 fill-amber-400'
-                                            : 'text-muted-foreground/30'
-                                        }`}
-                                      />
+                                      <span className={`text-sm ${
+                                        (log as any).confidence_rating === level.value
+                                          ? 'opacity-100'
+                                          : 'opacity-30 grayscale'
+                                      }`}>
+                                        {level.emoji}
+                                      </span>
                                     </button>
                                   ))}
                                 </div>
-                                {/* Pain flag */}
+                                {/* Injury flag */}
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -420,10 +424,10 @@ export function SessionLoggingView({
                                     onUpdateLog(log.id, { painFlag: !current });
                                   }}
                                   className="p-0.5"
-                                  title="Flag pain or discomfort"
+                                  title="Flag injury"
                                 >
                                   <AlertTriangle
-                                    className={`w-3.5 h-3.5 ${
+                                    className={`w-3 h-3 ${
                                       (log as any).pain_flag
                                         ? 'text-red-500 fill-red-500/20'
                                         : 'text-muted-foreground/30'

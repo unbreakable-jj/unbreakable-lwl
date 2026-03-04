@@ -30,14 +30,19 @@ export function AddExerciseSheet({ open, onOpenChange, onAddExercise, isAdding }
       ).slice(0, 30)
     : [];
 
+  const [librarySets, setLibrarySets] = useState<Record<string, string>>({});
+  const [libraryReps, setLibraryReps] = useState<Record<string, string>>({});
+
   const handleLibrarySelect = (exercise: typeof EXERCISE_LIBRARY[0]) => {
     onAddExercise({
       name: exercise.name,
       equipment: exercise.equipment[0],
-      sets: 3,
-      reps: '10',
+      sets: parseInt(librarySets[exercise.name]) || 3,
+      reps: libraryReps[exercise.name] || '10',
     });
     setSearchQuery('');
+    setLibrarySets({});
+    setLibraryReps({});
   };
 
   const handleCustomAdd = () => {
@@ -98,16 +103,45 @@ export function AddExerciseSheet({ open, onOpenChange, onAddExercise, isAdding }
                 filteredExercises.map((exercise) => (
                   <Card
                     key={exercise.name}
-                    className="p-3 border border-border bg-card hover:border-primary/50 transition-colors cursor-pointer"
-                    onClick={() => !isAdding && handleLibrarySelect(exercise)}
+                    className="p-3 border border-border bg-card hover:border-primary/50 transition-colors"
                   >
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2 min-w-0">
                         <Dumbbell className="w-4 h-4 text-primary shrink-0" />
                         <span className="text-sm font-display text-foreground truncate">{exercise.name}</span>
                         <Badge variant="outline" className="text-[10px] shrink-0">{exercise.bodyPart}</Badge>
                       </div>
-                      <Button variant="outline" size="sm" disabled={isAdding} className="shrink-0 gap-1 text-xs font-display">
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <Input
+                          type="number"
+                          inputMode="numeric"
+                          placeholder="Sets"
+                          value={librarySets[exercise.name] || ''}
+                          onChange={(e) => setLibrarySets(prev => ({ ...prev, [exercise.name]: e.target.value }))}
+                          className="h-8 text-center text-xs"
+                          min="1"
+                          max="10"
+                        />
+                        <span className="text-[10px] text-muted-foreground text-center block">Sets</span>
+                      </div>
+                      <div className="flex-1">
+                        <Input
+                          placeholder="Reps"
+                          value={libraryReps[exercise.name] || ''}
+                          onChange={(e) => setLibraryReps(prev => ({ ...prev, [exercise.name]: e.target.value }))}
+                          className="h-8 text-center text-xs"
+                        />
+                        <span className="text-[10px] text-muted-foreground text-center block">Reps</span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={isAdding}
+                        onClick={() => !isAdding && handleLibrarySelect(exercise)}
+                        className="shrink-0 gap-1 text-xs font-display h-8"
+                      >
                         {isAdding ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
                         ADD
                       </Button>

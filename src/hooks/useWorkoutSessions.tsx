@@ -249,15 +249,17 @@ export function useWorkoutSessions() {
       sessionId,
       notes,
       visibility,
+      manualDurationSeconds,
     }: {
       sessionId: string;
       notes?: string;
       visibility?: 'public' | 'friends' | 'private';
+      manualDurationSeconds?: number;
     }) => {
       const startedAt = activeSession?.started_at;
-      const durationSeconds = startedAt 
+      const durationSeconds = manualDurationSeconds ?? (startedAt 
         ? Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000)
-        : null;
+        : null);
       
       const { error } = await supabase
         .from('workout_sessions')
@@ -299,14 +301,17 @@ export function useWorkoutSessions() {
       sessionId,
       notes,
       visibility,
+      durationSeconds,
     }: {
       sessionId: string;
       notes?: string;
       visibility?: string;
+      durationSeconds?: number;
     }) => {
       const updates: Record<string, unknown> = {};
       if (notes !== undefined) updates.notes = notes;
       if (visibility !== undefined) updates.visibility = visibility;
+      if (durationSeconds !== undefined) updates.duration_seconds = durationSeconds;
       
       const { error } = await supabase
         .from('workout_sessions')

@@ -11,6 +11,7 @@ import { SessionResultsView } from './SessionResultsView';
 import { PowerProgressionDialog, PowerProgressionSuggestion } from './PowerProgressionDialog';
 import { format, parseISO } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { InlineProgramEditor } from './InlineProgramEditor';
 import { supabase } from '@/integrations/supabase/client';
 import {
   Play,
@@ -23,6 +24,8 @@ import {
   ChevronRight,
   Trophy,
   TrendingUp,
+  SkipForward,
+  Edit3,
 } from 'lucide-react';
 
 interface ProgrammeExecutionViewProps {
@@ -47,6 +50,8 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
   const [showWorkoutModal, setShowWorkoutModal] = useState(false);
   const [isStartingSession, setIsStartingSession] = useState(false);
   const [viewingResultIndex, setViewingResultIndex] = useState<number | null>(null);
+  const [showEditor, setShowEditor] = useState(false);
+  const [isSkipping, setIsSkipping] = useState(false);
 
   // Progression state
   const [progressionSuggestions, setProgressionSuggestions] = useState<PowerProgressionSuggestion[]>([]);
@@ -115,7 +120,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
     );
   }, [activeSession, planners]);
 
-  const handleCompleteWorkout = (notes?: string, visibility?: 'public' | 'friends' | 'private') => {
+  const handleCompleteWorkout = (notes?: string, visibility?: 'public' | 'friends' | 'private', manualDurationSeconds?: number) => {
     if (!activeSession) return;
     
     // Complete the workout session
@@ -123,10 +128,10 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
       sessionId: activeSession.id,
       notes,
       visibility,
+      manualDurationSeconds,
     });
     
     // Mark the CURRENT planner (not next) as complete
-    // This ensures we mark the session we just finished, not the next one
     if (currentPlanner) {
       markComplete.mutate(currentPlanner.id);
     }
@@ -152,6 +157,32 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
         toast({ title: 'Exercise Swapped', description: `Switched to ${newExercise.name}` });
       },
     });
+  };
+
+  const handleSkipSession = async () => {
+    if (!nextSession || isSkipping) return;
+    setIsSkipping(true);
+    try {
+      await markSkipped.mutateAsync(nextSession.id);
+      
+      // Send adherence notification via inbox
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (currentUser) {
+        await supabase.from('notifications').insert({
+          user_id: currentUser.id,
+          type: 'adherence_alert',
+          title: 'Session Skipped',
+          body: `You skipped ${nextSession.session_type} (Week ${nextSession.week_number}, Day ${nextSession.day_number}). Your programme has moved on — consistency is key to hitting your goals.`,
+          data: { program_id: program.id, planner_id: nextSession.id },
+        });
+      }
+      
+      toast({ title: 'Session Skipped', description: 'Programme has moved to the next session.' });
+    } catch (err) {
+      toast({ title: 'Error', description: 'Could not skip session', variant: 'destructive' });
+    } finally {
+      setIsSkipping(false);
+    }
   };
 
   const checkForProgression = useCallback(async () => {
@@ -285,8 +316,8 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
         </p>
       </Card>
 
-      {/* Next Session CTA - Clean & Focused */}
-      {nextSession && (
+      {/* Next Session CTA */}
+      {nextSession && !showEditor && (
         <Card className="p-6 border-2 border-primary bg-card">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -320,6 +351,49 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
               {hasActiveSession ? 'CONTINUE' : 'START WORKOUT'}
             </Button>
           </div>
+
+          {/* Edit & Skip Buttons */}
+          {!hasActiveSession && (
+            <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowEditor(true)}
+                className="gap-1.5 font-display tracking-wide text-xs flex-1"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                EDIT SESSION
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSkipSession}
+                disabled={isSkipping}
+                className="gap-1.5 font-display tracking-wide text-xs flex-1 text-muted-foreground hover:text-destructive hover:border-destructive/50"
+              >
+                {isSkipping ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <SkipForward className="w-3.5 h-3.5" />}
+                SKIP SESSION
+              </Button>
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* Inline Session Editor */}
+      {showEditor && nextSession && (
+        <Card className="border-2 border-primary bg-card p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-display text-foreground tracking-wide">EDIT SESSION</h3>
+            <Button variant="ghost" size="sm" onClick={() => setShowEditor(false)} className="text-xs font-display">
+              CLOSE
+            </Button>
+          </div>
+          <InlineProgramEditor
+            programId={program.id}
+            programData={(program as any).program_data}
+            onClose={() => setShowEditor(false)}
+            onSaved={() => setShowEditor(false)}
+          />
         </Card>
       )}
 

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
 import { WorkoutSession } from '@/hooks/useWorkoutSessions';
 import { SessionActionTiles } from './SessionActionTiles';
 import { SessionLoggingView } from './SessionLoggingView';
@@ -27,6 +28,7 @@ import {
   Lightbulb,
   Shuffle,
   Plus,
+  Clock,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getExerciseDetails } from '@/lib/exerciseLibrary';
@@ -41,7 +43,7 @@ interface ActiveWorkoutModalProps {
     completed?: boolean;
     notes?: string;
   }) => void;
-  onComplete: (notes?: string, visibility?: 'public' | 'friends' | 'private') => void;
+  onComplete: (notes?: string, visibility?: 'public' | 'friends' | 'private', manualDurationSeconds?: number) => void;
   onCancel: () => void;
   onSwapExercise?: (oldName: string, newExercise: { name: string; equipment: string }) => void;
   onAddExercise?: (exercise: { name: string; equipment: string; sets: number; reps: string }) => void;
@@ -80,6 +82,20 @@ export function ActiveWorkoutModal({
   const [expandedExercise, setExpandedExercise] = useState<string | null>(null);
   const [swappingExercise, setSwappingExercise] = useState<string | null>(null);
   const [showAddExercise, setShowAddExercise] = useState(false);
+  const [manualHours, setManualHours] = useState('');
+  const [manualMinutes, setManualMinutes] = useState('');
+  const [showDurationEdit, setShowDurationEdit] = useState(false);
+
+  // Live elapsed timer
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (session.status !== 'in_progress' || !session.started_at) return;
+    const start = new Date(session.started_at).getTime();
+    const tick = () => setElapsed(Math.floor((Date.now() - start) / 1000));
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [session.started_at, session.status]);
 
   const exerciseLogs = session.exercise_logs || [];
   const completedSets = exerciseLogs.filter((l) => l.completed).length;
@@ -107,7 +123,18 @@ export function ActiveWorkoutModal({
   };
 
   const handleFinish = () => {
-    onComplete(sessionNotes, visibility);
+    let manualDurationSeconds: number | undefined;
+    if (manualHours || manualMinutes) {
+      manualDurationSeconds = (parseInt(manualHours) || 0) * 3600 + (parseInt(manualMinutes) || 0) * 60;
+    }
+    onComplete(sessionNotes, visibility, manualDurationSeconds);
+  };
+
+  const formatElapsed = (s: number) => {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}` : `${m}:${String(sec).padStart(2, '0')}`;
   };
 
   const toggleExerciseDetails = (exerciseName: string) => {
@@ -186,8 +213,46 @@ export function ActiveWorkoutModal({
         </DialogHeader>
 
         <div className="p-4 space-y-4">
-          {/* Progress Card */}
+          {/* Timer + Progress Card */}
           <Card className="p-4 border-primary/30 bg-primary/5">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Elapsed</span>
+                <span className="font-display text-lg text-primary tabular-nums">{formatElapsed(elapsed)}</span>
+              </div>
+              <button
+                onClick={() => setShowDurationEdit(!showDurationEdit)}
+                className="text-xs text-primary hover:text-primary/80 font-display tracking-wide"
+              >
+                {showDurationEdit ? 'HIDE' : 'EDIT TIME'}
+              </button>
+            </div>
+            {showDurationEdit && (
+              <div className="flex items-center gap-2 mb-3 p-2 rounded bg-muted/30 border border-border">
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="Hrs"
+                  value={manualHours}
+                  onChange={(e) => setManualHours(e.target.value)}
+                  className="h-8 w-16 text-center text-sm"
+                  min="0"
+                />
+                <span className="text-xs text-muted-foreground">h</span>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="Min"
+                  value={manualMinutes}
+                  onChange={(e) => setManualMinutes(e.target.value)}
+                  className="h-8 w-16 text-center text-sm"
+                  min="0"
+                  max="59"
+                />
+                <span className="text-xs text-muted-foreground">m</span>
+                <span className="text-[10px] text-muted-foreground ml-auto">Overrides auto timer</span>
+              </div>
+            )}
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-muted-foreground">Session Progress</span>
               <span className="font-display text-lg text-foreground">
