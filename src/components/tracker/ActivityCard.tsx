@@ -7,7 +7,6 @@ import { Card } from '@/components/ui/card';
 import { Heart, MessageCircle, MapPin, Clock, Zap, TrendingUp, Globe, Users, Lock } from 'lucide-react';
 import { RunWithProfile } from '@/hooks/useRuns';
 import { useAuth } from '@/hooks/useAuth';
-import { useStories } from '@/hooks/useStories';
 import { motion } from 'framer-motion';
 import { RunMap, geoJSONToPositions } from './RunMap';
 import { CommentSection } from './CommentSection';
@@ -15,6 +14,7 @@ import { PostMenu } from './PostMenu';
 import { ShareMenu } from './ShareMenu';
 import { EditRunModal } from './EditRunModal';
 import { toast } from 'sonner';
+import type { StoryPreFill } from '@/components/hub/UnifiedFeed';
 
 interface ActivityCardProps {
   run: RunWithProfile;
@@ -22,11 +22,11 @@ interface ActivityCardProps {
   onDelete: (runId: string) => void;
   onToggleComments: (runId: string) => void;
   onUpdateRun?: (runId: string, updates: { title?: string; description?: string; visibility?: string }) => Promise<{ error: Error | null }>;
+  onOpenStoryEditor?: (preFill: StoryPreFill) => void;
 }
 
-export function ActivityCard({ run, onKudos, onDelete, onToggleComments, onUpdateRun }: ActivityCardProps) {
+export function ActivityCard({ run, onKudos, onDelete, onToggleComments, onUpdateRun, onOpenStoryEditor }: ActivityCardProps) {
   const { user } = useAuth();
-  const { createStory } = useStories();
   const [isLiking, setIsLiking] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -69,24 +69,13 @@ export function ActivityCard({ run, onKudos, onDelete, onToggleComments, onUpdat
     }
   };
 
-  const handleShareToStory = async () => {
-    // Share run map snapshot if available
-    const storyData: { image_url?: string; content?: string; visibility: string; text_overlays: any[]; background_color: string | null } = {
-      visibility: 'public',
-      content: `🏃 ${run.title || 'Run'} - ${run.distance_km.toFixed(2)}km in ${formatDuration(run.duration_seconds)}`,
-      text_overlays: [],
-      background_color: '#1C1C1E',
-    };
-
-    if (run.map_snapshot_url) {
-      storyData.image_url = run.map_snapshot_url;
-    }
-
-    const { error } = await createStory(storyData);
-    if (error) {
-      toast.error('Failed to share to story');
-    } else {
-      toast.success('Shared to your story!');
+  const handleShareToStory = () => {
+    if (onOpenStoryEditor) {
+      onOpenStoryEditor({
+        content: `🏃 ${run.title || 'Run'} - ${run.distance_km.toFixed(2)}km in ${formatDuration(run.duration_seconds)}`,
+        image_url: run.map_snapshot_url || undefined,
+        background_color: '#1C1C1E',
+      });
     }
   };
 

@@ -9,10 +9,10 @@ import { NotificationsPanel } from '@/components/hub/NotificationsPanel';
 
 import { useNotifications } from '@/hooks/useNotifications';
 import { useConversations } from '@/hooks/useConversations';
+import { useFriends } from '@/hooks/useFriends';
 import {
   Home,
   MessageCircle,
-  Bell,
   UserPlus,
   Users,
   Plus,
@@ -36,10 +36,15 @@ export function SocialHeader({
   onShowFriendsList,
   onShowActionMenu,
 }: SocialHeaderProps) {
-  const [showNotifications, setShowNotifications] = useState(false);
   const { unreadCount: notificationCount } = useNotifications();
   const { unreadCount: messageCount } = useConversations();
+  const { pendingRequests } = useFriends();
   const navigate = useNavigate();
+
+  // Count incoming friend requests
+  const incomingRequestCount = pendingRequests.filter(r => r.type === 'received').length;
+  // Combine notification + message count for inbox badge
+  const inboxBadgeCount = messageCount + notificationCount;
 
   return (
     <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-primary/15">
@@ -53,7 +58,7 @@ export function SocialHeader({
             </span>
           </Link>
 
-          {/* Desktop Navigation Tabs — themed to match main nav */}
+          {/* Desktop Navigation Tabs */}
           <div className="hidden md:flex items-center gap-1 bg-card/60 border border-primary/15 rounded-lg p-1">
             <button
               onClick={() => onTabChange('feed')}
@@ -69,7 +74,7 @@ export function SocialHeader({
             <button
               onClick={() => {
                 onTabChange('messages');
-                navigate('/inbox?compose=1');
+                navigate('/inbox');
               }}
               className={`relative flex items-center gap-2 px-4 py-2 rounded-md font-display text-sm tracking-wide transition-all border ${
                 activeTab === 'messages'
@@ -77,30 +82,11 @@ export function SocialHeader({
                   : 'text-muted-foreground border-primary/20 hover:text-primary hover:bg-primary/10 hover:border-primary/40'
               }`}
             >
-              <MessageCircle className="w-4 h-4" />
-              MESSAGES
-              {messageCount > 0 && (
+              <Inbox className="w-4 h-4" />
+              INBOX
+              {inboxBadgeCount > 0 && (
                 <Badge className="absolute -top-1 -right-1 h-5 min-w-5 p-0 flex items-center justify-center text-xs bg-destructive">
-                  {messageCount > 99 ? '99+' : messageCount}
-                </Badge>
-              )}
-            </button>
-            <button
-              onClick={() => {
-                onTabChange('notifications');
-                setShowNotifications(true);
-              }}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-md font-display text-sm tracking-wide transition-all border ${
-                activeTab === 'notifications'
-                  ? 'bg-primary text-primary-foreground border-primary shadow-[0_0_12px_hsl(24_100%_50%/0.35)]'
-                  : 'text-muted-foreground border-primary/20 hover:text-primary hover:bg-primary/10 hover:border-primary/40'
-              }`}
-            >
-              <Bell className="w-4 h-4" />
-              ALERTS
-              {notificationCount > 0 && (
-                <Badge className="absolute -top-1 -right-1 h-5 min-w-5 p-0 flex items-center justify-center text-xs bg-destructive">
-                  {notificationCount > 99 ? '99+' : notificationCount}
+                  {inboxBadgeCount > 99 ? '99+' : inboxBadgeCount}
                 </Badge>
               )}
             </button>
@@ -110,44 +96,46 @@ export function SocialHeader({
           <div className="flex items-center gap-1 sm:gap-2">
             <ThemeToggle />
             
-            {/* Mobile notification/message icons */}
+            {/* Mobile icons */}
             <div className="flex md:hidden items-center gap-1">
               <Button
                 variant="ghost"
                 size="sm"
                 className="relative"
-                onClick={() => navigate('/inbox?compose=1')}
+                onClick={() => navigate('/inbox')}
               >
-                <MessageCircle className="w-5 h-5 text-primary" />
-                {messageCount > 0 && (
+                <Inbox className="w-5 h-5 text-primary" />
+                {inboxBadgeCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] bg-destructive">
-                    {messageCount > 9 ? '9+' : messageCount}
+                    {inboxBadgeCount > 9 ? '9+' : inboxBadgeCount}
                   </Badge>
                 )}
               </Button>
-            <Button
+              <Button
                 variant="ghost"
                 size="sm"
                 className="relative"
-                onClick={() => setShowNotifications(true)}
+                onClick={onShowFriendRequests}
               >
-                <Bell className="w-5 h-5 text-primary" />
-                {notificationCount > 0 && (
+                <UserPlus className="w-5 h-5 text-primary" />
+                {incomingRequestCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] bg-destructive">
-                    {notificationCount > 9 ? '9+' : notificationCount}
+                    {incomingRequestCount > 9 ? '9+' : incomingRequestCount}
                   </Badge>
                 )}
               </Button>
               <Button variant="ghost" size="sm" onClick={onShowFriendsList}>
                 <Users className="w-5 h-5 text-primary" />
               </Button>
-              <Button variant="ghost" size="sm" onClick={onShowUserSearch}>
-                <UserPlus className="w-5 h-5 text-primary" />
-              </Button>
             </div>
 
-            <Button variant="ghost" size="sm" onClick={onShowUserSearch} className="hidden sm:flex">
+            <Button variant="ghost" size="sm" onClick={onShowFriendRequests} className="hidden sm:flex relative">
               <UserPlus className="w-5 h-5 text-primary" />
+              {incomingRequestCount > 0 && (
+                <Badge className="absolute -top-1 -right-1 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] bg-destructive">
+                  {incomingRequestCount > 9 ? '9+' : incomingRequestCount}
+                </Badge>
+              )}
             </Button>
             <Button variant="ghost" size="sm" onClick={onShowFriendsList} className="hidden sm:flex">
               <Users className="w-5 h-5 text-primary" />
@@ -155,9 +143,9 @@ export function SocialHeader({
             <Link to="/inbox" className="hidden sm:block">
               <Button variant="ghost" size="sm" className="relative">
                 <Inbox className="w-5 h-5 text-primary" />
-                {messageCount > 0 && (
+                {inboxBadgeCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] bg-destructive">
-                    {messageCount > 9 ? '9+' : messageCount}
+                    {inboxBadgeCount > 9 ? '9+' : inboxBadgeCount}
                   </Badge>
                 )}
               </Button>
@@ -176,10 +164,10 @@ export function SocialHeader({
         </div>
       </div>
 
-      {/* Panels */}
+      {/* Notifications now handled via inbox */}
       <NotificationsPanel 
-        isOpen={showNotifications} 
-        onClose={() => setShowNotifications(false)} 
+        isOpen={false} 
+        onClose={() => {}} 
       />
     </header>
   );
