@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -251,6 +252,13 @@ export function MindsetProgrammeDetail({ programme, onBack }: Props) {
                                               </p>
                                             )}
                                           </div>
+                                        )}
+
+                                        {activity.type === 'daily_habits_check' && (
+                                          <Link to="/habits" className="inline-flex items-center gap-2 mt-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-display tracking-wide hover:bg-primary/20 transition-colors">
+                                            <BookOpen className="w-3.5 h-3.5" />
+                                            OPEN DAILY 5 TRACKER
+                                          </Link>
                                         )}
                                       </div>
                                     ))}
