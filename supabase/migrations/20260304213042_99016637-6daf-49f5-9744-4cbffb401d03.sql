@@ -1,0 +1,3 @@
+UPDATE public.recipes SET name = 'Coconut & Jam Tart', description = 'A classic jam and desiccated coconut tart with a shortcrust base. Sweet, chewy and unmistakably British.' WHERE name = 'Liverpool Tart' AND user_id IS NULL;
+
+UPDATE public.recipes SET name = 'Dark Treacle Fruit Cake', description = 'A rich, dense fruit cake packed with dried fruit, treacle and warming spices. A British teatime tradition.' WHERE name = 'Scouse Cake' AND user_id IS NULL;
