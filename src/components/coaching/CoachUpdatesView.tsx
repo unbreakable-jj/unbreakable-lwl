@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useCoachingFeedback, CoachingFeedback } from '@/hooks/useCoachingFeedback';
 import { formatDistanceToNow } from 'date-fns';
-import { Star, ClipboardList, Target, RefreshCw, MessageSquare, Loader2 } from 'lucide-react';
+import { Star, ClipboardList, Target, RefreshCw, MessageSquare, Loader2, ChevronDown, ChevronRight, Trash2 } from 'lucide-react';
 
 const TYPE_CONFIG: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
   session_review: { label: 'Session Review', icon: <ClipboardList className="w-3 h-3" />, color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
@@ -15,9 +17,10 @@ const TYPE_CONFIG: Record<string, { label: string; icon: React.ReactNode; color:
 };
 
 export function CoachUpdatesView() {
-  const { getMyCoachFeedback } = useCoachingFeedback();
+  const { getMyCoachFeedback, deleteFeedback } = useCoachingFeedback();
   const [feedback, setFeedback] = useState<CoachingFeedback[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadFeedback();
@@ -28,6 +31,22 @@ export function CoachUpdatesView() {
     const { data } = await getMyCoachFeedback();
     setFeedback(data);
     setLoading(false);
+  };
+
+  const toggleExpanded = (id: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleDelete = async (id: string) => {
+    const { error } = await deleteFeedback(id);
+    if (!error) {
+      setFeedback(prev => prev.filter(f => f.id !== id));
+    }
   };
 
   if (loading) {
@@ -50,58 +69,78 @@ export function CoachUpdatesView() {
 
   return (
     <ScrollArea className="max-h-[600px]">
-      <div className="space-y-4">
+      <div className="space-y-2">
         {feedback.map((fb) => {
           const typeConf = TYPE_CONFIG[fb.feedback_type] || TYPE_CONFIG.general;
+          const isExpanded = expandedIds.has(fb.id);
           return (
-            <Card key={fb.id} className="border-border">
-              <CardContent className="p-4 space-y-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h3 className="font-display text-sm tracking-wide text-foreground">{fb.title}</h3>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {formatDistanceToNow(new Date(fb.created_at), { addSuffix: true })}
-                    </p>
-                  </div>
-                  <Badge className={`text-[10px] ${typeConf.color}`}>
-                    {typeConf.icon}
-                    <span className="ml-1">{typeConf.label}</span>
-                  </Badge>
-                </div>
+            <Collapsible key={fb.id} open={isExpanded} onOpenChange={() => toggleExpanded(fb.id)}>
+              <Card className="border-border">
+                <CardContent className="p-0">
+                  <CollapsibleTrigger className="w-full p-3 flex items-center justify-between text-left hover:bg-muted/30 transition-colors">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-display text-sm tracking-wide text-foreground">{fb.title}</h3>
+                        <Badge className={`text-[10px] ${typeConf.color}`}>
+                          {typeConf.icon}
+                          <span className="ml-1">{typeConf.label}</span>
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {formatDistanceToNow(new Date(fb.created_at), { addSuffix: true })}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                        onClick={(e) => { e.stopPropagation(); handleDelete(fb.id); }}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                      {isExpanded ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+                    </div>
+                  </CollapsibleTrigger>
 
-                {fb.performance_rating && (
-                  <div className="flex gap-0.5">
-                    {[1, 2, 3, 4, 5].map(n => (
-                      <Star
-                        key={n}
-                        className={`w-4 h-4 ${n <= fb.performance_rating! ? 'fill-primary text-primary' : 'text-muted-foreground/20'}`}
-                      />
-                    ))}
-                  </div>
-                )}
+                  <CollapsibleContent>
+                    <div className="px-3 pb-3 space-y-3 border-t border-border pt-3">
+                      {fb.performance_rating && (
+                        <div className="flex gap-0.5">
+                          {[1, 2, 3, 4, 5].map(n => (
+                            <Star
+                              key={n}
+                              className={`w-4 h-4 ${n <= fb.performance_rating! ? 'fill-primary text-primary' : 'text-muted-foreground/20'}`}
+                            />
+                          ))}
+                        </div>
+                      )}
 
-                {fb.technique_notes && (
-                  <div>
-                    <p className="text-[10px] font-display tracking-wide text-muted-foreground mb-1">TECHNIQUE NOTES</p>
-                    <p className="text-sm text-foreground">{fb.technique_notes}</p>
-                  </div>
-                )}
+                      {fb.technique_notes && (
+                        <div>
+                          <p className="text-[10px] font-display tracking-wide text-muted-foreground mb-1">TECHNIQUE NOTES</p>
+                          <p className="text-sm text-foreground">{fb.technique_notes}</p>
+                        </div>
+                      )}
 
-                {fb.next_session_goals && (
-                  <div>
-                    <p className="text-[10px] font-display tracking-wide text-muted-foreground mb-1">NEXT SESSION GOALS</p>
-                    <p className="text-sm text-foreground">{fb.next_session_goals}</p>
-                  </div>
-                )}
+                      {fb.next_session_goals && (
+                        <div>
+                          <p className="text-[10px] font-display tracking-wide text-muted-foreground mb-1">NEXT SESSION GOALS</p>
+                          <p className="text-sm text-foreground">{fb.next_session_goals}</p>
+                        </div>
+                      )}
 
-                {fb.general_comments && (
-                  <div>
-                    <p className="text-[10px] font-display tracking-wide text-muted-foreground mb-1">COMMENTS</p>
-                    <p className="text-sm text-foreground">{fb.general_comments}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                      {fb.general_comments && (
+                        <div>
+                          <p className="text-[10px] font-display tracking-wide text-muted-foreground mb-1">COMMENTS</p>
+                          <p className="text-sm text-foreground">{fb.general_comments}</p>
+                        </div>
+                      )}
+                    </div>
+                  </CollapsibleContent>
+                </CardContent>
+              </Card>
+            </Collapsible>
           );
         })}
       </div>

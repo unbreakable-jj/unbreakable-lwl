@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import {
   AlertDialog,
@@ -10,15 +10,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { X, Plus, Trash2, Save, GripVertical } from 'lucide-react';
+import { X, Plus, Trash2, Save, ChevronUp, ChevronDown, Search, Shuffle, Dumbbell } from 'lucide-react';
 import { GeneratedProgram, Exercise, WorkoutDay } from '@/lib/programTypes';
 import { useTrainingPrograms } from '@/hooks/useTrainingPrograms';
+import { EXERCISE_LIBRARY, BODY_PARTS, type BodyPart } from '@/lib/exerciseLibrary';
 import { toast } from 'sonner';
 
 const EQUIPMENT_OPTIONS = ['barbell', 'dumbbell', 'bodyweight', 'machine', 'cable', 'kettlebell', 'bands', 'cardio'] as const;
@@ -34,6 +36,13 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
   const { updateProgram } = useTrainingPrograms();
   const [data, setData] = useState<GeneratedProgram>(JSON.parse(JSON.stringify(programData)));
   const [saving, setSaving] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  // Exercise library picker state
+  const [swapTarget, setSwapTarget] = useState<{ dayIdx: number; exIdx: number } | null>(null);
+  const [addTarget, setAddTarget] = useState<number | null>(null);
+  const [librarySearch, setLibrarySearch] = useState('');
+  const [libraryBodyPart, setLibraryBodyPart] = useState<BodyPart | 'all'>('all');
 
   const days = data.templateWeek?.days || data.weeks?.[0]?.days || [];
 
@@ -68,30 +77,74 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
     });
   };
 
-  const addExercise = (dayIdx: number) => {
+  const moveExercise = (dayIdx: number, exIdx: number, direction: 'up' | 'down') => {
     setData(prev => {
       const copy = JSON.parse(JSON.stringify(prev));
       const target = copy.templateWeek?.days || copy.weeks?.[0]?.days;
-      if (target?.[dayIdx]) {
-        if (!target[dayIdx].exercises) target[dayIdx].exercises = [];
-        target[dayIdx].exercises.push({
-          name: 'New Exercise',
-          equipment: 'barbell',
-          sets: 3,
-          reps: '8-12',
-          intensity: 'moderate',
-          rest: '90s',
-        });
-      }
+      if (!target?.[dayIdx]?.exercises) return copy;
+      const exercises = target[dayIdx].exercises;
+      const newIdx = direction === 'up' ? exIdx - 1 : exIdx + 1;
+      if (newIdx < 0 || newIdx >= exercises.length) return copy;
+      [exercises[exIdx], exercises[newIdx]] = [exercises[newIdx], exercises[exIdx]];
       return copy;
     });
   };
 
-  const [showConfirm, setShowConfirm] = useState(false);
-
-  const handleSave = async () => {
-    setShowConfirm(true);
+  const swapExerciseFromLibrary = (libExercise: typeof EXERCISE_LIBRARY[0]) => {
+    if (swapTarget) {
+      updateExercise(swapTarget.dayIdx, swapTarget.exIdx, {
+        name: libExercise.name,
+        equipment: libExercise.equipment[0] as any,
+        sets: libExercise.defaultSets,
+        reps: libExercise.defaultReps,
+      });
+      setSwapTarget(null);
+      setLibrarySearch('');
+      setLibraryBodyPart('all');
+    }
   };
+
+  const addExerciseFromLibrary = (libExercise: typeof EXERCISE_LIBRARY[0]) => {
+    if (addTarget !== null) {
+      setData(prev => {
+        const copy = JSON.parse(JSON.stringify(prev));
+        const target = copy.templateWeek?.days || copy.weeks?.[0]?.days;
+        if (target?.[addTarget]) {
+          if (!target[addTarget].exercises) target[addTarget].exercises = [];
+          target[addTarget].exercises.push({
+            name: libExercise.name,
+            equipment: libExercise.equipment[0],
+            sets: libExercise.defaultSets,
+            reps: libExercise.defaultReps,
+            intensity: 'moderate',
+            rest: '90s',
+          });
+        }
+        return copy;
+      });
+      setAddTarget(null);
+      setLibrarySearch('');
+      setLibraryBodyPart('all');
+    }
+  };
+
+  const filteredLibrary = useMemo(() => {
+    let results = EXERCISE_LIBRARY;
+    if (libraryBodyPart !== 'all') {
+      results = results.filter(e => e.bodyPart === libraryBodyPart);
+    }
+    if (librarySearch.trim()) {
+      const q = librarySearch.toLowerCase();
+      results = results.filter(e =>
+        e.name.toLowerCase().includes(q) ||
+        e.equipment.some(eq => eq.toLowerCase().includes(q)) ||
+        e.bodyPart.toLowerCase().includes(q)
+      );
+    }
+    return results.slice(0, 40);
+  }, [librarySearch, libraryBodyPart]);
+
+  const handleSave = () => setShowConfirm(true);
 
   const confirmSave = async () => {
     setShowConfirm(false);
@@ -99,7 +152,6 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
     try {
       await updateProgram.mutateAsync({ programId, programData: data });
 
-      // Notify athlete about the programme update
       try {
         const { data: program } = await supabase
           .from('training_programs')
@@ -129,6 +181,8 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
       setSaving(false);
     }
   };
+
+  const isLibraryOpen = swapTarget !== null || addTarget !== null;
 
   return (
     <div className="space-y-4">
@@ -192,24 +246,65 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
               <p className="text-[10px] font-display tracking-wide text-muted-foreground">EXERCISES</p>
               {(day.exercises || []).map((ex, exIdx) => (
                 <div key={exIdx} className="border border-border rounded-lg p-2 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <GripVertical className="w-3 h-3 text-muted-foreground shrink-0" />
-                    <Input
-                      value={ex.name}
-                      onChange={e => updateExercise(dayIdx, exIdx, { name: e.target.value })}
-                      className="flex-1 text-xs h-7 font-medium"
-                      placeholder="Exercise name"
-                    />
+                  <div className="flex items-center gap-1">
+                    {/* Reorder arrows */}
+                    <div className="flex flex-col shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-5 w-5"
+                        disabled={exIdx === 0}
+                        onClick={() => moveExercise(dayIdx, exIdx, 'up')}
+                      >
+                        <ChevronUp className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-5 w-5"
+                        disabled={exIdx === (day.exercises || []).length - 1}
+                        onClick={() => moveExercise(dayIdx, exIdx, 'down')}
+                      >
+                        <ChevronDown className="w-3 h-3" />
+                      </Button>
+                    </div>
+
+                    {/* Exercise name (read-only, swap via library) */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-foreground truncate">{ex.name}</p>
+                      <Badge variant="outline" className="text-[9px] mt-0.5">{ex.equipment}</Badge>
+                    </div>
+
+                    {/* Swap button */}
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-6 w-6 shrink-0"
+                      onClick={() => {
+                        setSwapTarget({ dayIdx, exIdx });
+                        setLibrarySearch('');
+                        setLibraryBodyPart('all');
+                      }}
+                    >
+                      <Shuffle className="w-3 h-3 text-primary" />
+                    </Button>
+
+                    {/* Delete */}
                     <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => removeExercise(dayIdx, exIdx)}>
                       <Trash2 className="w-3 h-3 text-destructive" />
                     </Button>
                   </div>
-                  <div className="grid grid-cols-5 gap-1.5">
+
+                  {/* Sets / Reps / RPE / Rest */}
+                  <div className="grid grid-cols-4 gap-1.5">
                     <div>
                       <label className="text-[9px] text-muted-foreground">Sets</label>
                       <Input
+                        type="number"
+                        min={1}
+                        max={20}
                         value={String(ex.sets)}
-                        onChange={e => updateExercise(dayIdx, exIdx, { sets: e.target.value })}
+                        onChange={e => updateExercise(dayIdx, exIdx, { sets: parseInt(e.target.value) || 3 })}
                         className="text-xs h-6"
                       />
                     </div>
@@ -219,42 +314,68 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
                         value={ex.reps}
                         onChange={e => updateExercise(dayIdx, exIdx, { reps: e.target.value })}
                         className="text-xs h-6"
+                        placeholder="8-12"
                       />
                     </div>
                     <div>
-                      <label className="text-[9px] text-muted-foreground">Intensity</label>
-                      <Input
+                      <label className="text-[9px] text-muted-foreground">RPE / Intensity</label>
+                      <Select
                         value={ex.intensity}
-                        onChange={e => updateExercise(dayIdx, exIdx, { intensity: e.target.value })}
-                        className="text-xs h-6"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[9px] text-muted-foreground">Rest</label>
-                      <Input
-                        value={ex.rest}
-                        onChange={e => updateExercise(dayIdx, exIdx, { rest: e.target.value })}
-                        className="text-xs h-6"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[9px] text-muted-foreground">Equipment</label>
-                      <Select value={ex.equipment} onValueChange={v => updateExercise(dayIdx, exIdx, { equipment: v as any })}>
+                        onValueChange={v => updateExercise(dayIdx, exIdx, { intensity: v })}
+                      >
                         <SelectTrigger className="text-xs h-6">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {EQUIPMENT_OPTIONS.map(eq => (
-                            <SelectItem key={eq} value={eq} className="text-xs">{eq}</SelectItem>
-                          ))}
+                          <SelectItem value="light" className="text-xs">Light (RPE 5-6)</SelectItem>
+                          <SelectItem value="moderate" className="text-xs">Moderate (RPE 7)</SelectItem>
+                          <SelectItem value="hard" className="text-xs">Hard (RPE 8)</SelectItem>
+                          <SelectItem value="very_hard" className="text-xs">Very Hard (RPE 9)</SelectItem>
+                          <SelectItem value="max" className="text-xs">Max (RPE 10)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="text-[9px] text-muted-foreground">Rest</label>
+                      <Select
+                        value={ex.rest}
+                        onValueChange={v => updateExercise(dayIdx, exIdx, { rest: v })}
+                      >
+                        <SelectTrigger className="text-xs h-6">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="30s" className="text-xs">30s</SelectItem>
+                          <SelectItem value="60s" className="text-xs">60s</SelectItem>
+                          <SelectItem value="90s" className="text-xs">90s</SelectItem>
+                          <SelectItem value="120s" className="text-xs">2min</SelectItem>
+                          <SelectItem value="180s" className="text-xs">3min</SelectItem>
+                          <SelectItem value="300s" className="text-xs">5min</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
+
+                  {/* Notes */}
+                  <Input
+                    value={ex.notes || ''}
+                    onChange={e => updateExercise(dayIdx, exIdx, { notes: e.target.value })}
+                    className="text-xs h-6"
+                    placeholder="Notes (optional)"
+                  />
                 </div>
               ))}
-              <Button variant="outline" size="sm" className="w-full text-xs h-7" onClick={() => addExercise(dayIdx)}>
-                <Plus className="w-3 h-3 mr-1" /> Add Exercise
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full text-xs h-7 font-display tracking-wide"
+                onClick={() => {
+                  setAddTarget(dayIdx);
+                  setLibrarySearch('');
+                  setLibraryBodyPart('all');
+                }}
+              >
+                <Plus className="w-3 h-3 mr-1" /> ADD FROM LIBRARY
               </Button>
             </div>
 
@@ -271,6 +392,99 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
           </CardContent>
         </Card>
       ))}
+
+      {/* Exercise Library Sheet */}
+      <Sheet open={isLibraryOpen} onOpenChange={(open) => {
+        if (!open) { setSwapTarget(null); setAddTarget(null); }
+      }}>
+        <SheetContent side="bottom" className="max-h-[80vh] flex flex-col z-[60]">
+          <SheetHeader className="pb-4 shrink-0">
+            <SheetTitle className="font-display tracking-wide flex items-center gap-2">
+              <Dumbbell className="w-5 h-5 text-primary" />
+              {swapTarget ? 'SWAP EXERCISE' : 'ADD EXERCISE'}
+            </SheetTitle>
+            {swapTarget && (
+              <p className="text-sm text-muted-foreground">
+                Replace <span className="text-foreground font-medium">
+                  {days[swapTarget.dayIdx]?.exercises?.[swapTarget.exIdx]?.name}
+                </span>
+              </p>
+            )}
+          </SheetHeader>
+
+          <div className="flex-1 min-h-0 flex flex-col gap-3">
+            {/* Search */}
+            <div className="relative shrink-0">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search exercises..."
+                value={librarySearch}
+                onChange={e => setLibrarySearch(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+
+            {/* Body part filter tabs */}
+            <div className="flex gap-1 flex-wrap shrink-0">
+              <Button
+                variant={libraryBodyPart === 'all' ? 'default' : 'outline'}
+                size="sm"
+                className="h-6 text-[10px] font-display tracking-wide px-2"
+                onClick={() => setLibraryBodyPart('all')}
+              >
+                ALL
+              </Button>
+              {BODY_PARTS.map(bp => (
+                <Button
+                  key={bp.value}
+                  variant={libraryBodyPart === bp.value ? 'default' : 'outline'}
+                  size="sm"
+                  className="h-6 text-[10px] font-display tracking-wide px-2"
+                  onClick={() => setLibraryBodyPart(bp.value)}
+                >
+                  {bp.label.toUpperCase()}
+                </Button>
+              ))}
+            </div>
+
+            {/* Results */}
+            <div className="flex-1 min-h-0 max-h-[45vh] overflow-y-auto" style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}>
+              <div className="space-y-1.5 pb-6">
+                {filteredLibrary.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">No exercises found</p>
+                )}
+                {filteredLibrary.map(exercise => (
+                  <div
+                    key={exercise.id}
+                    className="p-3 border border-border rounded-lg hover:border-primary/50 transition-colors cursor-pointer flex items-center justify-between gap-2"
+                    onClick={() => {
+                      if (swapTarget) swapExerciseFromLibrary(exercise);
+                      else addExerciseFromLibrary(exercise);
+                    }}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="w-5 h-5 rounded bg-muted text-muted-foreground text-[10px] flex items-center justify-center font-display shrink-0">
+                          {exercise.bodyPart[0].toUpperCase()}
+                        </span>
+                        <p className="text-sm font-medium text-foreground">{exercise.name}</p>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {exercise.equipment.join(', ')} • {exercise.defaultSets}×{exercise.defaultReps}
+                      </p>
+                    </div>
+                    <Button variant="outline" size="sm" className="shrink-0 h-7 text-xs font-display">
+                      {swapTarget ? 'SWAP' : 'ADD'}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Confirm Dialog */}
       <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>

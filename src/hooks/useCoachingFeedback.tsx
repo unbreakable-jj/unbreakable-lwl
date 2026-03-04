@@ -40,7 +40,6 @@ export function useCoachingFeedback() {
     if (!user) return { error: new Error('Not authenticated') };
     setLoading(true);
 
-    // Insert feedback (trigger handles notification)
     const { data: feedback, error } = await supabase
       .from('coaching_feedback' as any)
       .insert({
@@ -117,5 +116,19 @@ export function useCoachingFeedback() {
     return { error };
   }, []);
 
-  return { createFeedback, getFeedbackForAthlete, getMyCoachFeedback, updateFeedback, loading };
+  const deleteFeedback = useCallback(async (id: string) => {
+    const { error } = await supabase
+      .from('coaching_feedback' as any)
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      toast.error('Failed to delete feedback');
+      return { error };
+    }
+    toast.success('Feedback deleted');
+    return { error: null };
+  }, []);
+
+  return { createFeedback, getFeedbackForAthlete, getMyCoachFeedback, updateFeedback, deleteFeedback, loading };
 }
