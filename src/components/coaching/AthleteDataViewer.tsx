@@ -700,7 +700,87 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
               </>
             )}
 
-            {/* Session Planners — Hidden for now */}
+            {/* Session Planners — Searchable dropdown */}
+            {filteredPlanners.length > 0 && (
+              <Collapsible open={expandedPlanners} onOpenChange={setExpandedPlanners}>
+                <CollapsibleTrigger className="w-full flex items-center justify-between py-1 group">
+                  <p className="font-display text-xs tracking-wide text-muted-foreground flex items-center gap-1">
+                    <Calendar className="w-3 h-3" /> SESSION SCHEDULE ({sessionPlanners.length})
+                  </p>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground group-data-[state=closed]:rotate-[-90deg] transition-transform" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-2 mt-2">
+                  {/* Search + Status Filter */}
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <Search className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        placeholder="Search by week, day, type..."
+                        value={plannerSearch}
+                        onChange={e => setPlannerSearch(e.target.value)}
+                        className="h-7 text-xs pl-7"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Status summary badges */}
+                  {(() => {
+                    const completed = sessionPlanners.filter(s => s.status === 'completed').length;
+                    const pending = sessionPlanners.filter(s => s.status === 'pending').length;
+                    const missed = sessionPlanners.filter(s => s.status === 'missed' || s.status === 'skipped').length;
+                    return (
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant="outline" className="text-[10px] border-green-500/40 text-green-500">
+                          ✅ {completed} Completed
+                        </Badge>
+                        <Badge variant="outline" className="text-[10px] border-muted">
+                          ⏳ {pending} Pending
+                        </Badge>
+                        {missed > 0 && (
+                          <Badge variant="outline" className="text-[10px] border-destructive/40 text-destructive">
+                            ❌ {missed} Missed/Skipped
+                          </Badge>
+                        )}
+                      </div>
+                    );
+                  })()}
+
+                  <ScrollArea className="max-h-[350px]">
+                    <div className="space-y-1">
+                      {filteredPlanners.map(sp => {
+                        const statusColor = sp.status === 'completed' 
+                          ? 'border-green-500/30 text-green-500' 
+                          : sp.status === 'missed' || sp.status === 'skipped'
+                          ? 'border-destructive/30 text-destructive'
+                          : sp.status === 'in_progress'
+                          ? 'border-primary/30 text-primary'
+                          : '';
+                        return (
+                          <div key={sp.id} className="flex items-center justify-between border border-border rounded-lg px-3 py-2 hover:bg-muted/20 transition-colors">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="text-xs font-display text-muted-foreground shrink-0">
+                                W{sp.week_number}D{sp.day_number}
+                              </span>
+                              <span className="text-xs text-foreground truncate">{sp.session_type}</span>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              {sp.scheduled_date && (
+                                <span className="text-[10px] text-muted-foreground">
+                                  {format(new Date(sp.scheduled_date), 'MMM d')}
+                                </span>
+                              )}
+                              <Badge variant="outline" className={`text-[10px] ${statusColor}`}>
+                                {sp.status || 'pending'}
+                              </Badge>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </ScrollArea>
+                </CollapsibleContent>
+              </Collapsible>
+            )}
 
             {/* Recent Sessions — Filterable */}
             <div className="space-y-2">
