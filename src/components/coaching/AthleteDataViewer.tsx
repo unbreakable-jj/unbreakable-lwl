@@ -17,7 +17,7 @@ import {
   Target, MessageSquare, Loader2, Calendar, TrendingUp,
   Flame, Droplets, BookOpen, PenLine, Check, Footprints, ClipboardList, Star, Edit,
   ChevronDown, ChevronRight, Trash2, Eye, Search, Filter, BarChart3, Weight, Repeat,
-  Save, X, Heart
+  Save, X, Heart, CheckCircle2, Reply
 } from 'lucide-react';
 import { CoachFeedbackPanel } from './CoachFeedbackPanel';
 import { useCoachingFeedback, CoachingFeedback, FeedbackResponse } from '@/hooks/useCoachingFeedback';
