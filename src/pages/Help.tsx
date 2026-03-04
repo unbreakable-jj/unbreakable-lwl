@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Send, MessageSquarePlus, Trash2, Loader2, Flame, Sparkles, Video, UtensilsCrossed, PanelLeftClose, PanelLeftOpen, Dumbbell, TrendingUp, BarChart3, Brain, Zap, Heart, MessageCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -101,34 +102,102 @@ function MessageBubble({ message }: { message: MessageWithMedia }) {
 
 // ─── Quick Action Tiles ──────────────────────────────────────────────────────
 const QUICK_ACTIONS = [
-  { icon: Dumbbell, label: 'POWER', description: 'Build a training programme', prompt: "I'd like to build a new training programme.", color: 'from-primary/20 to-primary/5' },
-  { icon: TrendingUp, label: 'MOVEMENT', description: 'Build a cardio & mobility plan', prompt: "I'd like to build a movement and cardio plan.", color: 'from-primary/15 to-primary/5' },
-  { icon: UtensilsCrossed, label: 'FUEL', description: 'Create a nutrition plan', prompt: "I'd like to create a nutrition plan.", color: 'from-primary/20 to-primary/5' },
-  { icon: Brain, label: 'MINDSET', description: 'Build a mindset & recovery routine', prompt: "I'd like to build a mindset and recovery routine.", color: 'from-primary/15 to-primary/5' },
-  { icon: MessageCircle, label: 'GENERAL CHAT', description: 'Just chat, unwind & catch up', prompt: "Hey coach, just wanted to have a general chat and unwind. No specific training topic — just a catch-up.", color: 'from-muted/30 to-muted/10' },
+  { 
+    icon: Dumbbell, label: 'POWER', 
+    description: 'Build a training programme',
+    greeting: "Let's build your training programme. Tell me about your goals, experience level, and how many days per week you can train.",
+  },
+  { 
+    icon: TrendingUp, label: 'MOVEMENT', 
+    description: 'Build a cardio & mobility plan',
+    greeting: "Let's build your movement plan. What's your current cardio fitness like, and what are you training towards — a race, general fitness, or fat loss?",
+  },
+  { 
+    icon: UtensilsCrossed, label: 'FUEL', 
+    description: 'Create a nutrition plan',
+    greeting: "Let's create your nutrition plan. What's your current goal — fat loss, muscle gain, or maintenance? How many meals per day works for you?",
+  },
+  { 
+    icon: Brain, label: 'MINDSET', 
+    description: 'Build a mindset & recovery routine',
+    greeting: "Let's build your mindset programme. What areas are you looking to improve — focus, stress management, sleep, or mental resilience?",
+  },
+  { 
+    icon: MessageCircle, label: 'GENERAL', 
+    description: 'Just chat & catch up',
+    greeting: "Hey! I'm here whenever you need me. What's on your mind today?",
+  },
 ];
 
-function QuickActionTiles({ onSelect, disabled }: { onSelect: (prompt: string) => void; disabled?: boolean }) {
+function QuickActionTiles({ onSelect, selectedTab, onTabSelect, disabled }: { 
+  onSelect: (prompt: string) => void; 
+  selectedTab: string | null;
+  onTabSelect: (label: string) => void;
+  disabled?: boolean; 
+}) {
   return (
-    <div className="grid grid-cols-2 gap-3 max-w-lg mx-auto">
-      {QUICK_ACTIONS.map(({ icon: Icon, label, description, prompt, color }, idx) => (
-        <button
-          key={label}
-          onClick={() => onSelect(prompt)}
-          disabled={disabled}
-          className={`group relative p-5 rounded-xl border border-primary/20 bg-gradient-to-br ${color}
-            hover:border-primary/50 hover:shadow-[0_0_20px_hsl(24_100%_50%/0.15)] 
-            transition-all duration-300 text-left disabled:opacity-50 disabled:cursor-not-allowed
-            ${idx === QUICK_ACTIONS.length - 1 && QUICK_ACTIONS.length % 2 !== 0 ? 'col-span-2' : ''}`}
+    <div className="w-full max-w-lg mx-auto space-y-6">
+      {/* Tab Row */}
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        {QUICK_ACTIONS.map(({ icon: Icon, label }) => {
+          const isSelected = selectedTab === label;
+          return (
+            <button
+              key={label}
+              onClick={() => onTabSelect(label)}
+              disabled={disabled}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border font-display text-xs tracking-wider
+                transition-all duration-300 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed
+                ${isSelected
+                  ? 'bg-primary text-primary-foreground border-primary shadow-[0_0_20px_hsl(24_100%_50%/0.4)]'
+                  : 'bg-card/50 text-muted-foreground border-primary/20 hover:border-primary/50 hover:text-foreground hover:bg-primary/10'
+                }`}
+            >
+              <Icon className={`w-4 h-4 ${isSelected ? 'text-primary-foreground' : 'text-primary'}`} />
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Selected Tab Content */}
+      {selectedTab && (
+        <motion.div
+          key={selectedTab}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+          className="p-6 rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 to-transparent
+            shadow-[0_0_25px_hsl(24_100%_50%/0.08)]"
         >
-          <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center mb-3
-            group-hover:bg-primary/30 group-hover:shadow-[0_0_12px_hsl(24_100%_50%/0.3)] transition-all">
-            <Icon className="w-5 h-5 text-primary" />
-          </div>
-          <h3 className="font-display text-sm tracking-wider text-foreground mb-1">{label}</h3>
-          <p className="text-xs text-muted-foreground leading-snug">{description}</p>
-        </button>
-      ))}
+          {(() => {
+            const action = QUICK_ACTIONS.find(a => a.label === selectedTab)!;
+            const ActionIcon = action.icon;
+            return (
+              <div className="text-center space-y-4">
+                <div className="w-14 h-14 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center mx-auto
+                  shadow-[0_0_20px_hsl(24_100%_50%/0.25)]">
+                  <ActionIcon className="w-7 h-7 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-display text-lg tracking-wider text-foreground mb-1">{action.label}</h3>
+                  <p className="text-sm text-muted-foreground">{action.description}</p>
+                </div>
+                <p className="text-sm text-foreground/80 leading-relaxed italic">"{action.greeting}"</p>
+                <button
+                  onClick={() => onSelect(action.greeting)}
+                  disabled={disabled}
+                  className="mt-2 px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-display text-sm tracking-wider
+                    hover:shadow-[0_0_20px_hsl(24_100%_50%/0.4)] transition-all duration-300
+                    disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  START CONVERSATION
+                </button>
+              </div>
+            );
+          })()}
+        </motion.div>
+      )}
     </div>
   );
 }
@@ -242,6 +311,7 @@ export default function Help() {
   const [generatedPlans, setGeneratedPlans] = useState<GeneratedPlanInfo[]>([]);
   const [editingPlan, setEditingPlan] = useState<GeneratedPlanInfo | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedChatTab, setSelectedChatTab] = useState<string | null>(null);
   
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -600,7 +670,7 @@ export default function Help() {
                   </div>
 
                   {/* Quick Action Tiles */}
-                  <QuickActionTiles onSelect={handleQuickAction} disabled={isLoading || isAnyGenerating} />
+                  <QuickActionTiles onSelect={handleQuickAction} selectedTab={selectedChatTab} onTabSelect={setSelectedChatTab} disabled={isLoading || isAnyGenerating} />
                 </div>
               ) : (
                 /* ─── Chat Messages ─── */

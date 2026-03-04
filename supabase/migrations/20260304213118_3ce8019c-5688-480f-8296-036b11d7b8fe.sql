@@ -1,0 +1,1 @@
+UPDATE public.recipes SET description = 'A traditional bread pudding soaked in syrup and baked until golden and sticky. High-protein twist with added egg and Greek yogurt.' WHERE name = 'Wet Nelly' AND user_id IS NULL;

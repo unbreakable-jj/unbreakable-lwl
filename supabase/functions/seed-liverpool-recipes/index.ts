@@ -584,8 +584,8 @@ const RECIPES = [
     ],
   },
   {
-    name: 'Liverpool Tart',
-    description: 'Shortcrust pastry filled with jam and topped with a sweet coconut sponge. A proper Scouse treat.',
+    name: 'Coconut & Jam Tart',
+    description: 'Shortcrust pastry filled with jam and topped with a sweet coconut sponge. A proper British classic.',
     instructions: '1. Preheat oven to 180°C.\n2. Roll out shortcrust pastry and line a tart tin.\n3. Spread a generous layer of raspberry jam over the base.\n4. Mix desiccated coconut, sugar, eggs and a splash of milk.\n5. Spread coconut mixture over the jam layer.\n6. Bake 25-30 minutes until the topping is golden and set.\n7. Allow to cool slightly before slicing. Serve warm or cold.',
     calories_per_serving: 320,
     protein_g: 8,
