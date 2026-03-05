@@ -967,6 +967,18 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                   </div>
                 </div>
 
+                {/* Voice Toggle */}
+                <div className="flex justify-center mb-4">
+                  <Button
+                    variant={voiceEnabled ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setVoiceEnabled(!voiceEnabled)}
+                    className="gap-2 font-display tracking-wide text-xs"
+                  >
+                    {voiceEnabled ? '🔊 VOICE ON' : '🔇 VOICE OFF'}
+                  </Button>
+                </div>
+
                 {/* Control Buttons */}
                 <div className="flex justify-center gap-4">
                   {isPaused ? (
