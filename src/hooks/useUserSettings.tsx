@@ -20,6 +20,8 @@ export interface UserSettings {
   ai_feedback_enabled: boolean;
   allow_messages: 'everyone' | 'friends' | 'none';
   show_online_status: boolean;
+  motivational_popups_enabled: boolean;
+  cardio_voice_enabled: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -40,6 +42,8 @@ const defaultSettings: Omit<UserSettings, 'id' | 'user_id' | 'created_at' | 'upd
   ai_feedback_enabled: true,
   allow_messages: 'friends',
   show_online_status: true,
+  motivational_popups_enabled: true,
+  cardio_voice_enabled: true,
 };
 
 export function useUserSettings() {
