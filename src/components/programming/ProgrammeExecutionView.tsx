@@ -583,6 +583,39 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
         onAccept={handleAcceptProgression}
         onDismiss={() => { setShowProgression(false); setProgressionSuggestions([]); }}
       />
+
+      {/* Skip Session Confirmation Dialog */}
+      <AlertDialog open={showSkipConfirm} onOpenChange={setShowSkipConfirm}>
+        <AlertDialogContent className="border-destructive/30">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-display tracking-wide flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+              SKIP THIS SESSION?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground space-y-2">
+              <p>
+                You're about to skip <strong>{nextSession?.session_type}</strong> (Week {nextSession?.week_number}, Day {nextSession?.day_number}).
+              </p>
+              <p>
+                This will be logged as a missed session, your coach will be notified, and your programme will move to the next scheduled workout.
+              </p>
+              <p className="text-destructive font-medium">
+                Skipped sessions affect your Programme Adherence %.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="font-display tracking-wide">GO BACK</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleSkipSession}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 font-display tracking-wide"
+            >
+              {isSkipping ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              CONFIRM SKIP
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
