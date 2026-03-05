@@ -109,11 +109,14 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
   const [gpsStatus, setGpsStatus] = useState<'acquiring' | 'active' | 'error' | 'paused'>('acquiring');
   const [isPaused, setIsPaused] = useState(false);
-  const [pausedDuration, setPausedDuration] = useState(0); // Total seconds spent paused
+  const [pausedDuration, setPausedDuration] = useState(0);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
   const pauseStartRef = useRef<number | null>(null);
   const watchIdRef = useRef<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const sessionStartRef = useRef<Date | null>(null);
+  const lastVoiceKmRef = useRef(0);
+  const preAcquireWatchRef = useRef<number | null>(null);
 
   // Post-session state (also used for manual entry)
   const [title, setTitle] = useState('');
