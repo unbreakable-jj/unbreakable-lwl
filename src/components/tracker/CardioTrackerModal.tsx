@@ -13,6 +13,7 @@ import { useMedals } from '@/hooks/useMedals';
 // import { useTrophies } from '@/hooks/useTrophies'; // Trophy system hidden for now
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserSettings } from '@/hooks/useUserSettings';
 import { MedalCheckStats } from '@/lib/medalDefinitions';
 // import { getCategoryLabel, TROPHY_ICONS } from '@/lib/trophyDefinitions'; // Trophy system hidden for now
 import { toast } from 'sonner';
@@ -82,6 +83,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   // const { checkAndAwardTrophies } = useTrophies(); // Trophy system hidden for now
   const { profile } = useProfile();
   const { user } = useAuth();
+  const { settings: userSettings } = useUserSettings();
   
   const [entryMode, setEntryMode] = useState<EntryMode>('live');
   const [phase, setPhase] = useState<'select' | 'countdown' | 'tracking' | 'summary' | 'manual'>('select');
