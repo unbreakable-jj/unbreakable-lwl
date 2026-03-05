@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { useOnboardingCheck } from '@/hooks/useOnboardingCheck';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useUserSettings } from '@/hooks/useUserSettings';
 import { UnifiedFeed } from '@/components/hub/UnifiedFeed';
 import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
 import { RecordActionMenu } from '@/components/hub/RecordActionMenu';
@@ -20,11 +21,26 @@ import { Home, User, Plus } from 'lucide-react';
 
 type Tab = 'feed' | 'messages' | 'notifications';
 
+const MOTIVATION_STORAGE_KEY = 'unbreakable_motivation';
+
+function getMotivationState(): { lastShown: number; visitCount: number } {
+  try {
+    const raw = localStorage.getItem(MOTIVATION_STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return { lastShown: 0, visitCount: 0 };
+}
+
+function setMotivationState(state: { lastShown: number; visitCount: number }) {
+  localStorage.setItem(MOTIVATION_STORAGE_KEY, JSON.stringify(state));
+}
+
 // Unified Hub - Facebook-style social application
 const Index = () => {
   const { user, loading } = useAuth();
   const { needsOnboarding, loading: onboardingLoading } = useOnboardingCheck();
   const { refresh: refreshSubscription } = useSubscription();
+  const { settings } = useUserSettings();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>('feed');
@@ -36,7 +52,9 @@ const Index = () => {
   const [showFriendRequests, setShowFriendRequests] = useState(false);
   const [showFriendsList, setShowFriendsList] = useState(false);
   const [showMotivation, setShowMotivation] = useState(false);
-  const hasShownMotivation = useRef(false);
+  const [motivationTrigger, setMotivationTrigger] = useState<'sign_in' | 'session_complete' | 'habits_logged' | 'programme_complete'>('sign_in');
+  const [motivationContext, setMotivationContext] = useState<string | undefined>();
+  const hasCheckedMotivation = useRef(false);
   // Initialize presence tracking
   usePresence();
 
@@ -45,7 +63,6 @@ const Index = () => {
     if (searchParams.get('checkout') === 'success') {
       toast.success('Welcome to UNBREAKABLE! Your 7-day free trial has started. 💪');
       setSearchParams({}, { replace: true });
-      // Retry subscription check to give Stripe time to finalize
       const retryDelays = [1000, 3000, 6000];
       retryDelays.forEach((delay) => {
         setTimeout(() => refreshSubscription(), delay);
@@ -60,15 +77,56 @@ const Index = () => {
     }
   }, [user, loading, onboardingLoading, needsOnboarding, navigate]);
 
-  // Show motivational popup on sign-in (once per session)
+  // Smart motivational popup frequency control
   useEffect(() => {
-    if (user && !loading && !hasShownMotivation.current) {
-      hasShownMotivation.current = true;
-      // Small delay so the page loads first
-      const t = setTimeout(() => setShowMotivation(true), 800);
+    if (!user || loading || hasCheckedMotivation.current) return;
+    // Check if popups are enabled in settings
+    if (settings && (settings as any).motivational_popups_enabled === false) return;
+    
+    hasCheckedMotivation.current = true;
+    
+    const state = getMotivationState();
+    const now = Date.now();
+    const twentyFourHours = 24 * 60 * 60 * 1000;
+    
+    // First visit in 24 hours: always show
+    if (now - state.lastShown > twentyFourHours) {
+      const t = setTimeout(() => {
+        setMotivationTrigger('sign_in');
+        setMotivationContext(undefined);
+        setShowMotivation(true);
+        setMotivationState({ lastShown: now, visitCount: 0 });
+      }, 800);
       return () => clearTimeout(t);
     }
-  }, [user, loading]);
+    
+    // Otherwise, ~every 10 visits
+    const newCount = state.visitCount + 1;
+    setMotivationState({ ...state, visitCount: newCount });
+    
+    if (newCount >= 10) {
+      const t = setTimeout(() => {
+        setMotivationTrigger('sign_in');
+        setMotivationContext('Random motivational check-in on home page visit');
+        setShowMotivation(true);
+        setMotivationState({ lastShown: now, visitCount: 0 });
+      }, 800);
+      return () => clearTimeout(t);
+    }
+  }, [user, loading, settings]);
+
+  // Listen for custom events from other parts of the app to trigger motivation
+  useEffect(() => {
+    const handler = (e: CustomEvent) => {
+      if (settings && (settings as any).motivational_popups_enabled === false) return;
+      setMotivationTrigger(e.detail?.trigger || 'session_complete');
+      setMotivationContext(e.detail?.context);
+      setShowMotivation(true);
+      setMotivationState({ lastShown: Date.now(), visitCount: 0 });
+    };
+    window.addEventListener('show-motivation', handler as EventListener);
+    return () => window.removeEventListener('show-motivation', handler as EventListener);
+  }, [settings]);
 
   if (loading || (user && onboardingLoading)) {
     return (
@@ -147,7 +205,8 @@ const Index = () => {
         <FriendRequestsModal isOpen={showFriendRequests} onClose={() => setShowFriendRequests(false)} />
         <FriendsListModal isOpen={showFriendsList} onClose={() => setShowFriendsList(false)} />
         <MotivationalPopup 
-          trigger="sign_in" 
+          trigger={motivationTrigger}
+          context={motivationContext}
           open={showMotivation} 
           onClose={() => setShowMotivation(false)} 
         />
