@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
 
@@ -11,6 +11,7 @@ interface CountdownOverlayProps {
   welcomeMessage?: string;
   exerciseName?: string;
   onPlayAudio?: (text: string) => void;
+  onStartGps?: () => void;
 }
 
 export function CountdownOverlay({ 
@@ -19,15 +20,26 @@ export function CountdownOverlay({
   startFrom = 3,
   exerciseName,
   onPlayAudio,
+  onStartGps,
 }: CountdownOverlayProps) {
   const [phase, setPhase] = useState<CountdownPhase>("welcome");
+  const gpsStartedRef = useRef(false);
 
   // Reset state when becoming active
   useEffect(() => {
     if (isActive) {
       setPhase("welcome");
+      gpsStartedRef.current = false;
     }
   }, [isActive]);
+
+  // Start GPS acquisition early during the countdown
+  useEffect(() => {
+    if (isActive && phase === "getready" && !gpsStartedRef.current && onStartGps) {
+      gpsStartedRef.current = true;
+      onStartGps();
+    }
+  }, [isActive, phase, onStartGps]);
 
   // Welcome phase - logo display
   useEffect(() => {

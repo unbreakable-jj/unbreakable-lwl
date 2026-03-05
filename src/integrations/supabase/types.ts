@@ -2430,10 +2430,12 @@ export type Database = {
           allow_comments_default: boolean | null
           allow_friend_requests: boolean | null
           allow_messages: string | null
+          cardio_voice_enabled: boolean
           created_at: string
           default_stream_visibility: string | null
           id: string
           live_notifications_enabled: boolean | null
+          motivational_popups_enabled: boolean
           notify_achievements: boolean | null
           notify_comments: boolean | null
           notify_friend_requests: boolean | null
@@ -2454,10 +2456,12 @@ export type Database = {
           allow_comments_default?: boolean | null
           allow_friend_requests?: boolean | null
           allow_messages?: string | null
+          cardio_voice_enabled?: boolean
           created_at?: string
           default_stream_visibility?: string | null
           id?: string
           live_notifications_enabled?: boolean | null
+          motivational_popups_enabled?: boolean
           notify_achievements?: boolean | null
           notify_comments?: boolean | null
           notify_friend_requests?: boolean | null
@@ -2478,10 +2482,12 @@ export type Database = {
           allow_comments_default?: boolean | null
           allow_friend_requests?: boolean | null
           allow_messages?: string | null
+          cardio_voice_enabled?: boolean
           created_at?: string
           default_stream_visibility?: string | null
           id?: string
           live_notifications_enabled?: boolean | null
+          motivational_popups_enabled?: boolean
           notify_achievements?: boolean | null
           notify_comments?: boolean | null
           notify_friend_requests?: boolean | null

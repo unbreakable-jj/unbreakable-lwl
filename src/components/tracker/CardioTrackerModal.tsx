@@ -13,6 +13,7 @@ import { useMedals } from '@/hooks/useMedals';
 // import { useTrophies } from '@/hooks/useTrophies'; // Trophy system hidden for now
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserSettings } from '@/hooks/useUserSettings';
 import { MedalCheckStats } from '@/lib/medalDefinitions';
 // import { getCategoryLabel, TROPHY_ICONS } from '@/lib/trophyDefinitions'; // Trophy system hidden for now
 import { toast } from 'sonner';
@@ -82,6 +83,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   // const { checkAndAwardTrophies } = useTrophies(); // Trophy system hidden for now
   const { profile } = useProfile();
   const { user } = useAuth();
+  const { settings: userSettings } = useUserSettings();
   
   const [entryMode, setEntryMode] = useState<EntryMode>('live');
   const [phase, setPhase] = useState<'select' | 'countdown' | 'tracking' | 'summary' | 'manual'>('select');
@@ -109,11 +111,16 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
   const [gpsStatus, setGpsStatus] = useState<'acquiring' | 'active' | 'error' | 'paused'>('acquiring');
   const [isPaused, setIsPaused] = useState(false);
-  const [pausedDuration, setPausedDuration] = useState(0); // Total seconds spent paused
+  const [pausedDuration, setPausedDuration] = useState(0);
+  const [voiceEnabled, setVoiceEnabled] = useState(() => 
+    (userSettings as any)?.cardio_voice_enabled ?? true
+  );
   const pauseStartRef = useRef<number | null>(null);
   const watchIdRef = useRef<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const sessionStartRef = useRef<Date | null>(null);
+  const lastVoiceKmRef = useRef(0);
+  const preAcquireWatchRef = useRef<number | null>(null);
 
   // Post-session state (also used for manual entry)
   const [title, setTitle] = useState('');
@@ -336,7 +343,59 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
+      if (preAcquireWatchRef.current !== null) {
+        navigator.geolocation.clearWatch(preAcquireWatchRef.current);
+      }
     };
+  }, []);
+
+  // Voice prompt function using Web Speech API
+  const speakUpdate = useCallback((text: string) => {
+    if (!voiceEnabled || !('speechSynthesis' in window)) return;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    window.speechSynthesis.speak(utterance);
+  }, [voiceEnabled]);
+
+  // Voice prompts every 1km
+  useEffect(() => {
+    if (phase !== 'tracking' || isPaused || distance === 0) return;
+    
+    const currentKm = Math.floor(distance);
+    if (currentKm > lastVoiceKmRef.current && currentKm >= 1) {
+      lastVoiceKmRef.current = currentKm;
+      
+      const totalKm = distance.toFixed(2);
+      const timeStr = formatTime(elapsedSeconds);
+      const avgPace = calculatePace();
+      
+      speakUpdate(
+        `${currentKm} kilometre${currentKm > 1 ? 's' : ''} completed. ` +
+        `Total distance ${totalKm} K. ` +
+        `Total time ${timeStr}. ` +
+        `Average pace ${avgPace} per kilometre.`
+      );
+    }
+  }, [distance, phase, isPaused, elapsedSeconds, speakUpdate]);
+
+  // Pre-acquire GPS signal during countdown
+  const handlePreAcquireGps = useCallback(() => {
+    if (preAcquireWatchRef.current !== null) return;
+    preAcquireWatchRef.current = navigator.geolocation.watchPosition(
+      (position) => {
+        if (position.coords.accuracy <= 20) {
+          setGpsStatus('active');
+          setGpsAccuracy(position.coords.accuracy);
+        } else {
+          setGpsStatus('acquiring');
+          setGpsAccuracy(position.coords.accuracy);
+        }
+      },
+      () => { /* ignore errors during pre-acquire */ },
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+    );
   }, []);
 
   const formatTime = (totalSeconds: number) => {
@@ -584,12 +643,17 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     setIsPaused(false);
     pauseStartRef.current = null;
     sessionStartRef.current = null;
+    lastVoiceKmRef.current = 0;
     setCurrentSpeed(null);
     setGpsAccuracy(null);
     setGpsStatus('acquiring');
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
+    }
+    if (preAcquireWatchRef.current !== null) {
+      navigator.geolocation.clearWatch(preAcquireWatchRef.current);
+      preAcquireWatchRef.current = null;
     }
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -616,9 +680,18 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     <>
       <CountdownOverlay
         isActive={phase === 'countdown'}
-        onComplete={startTracking}
+        onComplete={() => {
+          // Stop pre-acquire watch before starting real tracking
+          if (preAcquireWatchRef.current !== null) {
+            navigator.geolocation.clearWatch(preAcquireWatchRef.current);
+            preAcquireWatchRef.current = null;
+          }
+          lastVoiceKmRef.current = 0;
+          startTracking();
+        }}
         startFrom={3}
         exerciseName={config?.label}
+        onStartGps={handlePreAcquireGps}
       />
       
       <Dialog open={isOpen && phase !== 'countdown'} onOpenChange={handleClose}>
@@ -901,6 +974,18 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                     </p>
                     <p className="text-xs text-muted-foreground uppercase tracking-wide">/km</p>
                   </div>
+                </div>
+
+                {/* Voice Toggle */}
+                <div className="flex justify-center mb-4">
+                  <Button
+                    variant={voiceEnabled ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setVoiceEnabled(!voiceEnabled)}
+                    className="gap-2 font-display tracking-wide text-xs"
+                  >
+                    {voiceEnabled ? '🔊 VOICE ON' : '🔇 VOICE OFF'}
+                  </Button>
                 </div>
 
                 {/* Control Buttons */}

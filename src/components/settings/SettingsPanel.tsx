@@ -33,6 +33,8 @@ import {
   Video,
   Volume2,
   Brain,
+  Flame,
+  Mic,
 } from 'lucide-react';
 import { useUserSettings, UserSettings } from '@/hooks/useUserSettings';
 import { useAIPreferences } from '@/hooks/useAIPreferences';
@@ -326,10 +328,42 @@ export function SettingsPanel() {
               onCheckedChange={(checked) => handleUpdate({ ai_feedback_enabled: checked })}
             />
           </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-foreground font-medium flex items-center gap-2">
+                <Flame className="w-4 h-4 text-primary" />
+                Motivational Popups
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Motivational quotes on sign-in and milestones
+              </p>
+            </div>
+            <Switch
+              checked={(settings as any).motivational_popups_enabled ?? true}
+              onCheckedChange={(checked) => handleUpdate({ motivational_popups_enabled: checked } as any)}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-foreground font-medium flex items-center gap-2">
+                <Mic className="w-4 h-4 text-primary" />
+                Cardio Voice Prompts
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Voice updates every 1km during live cardio tracking
+              </p>
+            </div>
+            <Switch
+              checked={(settings as any).cardio_voice_enabled ?? true}
+              onCheckedChange={(checked) => handleUpdate({ cardio_voice_enabled: checked } as any)}
+            />
+          </div>
         </CardContent>
       </Card>
-
-      {/* Coaching Bio moved to Profile → Overview */}
 
       {/* Coaching Settings */}
       <Card className="bg-card border-border">

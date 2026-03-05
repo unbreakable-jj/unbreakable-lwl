@@ -3,6 +3,16 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useSessionPlanners, SessionPlanner } from '@/hooks/useSessionPlanners';
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import { TrainingProgram } from '@/hooks/useTrainingPrograms';
@@ -26,6 +36,7 @@ import {
   TrendingUp,
   SkipForward,
   Edit3,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface ProgrammeExecutionViewProps {
@@ -52,6 +63,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
   const [viewingResultIndex, setViewingResultIndex] = useState<number | null>(null);
   const [showEditor, setShowEditor] = useState(false);
   const [isSkipping, setIsSkipping] = useState(false);
+  const [showSkipConfirm, setShowSkipConfirm] = useState(false);
 
   // Progression state
   const [progressionSuggestions, setProgressionSuggestions] = useState<PowerProgressionSuggestion[]>([]);
@@ -162,12 +174,13 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
   const handleSkipSession = async () => {
     if (!nextSession || isSkipping) return;
     setIsSkipping(true);
+    setShowSkipConfirm(false);
     try {
       await markSkipped.mutateAsync(nextSession.id);
       
-      // Send adherence notification via inbox
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (currentUser) {
+        // Notify the user with adherence alert
         await supabase.from('notifications').insert({
           user_id: currentUser.id,
           type: 'adherence_alert',
@@ -175,6 +188,66 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
           body: `You skipped ${nextSession.session_type} (Week ${nextSession.week_number}, Day ${nextSession.day_number}). Your programme has moved on — consistency is key to hitting your goals.`,
           data: { program_id: program.id, planner_id: nextSession.id },
         });
+
+        // Notify coaches/devs of the skipped session
+        const { data: coaches } = await supabase
+          .from('coaching_assignments')
+          .select('coach_id')
+          .eq('athlete_id', currentUser.id)
+          .eq('status', 'active');
+
+        if (coaches && coaches.length > 0) {
+          const coachNotifications = coaches.map(c => ({
+            user_id: c.coach_id,
+            type: 'athlete_skipped_session',
+            title: 'Athlete Skipped Session',
+            body: `An athlete skipped ${nextSession.session_type} (Week ${nextSession.week_number}, Day ${nextSession.day_number}) in ${program.name}.`,
+            data: { program_id: program.id, planner_id: nextSession.id, athlete_id: currentUser.id },
+          }));
+          await supabase.from('notifications').insert(coachNotifications);
+        }
+
+        // Also notify devs
+        const { data: devRoles } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .eq('role', 'dev');
+
+        if (devRoles && devRoles.length > 0) {
+          const devNotifications = devRoles
+            .filter(d => d.user_id !== currentUser.id)
+            .map(d => ({
+              user_id: d.user_id,
+              type: 'athlete_skipped_session',
+              title: 'Athlete Skipped Session',
+              body: `An athlete skipped ${nextSession.session_type} (Week ${nextSession.week_number}, Day ${nextSession.day_number}) in ${program.name}.`,
+              data: { program_id: program.id, planner_id: nextSession.id, athlete_id: currentUser.id },
+            }));
+          if (devNotifications.length > 0) {
+            await supabase.from('notifications').insert(devNotifications);
+          }
+        }
+
+        // Send AI coaching callout message to user's inbox
+        try {
+          const { data: aiMsg } = await supabase.functions.invoke('generate-motivation', {
+            body: { 
+              trigger: 'session_complete', 
+              context: `The athlete just SKIPPED their ${nextSession.session_type} session (Week ${nextSession.week_number}, Day ${nextSession.day_number}). Give a firm but encouraging callout about consistency and getting back on track.` 
+            },
+          });
+          if (aiMsg?.quote) {
+            await supabase.from('notifications').insert({
+              user_id: currentUser.id,
+              type: 'ai_coaching_callout',
+              title: '🔥 Coach Callout',
+              body: aiMsg.quote,
+              data: { program_id: program.id, trigger: 'skipped_session' },
+            });
+          }
+        } catch (e) {
+          console.error('AI callout failed:', e);
+        }
       }
       
       toast({ title: 'Session Skipped', description: 'Programme has moved to the next session.' });
@@ -367,7 +440,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleSkipSession}
+                onClick={() => setShowSkipConfirm(true)}
                 disabled={isSkipping}
                 className="gap-1.5 font-display tracking-wide text-xs flex-1 text-muted-foreground hover:text-destructive hover:border-destructive/50"
               >
@@ -510,6 +583,39 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
         onAccept={handleAcceptProgression}
         onDismiss={() => { setShowProgression(false); setProgressionSuggestions([]); }}
       />
+
+      {/* Skip Session Confirmation Dialog */}
+      <AlertDialog open={showSkipConfirm} onOpenChange={setShowSkipConfirm}>
+        <AlertDialogContent className="border-destructive/30">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-display tracking-wide flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+              SKIP THIS SESSION?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground space-y-2">
+              <p>
+                You're about to skip <strong>{nextSession?.session_type}</strong> (Week {nextSession?.week_number}, Day {nextSession?.day_number}).
+              </p>
+              <p>
+                This will be logged as a missed session, your coach will be notified, and your programme will move to the next scheduled workout.
+              </p>
+              <p className="text-destructive font-medium">
+                Skipped sessions affect your Programme Adherence %.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="font-display tracking-wide">GO BACK</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleSkipSession}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 font-display tracking-wide"
+            >
+              {isSkipping ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              CONFIRM SKIP
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
