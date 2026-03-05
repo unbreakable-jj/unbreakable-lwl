@@ -671,9 +671,18 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     <>
       <CountdownOverlay
         isActive={phase === 'countdown'}
-        onComplete={startTracking}
+        onComplete={() => {
+          // Stop pre-acquire watch before starting real tracking
+          if (preAcquireWatchRef.current !== null) {
+            navigator.geolocation.clearWatch(preAcquireWatchRef.current);
+            preAcquireWatchRef.current = null;
+          }
+          lastVoiceKmRef.current = 0;
+          startTracking();
+        }}
         startFrom={3}
         exerciseName={config?.label}
+        onStartGps={handlePreAcquireGps}
       />
       
       <Dialog open={isOpen && phase !== 'countdown'} onOpenChange={handleClose}>
