@@ -639,12 +639,17 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     setIsPaused(false);
     pauseStartRef.current = null;
     sessionStartRef.current = null;
+    lastVoiceKmRef.current = 0;
     setCurrentSpeed(null);
     setGpsAccuracy(null);
     setGpsStatus('acquiring');
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
+    }
+    if (preAcquireWatchRef.current !== null) {
+      navigator.geolocation.clearWatch(preAcquireWatchRef.current);
+      preAcquireWatchRef.current = null;
     }
     if (timerRef.current) {
       clearInterval(timerRef.current);
