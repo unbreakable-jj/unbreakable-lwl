@@ -339,7 +339,59 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
+      if (preAcquireWatchRef.current !== null) {
+        navigator.geolocation.clearWatch(preAcquireWatchRef.current);
+      }
     };
+  }, []);
+
+  // Voice prompt function using Web Speech API
+  const speakUpdate = useCallback((text: string) => {
+    if (!voiceEnabled || !('speechSynthesis' in window)) return;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    window.speechSynthesis.speak(utterance);
+  }, [voiceEnabled]);
+
+  // Voice prompts every 1km
+  useEffect(() => {
+    if (phase !== 'tracking' || isPaused || distance === 0) return;
+    
+    const currentKm = Math.floor(distance);
+    if (currentKm > lastVoiceKmRef.current && currentKm >= 1) {
+      lastVoiceKmRef.current = currentKm;
+      
+      const totalKm = distance.toFixed(2);
+      const timeStr = formatTime(elapsedSeconds);
+      const avgPace = calculatePace();
+      
+      speakUpdate(
+        `${currentKm} kilometre${currentKm > 1 ? 's' : ''} completed. ` +
+        `Total distance ${totalKm} K. ` +
+        `Total time ${timeStr}. ` +
+        `Average pace ${avgPace} per kilometre.`
+      );
+    }
+  }, [distance, phase, isPaused, elapsedSeconds, speakUpdate]);
+
+  // Pre-acquire GPS signal during countdown
+  const handlePreAcquireGps = useCallback(() => {
+    if (preAcquireWatchRef.current !== null) return;
+    preAcquireWatchRef.current = navigator.geolocation.watchPosition(
+      (position) => {
+        if (position.coords.accuracy <= 20) {
+          setGpsStatus('active');
+          setGpsAccuracy(position.coords.accuracy);
+        } else {
+          setGpsStatus('acquiring');
+          setGpsAccuracy(position.coords.accuracy);
+        }
+      },
+      () => { /* ignore errors during pre-acquire */ },
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+    );
   }, []);
 
   const formatTime = (totalSeconds: number) => {
