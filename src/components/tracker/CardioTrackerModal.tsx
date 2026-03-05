@@ -112,7 +112,9 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   const [gpsStatus, setGpsStatus] = useState<'acquiring' | 'active' | 'error' | 'paused'>('acquiring');
   const [isPaused, setIsPaused] = useState(false);
   const [pausedDuration, setPausedDuration] = useState(0);
-  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [voiceEnabled, setVoiceEnabled] = useState(() => 
+    (userSettings as any)?.cardio_voice_enabled ?? true
+  );
   const pauseStartRef = useRef<number | null>(null);
   const watchIdRef = useRef<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
