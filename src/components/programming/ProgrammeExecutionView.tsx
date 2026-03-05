@@ -440,7 +440,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleSkipSession}
+                onClick={() => setShowSkipConfirm(true)}
                 disabled={isSkipping}
                 className="gap-1.5 font-display tracking-wide text-xs flex-1 text-muted-foreground hover:text-destructive hover:border-destructive/50"
               >
