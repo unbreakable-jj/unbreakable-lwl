@@ -745,6 +745,30 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                       ? 'Track with GPS in real-time' 
                       : 'Log a completed session manually'}
                   </p>
+
+                  {/* Voice settings for live mode */}
+                  {entryMode === 'live' && (
+                    <div className="flex items-center justify-center gap-2">
+                      <Button
+                        variant={voiceEnabled ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setVoiceEnabled(!voiceEnabled)}
+                        className="gap-1 font-display tracking-wide text-xs"
+                      >
+                        {voiceEnabled ? '🔊 VOICE ON' : '🔇 VOICE OFF'}
+                      </Button>
+                      {voiceEnabled && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setVoiceGender(g => g === 'male' ? 'female' : 'male')}
+                          className="gap-1 font-display tracking-wide text-xs"
+                        >
+                          {voiceGender === 'male' ? '♂ MALE' : '♀ FEMALE'}
+                        </Button>
+                      )}
+                    </div>
+                  )}
                   
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {(Object.keys(ACTIVITY_CONFIG) as ActivityType[]).map((type) => {
