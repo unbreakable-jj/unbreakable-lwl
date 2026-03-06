@@ -349,6 +349,9 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     };
   }, []);
 
+  // Voice gender preference
+  const [voiceGender, setVoiceGender] = useState<'male' | 'female'>('male');
+
   // Voice prompt function using Web Speech API
   const speakUpdate = useCallback((text: string) => {
     if (!voiceEnabled || !('speechSynthesis' in window)) return;
@@ -356,8 +359,19 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     utterance.rate = 0.9;
     utterance.pitch = 1;
     utterance.volume = 1;
+    // Try to select a voice matching the gender preference
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      const genderKeywords = voiceGender === 'female' 
+        ? ['female', 'woman', 'fiona', 'samantha', 'karen', 'moira', 'tessa', 'victoria', 'zira']
+        : ['male', 'man', 'daniel', 'alex', 'david', 'james', 'george', 'thomas'];
+      const preferred = voices.find(v => 
+        genderKeywords.some(k => v.name.toLowerCase().includes(k))
+      );
+      if (preferred) utterance.voice = preferred;
+    }
     window.speechSynthesis.speak(utterance);
-  }, [voiceEnabled]);
+  }, [voiceEnabled, voiceGender]);
 
   // Voice prompts every 1km
   useEffect(() => {
@@ -976,8 +990,8 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                   </div>
                 </div>
 
-                {/* Voice Toggle */}
-                <div className="flex justify-center mb-4">
+                {/* Voice Controls */}
+                <div className="flex justify-center gap-2 mb-4">
                   <Button
                     variant={voiceEnabled ? "default" : "outline"}
                     size="sm"
@@ -986,6 +1000,16 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                   >
                     {voiceEnabled ? '🔊 VOICE ON' : '🔇 VOICE OFF'}
                   </Button>
+                  {voiceEnabled && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setVoiceGender(g => g === 'male' ? 'female' : 'male')}
+                      className="gap-1 font-display tracking-wide text-xs"
+                    >
+                      {voiceGender === 'male' ? '♂ MALE' : '♀ FEMALE'}
+                    </Button>
+                  )}
                 </div>
 
                 {/* Control Buttons */}
