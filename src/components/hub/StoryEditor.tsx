@@ -202,7 +202,7 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
 
   // Publish
   const handlePublish = async () => {
-    if (overlays.length === 0 && !imageFile && !videoFile && bgType === 'color') {
+    if (overlays.length === 0 && !imageFile && !videoFile && !imagePreview && !videoPreview && bgType === 'color') {
       toast.error('Add some content to your story');
       return;
     }
@@ -218,6 +218,9 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
         if (error) throw error;
         const { data } = supabase.storage.from('post-images').getPublicUrl(path);
         imageUrl = data.publicUrl;
+      } else if (imagePreview && bgType === 'image') {
+        // Use existing URL from preFill (shared from feed post)
+        imageUrl = imagePreview;
       }
       if (videoFile) {
         setUploadProgress('Compressing video...');
@@ -229,6 +232,9 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
         if (error) throw error;
         const { data } = supabase.storage.from('post-videos').getPublicUrl(path);
         videoUrl = data.publicUrl;
+      } else if (videoPreview && bgType === 'video') {
+        // Use existing URL from preFill (shared from feed post)
+        videoUrl = videoPreview;
       }
       setUploadProgress('Publishing...');
       await onPublish({

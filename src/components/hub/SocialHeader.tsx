@@ -12,6 +12,7 @@ import { useConversations } from '@/hooks/useConversations';
 import { useFriends } from '@/hooks/useFriends';
 import {
   Home,
+  Bell,
   MessageCircle,
   UserPlus,
   Users,
@@ -40,11 +41,9 @@ export function SocialHeader({
   const { unreadCount: messageCount } = useConversations();
   const { pendingRequests } = useFriends();
   const navigate = useNavigate();
+  const [showNotifications, setShowNotifications] = useState(false);
 
-  // Count incoming friend requests
   const incomingRequestCount = pendingRequests.filter(r => r.type === 'received').length;
-  // Combine notification + message count for inbox badge
-  const inboxBadgeCount = messageCount + notificationCount;
 
   return (
     <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-primary/15">
@@ -82,11 +81,23 @@ export function SocialHeader({
                   : 'text-muted-foreground border-primary/20 hover:text-primary hover:bg-primary/10 hover:border-primary/40'
               }`}
             >
-              <Inbox className="w-4 h-4" />
-              INBOX
-              {inboxBadgeCount > 0 && (
+              <MessageCircle className="w-4 h-4" />
+              MESSAGES
+              {messageCount > 0 && (
                 <Badge className="absolute -top-1 -right-1 h-5 min-w-5 p-0 flex items-center justify-center text-xs bg-destructive">
-                  {inboxBadgeCount > 99 ? '99+' : inboxBadgeCount}
+                  {messageCount > 99 ? '99+' : messageCount}
+                </Badge>
+              )}
+            </button>
+            <button
+              onClick={() => setShowNotifications(true)}
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-md font-display text-sm tracking-wide transition-all border text-muted-foreground border-primary/20 hover:text-primary hover:bg-primary/10 hover:border-primary/40`}
+            >
+              <Bell className="w-4 h-4" />
+              ALERTS
+              {notificationCount > 0 && (
+                <Badge className="absolute -top-1 -right-1 h-5 min-w-5 p-0 flex items-center justify-center text-xs bg-destructive">
+                  {notificationCount > 99 ? '99+' : notificationCount}
                 </Badge>
               )}
             </button>
@@ -104,10 +115,23 @@ export function SocialHeader({
                 className="relative"
                 onClick={() => navigate('/inbox')}
               >
-                <Inbox className="w-5 h-5 text-primary" />
-                {inboxBadgeCount > 0 && (
+                <MessageCircle className="w-5 h-5 text-primary" />
+                {messageCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] bg-destructive">
-                    {inboxBadgeCount > 9 ? '9+' : inboxBadgeCount}
+                    {messageCount > 9 ? '9+' : messageCount}
+                  </Badge>
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative"
+                onClick={() => setShowNotifications(true)}
+              >
+                <Bell className="w-5 h-5 text-primary" />
+                {notificationCount > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] bg-destructive">
+                    {notificationCount > 9 ? '9+' : notificationCount}
                   </Badge>
                 )}
               </Button>
@@ -140,12 +164,20 @@ export function SocialHeader({
             <Button variant="ghost" size="sm" onClick={onShowFriendsList} className="hidden sm:flex">
               <Users className="w-5 h-5 text-primary" />
             </Button>
+            <Button variant="ghost" size="sm" onClick={() => setShowNotifications(true)} className="hidden sm:flex relative">
+              <Bell className="w-5 h-5 text-primary" />
+              {notificationCount > 0 && (
+                <Badge className="absolute -top-1 -right-1 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] bg-destructive">
+                  {notificationCount > 9 ? '9+' : notificationCount}
+                </Badge>
+              )}
+            </Button>
             <Link to="/inbox" className="hidden sm:block">
               <Button variant="ghost" size="sm" className="relative">
-                <Inbox className="w-5 h-5 text-primary" />
-                {inboxBadgeCount > 0 && (
+                <MessageCircle className="w-5 h-5 text-primary" />
+                {messageCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] bg-destructive">
-                    {inboxBadgeCount > 9 ? '9+' : inboxBadgeCount}
+                    {messageCount > 9 ? '9+' : messageCount}
                   </Badge>
                 )}
               </Button>
@@ -164,10 +196,10 @@ export function SocialHeader({
         </div>
       </div>
 
-      {/* Notifications now handled via inbox */}
+      {/* Notifications Panel */}
       <NotificationsPanel 
-        isOpen={false} 
-        onClose={() => {}} 
+        isOpen={showNotifications} 
+        onClose={() => setShowNotifications(false)} 
       />
     </header>
   );

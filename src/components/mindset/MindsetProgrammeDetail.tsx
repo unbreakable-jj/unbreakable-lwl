@@ -1,9 +1,13 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { MindsetProgramme } from '@/hooks/useMindsetProgrammes';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 import {
   ChevronLeft,
   Brain,
@@ -17,6 +21,7 @@ import {
   Gamepad2,
   Timer,
   Snowflake,
+  Play,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -44,17 +49,83 @@ const activityLabels: Record<string, string> = {
   daily_habits_check: 'Daily 5 Check',
 };
 
+// Map game names to routes
+const gameRoutes: Record<string, string> = {
+  tetris: '/mindset/games',
+  snake: '/mindset/games',
+  alleyway: '/mindset/games',
+};
+
 interface Props {
   programme: MindsetProgramme;
   onBack: () => void;
 }
 
 export function MindsetProgrammeDetail({ programme, onBack }: Props) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [expandedWeek, setExpandedWeek] = useState<number>(0);
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
+  const [completedActivities, setCompletedActivities] = useState<Set<string>>(new Set());
 
   const data = programme.programme_data as any;
   const weeks = data?.weeks || [];
+
+  const getActivityKey = (wi: number, di: number, ai: number) => `${wi}-${di}-${ai}`;
+
+  const handleActivityLaunch = (activity: any) => {
+    if (activity.type === 'breathing' || activity.type === 'retention') {
+      navigate('/mindset/breathing');
+    } else if (activity.type === 'focus_game' && activity.gameName) {
+      navigate('/mindset/games');
+    } else if (activity.type === 'daily_habits_check') {
+      navigate('/habits');
+    }
+  };
+
+  const handleActivityComplete = async (wi: number, di: number, ai: number, activity: any) => {
+    const key = getActivityKey(wi, di, ai);
+    const newCompleted = new Set(completedActivities);
+    
+    if (newCompleted.has(key)) {
+      newCompleted.delete(key);
+    } else {
+      newCompleted.add(key);
+      // Notify coach of completion
+      if (user) {
+        try {
+          const { data: assignments } = await supabase
+            .from('coaching_assignments')
+            .select('coach_id')
+            .eq('athlete_id', user.id)
+            .eq('status', 'active');
+          
+          if (assignments && assignments.length > 0) {
+            const activityName = activity.name || activityLabels[activity.type] || activity.type;
+            for (const assignment of assignments) {
+              await supabase.from('notifications').insert({
+                user_id: assignment.coach_id,
+                type: 'mindset_activity_complete',
+                title: 'Mindset Activity Completed',
+                body: `Athlete completed "${activityName}" from ${programme.name}`,
+                data: {
+                  programme_id: programme.id,
+                  activity_type: activity.type,
+                  week: wi + 1,
+                  day: di + 1,
+                },
+              });
+            }
+          }
+        } catch (err) {
+          console.error('Failed to notify coach:', err);
+        }
+      }
+      toast.success(`${activity.name || activityLabels[activity.type]} completed! ✅`);
+    }
+    
+    setCompletedActivities(newCompleted);
+  };
 
   return (
     <div className="space-y-6">
@@ -187,81 +258,98 @@ export function MindsetProgrammeDetail({ programme, onBack }: Props) {
                                   className="overflow-hidden"
                                 >
                                   <div className="px-3 pb-3 space-y-3">
-                                    {(day.activities || []).map((activity: any, ai: number) => (
-                                      <div
-                                        key={ai}
-                                        className="p-3 bg-muted/20 rounded-lg border border-border"
-                                      >
-                                        <div className="flex items-center gap-2 mb-2">
-                                          <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                            {activityIcons[activity.type] || <Brain className="w-3.5 h-3.5" />}
-                                          </div>
-                                          <div>
-                                            <span className="font-display text-xs tracking-wide">
-                                              {activity.name || activityLabels[activity.type] || activity.type}
-                                            </span>
-                                            <span className="text-xs text-muted-foreground ml-2">
-                                              {activity.durationMinutes} min
-                                            </span>
-                                          </div>
-                                        </div>
-
-                                        {activity.instructions && (
-                                          <p className="text-xs text-muted-foreground leading-relaxed">
-                                            {activity.instructions}
-                                          </p>
-                                        )}
-
-                                        {activity.breathingPattern && (
-                                          <Badge variant="secondary" className="text-xs mt-2">
-                                            {activity.breathingPattern}
-                                          </Badge>
-                                        )}
-
-                                        {activity.journalPrompts && activity.journalPrompts.length > 0 && (
-                                          <div className="mt-2 space-y-1">
-                                            {activity.journalPrompts.map((prompt: string, pi: number) => (
-                                              <p key={pi} className="text-xs text-muted-foreground pl-3 border-l-2 border-primary/30">
-                                                {prompt}
-                                              </p>
-                                            ))}
-                                          </div>
-                                        )}
-
-                                        {activity.gameName && (
-                                          <Badge variant="secondary" className="text-xs mt-2">
-                                            🎮 Switch Off — {activity.gameName} — {activity.durationMinutes} mins
-                                          </Badge>
-                                        )}
-
-                                        {activity.retentionTargetSeconds && (
-                                          <Badge variant="secondary" className="text-xs mt-2">
-                                            ⏱️ Target: {Math.floor(activity.retentionTargetSeconds / 60)}:{String(activity.retentionTargetSeconds % 60).padStart(2, '0')} hold
-                                          </Badge>
-                                        )}
-
-                                        {activity.exposureType && (
-                                          <div className="mt-2 space-y-1">
-                                            <Badge variant="secondary" className="text-xs">
-                                              {activity.exposureType === 'sauna' ? '🔥' : '🧊'} {activity.exposureType.replace('_', ' ')}
-                                              {activity.targetDurationSeconds && ` · ${Math.floor(activity.targetDurationSeconds / 60)}:${String(activity.targetDurationSeconds % 60).padStart(2, '0')}`}
-                                            </Badge>
-                                            {activity.safetyNotes && (
-                                              <p className="text-xs text-amber-500/80 pl-3 border-l-2 border-amber-500/30">
-                                                ⚠️ {activity.safetyNotes}
-                                              </p>
+                                    {(day.activities || []).map((activity: any, ai: number) => {
+                                      const actKey = getActivityKey(wi, di, ai);
+                                      const isCompleted = completedActivities.has(actKey);
+                                      const canLaunch = ['breathing', 'retention', 'focus_game', 'daily_habits_check'].includes(activity.type);
+                                      
+                                      return (
+                                        <div
+                                          key={ai}
+                                          className={`p-3 rounded-lg border ${isCompleted ? 'bg-primary/5 border-primary/30' : 'bg-muted/20 border-border'}`}
+                                        >
+                                          <div className="flex items-center gap-2 mb-2">
+                                            <Checkbox
+                                              checked={isCompleted}
+                                              onCheckedChange={() => handleActivityComplete(wi, di, ai, activity)}
+                                              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                            />
+                                            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                              {activityIcons[activity.type] || <Brain className="w-3.5 h-3.5" />}
+                                            </div>
+                                            <div className="flex-1">
+                                              <span className={`font-display text-xs tracking-wide ${isCompleted ? 'line-through text-muted-foreground' : ''}`}>
+                                                {activity.name || activityLabels[activity.type] || activity.type}
+                                              </span>
+                                              <span className="text-xs text-muted-foreground ml-2">
+                                                {activity.durationMinutes} min
+                                              </span>
+                                            </div>
+                                            {canLaunch && !isCompleted && (
+                                              <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-7 px-2 text-primary hover:bg-primary/10"
+                                                onClick={() => handleActivityLaunch(activity)}
+                                              >
+                                                <Play className="w-3.5 h-3.5 mr-1" />
+                                                <span className="text-xs font-display">GO</span>
+                                              </Button>
                                             )}
                                           </div>
-                                        )}
 
-                                        {activity.type === 'daily_habits_check' && (
-                                          <Link to="/habits" className="inline-flex items-center gap-2 mt-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-display tracking-wide hover:bg-primary/20 transition-colors">
-                                            <BookOpen className="w-3.5 h-3.5" />
-                                            OPEN DAILY 5 TRACKER
-                                          </Link>
-                                        )}
-                                      </div>
-                                    ))}
+                                          {activity.instructions && (
+                                            <p className="text-xs text-muted-foreground leading-relaxed ml-9">
+                                              {activity.instructions}
+                                            </p>
+                                          )}
+
+                                          {activity.breathingPattern && (
+                                            <Badge variant="secondary" className="text-xs mt-2 ml-9">
+                                              {activity.breathingPattern}
+                                            </Badge>
+                                          )}
+
+                                          {activity.journalPrompts && activity.journalPrompts.length > 0 && (
+                                            <div className="mt-2 space-y-1 ml-9">
+                                              {activity.journalPrompts.map((prompt: string, pi: number) => (
+                                                <p key={pi} className="text-xs text-muted-foreground pl-3 border-l-2 border-primary/30">
+                                                  {prompt}
+                                                </p>
+                                              ))}
+                                            </div>
+                                          )}
+
+                                          {activity.gameName && (
+                                            <div className="mt-2 ml-9 flex items-center gap-2">
+                                              <Badge variant="secondary" className="text-xs">
+                                                🎮 {activity.gameName} — {activity.durationMinutes} mins
+                                              </Badge>
+                                            </div>
+                                          )}
+
+                                          {activity.retentionTargetSeconds && (
+                                            <Badge variant="secondary" className="text-xs mt-2 ml-9">
+                                              ⏱️ Target: {Math.floor(activity.retentionTargetSeconds / 60)}:{String(activity.retentionTargetSeconds % 60).padStart(2, '0')} hold
+                                            </Badge>
+                                          )}
+
+                                          {activity.exposureType && (
+                                            <div className="mt-2 space-y-1 ml-9">
+                                              <Badge variant="secondary" className="text-xs">
+                                                {activity.exposureType === 'sauna' ? '🔥' : '🧊'} {activity.exposureType.replace('_', ' ')}
+                                                {activity.targetDurationSeconds && ` · ${Math.floor(activity.targetDurationSeconds / 60)}:${String(activity.targetDurationSeconds % 60).padStart(2, '0')}`}
+                                              </Badge>
+                                              {activity.safetyNotes && (
+                                                <p className="text-xs text-amber-500/80 pl-3 border-l-2 border-amber-500/30">
+                                                  ⚠️ {activity.safetyNotes}
+                                                </p>
+                                              )}
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
                                   </div>
                                 </motion.div>
                               )}

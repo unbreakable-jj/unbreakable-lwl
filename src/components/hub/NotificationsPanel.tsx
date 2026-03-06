@@ -33,6 +33,30 @@ function getNotificationLink(notification: Notification): string | null {
   if (notification.type === 'programme_updated') {
     return '/my-coaching';
   }
+  if (notification.type === 'friend_request' || notification.type === 'friend_accepted') {
+    return '/';
+  }
+  if (notification.type === 'post_like' || notification.type === 'post_comment') {
+    return '/';
+  }
+  if (notification.type === 'workout_like' || notification.type === 'workout') {
+    return '/programming/my-programmes';
+  }
+  if (notification.type === 'run_like') {
+    return '/tracker';
+  }
+  if (notification.type === 'milestone' || notification.type === 'trophy') {
+    return '/tracker';
+  }
+  if (notification.type === 'tier2_signup') {
+    return '/coach';
+  }
+  if (notification.type === 'adherence_alert' || notification.type === 'athlete_skipped_session') {
+    return '/programming/my-programmes';
+  }
+  if (notification.type === 'feedback_response') {
+    return '/coach';
+  }
   return null;
 }
 
@@ -74,8 +98,9 @@ function NotificationItem({
 }) {
   const link = getNotificationLink(notification);
   const handleClick = () => {
+    // Always mark as read when clicked
+    if (!notification.read) onMarkRead(notification.id);
     if (link && onNavigate) {
-      if (!notification.read) onMarkRead(notification.id);
       onNavigate(link);
     }
   };

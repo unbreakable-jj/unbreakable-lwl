@@ -41,33 +41,33 @@ export function CountdownOverlay({
     }
   }, [isActive, phase, onStartGps]);
 
-  // Welcome phase - logo display
+  // Welcome phase - logo display (reduced from 1500ms to 800ms)
   useEffect(() => {
     if (!isActive || phase !== "welcome") return;
     const timer = setTimeout(() => {
       setPhase("getready");
       onPlayAudio?.("Get ready");
-    }, 1500);
+    }, 800);
     return () => clearTimeout(timer);
   }, [isActive, phase, onPlayAudio]);
 
-  // Get Ready phase
+  // Get Ready phase (reduced from 2000ms to 1200ms)
   useEffect(() => {
     if (!isActive || phase !== "getready") return;
     const timer = setTimeout(() => {
       setPhase("power");
       onPlayAudio?.("Power");
-    }, 2000);
+    }, 1200);
     return () => clearTimeout(timer);
   }, [isActive, phase, onPlayAudio]);
 
-  // POWER phase
+  // POWER phase (reduced from 1000ms to 600ms)
   useEffect(() => {
     if (!isActive || phase !== "power") return;
     const timer = setTimeout(() => {
       setPhase("movement");
       onPlayAudio?.("Movement");
-    }, 1000);
+    }, 600);
     return () => clearTimeout(timer);
   }, [isActive, phase, onPlayAudio]);
 
@@ -77,7 +77,7 @@ export function CountdownOverlay({
     const timer = setTimeout(() => {
       setPhase("fuel");
       onPlayAudio?.("Fuel");
-    }, 1000);
+    }, 600);
     return () => clearTimeout(timer);
   }, [isActive, phase, onPlayAudio]);
 
@@ -87,7 +87,7 @@ export function CountdownOverlay({
     const timer = setTimeout(() => {
       setPhase("mindset");
       onPlayAudio?.("Mindset");
-    }, 1000);
+    }, 600);
     return () => clearTimeout(timer);
   }, [isActive, phase, onPlayAudio]);
 
@@ -96,26 +96,26 @@ export function CountdownOverlay({
     if (!isActive || phase !== "mindset") return;
     const timer = setTimeout(() => {
       setPhase("pause");
-    }, 1000);
+    }, 600);
     return () => clearTimeout(timer);
   }, [isActive, phase]);
 
-  // Pause phase — 2s pause before GO
+  // Pause phase — reduced from 2s to 1s
   useEffect(() => {
     if (!isActive || phase !== "pause") return;
     const timer = setTimeout(() => {
       setPhase("go");
       onPlayAudio?.("Go!");
-    }, 2000);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [isActive, phase, onPlayAudio]);
 
-  // Go phase — 2s pause after GO before session starts
+  // Go phase — reduced from 2s to 1.2s
   useEffect(() => {
     if (!isActive || phase !== "go") return;
     const timer = setTimeout(() => {
       onComplete();
-    }, 2000);
+    }, 1200);
     return () => clearTimeout(timer);
   }, [isActive, phase, onComplete]);
 
