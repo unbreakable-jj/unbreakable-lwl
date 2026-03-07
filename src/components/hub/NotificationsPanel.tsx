@@ -200,7 +200,7 @@ export function NotificationsPanel({ isOpen, onClose }: NotificationsPanelProps)
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={handleDeleteAll}
+                    onClick={deleteAllNotifications}
                     className="font-display text-xs tracking-wide text-destructive hover:text-destructive"
                   >
                     <Trash2 className="w-3 h-3 mr-1" />
