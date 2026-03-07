@@ -316,7 +316,8 @@ export function useTrainingPrograms() {
     mutationFn: async ({ programId, programData }: { programId: string; programData: GeneratedProgram }) => {
       if (!user) throw new Error('Must be logged in');
       
-      const { data, error } = await supabase
+      // Build query - coaches/devs can update athlete programs too
+      let query = supabase
         .from('training_programs')
         .update({
           name: programData.programName,
@@ -324,10 +325,14 @@ export function useTrainingPrograms() {
           program_data: programData as unknown as Json,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', programId)
-        .eq('user_id', user.id)
-        .select()
-        .single();
+        .eq('id', programId);
+      
+      // Only filter by user_id for regular users (RLS handles coach access)
+      if (!isDev && !isCoach) {
+        query = query.eq('user_id', user.id);
+      }
+      
+      const { data, error } = await query.select().single();
       
       if (error) throw error;
       return toTrainingProgram(data);

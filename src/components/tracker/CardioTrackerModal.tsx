@@ -185,7 +185,13 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       }
     }, 1000);
 
+    // Start GPS tracking immediately - no waiting
     startGpsTracking();
+    
+    // Auto-set GPS status to active after 2 seconds if still acquiring
+    setTimeout(() => {
+      setGpsStatus(prev => prev === 'acquiring' ? 'active' : prev);
+    }, 2000);
   }, [pausedDuration]);
 
   const startGpsTracking = useCallback(() => {
