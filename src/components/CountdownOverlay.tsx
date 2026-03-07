@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
 
-type CountdownPhase = "welcome" | "getready" | "power" | "movement" | "fuel" | "mindset" | "pause" | "go";
+type CountdownPhase = "welcome" | "getready" | "power" | "movement" | "fuel" | "mindset" | "go";
 
 interface CountdownOverlayProps {
   isActive: boolean;
@@ -41,68 +41,59 @@ export function CountdownOverlay({
     }
   }, [isActive, phase, onStartGps]);
 
-  // Welcome phase - logo display (reduced from 1500ms to 800ms)
+  // Welcome phase - 1 second
   useEffect(() => {
     if (!isActive || phase !== "welcome") return;
     const timer = setTimeout(() => {
       setPhase("getready");
       onPlayAudio?.("Get ready");
-    }, 800);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [isActive, phase, onPlayAudio]);
 
-  // Get Ready phase (reduced from 2000ms to 1200ms)
+  // Get Ready phase - 1 second
   useEffect(() => {
     if (!isActive || phase !== "getready") return;
     const timer = setTimeout(() => {
       setPhase("power");
       onPlayAudio?.("Power");
-    }, 1200);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [isActive, phase, onPlayAudio]);
 
-  // POWER phase (reduced from 1000ms to 600ms)
+  // POWER phase - 1 second
   useEffect(() => {
     if (!isActive || phase !== "power") return;
     const timer = setTimeout(() => {
       setPhase("movement");
       onPlayAudio?.("Movement");
-    }, 600);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [isActive, phase, onPlayAudio]);
 
-  // MOVEMENT phase
+  // MOVEMENT phase - 1 second
   useEffect(() => {
     if (!isActive || phase !== "movement") return;
     const timer = setTimeout(() => {
       setPhase("fuel");
       onPlayAudio?.("Fuel");
-    }, 600);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [isActive, phase, onPlayAudio]);
 
-  // FUEL phase
+  // FUEL phase - 1 second
   useEffect(() => {
     if (!isActive || phase !== "fuel") return;
     const timer = setTimeout(() => {
       setPhase("mindset");
       onPlayAudio?.("Mindset");
-    }, 600);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [isActive, phase, onPlayAudio]);
 
-  // MINDSET phase
+  // MINDSET phase - 1 second
   useEffect(() => {
     if (!isActive || phase !== "mindset") return;
-    const timer = setTimeout(() => {
-      setPhase("pause");
-    }, 600);
-    return () => clearTimeout(timer);
-  }, [isActive, phase]);
-
-  // Pause phase — reduced from 2s to 1s
-  useEffect(() => {
-    if (!isActive || phase !== "pause") return;
     const timer = setTimeout(() => {
       setPhase("go");
       onPlayAudio?.("Go!");
@@ -110,12 +101,12 @@ export function CountdownOverlay({
     return () => clearTimeout(timer);
   }, [isActive, phase, onPlayAudio]);
 
-  // Go phase — reduced from 2s to 1.2s
+  // Go phase - 2 seconds
   useEffect(() => {
     if (!isActive || phase !== "go") return;
     const timer = setTimeout(() => {
       onComplete();
-    }, 1200);
+    }, 2000);
     return () => clearTimeout(timer);
   }, [isActive, phase, onComplete]);
 
@@ -194,26 +185,8 @@ export function CountdownOverlay({
         {phase === "fuel" && <PowerWord word="FUEL" />}
         {phase === "mindset" && <PowerWord word="MINDSET" />}
 
-        {/* Pause Phase */}
-        {phase === "pause" && (
-          <motion.div
-            key="pause"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="relative z-10 flex flex-col items-center"
-          >
-            <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.4, 0.8, 0.4],
-              }}
-              transition={{ duration: 1, ease: "easeInOut" }}
-              className="w-32 h-32 rounded-full bg-primary/20 border-2 border-primary"
-              style={{ boxShadow: "0 0 40px hsl(var(--primary) / 0.4)" }}
-            />
-          </motion.div>
-        )}
+
+
 
         {/* Go Phase */}
         {phase === "go" && (

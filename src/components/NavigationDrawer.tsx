@@ -103,7 +103,9 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                     <p className="font-display text-foreground tracking-wide">
                       {profile?.display_name || 'Runner'}
                     </p>
-                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {profile?.username ? `@${profile.username}` : user.email}
+                    </p>
                   </div>
                 </div>
                 <Separator className="bg-primary/20" />
