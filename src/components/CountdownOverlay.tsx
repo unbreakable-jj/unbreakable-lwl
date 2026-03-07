@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
 
-type CountdownPhase = "welcome" | "getready" | "power" | "movement" | "fuel" | "mindset" | "pause" | "go";
+type CountdownPhase = "welcome" | "getready" | "power" | "movement" | "fuel" | "mindset" | "go";
 
 interface CountdownOverlayProps {
   isActive: boolean;
@@ -185,26 +185,8 @@ export function CountdownOverlay({
         {phase === "fuel" && <PowerWord word="FUEL" />}
         {phase === "mindset" && <PowerWord word="MINDSET" />}
 
-        {/* Pause Phase */}
-        {phase === "pause" && (
-          <motion.div
-            key="pause"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="relative z-10 flex flex-col items-center"
-          >
-            <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.4, 0.8, 0.4],
-              }}
-              transition={{ duration: 1, ease: "easeInOut" }}
-              className="w-32 h-32 rounded-full bg-primary/20 border-2 border-primary"
-              style={{ boxShadow: "0 0 40px hsl(var(--primary) / 0.4)" }}
-            />
-          </motion.div>
-        )}
+
+
 
         {/* Go Phase */}
         {phase === "go" && (
