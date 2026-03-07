@@ -233,7 +233,9 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
           </SelectContent>
         </Select>
       </div>
-      {days.map((day, dayIdx) => (
+      {days.map((day, dayIdx) => {
+        if (dayIdx !== selectedDayIdx) return null;
+        return (
         <Card key={dayIdx} className="border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
