@@ -150,18 +150,12 @@ function NotificationItem({
 
 export function NotificationsPanel({ isOpen, onClose }: NotificationsPanelProps) {
   const navigate = useNavigate();
-  const { notifications, loading, unreadCount, markAsRead, markAllAsRead, deleteNotification } =
+  const { notifications, loading, unreadCount, markAsRead, markAllAsRead, deleteNotification, deleteAllNotifications } =
     useNotifications();
 
   const handleNavigate = (path: string) => {
     onClose();
     navigate(path);
-  };
-
-  const handleDeleteAll = async () => {
-    for (const n of notifications) {
-      await deleteNotification(n.id);
-    }
   };
 
   return (
