@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Plus,
@@ -329,43 +329,48 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
         </CardContent>
       </Card>
 
-      {/* Day Tabs with Exercise Builder */}
+      {/* Day Selection & Exercise Builder */}
       {days.length > 0 && (
         <Card className="border-primary/30 neon-border-subtle overflow-hidden">
           <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-1" />
           <CardContent className="pt-5">
-            <Tabs
-              value={activeDay || days[0]?.name}
-              onValueChange={(v) => setActiveDay(v)}
-            >
-              <TabsList className="w-full flex-wrap h-auto justify-start gap-1.5 bg-transparent p-0 mb-5">
-                {days.map((day) => (
-                  <TabsTrigger
-                    key={day.name}
-                    value={day.name}
-                    className={cn(
-                      'gap-1.5 font-display tracking-wide text-xs',
-                      'data-[state=active]:bg-primary data-[state=active]:text-primary-foreground',
-                      'data-[state=active]:shadow-[0_0_12px_hsl(var(--primary)/0.4)]',
-                      'border border-transparent data-[state=active]:border-primary/50'
-                    )}
-                  >
-                    <Dumbbell className="w-3.5 h-3.5" />
-                    {day.name.toUpperCase()}
-                    {day.exercises.length > 0 && (
-                      <Badge 
-                        variant="secondary" 
-                        className="ml-1 h-5 text-[10px] font-display bg-primary/20 text-primary border-primary/30"
-                      >
-                        {day.exercises.length}
-                      </Badge>
-                    )}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+            {/* Day Dropdown Selector */}
+            <div className="mb-5">
+              <label className="text-xs text-primary mb-2 block font-display tracking-widest">
+                SELECT DAY TO EDIT
+              </label>
+              <Select
+                value={activeDay || days[0]?.name}
+                onValueChange={(v) => setActiveDay(v)}
+              >
+                <SelectTrigger className="w-full border-primary/30 font-display tracking-wide">
+                  <SelectValue placeholder="Select a day" />
+                </SelectTrigger>
+                <SelectContent>
+                  {days.map((day) => (
+                    <SelectItem key={day.name} value={day.name} className="font-display tracking-wide">
+                      <div className="flex items-center gap-2">
+                        <Dumbbell className="w-3.5 h-3.5 text-primary" />
+                        {day.name.toUpperCase()}
+                        {day.exercises.length > 0 && (
+                          <Badge variant="secondary" className="ml-1 h-5 text-[10px] font-display bg-primary/20 text-primary border-primary/30">
+                            {day.exercises.length} exercises
+                          </Badge>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-              {days.map((day) => (
-                <TabsContent key={day.name} value={day.name} className="mt-0">
+            {/* Active Day Content */}
+            {days.map((day) => {
+              const isActive = (activeDay || days[0]?.name) === day.name;
+              if (!isActive) return null;
+
+              return (
+                <div key={day.name}>
                   <div className="grid lg:grid-cols-2 gap-4">
                     {/* Exercise List */}
                     <div className="space-y-3">
@@ -511,11 +516,6 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
                                           {exercise.equipment}
                                         </Badge>
                                       </div>
-                                      <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground font-display tracking-wide pl-5">
-                                        <span>{exercise.sets} SETS</span>
-                                        <span className="text-primary">×</span>
-                                        <span>{exercise.reps} REPS</span>
-                                      </div>
                                     </div>
                                     <div className="flex items-center gap-1 shrink-0">
                                       <Button
@@ -539,6 +539,13 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
                                         <Trash2 className="w-4 h-4" />
                                       </Button>
                                     </div>
+                                  </div>
+
+                                  {/* Quick stats row */}
+                                  <div className="flex items-center gap-3 mt-1.5 pl-12 text-[10px] text-muted-foreground font-display tracking-wide">
+                                    <span>{exercise.sets} SETS</span>
+                                    <span className="text-primary">×</span>
+                                    <span>{exercise.reps} REPS</span>
                                   </div>
 
                                   <AnimatePresence>
@@ -623,9 +630,9 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
                       )}
                     </AnimatePresence>
                   </div>
-                </TabsContent>
-              ))}
-            </Tabs>
+                </div>
+              );
+            })}
           </CardContent>
         </Card>
       )}
