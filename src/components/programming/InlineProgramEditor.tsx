@@ -184,6 +184,8 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
 
   const isLibraryOpen = swapTarget !== null || addTarget !== null;
 
+  const [selectedDayIdx, setSelectedDayIdx] = useState(0);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -208,7 +210,29 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
         />
       </div>
 
-      {/* Days */}
+      {/* Day Selector Dropdown */}
+      <div>
+        <label className="text-[10px] font-display tracking-wide text-muted-foreground mb-1 block">SELECT DAY TO EDIT</label>
+        <Select
+          value={String(selectedDayIdx)}
+          onValueChange={v => setSelectedDayIdx(parseInt(v))}
+        >
+          <SelectTrigger className="w-full font-display tracking-wide">
+            <SelectValue placeholder="Select a day" />
+          </SelectTrigger>
+          <SelectContent>
+            {days.map((day, idx) => (
+              <SelectItem key={idx} value={String(idx)} className="font-display tracking-wide">
+                <div className="flex items-center gap-2">
+                  <Dumbbell className="w-3.5 h-3.5 text-primary" />
+                  {day.day || `Day ${idx + 1}`} — {day.sessionType || 'Session'}
+                  <span className="text-muted-foreground text-[10px]">({(day.exercises || []).length} exercises)</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       {days.map((day, dayIdx) => (
         <Card key={dayIdx} className="border-border">
           <CardHeader className="pb-2">
