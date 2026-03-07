@@ -417,7 +417,8 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
             </div>
           </CardContent>
         </Card>
-      ))}
+        );
+      })}
 
       {/* Exercise Library Sheet */}
       <Sheet open={isLibraryOpen} onOpenChange={(open) => {
