@@ -208,8 +208,8 @@ const MindsetGames = () => {
                   <Gamepad2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-display text-xl text-foreground tracking-wide">SNAKE</h3>
-                  <p className="text-xs text-primary font-display">UNBREAKABLE EDITION</p>
+                 <h3 className="font-display text-xl text-foreground tracking-wide">FUEL</h3>
+                   <p className="text-xs text-primary font-display">UNBREAKABLE EDITION</p>
                 </div>
               </div>
               <p className="text-primary font-display text-sm tracking-wide mb-3">HUNT. ADAPT. SURVIVE.</p>
@@ -231,8 +231,8 @@ const MindsetGames = () => {
                   <Zap className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-display text-xl text-foreground tracking-wide">ALLEYWAY</h3>
-                  <p className="text-xs text-primary font-display">UNBREAKABLE EDITION</p>
+                   <h3 className="font-display text-xl text-foreground tracking-wide">UNBREAKABLE</h3>
+                   <p className="text-xs text-primary font-display">UNBREAKABLE EDITION</p>
                 </div>
               </div>
               <p className="text-primary font-display text-sm tracking-wide mb-3">DESTROY WHAT'S IN YOUR WAY</p>
@@ -254,8 +254,8 @@ const MindsetGames = () => {
                   <Blocks className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-display text-xl text-foreground tracking-wide">TETRIS</h3>
-                  <p className="text-xs text-primary font-display">UNBREAKABLE EDITION</p>
+                   <h3 className="font-display text-xl text-foreground tracking-wide">LIMITLESS</h3>
+                   <p className="text-xs text-primary font-display">UNBREAKABLE EDITION</p>
                 </div>
               </div>
               <p className="text-primary font-display text-sm tracking-wide mb-3">ORDER FROM CHAOS</p>
