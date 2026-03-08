@@ -97,6 +97,7 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
         equipment: libExercise.equipment[0] as any,
         sets: libExercise.defaultSets,
         reps: libExercise.defaultReps,
+        notes: `${libExercise.bodyPart} · ${libExercise.equipment.join('/')}`,
       });
       setSwapTarget(null);
       setLibrarySearch('');
