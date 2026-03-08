@@ -97,6 +97,7 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
         equipment: libExercise.equipment[0] as any,
         sets: libExercise.defaultSets,
         reps: libExercise.defaultReps,
+        notes: `${libExercise.bodyPart} · ${libExercise.equipment.join('/')}`,
       });
       setSwapTarget(null);
       setLibrarySearch('');
@@ -382,15 +383,44 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
                     </div>
                   </div>
 
-                  {/* Notes */}
-                  <Input
-                    value={ex.notes || ''}
-                    onChange={e => updateExercise(dayIdx, exIdx, { notes: e.target.value })}
-                    className="text-xs h-6"
-                    placeholder="Notes (optional)"
-                  />
+                  {/* Superset / Circuit tag + Notes */}
+                  <div className="grid grid-cols-3 gap-1.5">
+                    <div>
+                      <label className="text-[9px] text-muted-foreground">Group</label>
+                      <Select
+                        value={ex.notes?.match(/^(SUPERSET [A-D]|CIRCUIT)$/)?.[0] || 'none'}
+                        onValueChange={v => {
+                          const cleanNotes = (ex.notes || '').replace(/^(SUPERSET [A-D]|CIRCUIT)\s*·?\s*/, '').trim();
+                          const newNotes = v === 'none' ? cleanNotes : `${v}${cleanNotes ? ' · ' + cleanNotes : ''}`;
+                          updateExercise(dayIdx, exIdx, { notes: newNotes || undefined });
+                        }}
+                      >
+                        <SelectTrigger className="text-xs h-6">
+                          <SelectValue placeholder="None" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none" className="text-xs">None</SelectItem>
+                          <SelectItem value="SUPERSET A" className="text-xs">Superset A</SelectItem>
+                          <SelectItem value="SUPERSET B" className="text-xs">Superset B</SelectItem>
+                          <SelectItem value="SUPERSET C" className="text-xs">Superset C</SelectItem>
+                          <SelectItem value="SUPERSET D" className="text-xs">Superset D</SelectItem>
+                          <SelectItem value="CIRCUIT" className="text-xs">Circuit</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="col-span-2">
+                      <label className="text-[9px] text-muted-foreground">Notes</label>
+                      <Input
+                        value={ex.notes || ''}
+                        onChange={e => updateExercise(dayIdx, exIdx, { notes: e.target.value })}
+                        className="text-xs h-6"
+                        placeholder="Notes (optional)"
+                      />
+                    </div>
+                  </div>
                 </div>
               ))}
+
               <Button
                 variant="outline"
                 size="sm"

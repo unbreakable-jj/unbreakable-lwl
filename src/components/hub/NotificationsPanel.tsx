@@ -14,6 +14,8 @@ import {
   Dumbbell,
   Check,
   Trash2,
+  ChevronRight,
+  Brain,
 } from 'lucide-react';
 
 interface NotificationsPanelProps {
@@ -23,6 +25,7 @@ interface NotificationsPanelProps {
 
 function getNotificationLink(notification: Notification): string | null {
   const t = notification.type;
+  const d = notification.data || {};
   if (t === 'coaching_feedback') return '/my-coaching';
   if (t === 'coaching_request') return '/coach';
   if (t === 'programme_updated') return '/my-coaching';
@@ -33,7 +36,7 @@ function getNotificationLink(notification: Notification): string | null {
   if (t === 'milestone' || t === 'trophy') return '/tracker';
   if (t === 'tier2_signup') return '/coach';
   if (t === 'adherence_alert' || t === 'athlete_skipped_session') return '/programming/my-programmes';
-  if (t === 'feedback_response') return '/coach';
+  if (t === 'feedback_response') return '/my-coaching';
   if (t === 'mindset_activity_complete') return '/coach';
   return null;
 }
@@ -57,7 +60,13 @@ function getNotificationIcon(type: string) {
       return <Dumbbell className="w-4 h-4" />;
     case 'coaching_feedback':
     case 'coaching_request':
+    case 'feedback_response':
       return <UserPlus className="w-4 h-4" />;
+    case 'mindset_activity_complete':
+      return <Brain className="w-4 h-4" />;
+    case 'adherence_alert':
+    case 'athlete_skipped_session':
+      return <Dumbbell className="w-4 h-4" />;
     default:
       return <Bell className="w-4 h-4" />;
   }
@@ -118,9 +127,16 @@ function NotificationItem({
                 {notification.body}
               </p>
             )}
-            <p className="text-muted-foreground text-xs mt-2">
-              {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
-            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <p className="text-muted-foreground text-xs">
+                {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+              </p>
+              {link && (
+                <span className="text-primary text-xs flex items-center gap-0.5 font-display tracking-wide">
+                  VIEW <ChevronRight className="w-3 h-3" />
+                </span>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
             {!notification.read && (

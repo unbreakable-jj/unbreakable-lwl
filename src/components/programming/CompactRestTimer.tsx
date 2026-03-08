@@ -37,8 +37,16 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
   const [initialTime, setInitialTime] = useState(defaultTime);
   const [beepEnabled, setBeepEnabled] = useState(true);
   const [vibrateEnabled, setVibrateEnabled] = useState(true);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
+
+  // Reset timer when exercise type changes
+  useEffect(() => {
+    const newDefault = REST_PRESETS[exerciseType] || 120;
+    setInitialTime(newDefault);
+    setTimeLeft(newDefault);
+    setIsRunning(false);
+  }, [exerciseType]);
 
   // Play a proper beep tone using Web Audio API
   const playBeepSound = useCallback(() => {
@@ -81,35 +89,40 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
     };
   }, []);
 
-  // Timer logic
+  // Timer logic - use a single stable interval
   useEffect(() => {
-    if (isRunning && timeLeft > 0) {
-      intervalRef.current = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            setIsRunning(false);
-            // Play beep sequence if enabled
-            if (beepEnabled) {
-              playBeepSequence();
-            }
-            // Vibrate if enabled
-            if (vibrateEnabled && 'vibrate' in navigator) {
-              navigator.vibrate([200, 100, 200, 100, 200]);
-            }
-            onComplete?.();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } else if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+    if (!isRunning) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      return;
     }
-    
+
+    intervalRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          setIsRunning(false);
+          if (beepEnabled) {
+            playBeepSequence();
+          }
+          if (vibrateEnabled && 'vibrate' in navigator) {
+            navigator.vibrate([200, 100, 200, 100, 200]);
+          }
+          onComplete?.();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
-  }, [isRunning, timeLeft, onComplete, beepEnabled, vibrateEnabled, playBeepSequence]);
+  }, [isRunning, beepEnabled, vibrateEnabled, playBeepSequence, onComplete]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

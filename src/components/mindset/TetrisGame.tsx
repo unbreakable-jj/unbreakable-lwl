@@ -721,7 +721,7 @@ const TetrisGame = () => {
               className="absolute inset-0 flex flex-col items-center justify-center rounded-lg"
               style={{ background: "rgba(0,0,0,0.85)" }}
             >
-              <p className="font-display text-4xl sm:text-5xl text-primary tracking-wide neon-glow-subtle mb-2">TETRIS</p>
+              <p className="font-display text-4xl sm:text-5xl text-primary tracking-wide neon-glow-subtle mb-2">LIMITLESS</p>
               <p className="font-display text-lg text-foreground tracking-wide mb-1">UNBREAKABLE</p>
               <p className="font-display text-xs text-muted-foreground tracking-wide mb-6">EDITION</p>
               <Button onClick={startGame} size="lg" className="font-display text-lg tracking-wide gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6">

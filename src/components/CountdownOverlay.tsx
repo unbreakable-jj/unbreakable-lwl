@@ -41,74 +41,49 @@ export function CountdownOverlay({
     }
   }, [isActive, phase, onStartGps]);
 
-  // Welcome phase - 1 second
-  useEffect(() => {
-    if (!isActive || phase !== "welcome") return;
-    const timer = setTimeout(() => {
-      setPhase("getready");
-      onPlayAudio?.("Get ready");
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [isActive, phase, onPlayAudio]);
+  // Phase durations in ms
+  const PHASE_DURATION: Record<CountdownPhase, number> = {
+    welcome: 800,
+    getready: 800,
+    power: 600,
+    movement: 600,
+    fuel: 600,
+    mindset: 600,
+    go: 2000,
+  };
 
-  // Get Ready phase - 1 second
-  useEffect(() => {
-    if (!isActive || phase !== "getready") return;
-    const timer = setTimeout(() => {
-      setPhase("power");
-      onPlayAudio?.("Power");
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [isActive, phase, onPlayAudio]);
+  const PHASE_ORDER: CountdownPhase[] = ["welcome", "getready", "power", "movement", "fuel", "mindset", "go"];
+  const PHASE_AUDIO: Record<CountdownPhase, string | null> = {
+    welcome: null,
+    getready: "Get ready",
+    power: "Power",
+    movement: "Movement",
+    fuel: "Fuel",
+    mindset: "Mindset",
+    go: "Go!",
+  };
 
-  // POWER phase - 1 second
   useEffect(() => {
-    if (!isActive || phase !== "power") return;
-    const timer = setTimeout(() => {
-      setPhase("movement");
-      onPlayAudio?.("Movement");
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [isActive, phase, onPlayAudio]);
+    if (!isActive) return;
+    const currentIndex = PHASE_ORDER.indexOf(phase);
+    if (currentIndex < 0) return;
 
-  // MOVEMENT phase - 1 second
-  useEffect(() => {
-    if (!isActive || phase !== "movement") return;
-    const timer = setTimeout(() => {
-      setPhase("fuel");
-      onPlayAudio?.("Fuel");
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [isActive, phase, onPlayAudio]);
+    // Play audio for current phase
+    const audio = PHASE_AUDIO[phase];
+    if (audio) onPlayAudio?.(audio);
 
-  // FUEL phase - 1 second
-  useEffect(() => {
-    if (!isActive || phase !== "fuel") return;
+    const duration = PHASE_DURATION[phase];
     const timer = setTimeout(() => {
-      setPhase("mindset");
-      onPlayAudio?.("Mindset");
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [isActive, phase, onPlayAudio]);
+      const nextIndex = currentIndex + 1;
+      if (nextIndex < PHASE_ORDER.length) {
+        setPhase(PHASE_ORDER[nextIndex]);
+      } else {
+        onComplete();
+      }
+    }, duration);
 
-  // MINDSET phase - 1 second
-  useEffect(() => {
-    if (!isActive || phase !== "mindset") return;
-    const timer = setTimeout(() => {
-      setPhase("go");
-      onPlayAudio?.("Go!");
-    }, 1000);
     return () => clearTimeout(timer);
-  }, [isActive, phase, onPlayAudio]);
-
-  // Go phase - 2 seconds
-  useEffect(() => {
-    if (!isActive || phase !== "go") return;
-    const timer = setTimeout(() => {
-      onComplete();
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [isActive, phase, onComplete]);
+  }, [isActive, phase, onComplete, onPlayAudio]);
 
   if (!isActive) return null;
 
