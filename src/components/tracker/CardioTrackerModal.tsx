@@ -355,8 +355,8 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     };
   }, []);
 
-  // Voice gender preference
-  const [voiceGender, setVoiceGender] = useState<'male' | 'female'>('male');
+  // Voice gender - female only
+  const voiceGender = 'female';
 
   // Voice prompt function using Web Speech API
   const speakUpdate = useCallback((text: string) => {
@@ -701,7 +701,6 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       <CountdownOverlay
         isActive={phase === 'countdown'}
         onComplete={() => {
-          // Stop pre-acquire watch before starting real tracking
           if (preAcquireWatchRef.current !== null) {
             navigator.geolocation.clearWatch(preAcquireWatchRef.current);
             preAcquireWatchRef.current = null;
@@ -763,16 +762,6 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                       >
                         {voiceEnabled ? '🔊 VOICE ON' : '🔇 VOICE OFF'}
                       </Button>
-                      {voiceEnabled && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setVoiceGender(g => g === 'male' ? 'female' : 'male')}
-                          className="gap-1 font-display tracking-wide text-xs"
-                        >
-                          {voiceGender === 'male' ? '♂ MALE' : '♀ FEMALE'}
-                        </Button>
-                      )}
                     </div>
                   )}
                   
@@ -1030,16 +1019,6 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                   >
                     {voiceEnabled ? '🔊 VOICE ON' : '🔇 VOICE OFF'}
                   </Button>
-                  {voiceEnabled && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setVoiceGender(g => g === 'male' ? 'female' : 'male')}
-                      className="gap-1 font-display tracking-wide text-xs"
-                    >
-                      {voiceGender === 'male' ? '♂ MALE' : '♀ FEMALE'}
-                    </Button>
-                  )}
                 </div>
 
                 {/* Control Buttons */}

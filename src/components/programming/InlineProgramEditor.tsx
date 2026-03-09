@@ -119,6 +119,7 @@ export function InlineProgramEditor({ programId, programData, onClose, onSaved }
             reps: libExercise.defaultReps,
             intensity: 'moderate',
             rest: '90s',
+            notes: `${libExercise.bodyPart} · ${libExercise.equipment.join('/')}`,
           });
         }
         return copy;

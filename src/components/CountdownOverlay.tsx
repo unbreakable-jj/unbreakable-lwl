@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
 
-type CountdownPhase = "welcome" | "getready" | "power" | "movement" | "fuel" | "mindset" | "go";
+type CountdownPhase = "ready" | "power" | "movement" | "fuel" | "mindset" | "go";
 
 interface CountdownOverlayProps {
   isActive: boolean;
@@ -22,55 +22,40 @@ export function CountdownOverlay({
   onPlayAudio,
   onStartGps,
 }: CountdownOverlayProps) {
-  const [phase, setPhase] = useState<CountdownPhase>("welcome");
+  const [phase, setPhase] = useState<CountdownPhase>("ready");
   const gpsStartedRef = useRef(false);
 
-  // Reset state when becoming active
   useEffect(() => {
     if (isActive) {
-      setPhase("welcome");
+      setPhase("ready");
       gpsStartedRef.current = false;
     }
   }, [isActive]);
 
-  // Start GPS acquisition early during the countdown
+  // Start GPS during ready phase
   useEffect(() => {
-    if (isActive && phase === "getready" && !gpsStartedRef.current && onStartGps) {
+    if (isActive && phase === "ready" && !gpsStartedRef.current && onStartGps) {
       gpsStartedRef.current = true;
       onStartGps();
     }
   }, [isActive, phase, onStartGps]);
 
-  // Phase durations in ms
+  // Phase durations — no voice overlay during countdown
   const PHASE_DURATION: Record<CountdownPhase, number> = {
-    welcome: 800,
-    getready: 800,
-    power: 600,
-    movement: 600,
-    fuel: 600,
-    mindset: 600,
+    ready: 1000,
+    power: 1000,
+    movement: 1000,
+    fuel: 1000,
+    mindset: 1000,
     go: 2000,
   };
 
-  const PHASE_ORDER: CountdownPhase[] = ["welcome", "getready", "power", "movement", "fuel", "mindset", "go"];
-  const PHASE_AUDIO: Record<CountdownPhase, string | null> = {
-    welcome: null,
-    getready: "Get ready",
-    power: "Power",
-    movement: "Movement",
-    fuel: "Fuel",
-    mindset: "Mindset",
-    go: "Go!",
-  };
+  const PHASE_ORDER: CountdownPhase[] = ["ready", "power", "movement", "fuel", "mindset", "go"];
 
   useEffect(() => {
     if (!isActive) return;
     const currentIndex = PHASE_ORDER.indexOf(phase);
     if (currentIndex < 0) return;
-
-    // Play audio for current phase
-    const audio = PHASE_AUDIO[phase];
-    if (audio) onPlayAudio?.(audio);
 
     const duration = PHASE_DURATION[phase];
     const timer = setTimeout(() => {
@@ -83,7 +68,7 @@ export function CountdownOverlay({
     }, duration);
 
     return () => clearTimeout(timer);
-  }, [isActive, phase, onComplete, onPlayAudio]);
+  }, [isActive, phase, onComplete]);
 
   if (!isActive) return null;
 
@@ -95,7 +80,6 @@ export function CountdownOverlay({
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 bg-background flex flex-col items-center justify-center overflow-hidden"
       >
-        {/* Subtle background glow */}
         <div 
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -103,55 +87,33 @@ export function CountdownOverlay({
           }}
         />
 
-        {/* Welcome Phase */}
-        {phase === "welcome" && (
+        {phase === "ready" && (
           <motion.div
-            key="welcome"
-            initial={{ opacity: 0, scale: 0.9 }}
+            key="ready"
+            initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.1 }}
             transition={{ duration: 0.4 }}
-            className="relative z-10 flex flex-col items-center text-center px-6"
+            className="relative z-10 flex flex-col items-center gap-6"
           >
             <motion.img 
               src={logo} 
               alt="Unbreakable" 
-              className="h-28 md:h-36 mb-8"
+              className="h-20 md:h-28"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.1 }}
             />
-            {exerciseName && (
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="font-display text-4xl md:text-5xl text-primary tracking-wide neon-glow-subtle"
-              >
-                {exerciseName}
-              </motion.h1>
-            )}
-          </motion.div>
-        )}
-
-        {/* Get Ready Phase */}
-        {phase === "getready" && (
-          <motion.div
-            key="getready"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.1 }}
-            transition={{ duration: 0.5 }}
-            className="relative z-10 flex flex-col items-center"
-          >
             <span 
               className="font-display text-[5rem] md:text-[8rem] leading-none text-foreground tracking-widest"
-              style={{
-                textShadow: "0 0 40px hsl(var(--primary) / 0.5)",
-              }}
+              style={{ textShadow: "0 0 40px hsl(var(--primary) / 0.5)" }}
             >
-              GET READY
+              READY
             </span>
+            {exerciseName && (
+              <span className="font-display text-xl text-primary tracking-wide neon-glow-subtle">
+                {exerciseName}
+              </span>
+            )}
           </motion.div>
         )}
 
@@ -160,10 +122,6 @@ export function CountdownOverlay({
         {phase === "fuel" && <PowerWord word="FUEL" />}
         {phase === "mindset" && <PowerWord word="MINDSET" />}
 
-
-
-
-        {/* Go Phase */}
         {phase === "go" && (
           <motion.div
             key="go"
