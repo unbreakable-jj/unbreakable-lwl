@@ -584,16 +584,39 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
                                               />
                                             </div>
                                           </div>
-                                          <div>
-                                            <label className="text-[10px] text-primary font-display tracking-wider">NOTES</label>
-                                            <Input
-                                              value={exercise.notes || ''}
-                                              onChange={(e) => handleUpdateExercise(day.name, exercise.id, {
-                                                notes: e.target.value,
-                                              })}
-                                              className="h-8 border-primary/20"
-                                              placeholder="Optional notes..."
-                                            />
+                                          <div className="grid grid-cols-3 gap-2">
+                                            <div>
+                                              <label className="text-[10px] text-primary font-display tracking-wider">GROUP</label>
+                                              <Select
+                                                value={exercise.supersetGroupId || 'none'}
+                                                onValueChange={(v) => handleUpdateExercise(day.name, exercise.id, {
+                                                  supersetGroupId: v === 'none' ? undefined : v,
+                                                })}
+                                              >
+                                                <SelectTrigger className="h-8 text-xs border-primary/20">
+                                                  <SelectValue placeholder="None" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                  <SelectItem value="none" className="text-xs">None</SelectItem>
+                                                  <SelectItem value="SUPERSET A" className="text-xs">Superset A</SelectItem>
+                                                  <SelectItem value="SUPERSET B" className="text-xs">Superset B</SelectItem>
+                                                  <SelectItem value="SUPERSET C" className="text-xs">Superset C</SelectItem>
+                                                  <SelectItem value="SUPERSET D" className="text-xs">Superset D</SelectItem>
+                                                  <SelectItem value="CIRCUIT" className="text-xs">Circuit</SelectItem>
+                                                </SelectContent>
+                                              </Select>
+                                            </div>
+                                            <div className="col-span-2">
+                                              <label className="text-[10px] text-primary font-display tracking-wider">NOTES</label>
+                                              <Input
+                                                value={exercise.notes || ''}
+                                                onChange={(e) => handleUpdateExercise(day.name, exercise.id, {
+                                                  notes: e.target.value,
+                                                })}
+                                                className="h-8 border-primary/20"
+                                                placeholder="Optional notes..."
+                                              />
+                                            </div>
                                           </div>
                                           <Link
                                             to={`/help?q=${encodeURIComponent(exercise.name + ' form tips')}`}
