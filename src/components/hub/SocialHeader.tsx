@@ -5,14 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { NavigationDrawer } from '@/components/NavigationDrawer';
 import { ThemeToggle } from '@/components/hub/ThemeToggle';
-import { NotificationsPanel } from '@/components/hub/NotificationsPanel';
 
-import { useNotifications } from '@/hooks/useNotifications';
 import { useConversations } from '@/hooks/useConversations';
 import { useFriends } from '@/hooks/useFriends';
 import {
   Home,
-  Bell,
   MessageCircle,
   UserPlus,
   Users,
@@ -37,11 +34,9 @@ export function SocialHeader({
   onShowFriendsList,
   onShowActionMenu,
 }: SocialHeaderProps) {
-  const { unreadCount: notificationCount } = useNotifications();
   const { unreadCount: messageCount } = useConversations();
   const { pendingRequests } = useFriends();
   const navigate = useNavigate();
-  const [showNotifications, setShowNotifications] = useState(false);
 
   const incomingRequestCount = pendingRequests.filter(r => r.type === 'received').length;
 
@@ -82,22 +77,10 @@ export function SocialHeader({
               }`}
             >
               <MessageCircle className="w-4 h-4" />
-              MESSAGES
+              INBOX
               {messageCount > 0 && (
                 <Badge className="absolute -top-1 -right-1 h-5 min-w-5 p-0 flex items-center justify-center text-xs bg-destructive">
                   {messageCount > 99 ? '99+' : messageCount}
-                </Badge>
-              )}
-            </button>
-            <button
-              onClick={() => setShowNotifications(true)}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-md font-display text-sm tracking-wide transition-all border text-muted-foreground border-primary/20 hover:text-primary hover:bg-primary/10 hover:border-primary/40`}
-            >
-              <Bell className="w-4 h-4" />
-              ALERTS
-              {notificationCount > 0 && (
-                <Badge className="absolute -top-1 -right-1 h-5 min-w-5 p-0 flex items-center justify-center text-xs bg-destructive">
-                  {notificationCount > 99 ? '99+' : notificationCount}
                 </Badge>
               )}
             </button>
@@ -119,19 +102,6 @@ export function SocialHeader({
                 {messageCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] bg-destructive">
                     {messageCount > 9 ? '9+' : messageCount}
-                  </Badge>
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="relative"
-                onClick={() => setShowNotifications(true)}
-              >
-                <Bell className="w-5 h-5 text-primary" />
-                {notificationCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] bg-destructive">
-                    {notificationCount > 9 ? '9+' : notificationCount}
                   </Badge>
                 )}
               </Button>
@@ -164,14 +134,6 @@ export function SocialHeader({
             <Button variant="ghost" size="sm" onClick={onShowFriendsList} className="hidden sm:flex">
               <Users className="w-5 h-5 text-primary" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => setShowNotifications(true)} className="hidden sm:flex relative">
-              <Bell className="w-5 h-5 text-primary" />
-              {notificationCount > 0 && (
-                <Badge className="absolute -top-1 -right-1 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] bg-destructive">
-                  {notificationCount > 9 ? '9+' : notificationCount}
-                </Badge>
-              )}
-            </Button>
             <Link to="/inbox" className="hidden sm:block">
               <Button variant="ghost" size="sm" className="relative">
                 <MessageCircle className="w-5 h-5 text-primary" />
@@ -195,12 +157,6 @@ export function SocialHeader({
           </div>
         </div>
       </div>
-
-      {/* Notifications Panel */}
-      <NotificationsPanel 
-        isOpen={showNotifications} 
-        onClose={() => setShowNotifications(false)} 
-      />
     </header>
   );
 }

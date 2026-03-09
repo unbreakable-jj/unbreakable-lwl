@@ -2,7 +2,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Volume2, VolumeX } from 'lucide-react';
 import { useAIPreferences } from '@/hooks/useAIPreferences';
 
@@ -23,10 +22,6 @@ export function VoiceSettingsSheet({ children }: VoiceSettingsSheetProps) {
 
   const handleVoiceToggle = (enabled: boolean) => {
     updatePreferences.mutate({ voice_feedback_enabled: enabled });
-  };
-
-  const handleVoiceGenderChange = (gender: 'male' | 'female') => {
-    updatePreferences.mutate({ voice_gender: gender });
   };
 
   return (
@@ -66,30 +61,10 @@ export function VoiceSettingsSheet({ children }: VoiceSettingsSheetProps) {
             />
           </div>
 
-          {/* Voice Gender Selection */}
           {preferences.voice_feedback_enabled && (
-            <div className="space-y-3">
-              <Label className="text-foreground font-medium">Voice Type</Label>
-              <RadioGroup
-                value={preferences.voice_gender}
-                onValueChange={(value) => handleVoiceGenderChange(value as 'male' | 'female')}
-                className="space-y-2"
-              >
-                <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30 border border-border">
-                  <RadioGroupItem value="female" id="female" />
-                  <Label htmlFor="female" className="flex-1 cursor-pointer">
-                    <span className="font-medium">Female Voice</span>
-                    <p className="text-xs text-muted-foreground">Clear and encouraging tone</p>
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30 border border-border">
-                  <RadioGroupItem value="male" id="male" />
-                  <Label htmlFor="male" className="flex-1 cursor-pointer">
-                    <span className="font-medium">Male Voice</span>
-                    <p className="text-xs text-muted-foreground">Strong and motivating tone</p>
-                  </Label>
-                </div>
-              </RadioGroup>
+            <div className="p-3 rounded-lg bg-muted/30 border border-border">
+              <p className="text-sm font-medium text-foreground">Female Voice</p>
+              <p className="text-xs text-muted-foreground">Clear and encouraging tone</p>
             </div>
           )}
 
