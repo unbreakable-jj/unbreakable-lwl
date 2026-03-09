@@ -701,7 +701,6 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       <CountdownOverlay
         isActive={phase === 'countdown'}
         onComplete={() => {
-          // Stop pre-acquire watch before starting real tracking
           if (preAcquireWatchRef.current !== null) {
             navigator.geolocation.clearWatch(preAcquireWatchRef.current);
             preAcquireWatchRef.current = null;
