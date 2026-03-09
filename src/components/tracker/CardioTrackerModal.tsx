@@ -1020,16 +1020,6 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                   >
                     {voiceEnabled ? '🔊 VOICE ON' : '🔇 VOICE OFF'}
                   </Button>
-                  {voiceEnabled && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setVoiceGender(g => g === 'male' ? 'female' : 'male')}
-                      className="gap-1 font-display tracking-wide text-xs"
-                    >
-                      {voiceGender === 'male' ? '♂ MALE' : '♀ FEMALE'}
-                    </Button>
-                  )}
                 </div>
 
                 {/* Control Buttons */}
