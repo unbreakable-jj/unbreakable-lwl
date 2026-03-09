@@ -104,6 +104,7 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
       equipment: exercise.equipment[0],
       sets: exercise.defaultSets,
       reps: exercise.defaultReps,
+      notes: `${exercise.bodyPart} · ${exercise.equipment.join('/')}`,
     };
 
     setDays(prev => prev.map(day => 
