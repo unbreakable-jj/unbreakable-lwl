@@ -13,6 +13,7 @@ import {
   TableRow 
 } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Link2 } from 'lucide-react';
 import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -41,6 +42,7 @@ interface ManualExercise {
   duration?: number;
   notes?: string;
   equipment: string;
+  group?: string;
 }
 
 const EQUIPMENT_OPTIONS = [
@@ -110,6 +112,7 @@ export function ManualWorkoutBuilder() {
     duration: '',
     notes: '',
     equipment: 'barbell',
+    group: '',
   });
 
   // Live coaching data lookup as user types exercise name
@@ -148,6 +151,7 @@ export function ManualWorkoutBuilder() {
       duration: newExercise.duration ? parseInt(newExercise.duration) : undefined,
       notes: newExercise.notes || undefined,
       equipment: newExercise.equipment,
+      group: newExercise.group || undefined,
     };
 
     setExercises([...exercises, exercise]);
@@ -159,6 +163,7 @@ export function ManualWorkoutBuilder() {
       duration: '',
       notes: '',
       equipment: 'barbell',
+      group: '',
     });
   };
 
@@ -375,6 +380,29 @@ export function ManualWorkoutBuilder() {
               />
             </div>
 
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block flex items-center gap-1">
+                <Link2 className="w-3 h-3" />
+                Group (optional)
+              </label>
+              <Select
+                value={newExercise.group || 'none'}
+                onValueChange={(v) => setNewExercise({ ...newExercise, group: v === 'none' ? '' : v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="None" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="Superset A">Superset A</SelectItem>
+                  <SelectItem value="Superset B">Superset B</SelectItem>
+                  <SelectItem value="Superset C">Superset C</SelectItem>
+                  <SelectItem value="Superset D">Superset D</SelectItem>
+                  <SelectItem value="Circuit">Circuit</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="md:col-span-2">
               <label className="text-xs text-muted-foreground mb-1 block">Notes (optional)</label>
               <Textarea
@@ -441,6 +469,11 @@ export function ManualWorkoutBuilder() {
                             <span>{exercise.reps} reps</span>
                             {exercise.weight && <span>{exercise.weight}kg</span>}
                             {exercise.duration && <span>{exercise.duration}min</span>}
+                            {exercise.group && (
+                              <Badge variant="outline" className="text-[9px] bg-primary/10 text-primary border-primary/30">
+                                {exercise.group}
+                              </Badge>
+                            )}
                           </div>
                           {exercise.notes && (
                             <p className="text-xs text-muted-foreground mt-1">{exercise.notes}</p>

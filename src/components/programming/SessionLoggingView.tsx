@@ -104,7 +104,7 @@ export function SessionLoggingView({
     groupedExercises[0]?.[0] || null
   );
   const [showTipsFor, setShowTipsFor] = useState<string | null>(null);
-  const [showTimer, setShowTimer] = useState(false);
+  const [showTimer, setShowTimer] = useState(true); // Always visible so user can manually start
   const [timerExerciseType, setTimerExerciseType] = useState<string>('strength');
   
   // Local input state to prevent re-renders during typing
@@ -173,7 +173,6 @@ export function SessionLoggingView({
       // Pass exercise type based on equipment for rest timer presets
       const exerciseType = ['barbell', 'dumbbell'].includes(log.equipment) ? 'strength' : 'bodyweight';
       setTimerExerciseType(exerciseType);
-      setShowTimer(true);
       onStartRest(exerciseType);
     }
   }, [localInputs, onUpdateLog, onStartRest]);
@@ -455,14 +454,13 @@ export function SessionLoggingView({
         </div>
       </ScrollArea>
 
-      {/* Fixed Compact Rest Timer at Bottom */}
-      {showTimer && (
+      {/* Fixed Compact Rest Timer - Always visible for manual use */}
+      <div className="sticky bottom-0 left-0 right-0 z-10">
         <CompactRestTimer
           exerciseType={timerExerciseType as 'strength' | 'hypertrophy'}
-          onComplete={() => setShowTimer(false)}
-          onDismiss={() => setShowTimer(false)}
+          onComplete={() => {}}
         />
-      )}
+      </div>
     </FullScreenToolView>
   );
 }
