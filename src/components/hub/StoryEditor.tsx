@@ -445,9 +445,9 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
         </div>
       )}
 
-      {/* Selected overlay quick actions */}
+      {/* Selected overlay quick actions - moves up when colour picker is open */}
       {selectedOverlay && !editingTextId && (
-        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-full px-2 py-1 animate-in fade-in duration-150">
+        <div className={`absolute left-1/2 -translate-x-1/2 z-31 flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-full px-2 py-1 animate-in fade-in duration-150 ${showColorPicker ? 'bottom-36' : 'bottom-24'}`}>
           {(['left', 'center', 'right'] as const).map(align => (
             <button
               key={align}
