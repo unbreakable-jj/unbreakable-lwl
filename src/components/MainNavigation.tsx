@@ -171,7 +171,7 @@ export function MainNavigation() {
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
                     <Link to="/university" className={navLinkClass(isActive('/university'))}>
-                      UNIVERSITY
+                      UNBREAKABLE UNIVERSITY
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>

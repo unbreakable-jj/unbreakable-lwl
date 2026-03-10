@@ -184,7 +184,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
               {/* UNIVERSITY */}
               <Link to="/university" onClick={handleNavClick} className={linkClass('/university')}>
                 <GraduationCap className={`w-5 h-5 ${isActive('/university') ? '' : 'text-primary'}`} />
-                UNIVERSITY
+                UNBREAKABLE UNIVERSITY
               </Link>
             </nav>
 
