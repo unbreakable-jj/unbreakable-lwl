@@ -1,10 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import { useStories, Story } from '@/hooks/useStories';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
-import { Plus, X, ChevronLeft, ChevronRight, Trash2, MoreVertical, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { Plus, X, Trash2, MoreVertical, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
@@ -20,7 +19,7 @@ import {
 export function StoriesSection() {
   const { user } = useAuth();
   const { profile } = useProfile();
-  const { groupedStories, createStory, deleteStory, loading, refetch } = useStories();
+  const { groupedStories, createStory, deleteStory, loading } = useStories();
   const [showCreate, setShowCreate] = useState(false);
   const [showViewer, setShowViewer] = useState(false);
   const [activeUserIndex, setActiveUserIndex] = useState(0);
@@ -28,16 +27,37 @@ export function StoriesSection() {
   const [deleting, setDeleting] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
   const storyVideoRef = useRef<HTMLVideoElement>(null);
+  const progressTimerRef = useRef<number | null>(null);
+  const [progress, setProgress] = useState(0);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
-  // Auto-progress for story viewer (only for image/text stories)
+  const STORY_DURATION = 5000;
+
+  // Progress bar timer
   useEffect(() => {
-    if (!showViewer) return;
+    if (!showViewer || isPaused) return;
     const currentStory = groupedStories[activeUserIndex]?.stories[activeStoryIndex];
-    if (currentStory?.video_url) return;
-    const timer = setTimeout(() => { nextStory(); }, 5000);
-    return () => clearTimeout(timer);
-  }, [showViewer, activeUserIndex, activeStoryIndex]);
+    if (currentStory?.video_url) return; // video controls its own progress
+
+    setProgress(0);
+    const startTime = Date.now();
+    const tick = () => {
+      const elapsed = Date.now() - startTime;
+      const pct = Math.min(1, elapsed / STORY_DURATION);
+      setProgress(pct);
+      if (pct >= 1) {
+        nextStory();
+      } else {
+        progressTimerRef.current = requestAnimationFrame(tick);
+      }
+    };
+    progressTimerRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (progressTimerRef.current) cancelAnimationFrame(progressTimerRef.current);
+    };
+  }, [showViewer, activeUserIndex, activeStoryIndex, isPaused]);
 
   const handlePublishStory = async (data: {
     content: string | null;
@@ -92,27 +112,77 @@ export function StoriesSection() {
     setActiveUserIndex(userIndex);
     setActiveStoryIndex(0);
     setShowViewer(true);
+    setIsPaused(false);
+    setProgress(0);
   };
 
-  const nextStory = () => {
+  const nextStory = useCallback(() => {
     const currentUserStories = groupedStories[activeUserIndex]?.stories || [];
     if (activeStoryIndex < currentUserStories.length - 1) {
-      setActiveStoryIndex((prev) => prev + 1);
+      setActiveStoryIndex(prev => prev + 1);
+      setProgress(0);
     } else if (activeUserIndex < groupedStories.length - 1) {
-      setActiveUserIndex((prev) => prev + 1);
+      setActiveUserIndex(prev => prev + 1);
       setActiveStoryIndex(0);
+      setProgress(0);
     } else {
       setShowViewer(false);
     }
-  };
+  }, [activeUserIndex, activeStoryIndex, groupedStories]);
 
-  const prevStory = () => {
+  const prevStory = useCallback(() => {
     if (activeStoryIndex > 0) {
-      setActiveStoryIndex((prev) => prev - 1);
+      setActiveStoryIndex(prev => prev - 1);
+      setProgress(0);
     } else if (activeUserIndex > 0) {
-      setActiveUserIndex((prev) => prev - 1);
+      setActiveUserIndex(prev => prev - 1);
       const prevUserStories = groupedStories[activeUserIndex - 1]?.stories || [];
       setActiveStoryIndex(prevUserStories.length - 1);
+      setProgress(0);
+    }
+  }, [activeUserIndex, activeStoryIndex, groupedStories]);
+
+  // Tap left/right for navigation, swipe down to close
+  const handleViewerTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    setIsPaused(true);
+  };
+
+  const handleViewerTouchEnd = (e: React.TouchEvent) => {
+    setIsPaused(false);
+    if (!touchStartRef.current) return;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    const dx = endX - touchStartRef.current.x;
+    const dy = endY - touchStartRef.current.y;
+    touchStartRef.current = null;
+
+    // Swipe down to close
+    if (dy > 80 && Math.abs(dx) < 50) {
+      setShowViewer(false);
+      return;
+    }
+
+    // Tap - determine left/right half
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+      const screenWidth = window.innerWidth;
+      if (endX < screenWidth / 3) {
+        prevStory();
+      } else {
+        nextStory();
+      }
+    }
+  };
+
+  // Desktop click left/right
+  const handleViewerClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-story-controls]')) return;
+    const screenWidth = window.innerWidth;
+    if (e.clientX < screenWidth / 3) {
+      prevStory();
+    } else {
+      nextStory();
     }
   };
 
@@ -125,7 +195,6 @@ export function StoriesSection() {
   const currentStory = currentUserGroup?.stories[activeStoryIndex];
   const isOwnStory = currentStory?.user_id === user?.id;
 
-  // Parse text overlays from story data
   const getStoryOverlays = (story: Story): TextOverlayData[] => {
     try {
       const overlays = (story as any).text_overlays;
@@ -140,26 +209,28 @@ export function StoriesSection() {
 
   return (
     <>
-      {/* Stories Row */}
+      {/* Stories Row - Circular avatars */}
       <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
         {user && (
           <button
             onClick={(e) => { e.stopPropagation(); setShowCreate(true); }}
-            className="flex flex-col items-center gap-2 flex-shrink-0 group"
+            className="flex flex-col items-center gap-1.5 flex-shrink-0 group"
           >
             <div className="relative">
-              <Avatar className="h-16 w-16 border-2 border-dashed border-primary/50 group-hover:border-primary transition-colors">
-                <AvatarImage src={profile?.avatar_url || undefined} />
-                <AvatarFallback className="bg-primary/10 text-primary font-display">
-                  {getInitials(profile?.display_name)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center neon-border-subtle">
-                <Plus className="w-4 h-4 text-primary-foreground" />
+              <div className="w-16 h-16 rounded-full border-2 border-dashed border-primary/40 group-hover:border-primary transition-colors overflow-hidden">
+                <Avatar className="w-full h-full">
+                  <AvatarImage src={profile?.avatar_url || undefined} />
+                  <AvatarFallback className="bg-primary/10 text-primary font-display text-sm">
+                    {getInitials(profile?.display_name)}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-lg">
+                <Plus className="w-3 h-3 text-primary-foreground" />
               </div>
             </div>
-            <span className="text-xs text-muted-foreground font-display tracking-wide group-hover:text-primary transition-colors">
-              ADD STORY
+            <span className="text-[10px] text-muted-foreground font-display tracking-wide">
+              YOUR STORY
             </span>
           </button>
         )}
@@ -168,17 +239,19 @@ export function StoriesSection() {
           <button
             key={group.userId}
             onClick={() => openViewer(index)}
-            className="flex flex-col items-center gap-2 flex-shrink-0 group"
+            className="flex flex-col items-center gap-1.5 flex-shrink-0 group"
           >
-            <div className="p-0.5 rounded-full bg-gradient-to-br from-primary to-primary-glow neon-border-subtle">
-              <Avatar className="h-16 w-16 border-2 border-background">
-                <AvatarImage src={group.profile?.avatar_url || undefined} />
-                <AvatarFallback className="bg-card text-foreground font-display">
-                  {getInitials(group.profile?.display_name)}
-                </AvatarFallback>
-              </Avatar>
+            <div className="p-[2px] rounded-full bg-gradient-to-br from-primary via-orange-400 to-pink-500">
+              <div className="w-[60px] h-[60px] rounded-full border-2 border-background overflow-hidden">
+                <Avatar className="w-full h-full">
+                  <AvatarImage src={group.profile?.avatar_url || undefined} />
+                  <AvatarFallback className="bg-card text-foreground font-display text-sm">
+                    {getInitials(group.profile?.display_name)}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
             </div>
-            <span className="text-xs text-muted-foreground truncate max-w-16 group-hover:text-foreground transition-colors">
+            <span className="text-[10px] text-muted-foreground truncate max-w-16">
               {group.userId === user?.id ? 'My Story' : (group.profile?.display_name?.split(' ')[0] || 'User')}
             </span>
           </button>
@@ -186,12 +259,12 @@ export function StoriesSection() {
 
         {loading && (
           <div className="flex items-center justify-center w-16 h-16">
-            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         )}
       </div>
 
-      {/* Story Editor (fullscreen) */}
+      {/* Story Editor */}
       {showCreate && (
         <StoryEditor
           onPublish={handlePublishStory}
@@ -199,28 +272,29 @@ export function StoriesSection() {
         />
       )}
 
-      {/* Story Viewer */}
+      {/* Full-screen Story Viewer - Instagram style */}
       <AnimatePresence>
         {showViewer && currentStory && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black flex items-center justify-center"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 60 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 bg-black"
+            onClick={handleViewerClick}
+            onTouchStart={handleViewerTouchStart}
+            onTouchEnd={handleViewerTouchEnd}
           >
-            {/* Progress bars */}
-            <div className="absolute top-4 left-4 right-4 flex gap-1 z-20">
-              {currentUserGroup.stories.map((story, idx) => (
-                <div key={idx} className="flex-1 h-1 rounded-full bg-white/30 overflow-hidden">
-                  <motion.div
-                    className="h-full bg-white"
-                    initial={{ width: idx < activeStoryIndex ? '100%' : '0%' }}
-                    animate={{
-                      width: idx < activeStoryIndex ? '100%' : idx === activeStoryIndex ? '100%' : '0%'
-                    }}
-                    transition={{
-                      duration: idx === activeStoryIndex && !story.video_url ? 5 : 0,
-                      ease: 'linear'
+            {/* Progress bars at top */}
+            <div className="absolute top-[env(safe-area-inset-top,8px)] left-2 right-2 flex gap-1 z-20 pt-2">
+              {currentUserGroup.stories.map((_, idx) => (
+                <div key={idx} className="flex-1 h-[2px] rounded-full bg-white/25 overflow-hidden">
+                  <div
+                    className="h-full bg-white rounded-full transition-none"
+                    style={{
+                      width: idx < activeStoryIndex ? '100%' : idx === activeStoryIndex
+                        ? (currentStory.video_url ? '0%' : `${progress * 100}%`)
+                        : '0%',
                     }}
                   />
                 </div>
@@ -228,31 +302,36 @@ export function StoriesSection() {
             </div>
 
             {/* Header */}
-            <div className="absolute top-8 left-4 right-4 flex items-center justify-between z-20">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10 border border-white/30">
-                  <AvatarImage src={currentUserGroup.profile?.avatar_url || undefined} />
-                  <AvatarFallback className="bg-white/10 text-white">
-                    {getInitials(currentUserGroup.profile?.display_name)}
-                  </AvatarFallback>
-                </Avatar>
+            <div
+              data-story-controls
+              className="absolute top-[calc(env(safe-area-inset-top,8px)+16px)] left-3 right-3 flex items-center justify-between z-20"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full overflow-hidden">
+                  <Avatar className="w-full h-full">
+                    <AvatarImage src={currentUserGroup.profile?.avatar_url || undefined} />
+                    <AvatarFallback className="bg-white/10 text-white text-xs">
+                      {getInitials(currentUserGroup.profile?.display_name)}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
                 <div>
-                  <p className="text-white font-medium">
+                  <p className="text-white text-sm font-medium leading-none">
                     {currentUserGroup.profile?.display_name || 'User'}
                   </p>
-                  <p className="text-white/60 text-xs">
+                  <p className="text-white/50 text-[10px]">
                     {formatDistanceToNow(new Date(currentStory.created_at), { addSuffix: true })}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1" data-story-controls>
                 {isOwnStory && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-                        <MoreVertical className="w-5 h-5" />
-                      </Button>
+                      <button className="w-8 h-8 rounded-full flex items-center justify-center text-white hover:bg-white/10">
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="bg-card border-border">
                       <DropdownMenuItem
@@ -261,25 +340,29 @@ export function StoriesSection() {
                         disabled={deleting}
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
-                        {deleting ? 'Deleting...' : 'Delete Story'}
+                        {deleting ? 'Deleting...' : 'Delete'}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
-                <Button variant="ghost" size="icon" className="text-white hover:bg-white/10" onClick={() => setShowViewer(false)}>
-                  <X className="w-6 h-6" />
-                </Button>
+                <button
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white hover:bg-white/10"
+                  onClick={(e) => { e.stopPropagation(); setShowViewer(false); }}
+                  data-story-controls
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
             </div>
 
-            {/* Story Content */}
+            {/* Story Content - full screen */}
             <div
-              className="w-full max-w-md mx-4 aspect-[9/16] rounded-2xl overflow-hidden relative"
+              className="absolute inset-0"
               style={{
                 backgroundColor: getStoryBgColor(currentStory) || '#1C1C1E',
               }}
             >
-              {/* Video background */}
+              {/* Video */}
               {currentStory.video_url && (
                 <div className="absolute inset-0">
                   <video
@@ -289,11 +372,11 @@ export function StoriesSection() {
                     autoPlay loop muted={isMuted} playsInline
                     onEnded={nextStory}
                   />
-                  <div className="absolute bottom-4 right-4 flex gap-2 z-10">
-                    <Button
-                      variant="secondary" size="icon"
-                      className="bg-black/50 hover:bg-black/70 text-white h-8 w-8"
-                      onClick={() => {
+                  <div className="absolute bottom-6 right-4 flex gap-2 z-10" data-story-controls>
+                    <button
+                      className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white"
+                      onClick={(e) => {
+                        e.stopPropagation();
                         if (storyVideoRef.current) {
                           if (isPlaying) storyVideoRef.current.pause();
                           else storyVideoRef.current.play();
@@ -301,25 +384,25 @@ export function StoriesSection() {
                         }
                       }}
                     >
-                      {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                    </Button>
-                    <Button
-                      variant="secondary" size="icon"
-                      className="bg-black/50 hover:bg-black/70 text-white h-8 w-8"
-                      onClick={() => {
+                      {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                    </button>
+                    <button
+                      className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white"
+                      onClick={(e) => {
+                        e.stopPropagation();
                         if (storyVideoRef.current) {
                           storyVideoRef.current.muted = !isMuted;
                           setIsMuted(!isMuted);
                         }
                       }}
                     >
-                      {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                    </Button>
+                      {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                    </button>
                   </div>
                 </div>
               )}
 
-              {/* Image background */}
+              {/* Image */}
               {currentStory.image_url && !currentStory.video_url && (
                 <img
                   src={currentStory.image_url}
@@ -333,7 +416,7 @@ export function StoriesSection() {
                 <StoryTextOverlay key={overlay.id} overlay={overlay} />
               ))}
 
-              {/* Legacy text content (for old stories without overlays) */}
+              {/* Legacy text */}
               {currentStory.content && getStoryOverlays(currentStory).length === 0 && (
                 <div className="absolute inset-0 flex items-center justify-center p-6">
                   <p className="text-white text-xl text-center font-display tracking-wide">
@@ -342,20 +425,6 @@ export function StoriesSection() {
                 </div>
               )}
             </div>
-
-            {/* Navigation */}
-            <button
-              onClick={prevStory}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition z-20"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button
-              onClick={nextStory}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition z-20"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
           </motion.div>
         )}
       </AnimatePresence>

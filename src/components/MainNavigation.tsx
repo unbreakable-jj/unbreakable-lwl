@@ -131,7 +131,7 @@ export function MainNavigation() {
                         : 'text-muted-foreground hover:text-primary'
                     )}
                   >
-                    PROGRAMMING HUB
+                    UNBREAKABLE PROGRAMMING
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[500px] gap-2 p-4 md:w-[600px] md:grid-cols-3 lg:w-[700px]">
@@ -171,7 +171,7 @@ export function MainNavigation() {
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
                     <Link to="/university" className={navLinkClass(isActive('/university'))}>
-                      UNIVERSITY
+                      UNBREAKABLE UNIVERSITY
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>

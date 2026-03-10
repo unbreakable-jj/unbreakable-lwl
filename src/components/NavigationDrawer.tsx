@@ -141,7 +141,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
                     : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
                 }`}>
                   <Sparkles className="w-5 h-5 text-primary" />
-                  <span className="flex-1">PROGRAMMING HUB</span>
+                  <span className="flex-1">UNBREAKABLE PROGRAMMING</span>
                   <ChevronDown className={`w-4 h-4 transition-transform ${(hubOpen || isHubActive) ? 'rotate-180' : ''}`} />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pl-4 space-y-1 mt-1">
@@ -184,7 +184,7 @@ export function NavigationDrawer({ variant = 'default' }: NavigationDrawerProps)
               {/* UNIVERSITY */}
               <Link to="/university" onClick={handleNavClick} className={linkClass('/university')}>
                 <GraduationCap className={`w-5 h-5 ${isActive('/university') ? '' : 'text-primary'}`} />
-                UNIVERSITY
+                UNBREAKABLE UNIVERSITY
               </Link>
             </nav>
 
