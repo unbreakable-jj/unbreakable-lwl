@@ -183,6 +183,18 @@ const Index = () => {
               <span className="text-xs font-display tracking-wide">FEED</span>
             </button>
             <button
+              onClick={() => setShowMobileNotifs(true)}
+              className="flex flex-col items-center gap-1 px-4 py-2 text-muted-foreground relative"
+            >
+              <Bell className={`w-6 h-6 ${notifCount > 0 ? 'text-primary' : 'text-muted-foreground'}`} />
+              {notifCount > 0 && (
+                <Badge className="absolute top-0 right-2 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] bg-destructive">
+                  {notifCount > 9 ? '9+' : notifCount}
+                </Badge>
+              )}
+              <span className="text-xs font-display tracking-wide">ALERTS</span>
+            </button>
+            <button
               onClick={() => setShowActionMenu(true)}
               className="flex flex-col items-center gap-1 px-4 py-2"
             >
