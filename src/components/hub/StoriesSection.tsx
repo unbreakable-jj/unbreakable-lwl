@@ -3,18 +3,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useStories, Story } from '@/hooks/useStories';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
-import { Plus, X, Trash2, MoreVertical, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { Plus, X, Trash2, Play, Pause, Volume2, VolumeX, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { StoryEditor } from './StoryEditor';
 import { StoryTextOverlay, TextOverlayData } from './StoryTextOverlay';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 export function StoriesSection() {
   const { user } = useAuth();
@@ -35,11 +29,14 @@ export function StoriesSection() {
 
   const STORY_DURATION = 5000;
 
+  // Track which stories have been viewed this session
+  const [viewedUsers, setViewedUsers] = useState<Set<string>>(new Set());
+
   // Progress bar timer
   useEffect(() => {
     if (!showViewer || isPaused) return;
     const currentStory = groupedStories[activeUserIndex]?.stories[activeStoryIndex];
-    if (currentStory?.video_url) return; // video controls its own progress
+    if (currentStory?.video_url) return;
 
     setProgress(0);
     const startTime = Date.now();
@@ -58,6 +55,13 @@ export function StoriesSection() {
       if (progressTimerRef.current) cancelAnimationFrame(progressTimerRef.current);
     };
   }, [showViewer, activeUserIndex, activeStoryIndex, isPaused]);
+
+  // Mark user stories as viewed when viewer opens/changes
+  useEffect(() => {
+    if (showViewer && groupedStories[activeUserIndex]) {
+      setViewedUsers(prev => new Set([...prev, groupedStories[activeUserIndex].userId]));
+    }
+  }, [showViewer, activeUserIndex, groupedStories]);
 
   const handlePublishStory = async (data: {
     content: string | null;
@@ -108,6 +112,21 @@ export function StoriesSection() {
     }
   };
 
+  const handleShareStory = async () => {
+    if (!currentStory) return;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Check out this story on Unbreakable',
+          url: window.location.origin,
+        });
+      } else {
+        await navigator.clipboard.writeText(window.location.origin);
+        toast.success('Link copied!');
+      }
+    } catch {}
+  };
+
   const openViewer = (userIndex: number) => {
     setActiveUserIndex(userIndex);
     setActiveStoryIndex(0);
@@ -142,7 +161,6 @@ export function StoriesSection() {
     }
   }, [activeUserIndex, activeStoryIndex, groupedStories]);
 
-  // Tap left/right for navigation, swipe down to close
   const handleViewerTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     setIsPaused(true);
@@ -157,13 +175,11 @@ export function StoriesSection() {
     const dy = endY - touchStartRef.current.y;
     touchStartRef.current = null;
 
-    // Swipe down to close
     if (dy > 80 && Math.abs(dx) < 50) {
       setShowViewer(false);
       return;
     }
 
-    // Tap - determine left/right half
     if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
       const screenWidth = window.innerWidth;
       if (endX < screenWidth / 3) {
@@ -174,7 +190,6 @@ export function StoriesSection() {
     }
   };
 
-  // Desktop click left/right
   const handleViewerClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
     if (target.closest('[data-story-controls]')) return;
@@ -194,6 +209,9 @@ export function StoriesSection() {
   const currentUserGroup = groupedStories[activeUserIndex];
   const currentStory = currentUserGroup?.stories[activeStoryIndex];
   const isOwnStory = currentStory?.user_id === user?.id;
+
+  // Check if there are any unviewed stories
+  const hasUnviewedStories = groupedStories.some(g => !viewedUsers.has(g.userId));
 
   const getStoryOverlays = (story: Story): TextOverlayData[] => {
     try {
@@ -235,27 +253,34 @@ export function StoriesSection() {
           </button>
         )}
 
-        {groupedStories.map((group, index) => (
-          <button
-            key={group.userId}
-            onClick={() => openViewer(index)}
-            className="flex flex-col items-center gap-1.5 flex-shrink-0 group"
-          >
-            <div className="p-[2px] rounded-full bg-gradient-to-br from-primary via-orange-400 to-pink-500">
-              <div className="w-[60px] h-[60px] rounded-full border-2 border-background overflow-hidden">
-                <Avatar className="w-full h-full">
-                  <AvatarImage src={group.profile?.avatar_url || undefined} />
-                  <AvatarFallback className="bg-card text-foreground font-display text-sm">
-                    {getInitials(group.profile?.display_name)}
-                  </AvatarFallback>
-                </Avatar>
+        {groupedStories.map((group, index) => {
+          const isViewed = viewedUsers.has(group.userId);
+          return (
+            <button
+              key={group.userId}
+              onClick={() => openViewer(index)}
+              className="flex flex-col items-center gap-1.5 flex-shrink-0 group"
+            >
+              <div className={`p-[2px] rounded-full ${
+                isViewed 
+                  ? 'bg-muted-foreground/30' 
+                  : 'bg-gradient-to-br from-primary via-orange-400 to-pink-500'
+              }`}>
+                <div className="w-[60px] h-[60px] rounded-full border-2 border-background overflow-hidden">
+                  <Avatar className="w-full h-full">
+                    <AvatarImage src={group.profile?.avatar_url || undefined} />
+                    <AvatarFallback className="bg-card text-foreground font-display text-sm">
+                      {getInitials(group.profile?.display_name)}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
               </div>
-            </div>
-            <span className="text-[10px] text-muted-foreground truncate max-w-16">
-              {group.userId === user?.id ? 'My Story' : (group.profile?.display_name?.split(' ')[0] || 'User')}
-            </span>
-          </button>
-        ))}
+              <span className={`text-[10px] truncate max-w-16 ${isViewed ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>
+                {group.userId === user?.id ? 'My Story' : (group.profile?.display_name?.split(' ')[0] || 'User')}
+              </span>
+            </button>
+          );
+        })}
 
         {loading && (
           <div className="flex items-center justify-center w-16 h-16">
@@ -272,7 +297,7 @@ export function StoriesSection() {
         />
       )}
 
-      {/* Full-screen Story Viewer - Instagram style */}
+      {/* Full-screen Story Viewer */}
       <AnimatePresence>
         {showViewer && currentStory && (
           <motion.div
@@ -325,28 +350,29 @@ export function StoriesSection() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-1" data-story-controls>
-                {isOwnStory && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className="w-8 h-8 rounded-full flex items-center justify-center text-white hover:bg-white/10">
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-card border-border">
-                      <DropdownMenuItem
-                        className="text-destructive focus:text-destructive cursor-pointer"
-                        onClick={() => handleDeleteStory(currentStory.id)}
-                        disabled={deleting}
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        {deleting ? 'Deleting...' : 'Delete'}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
+              <div className="flex items-center gap-2" data-story-controls>
+                {/* Share button */}
                 <button
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-white hover:bg-white/10"
+                  className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+                  onClick={(e) => { e.stopPropagation(); handleShareStory(); }}
+                  title="Share"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+                {/* Delete button - only own stories */}
+                {isOwnStory && (
+                  <button
+                    className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-red-400 hover:bg-red-500/30 transition-colors disabled:opacity-50"
+                    onClick={(e) => { e.stopPropagation(); handleDeleteStory(currentStory.id); }}
+                    disabled={deleting}
+                    title="Delete"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+                {/* Close */}
+                <button
+                  className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-colors"
                   onClick={(e) => { e.stopPropagation(); setShowViewer(false); }}
                   data-story-controls
                 >
@@ -355,7 +381,7 @@ export function StoriesSection() {
               </div>
             </div>
 
-            {/* Story Content - full screen */}
+            {/* Story Content */}
             <div
               className="absolute inset-0"
               style={{
@@ -368,13 +394,13 @@ export function StoriesSection() {
                   <video
                     ref={storyVideoRef}
                     src={currentStory.video_url}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                     autoPlay loop muted={isMuted} playsInline
                     onEnded={nextStory}
                   />
-                  <div className="absolute bottom-6 right-4 flex gap-2 z-10" data-story-controls>
+                  <div className="absolute bottom-20 right-4 flex flex-col gap-2 z-10" data-story-controls>
                     <button
-                      className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white"
+                      className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white"
                       onClick={(e) => {
                         e.stopPropagation();
                         if (storyVideoRef.current) {
@@ -384,10 +410,10 @@ export function StoriesSection() {
                         }
                       }}
                     >
-                      {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                      {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                     </button>
                     <button
-                      className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white"
+                      className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white"
                       onClick={(e) => {
                         e.stopPropagation();
                         if (storyVideoRef.current) {
@@ -396,7 +422,7 @@ export function StoriesSection() {
                         }
                       }}
                     >
-                      {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                      {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
@@ -407,7 +433,7 @@ export function StoriesSection() {
                 <img
                   src={currentStory.image_url}
                   alt="Story"
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-contain"
                 />
               )}
 

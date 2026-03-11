@@ -13,6 +13,8 @@ export interface TextOverlayData {
   textAlign: 'left' | 'center' | 'right';
   fontWeight: 'normal' | 'bold';
   showBorder?: boolean;
+  borderColor?: string;
+  borderWidth?: number;
 }
 
 interface StoryTextOverlayProps {
@@ -31,6 +33,9 @@ export const StoryTextOverlay = memo(function StoryTextOverlay({
   isSelected = false,
   onSelect,
 }: StoryTextOverlayProps) {
+  const hasBg = !!overlay.backgroundColor && overlay.backgroundColor !== 'transparent';
+  const hasBorder = overlay.showBorder && overlay.borderWidth && overlay.borderWidth > 0;
+
   const style: React.CSSProperties = {
     position: 'absolute',
     left: `${overlay.x}%`,
@@ -39,8 +44,9 @@ export const StoryTextOverlay = memo(function StoryTextOverlay({
     fontSize: `${overlay.fontSize}px`,
     color: overlay.color,
     backgroundColor: overlay.backgroundColor || 'transparent',
-    padding: overlay.backgroundColor ? '4px 12px' : '0',
-    borderRadius: overlay.backgroundColor ? '6px' : '0',
+    padding: hasBg || hasBorder ? '6px 14px' : '0',
+    borderRadius: hasBg || hasBorder ? '8px' : '0',
+    border: hasBorder ? `${overlay.borderWidth}px solid ${overlay.borderColor || '#FFFFFF'}` : 'none',
     textAlign: overlay.textAlign,
     fontWeight: overlay.fontWeight,
     lineHeight: 1.3,
@@ -51,14 +57,14 @@ export const StoryTextOverlay = memo(function StoryTextOverlay({
     cursor: isEditing ? 'grab' : 'default',
     fontFamily: "'Bebas Neue', sans-serif",
     letterSpacing: '0.05em',
-    textShadow: !overlay.backgroundColor ? '0 2px 8px rgba(0,0,0,0.7)' : 'none',
+    textShadow: !hasBg ? '0 2px 8px rgba(0,0,0,0.7)' : 'none',
     zIndex: 10,
   };
 
   return (
     <div
       style={style}
-      className={`${overlay.showBorder ? 'ring-2 ring-white/80 rounded-md' : ''}`}
+      className={isSelected ? 'ring-2 ring-primary ring-offset-1 ring-offset-transparent rounded-md' : ''}
       onClick={(e) => {
         e.stopPropagation();
         onSelect?.();
@@ -81,4 +87,6 @@ export const DEFAULT_OVERLAY: Omit<TextOverlayData, 'id'> = {
   textAlign: 'center',
   fontWeight: 'bold',
   showBorder: false,
+  borderColor: '#FFFFFF',
+  borderWidth: 0,
 };
