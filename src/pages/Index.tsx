@@ -44,6 +44,7 @@ const Index = () => {
   const { needsOnboarding, loading: onboardingLoading } = useOnboardingCheck();
   const { refresh: refreshSubscription } = useSubscription();
   const { settings } = useUserSettings();
+  const { unreadCount: notifCount } = useNotifications();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>('feed');
@@ -55,6 +56,7 @@ const Index = () => {
   const [showFriendRequests, setShowFriendRequests] = useState(false);
   const [showFriendsList, setShowFriendsList] = useState(false);
   const [showMotivation, setShowMotivation] = useState(false);
+  const [showMobileNotifs, setShowMobileNotifs] = useState(false);
   const [motivationTrigger, setMotivationTrigger] = useState<'sign_in' | 'session_complete' | 'habits_logged' | 'programme_complete'>('sign_in');
   const [motivationContext, setMotivationContext] = useState<string | undefined>();
   const hasCheckedMotivation = useRef(false);
