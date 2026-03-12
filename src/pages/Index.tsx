@@ -210,10 +210,6 @@ const Index = () => {
           open={showMotivation} 
           onClose={() => setShowMotivation(false)} 
         />
-        <NotificationsPanel
-          isOpen={showMobileNotifs}
-          onClose={() => setShowMobileNotifs(false)}
-        />
       </div>
     );
   }
