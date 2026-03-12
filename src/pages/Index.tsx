@@ -5,13 +5,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useOnboardingCheck } from '@/hooks/useOnboardingCheck';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useUserSettings } from '@/hooks/useUserSettings';
-import { useNotifications } from '@/hooks/useNotifications';
 import { UnifiedFeed } from '@/components/hub/UnifiedFeed';
 import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
 import { RecordActionMenu } from '@/components/hub/RecordActionMenu';
 import { AuthModal } from '@/components/tracker/AuthModal';
 import { MotivationalPopup } from '@/components/MotivationalPopup';
-import { NotificationsPanel } from '@/components/hub/NotificationsPanel';
 
 import { UserSearchModal } from '@/components/tracker/UserSearchModal';
 import { FriendRequestsModal } from '@/components/tracker/FriendRequestsModal';
@@ -19,8 +17,7 @@ import { FriendsListModal } from '@/components/tracker/FriendsListModal';
 import { SocialHeader } from '@/components/hub/SocialHeader';
 import { usePresence } from '@/hooks/usePresence';
 import { LandingPage } from '@/components/landing/LandingPage';
-import { Home, User, Plus, Bell } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Home, User, Plus } from 'lucide-react';
 
 type Tab = 'feed' | 'messages' | 'notifications';
 
