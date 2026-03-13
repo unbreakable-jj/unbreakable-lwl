@@ -17,7 +17,7 @@ import { useUserSettings } from '@/hooks/useUserSettings';
 import { MedalCheckStats } from '@/lib/medalDefinitions';
 // import { getCategoryLabel, TROPHY_ICONS } from '@/lib/trophyDefinitions'; // Trophy system hidden for now
 import { toast } from 'sonner';
-import { Play, Square, Pause, Timer, Globe, Users, Lock, Footprints, Bike, Edit3, Waves, Droplets } from 'lucide-react';
+import { Play, Square, Pause, Timer, Globe, Users, Lock, Footprints, Bike, Edit3, Waves, Droplets, Save, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CountdownOverlay } from '@/components/CountdownOverlay';
 
@@ -89,18 +89,9 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   const [phase, setPhase] = useState<'select' | 'countdown' | 'tracking' | 'summary' | 'manual'>('select');
   const [activity, setActivity] = useState<ActivityType | null>(initialActivity || null);
   const [loading, setLoading] = useState(false);
+  const [showEndConfirm, setShowEndConfirm] = useState(false);
 
-  // Auto-start countdown if initialActivity is provided
-  useEffect(() => {
-    if (isOpen && initialActivity && phase === 'select') {
-      if (!navigator.geolocation) {
-        toast.error('Geolocation is not supported by your browser');
-        return;
-      }
-      setActivity(initialActivity);
-      setPhase('countdown');
-    }
-  }, [isOpen, initialActivity, phase]);
+  const STORAGE_KEY = 'cardio_active_session';
 
   // GPS tracking state
   const [startTime, setStartTime] = useState<Date | null>(null);
@@ -338,9 +329,73 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     }
     setIsPaused(false);
     setPhase('summary');
+    // Clear persisted session
+    localStorage.removeItem(STORAGE_KEY);
   }, [isPaused]);
 
-  // Cleanup on unmount
+  // Restore active session from localStorage on mount
+  useEffect(() => {
+    if (!isOpen) return;
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const session = JSON.parse(saved);
+        setActivity(session.activity);
+        setPhase('tracking');
+        const sessionStart = new Date(session.startTime);
+        setStartTime(sessionStart);
+        sessionStartRef.current = sessionStart;
+        setDistance(session.distance || 0);
+        setPausedDuration(session.pausedDuration || 0);
+        setIsPaused(session.isPaused || false);
+        setPositions(session.positions || []);
+        lastVoiceKmRef.current = session.lastVoiceKm || 0;
+
+        // Recalculate elapsed
+        const now = Date.now();
+        const totalElapsed = Math.floor((now - sessionStart.getTime()) / 1000);
+        setElapsedSeconds(totalElapsed - (session.pausedDuration || 0));
+
+        // Restart timer
+        timerRef.current = setInterval(() => {
+          if (sessionStartRef.current) {
+            const t = Date.now();
+            const total = Math.floor((t - sessionStartRef.current.getTime()) / 1000);
+            setPausedDuration((currentPaused) => {
+              setElapsedSeconds(total - currentPaused);
+              return currentPaused;
+            });
+          }
+        }, 1000);
+
+        if (!session.isPaused) {
+          startGpsTracking();
+        }
+        setGpsStatus(session.isPaused ? 'paused' : 'acquiring');
+        toast.info('Resumed your active cardio session');
+      } catch (e) {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Save session to localStorage whenever tracking state changes
+  useEffect(() => {
+    if (phase === 'tracking' && startTime && activity) {
+      const sessionData = {
+        activity,
+        startTime: startTime.toISOString(),
+        distance,
+        pausedDuration,
+        isPaused,
+        positions: positions.slice(-50),
+        lastVoiceKm: lastVoiceKmRef.current,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
+    }
+  }, [phase, startTime, distance, pausedDuration, isPaused, positions, activity]);
+
+  // Cleanup on unmount - DON'T clear localStorage (session persists)
   useEffect(() => {
     return () => {
       if (watchIdRef.current !== null) {
@@ -684,13 +739,27 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
 
   const handleClose = () => {
     if (phase === 'tracking') {
-      // Confirm before closing during active session
-      if (window.confirm('Stop tracking and discard this session?')) {
-        resetAndClose();
-      }
+      // Don't discard - just close and let session persist in background
+      toast.info('Session continues in background. Reopen to resume or end.');
+      onClose();
     } else {
       resetAndClose();
     }
+  };
+
+  const handleEndSession = () => {
+    setShowEndConfirm(true);
+  };
+
+  const confirmEndSession = () => {
+    setShowEndConfirm(false);
+    stopTracking();
+  };
+
+  const discardSession = () => {
+    setShowEndConfirm(false);
+    localStorage.removeItem(STORAGE_KEY);
+    resetAndClose();
   };
 
   const config = activity ? ACTIVITY_CONFIG[activity] : null;
@@ -1047,12 +1116,39 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                     size="lg"
                     variant="destructive"
                     className="font-display text-xl tracking-wide px-12 py-8 rounded-full"
-                    onClick={stopTracking}
+                    onClick={handleEndSession}
                   >
                     <Square className="w-6 h-6 mr-3" />
                     END
                   </Button>
                 </div>
+
+                {/* End Session Confirmation */}
+                {showEndConfirm && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm rounded-lg z-20"
+                  >
+                    <div className="text-center space-y-4 p-6">
+                      <p className="font-display text-xl text-foreground tracking-wide">END SESSION?</p>
+                      <p className="text-muted-foreground text-sm">Save your session data or discard it.</p>
+                      <div className="flex flex-col gap-2">
+                        <Button onClick={confirmEndSession} className="font-display tracking-wide w-full">
+                          <Save className="w-4 h-4 mr-2" />
+                          SAVE &amp; END
+                        </Button>
+                        <Button variant="destructive" onClick={discardSession} className="font-display tracking-wide w-full">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          DISCARD
+                        </Button>
+                        <Button variant="ghost" onClick={() => setShowEndConfirm(false)} className="font-display tracking-wide text-muted-foreground w-full">
+                          CONTINUE SESSION
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
               </motion.div>
             )}
 

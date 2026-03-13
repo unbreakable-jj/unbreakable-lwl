@@ -1,11 +1,22 @@
 import { memo } from 'react';
 
+export const FONT_OPTIONS = [
+  { value: "'Bebas Neue', sans-serif", label: 'Bebas Neue' },
+  { value: "'Arial', sans-serif", label: 'Arial' },
+  { value: "'Georgia', serif", label: 'Georgia' },
+  { value: "'Courier New', monospace", label: 'Courier' },
+  { value: "'Impact', sans-serif", label: 'Impact' },
+  { value: "'Comic Sans MS', cursive", label: 'Comic Sans' },
+  { value: "'Trebuchet MS', sans-serif", label: 'Trebuchet' },
+  { value: "'Palatino', serif", label: 'Palatino' },
+] as const;
+
 export interface TextOverlayData {
   id: string;
   text: string;
-  x: number; // percentage 0-100
-  y: number; // percentage 0-100
-  fontSize: number; // px
+  x: number;
+  y: number;
+  fontSize: number;
   color: string;
   backgroundColor: string | null;
   rotation: number;
@@ -15,6 +26,7 @@ export interface TextOverlayData {
   showBorder?: boolean;
   borderColor?: string;
   borderWidth?: number;
+  fontFamily?: string;
 }
 
 interface StoryTextOverlayProps {
@@ -55,7 +67,7 @@ export const StoryTextOverlay = memo(function StoryTextOverlay({
     maxWidth: '80%',
     userSelect: isEditing ? 'none' : 'auto',
     cursor: isEditing ? 'grab' : 'default',
-    fontFamily: "'Bebas Neue', sans-serif",
+    fontFamily: overlay.fontFamily || "'Bebas Neue', sans-serif",
     letterSpacing: '0.05em',
     textShadow: !hasBg ? '0 2px 8px rgba(0,0,0,0.7)' : 'none',
     zIndex: 10,
@@ -89,4 +101,5 @@ export const DEFAULT_OVERLAY: Omit<TextOverlayData, 'id'> = {
   showBorder: false,
   borderColor: '#FFFFFF',
   borderWidth: 0,
+  fontFamily: "'Bebas Neue', sans-serif",
 };

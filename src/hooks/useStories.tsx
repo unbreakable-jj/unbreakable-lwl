@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { generateVideoThumbnail, compressVideo } from '@/lib/videoUtils';
+import { notifyMentionedUsers } from '@/lib/mentionNotifications';
 
 export interface Story {
   id: string;
@@ -120,7 +121,12 @@ export function useStories() {
       .select()
       .single();
 
-    if (!error) {
+    if (!error && data) {
+      // Notify mentioned users from text overlays
+      const allText = (story.text_overlays || []).map((o: any) => o.text || '').join(' ');
+      if (allText) {
+        notifyMentionedUsers(allText, user.id, 'story', (data as any).id);
+      }
       await fetchStories();
     }
 

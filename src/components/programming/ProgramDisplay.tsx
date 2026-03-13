@@ -18,6 +18,7 @@ import {
   RefreshCw,
   Save,
   Play,
+  Edit3,
   Loader2,
   ChevronDown,
   TrendingUp,
@@ -31,6 +32,7 @@ interface ProgramDisplayProps {
   onReset: () => void;
   savedProgramId?: string;
   forUserId?: string;
+  onEditDay?: (day: WorkoutDay, weekNumber: number) => void;
 }
 
 const equipmentColors: Record<string, string> = {
@@ -40,7 +42,7 @@ const equipmentColors: Record<string, string> = {
   running: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
 };
 
-export function ProgramDisplay({ program, onReset, savedProgramId, forUserId }: ProgramDisplayProps) {
+export function ProgramDisplay({ program, onReset, savedProgramId, forUserId, onEditDay }: ProgramDisplayProps) {
   const [selectedWeek, setSelectedWeek] = useState(1);
   const [showWorkoutModal, setShowWorkoutModal] = useState(false);
   const [selectedDay, setSelectedDay] = useState<WorkoutDay | null>(null);
@@ -223,6 +225,7 @@ export function ProgramDisplay({ program, onReset, savedProgramId, forUserId }: 
             key={idx}
             day={day}
             onStart={() => handleStartWorkout(day)}
+            onEdit={onEditDay ? () => onEditDay(day, selectedWeek) : undefined}
             isStarting={startSession.isPending}
             isLoggedIn={!!user}
           />
@@ -295,11 +298,13 @@ export function ProgramDisplay({ program, onReset, savedProgramId, forUserId }: 
 function DayCard({ 
   day, 
   onStart, 
+  onEdit,
   isStarting,
   isLoggedIn 
 }: { 
   day: WorkoutDay; 
   onStart: () => void;
+  onEdit?: () => void;
   isStarting: boolean;
   isLoggedIn: boolean;
 }) {
@@ -354,20 +359,32 @@ function DayCard({
               <p className="text-sm text-foreground">{day.cooldown}</p>
             </div>
 
-            {/* Start Button */}
+            {/* Action Buttons */}
             {isLoggedIn && (
-              <Button 
-                onClick={(e) => { e.stopPropagation(); onStart(); }}
-                className="w-full gap-2 font-display tracking-wide"
-                disabled={isStarting}
-              >
-                {isStarting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Play className="w-4 h-4" />
+              <div className="flex gap-2">
+                {onEdit && (
+                  <Button 
+                    variant="outline"
+                    onClick={(e) => { e.stopPropagation(); onEdit(); }}
+                    className="flex-1 gap-2 font-display tracking-wide"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                    EDIT WORKOUT
+                  </Button>
                 )}
-                START WORKOUT
-              </Button>
+                <Button 
+                  onClick={(e) => { e.stopPropagation(); onStart(); }}
+                  className={`${onEdit ? 'flex-1' : 'w-full'} gap-2 font-display tracking-wide`}
+                  disabled={isStarting}
+                >
+                  {isStarting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Play className="w-4 h-4" />
+                  )}
+                  START WORKOUT
+                </Button>
+              </div>
             )}
           </CardContent>
         </CollapsibleContent>
