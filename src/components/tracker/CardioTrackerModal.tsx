@@ -89,10 +89,59 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   const [phase, setPhase] = useState<'select' | 'countdown' | 'tracking' | 'summary' | 'manual'>('select');
   const [activity, setActivity] = useState<ActivityType | null>(initialActivity || null);
   const [loading, setLoading] = useState(false);
+  const [showEndConfirm, setShowEndConfirm] = useState(false);
 
-  // Auto-start countdown if initialActivity is provided
+  const STORAGE_KEY = 'cardio_active_session';
+
+  // Restore active session from localStorage on mount
   useEffect(() => {
-    if (isOpen && initialActivity && phase === 'select') {
+    if (!isOpen) return;
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const session = JSON.parse(saved);
+        setActivity(session.activity);
+        setPhase('tracking');
+        const sessionStart = new Date(session.startTime);
+        setStartTime(sessionStart);
+        sessionStartRef.current = sessionStart;
+        setDistance(session.distance || 0);
+        setPausedDuration(session.pausedDuration || 0);
+        setIsPaused(session.isPaused || false);
+        setPositions(session.positions || []);
+        lastVoiceKmRef.current = session.lastVoiceKm || 0;
+
+        // Recalculate elapsed time
+        const now = Date.now();
+        const totalElapsed = Math.floor((now - sessionStart.getTime()) / 1000);
+        setElapsedSeconds(totalElapsed - (session.pausedDuration || 0));
+
+        // Restart timer
+        timerRef.current = setInterval(() => {
+          if (sessionStartRef.current) {
+            const t = Date.now();
+            const total = Math.floor((t - sessionStartRef.current.getTime()) / 1000);
+            setPausedDuration((currentPaused) => {
+              setElapsedSeconds(total - currentPaused);
+              return currentPaused;
+            });
+          }
+        }, 1000);
+
+        // Restart GPS if not paused
+        if (!session.isPaused) {
+          startGpsTracking();
+        }
+        setGpsStatus(session.isPaused ? 'paused' : 'acquiring');
+        toast.info('Resumed your active cardio session');
+        return; // Skip normal initialActivity logic
+      } catch (e) {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+
+    // Auto-start countdown if initialActivity is provided
+    if (initialActivity && phase === 'select') {
       if (!navigator.geolocation) {
         toast.error('Geolocation is not supported by your browser');
         return;
@@ -100,7 +149,23 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       setActivity(initialActivity);
       setPhase('countdown');
     }
-  }, [isOpen, initialActivity, phase]);
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Save session to localStorage whenever tracking state changes
+  useEffect(() => {
+    if (phase === 'tracking' && startTime && activity) {
+      const sessionData = {
+        activity,
+        startTime: startTime.toISOString(),
+        distance,
+        pausedDuration,
+        isPaused,
+        positions: positions.slice(-50), // Keep last 50 positions to limit storage
+        lastVoiceKm: lastVoiceKmRef.current,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
+    }
+  }, [phase, startTime, distance, pausedDuration, isPaused, positions, activity]);
 
   // GPS tracking state
   const [startTime, setStartTime] = useState<Date | null>(null);
