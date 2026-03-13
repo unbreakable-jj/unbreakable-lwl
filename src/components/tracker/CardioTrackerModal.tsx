@@ -739,13 +739,27 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
 
   const handleClose = () => {
     if (phase === 'tracking') {
-      // Confirm before closing during active session
-      if (window.confirm('Stop tracking and discard this session?')) {
-        resetAndClose();
-      }
+      // Don't discard - just close and let session persist in background
+      toast.info('Session continues in background. Reopen to resume or end.');
+      onClose();
     } else {
       resetAndClose();
     }
+  };
+
+  const handleEndSession = () => {
+    setShowEndConfirm(true);
+  };
+
+  const confirmEndSession = () => {
+    setShowEndConfirm(false);
+    stopTracking();
+  };
+
+  const discardSession = () => {
+    setShowEndConfirm(false);
+    localStorage.removeItem(STORAGE_KEY);
+    resetAndClose();
   };
 
   const config = activity ? ACTIVITY_CONFIG[activity] : null;
