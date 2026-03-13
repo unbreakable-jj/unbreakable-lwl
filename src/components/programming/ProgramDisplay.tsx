@@ -32,6 +32,7 @@ interface ProgramDisplayProps {
   onReset: () => void;
   savedProgramId?: string;
   forUserId?: string;
+  onEditDay?: (day: WorkoutDay, weekNumber: number) => void;
 }
 
 const equipmentColors: Record<string, string> = {
