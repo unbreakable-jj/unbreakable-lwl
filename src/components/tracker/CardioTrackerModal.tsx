@@ -17,7 +17,7 @@ import { useUserSettings } from '@/hooks/useUserSettings';
 import { MedalCheckStats } from '@/lib/medalDefinitions';
 // import { getCategoryLabel, TROPHY_ICONS } from '@/lib/trophyDefinitions'; // Trophy system hidden for now
 import { toast } from 'sonner';
-import { Play, Square, Pause, Timer, Globe, Users, Lock, Footprints, Bike, Edit3, Waves, Droplets } from 'lucide-react';
+import { Play, Square, Pause, Timer, Globe, Users, Lock, Footprints, Bike, Edit3, Waves, Droplets, Save, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CountdownOverlay } from '@/components/CountdownOverlay';
 
