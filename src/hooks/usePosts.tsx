@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { generateVideoThumbnail, compressVideo } from '@/lib/videoUtils';
+import { notifyMentionedUsers } from '@/lib/mentionNotifications';
 
 export interface Post {
   id: string;
