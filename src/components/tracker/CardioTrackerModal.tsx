@@ -1116,12 +1116,39 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
                     size="lg"
                     variant="destructive"
                     className="font-display text-xl tracking-wide px-12 py-8 rounded-full"
-                    onClick={stopTracking}
+                    onClick={handleEndSession}
                   >
                     <Square className="w-6 h-6 mr-3" />
                     END
                   </Button>
                 </div>
+
+                {/* End Session Confirmation */}
+                {showEndConfirm && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm rounded-lg z-20"
+                  >
+                    <div className="text-center space-y-4 p-6">
+                      <p className="font-display text-xl text-foreground tracking-wide">END SESSION?</p>
+                      <p className="text-muted-foreground text-sm">Save your session data or discard it.</p>
+                      <div className="flex flex-col gap-2">
+                        <Button onClick={confirmEndSession} className="font-display tracking-wide w-full">
+                          <Save className="w-4 h-4 mr-2" />
+                          SAVE &amp; END
+                        </Button>
+                        <Button variant="destructive" onClick={discardSession} className="font-display tracking-wide w-full">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          DISCARD
+                        </Button>
+                        <Button variant="ghost" onClick={() => setShowEndConfirm(false)} className="font-display tracking-wide text-muted-foreground w-full">
+                          CONTINUE SESSION
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
               </motion.div>
             )}
 
