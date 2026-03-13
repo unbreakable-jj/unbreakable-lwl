@@ -298,11 +298,13 @@ export function ProgramDisplay({ program, onReset, savedProgramId, forUserId, on
 function DayCard({ 
   day, 
   onStart, 
+  onEdit,
   isStarting,
   isLoggedIn 
 }: { 
   day: WorkoutDay; 
   onStart: () => void;
+  onEdit?: () => void;
   isStarting: boolean;
   isLoggedIn: boolean;
 }) {
@@ -357,20 +359,32 @@ function DayCard({
               <p className="text-sm text-foreground">{day.cooldown}</p>
             </div>
 
-            {/* Start Button */}
+            {/* Action Buttons */}
             {isLoggedIn && (
-              <Button 
-                onClick={(e) => { e.stopPropagation(); onStart(); }}
-                className="w-full gap-2 font-display tracking-wide"
-                disabled={isStarting}
-              >
-                {isStarting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Play className="w-4 h-4" />
+              <div className="flex gap-2">
+                {onEdit && (
+                  <Button 
+                    variant="outline"
+                    onClick={(e) => { e.stopPropagation(); onEdit(); }}
+                    className="flex-1 gap-2 font-display tracking-wide"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                    EDIT WORKOUT
+                  </Button>
                 )}
-                START WORKOUT
-              </Button>
+                <Button 
+                  onClick={(e) => { e.stopPropagation(); onStart(); }}
+                  className={`${onEdit ? 'flex-1' : 'w-full'} gap-2 font-display tracking-wide`}
+                  disabled={isStarting}
+                >
+                  {isStarting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Play className="w-4 h-4" />
+                  )}
+                  START WORKOUT
+                </Button>
+              </div>
             )}
           </CardContent>
         </CollapsibleContent>

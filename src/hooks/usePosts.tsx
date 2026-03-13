@@ -92,7 +92,11 @@ export function usePosts() {
       .select()
       .single();
 
-    if (!error) {
+    if (!error && data) {
+      // Notify mentioned users
+      if (postData.content) {
+        notifyMentionedUsers(postData.content, user.id, 'post', data.id);
+      }
       await fetchPosts();
     }
 

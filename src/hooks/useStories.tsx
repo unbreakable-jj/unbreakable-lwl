@@ -121,7 +121,12 @@ export function useStories() {
       .select()
       .single();
 
-    if (!error) {
+    if (!error && data) {
+      // Notify mentioned users from text overlays
+      const allText = (story.text_overlays || []).map((o: any) => o.text || '').join(' ');
+      if (allText) {
+        notifyMentionedUsers(allText, user.id, 'story', (data as any).id);
+      }
       await fetchStories();
     }
 

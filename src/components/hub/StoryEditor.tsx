@@ -500,9 +500,39 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
         </div>
       )}
 
-      {/* Selected overlay quick actions - two rows for better spacing */}
+      {/* Selected overlay quick actions */}
       {selectedOverlay && !editingTextId && (
         <div className={`absolute left-1/2 -translate-x-1/2 z-31 flex flex-col items-center gap-1 animate-in fade-in duration-150 ${showColorPicker ? 'bottom-40' : 'bottom-24'}`}>
+          {/* Row 0: Font size slider + font family */}
+          <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md rounded-full px-3 py-1.5 min-w-[260px]">
+            <span className="text-white/60 text-[10px] font-display shrink-0">Aa</span>
+            <Slider
+              value={[selectedOverlay.fontSize]}
+              onValueChange={([v]) => updateOverlay(selectedOverlay.id, { fontSize: v })}
+              min={12}
+              max={72}
+              step={1}
+              className="flex-1"
+            />
+            <span className="text-white text-[10px] font-display w-5 text-center shrink-0">{selectedOverlay.fontSize}</span>
+          </div>
+          {/* Font family selector */}
+          <div className="flex items-center gap-1 overflow-x-auto bg-black/60 backdrop-blur-md rounded-full px-2 py-1 max-w-[300px] scrollbar-hide">
+            {FONT_OPTIONS.map(f => (
+              <button
+                key={f.value}
+                className={`shrink-0 px-2 py-1 rounded-full text-[10px] transition-colors ${
+                  (selectedOverlay.fontFamily || "'Bebas Neue', sans-serif") === f.value
+                    ? 'bg-white/25 text-white'
+                    : 'text-white/60 hover:text-white'
+                }`}
+                style={{ fontFamily: f.value }}
+                onClick={(e) => { e.stopPropagation(); updateOverlay(selectedOverlay.id, { fontFamily: f.value }); }}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
           {/* Row 1: Text formatting */}
           <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-full px-2 py-1">
             {(['left', 'center', 'right'] as const).map(align => (
@@ -529,7 +559,6 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
           </div>
           {/* Row 2: Color & border controls */}
           <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-full px-2 py-1">
-            {/* Text colour */}
             <button
               className="w-8 h-8 rounded-full flex items-center justify-center text-white"
               onClick={(e) => { e.stopPropagation(); setColorTarget('text'); setShowColorPicker(true); }}
@@ -537,7 +566,6 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
             >
               <div className="w-4 h-4 rounded-full border-2 border-white" style={{ backgroundColor: selectedOverlay.color }} />
             </button>
-            {/* Box background toggle */}
             <button
               className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${selectedOverlay.backgroundColor ? 'bg-white/20' : ''}`}
               onClick={(e) => { e.stopPropagation(); toggleOverlayBg(); }}
@@ -545,7 +573,6 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
             >
               <Square className="w-3.5 h-3.5" />
             </button>
-            {/* Box bg colour */}
             {selectedOverlay.backgroundColor && (
               <button
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white"
@@ -555,7 +582,6 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
                 <div className="w-4 h-4 rounded border border-white/50" style={{ backgroundColor: selectedOverlay.backgroundColor }} />
               </button>
             )}
-            {/* Border toggle */}
             <button
               className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${selectedOverlay.showBorder ? 'bg-white/20' : ''}`}
               onClick={(e) => { e.stopPropagation(); toggleBorder(); }}
@@ -563,7 +589,6 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
             >
               <span className="text-[10px] font-bold border border-white/60 px-1 rounded">B</span>
             </button>
-            {/* Border colour */}
             {selectedOverlay.showBorder && (
               <button
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white"
