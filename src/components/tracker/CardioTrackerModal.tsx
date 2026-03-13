@@ -329,9 +329,73 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     }
     setIsPaused(false);
     setPhase('summary');
+    // Clear persisted session
+    localStorage.removeItem(STORAGE_KEY);
   }, [isPaused]);
 
-  // Cleanup on unmount
+  // Restore active session from localStorage on mount
+  useEffect(() => {
+    if (!isOpen) return;
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const session = JSON.parse(saved);
+        setActivity(session.activity);
+        setPhase('tracking');
+        const sessionStart = new Date(session.startTime);
+        setStartTime(sessionStart);
+        sessionStartRef.current = sessionStart;
+        setDistance(session.distance || 0);
+        setPausedDuration(session.pausedDuration || 0);
+        setIsPaused(session.isPaused || false);
+        setPositions(session.positions || []);
+        lastVoiceKmRef.current = session.lastVoiceKm || 0;
+
+        // Recalculate elapsed
+        const now = Date.now();
+        const totalElapsed = Math.floor((now - sessionStart.getTime()) / 1000);
+        setElapsedSeconds(totalElapsed - (session.pausedDuration || 0));
+
+        // Restart timer
+        timerRef.current = setInterval(() => {
+          if (sessionStartRef.current) {
+            const t = Date.now();
+            const total = Math.floor((t - sessionStartRef.current.getTime()) / 1000);
+            setPausedDuration((currentPaused) => {
+              setElapsedSeconds(total - currentPaused);
+              return currentPaused;
+            });
+          }
+        }, 1000);
+
+        if (!session.isPaused) {
+          startGpsTracking();
+        }
+        setGpsStatus(session.isPaused ? 'paused' : 'acquiring');
+        toast.info('Resumed your active cardio session');
+      } catch (e) {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Save session to localStorage whenever tracking state changes
+  useEffect(() => {
+    if (phase === 'tracking' && startTime && activity) {
+      const sessionData = {
+        activity,
+        startTime: startTime.toISOString(),
+        distance,
+        pausedDuration,
+        isPaused,
+        positions: positions.slice(-50),
+        lastVoiceKm: lastVoiceKmRef.current,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
+    }
+  }, [phase, startTime, distance, pausedDuration, isPaused, positions, activity]);
+
+  // Cleanup on unmount - DON'T clear localStorage (session persists)
   useEffect(() => {
     return () => {
       if (watchIdRef.current !== null) {
