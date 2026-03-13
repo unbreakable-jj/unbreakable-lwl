@@ -5,7 +5,8 @@ import {
   AlignLeft, AlignCenter, AlignRight, Bold, Loader2,
   Globe, Users, Lock, Undo2, Square, Minus, Plus,
 } from 'lucide-react';
-import { TextOverlayData, DEFAULT_OVERLAY, StoryTextOverlay } from './StoryTextOverlay';
+import { TextOverlayData, DEFAULT_OVERLAY, StoryTextOverlay, FONT_OPTIONS } from './StoryTextOverlay';
+import { Slider } from '@/components/ui/slider';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { compressVideo } from '@/lib/videoUtils';
