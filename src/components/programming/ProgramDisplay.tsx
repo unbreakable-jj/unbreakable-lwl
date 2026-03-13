@@ -225,6 +225,7 @@ export function ProgramDisplay({ program, onReset, savedProgramId, forUserId, on
             key={idx}
             day={day}
             onStart={() => handleStartWorkout(day)}
+            onEdit={onEditDay ? () => onEditDay(day, selectedWeek) : undefined}
             isStarting={startSession.isPending}
             isLoggedIn={!!user}
           />
