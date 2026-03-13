@@ -18,6 +18,7 @@ import {
   RefreshCw,
   Save,
   Play,
+  Edit3,
   Loader2,
   ChevronDown,
   TrendingUp,
