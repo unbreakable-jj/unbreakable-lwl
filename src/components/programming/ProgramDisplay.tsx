@@ -42,7 +42,7 @@ const equipmentColors: Record<string, string> = {
   running: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
 };
 
-export function ProgramDisplay({ program, onReset, savedProgramId, forUserId }: ProgramDisplayProps) {
+export function ProgramDisplay({ program, onReset, savedProgramId, forUserId, onEditDay }: ProgramDisplayProps) {
   const [selectedWeek, setSelectedWeek] = useState(1);
   const [showWorkoutModal, setShowWorkoutModal] = useState(false);
   const [selectedDay, setSelectedDay] = useState<WorkoutDay | null>(null);
