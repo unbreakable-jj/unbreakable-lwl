@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "@/assets/logo.png";
 
-type CountdownPhase = "power" | "movement" | "fuel" | "mindset" | "three" | "two" | "one" | "go";
+type CountdownPhase = "power" | "movement" | "fuel" | "mindset" | "go";
 
 interface CountdownOverlayProps {
   isActive: boolean;
@@ -17,9 +16,7 @@ interface CountdownOverlayProps {
 export function CountdownOverlay({ 
   isActive, 
   onComplete, 
-  startFrom = 3,
   exerciseName,
-  onPlayAudio,
   onStartGps,
 }: CountdownOverlayProps) {
   const [phase, setPhase] = useState<CountdownPhase>("power");
@@ -32,7 +29,6 @@ export function CountdownOverlay({
     }
   }, [isActive]);
 
-  // Start GPS immediately on mount
   useEffect(() => {
     if (isActive && !gpsStartedRef.current && onStartGps) {
       gpsStartedRef.current = true;
@@ -41,17 +37,14 @@ export function CountdownOverlay({
   }, [isActive, onStartGps]);
 
   const PHASE_DURATION: Record<CountdownPhase, number> = {
-    power: 1000,
-    movement: 1000,
-    fuel: 1000,
-    mindset: 1000,
-    three: 1000,
-    two: 1000,
-    one: 1000,
-    go: 1000,
+    power: 800,
+    movement: 800,
+    fuel: 800,
+    mindset: 800,
+    go: 600,
   };
 
-  const PHASE_ORDER: CountdownPhase[] = ["power", "movement", "fuel", "mindset", "three", "two", "one", "go"];
+  const PHASE_ORDER: CountdownPhase[] = ["power", "movement", "fuel", "mindset", "go"];
 
   useEffect(() => {
     if (!isActive) return;
@@ -73,9 +66,6 @@ export function CountdownOverlay({
 
   if (!isActive) return null;
 
-  const isNumberPhase = phase === "three" || phase === "two" || phase === "one";
-  const numberText = phase === "three" ? "3" : phase === "two" ? "2" : phase === "one" ? "1" : "";
-
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -91,48 +81,18 @@ export function CountdownOverlay({
           }}
         />
 
-        {/* Power words */}
         {phase === "power" && <PowerWord word="POWER" />}
         {phase === "movement" && <PowerWord word="MOVEMENT" />}
         {phase === "fuel" && <PowerWord word="FUEL" />}
         {phase === "mindset" && <PowerWord word="MINDSET" />}
 
-        {/* 3-2-1 countdown numbers */}
-        {isNumberPhase && (
-          <motion.div
-            key={`number-${phase}`}
-            initial={{ scale: 0.3, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 1.5, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 250, damping: 18, duration: 0.4 }}
-            className="relative z-10 flex flex-col items-center"
-          >
-            <motion.div
-              animate={{
-                scale: [1, 1.8, 1],
-                opacity: [0.4, 0, 0.4],
-              }}
-              transition={{ duration: 0.7, repeat: Infinity, ease: "easeOut" }}
-              className="absolute w-48 h-48 rounded-full border-4 border-primary"
-              style={{ left: "50%", top: "50%", transform: "translate(-50%, -50%)" }}
-            />
-            <span 
-              className="font-display text-[10rem] md:text-[14rem] leading-none text-primary"
-              style={{ textShadow: "0 0 80px hsl(var(--primary) / 0.8)" }}
-            >
-              {numberText}
-            </span>
-          </motion.div>
-        )}
-
-        {/* GO! */}
         {phase === "go" && (
           <motion.div
             key="go"
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 2, opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
             className="relative z-10 flex flex-col items-center"
           >
             <span 
@@ -160,7 +120,7 @@ function PowerWord({ word }: { word: string }) {
       initial={{ scale: 0.3, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       exit={{ scale: 1.3, opacity: 0 }}
-      transition={{ type: "spring", stiffness: 200, damping: 15, duration: 0.5 }}
+      transition={{ type: "spring", stiffness: 250, damping: 15, duration: 0.4 }}
       className="relative z-10 flex flex-col items-center"
     >
       <motion.div
@@ -168,7 +128,7 @@ function PowerWord({ word }: { word: string }) {
           scale: [1, 1.6, 1],
           opacity: [0.5, 0, 0.5],
         }}
-        transition={{ duration: 0.8, repeat: Infinity, ease: "easeOut" }}
+        transition={{ duration: 0.6, repeat: Infinity, ease: "easeOut" }}
         className="absolute w-56 h-56 rounded-full border-4 border-primary"
         style={{ left: "50%", top: "50%", transform: "translate(-50%, -50%)" }}
       />
