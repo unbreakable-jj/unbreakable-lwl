@@ -43,7 +43,6 @@ const MindsetBreathing = () => {
   // Use global voice preferences from user_ai_preferences table
   const { preferences: aiPrefs, updatePreferences } = useAIPreferences();
   const voiceEnabled = aiPrefs?.voice_feedback_enabled ?? false;
-  const voiceType = (aiPrefs?.voice_gender ?? 'male') as 'male' | 'female';
   const setVoiceEnabled = (enabled: boolean) => updatePreferences.mutate({ voice_feedback_enabled: enabled });
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -51,7 +50,6 @@ const MindsetBreathing = () => {
   const lastPhaseRef = useRef<BreathPhase>("idle");
 
   const { playAudio, stopAudio, preloadAudio, cleanup } = useBreathingAudio({
-    voiceType,
     enabled: voiceEnabled,
   });
 
