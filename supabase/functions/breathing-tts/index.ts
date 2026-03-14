@@ -6,20 +6,15 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Voice IDs for different voice options
-const VOICES = {
-  male: "JBFqnCBsd6RMkjVDRZzb", // George - calm, warm male voice
-  female: "EXAVITQu4vr4xnSDxMaL", // Sarah - calm, soothing female voice
-};
+// Female voice only — Sarah (calm, soothing)
+const VOICE_ID = "EXAVITQu4vr4xnSDxMaL";
 
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Verify authentication
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return new Response(
@@ -45,7 +40,7 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const { text, voiceType = "male" } = body;
+    const { text } = body;
     
     if (!text || typeof text !== 'string') {
       return new Response(
@@ -56,12 +51,6 @@ serve(async (req) => {
     if (text.length > 5000) {
       return new Response(
         JSON.stringify({ error: "Text too long (max 5000 chars)" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-    if (voiceType && !['male', 'female'].includes(voiceType)) {
-      return new Response(
-        JSON.stringify({ error: "Invalid voice type" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -78,10 +67,8 @@ serve(async (req) => {
       );
     }
 
-    const voiceId = VOICES[voiceType as keyof typeof VOICES] || VOICES.male;
-
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}?output_format=mp3_44100_128`,
       {
         method: "POST",
         headers: {
@@ -96,7 +83,7 @@ serve(async (req) => {
             similarity_boost: 0.5,
             style: 0.3,
             use_speaker_boost: true,
-            speed: 0.9, // Slightly slower for calm guidance
+            speed: 0.9,
           },
         }),
       }
