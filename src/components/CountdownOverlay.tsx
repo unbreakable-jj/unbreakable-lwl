@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
 
-type CountdownPhase = "power" | "movement" | "fuel" | "mindset" | "three" | "two" | "one" | "go";
+type CountdownPhase = "power" | "movement" | "fuel" | "mindset" | "go";
 
 interface CountdownOverlayProps {
   isActive: boolean;
