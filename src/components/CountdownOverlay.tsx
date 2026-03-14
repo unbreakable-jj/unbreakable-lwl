@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
 
-type CountdownPhase = "ready" | "power" | "movement" | "fuel" | "mindset" | "go";
+type CountdownPhase = "power" | "movement" | "fuel" | "mindset" | "three" | "two" | "one" | "go";
 
 interface CountdownOverlayProps {
   isActive: boolean;
@@ -22,35 +22,36 @@ export function CountdownOverlay({
   onPlayAudio,
   onStartGps,
 }: CountdownOverlayProps) {
-  const [phase, setPhase] = useState<CountdownPhase>("ready");
+  const [phase, setPhase] = useState<CountdownPhase>("power");
   const gpsStartedRef = useRef(false);
 
   useEffect(() => {
     if (isActive) {
-      setPhase("ready");
+      setPhase("power");
       gpsStartedRef.current = false;
     }
   }, [isActive]);
 
-  // Start GPS during ready phase
+  // Start GPS immediately on mount
   useEffect(() => {
-    if (isActive && phase === "ready" && !gpsStartedRef.current && onStartGps) {
+    if (isActive && !gpsStartedRef.current && onStartGps) {
       gpsStartedRef.current = true;
       onStartGps();
     }
-  }, [isActive, phase, onStartGps]);
+  }, [isActive, onStartGps]);
 
-  // Phase durations — no voice overlay during countdown
   const PHASE_DURATION: Record<CountdownPhase, number> = {
-    ready: 1000,
     power: 1000,
     movement: 1000,
     fuel: 1000,
     mindset: 1000,
-    go: 2000,
+    three: 1000,
+    two: 1000,
+    one: 1000,
+    go: 1000,
   };
 
-  const PHASE_ORDER: CountdownPhase[] = ["ready", "power", "movement", "fuel", "mindset", "go"];
+  const PHASE_ORDER: CountdownPhase[] = ["power", "movement", "fuel", "mindset", "three", "two", "one", "go"];
 
   useEffect(() => {
     if (!isActive) return;
@@ -72,6 +73,9 @@ export function CountdownOverlay({
 
   if (!isActive) return null;
 
+  const isNumberPhase = phase === "three" || phase === "two" || phase === "one";
+  const numberText = phase === "three" ? "3" : phase === "two" ? "2" : phase === "one" ? "1" : "";
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -87,41 +91,41 @@ export function CountdownOverlay({
           }}
         />
 
-        {phase === "ready" && (
-          <motion.div
-            key="ready"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.1 }}
-            transition={{ duration: 0.4 }}
-            className="relative z-10 flex flex-col items-center gap-6"
-          >
-            <motion.img 
-              src={logo} 
-              alt="Unbreakable" 
-              className="h-20 md:h-28"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            />
-            <span 
-              className="font-display text-[5rem] md:text-[8rem] leading-none text-foreground tracking-widest"
-              style={{ textShadow: "0 0 40px hsl(var(--primary) / 0.5)" }}
-            >
-              READY
-            </span>
-            {exerciseName && (
-              <span className="font-display text-xl text-primary tracking-wide neon-glow-subtle">
-                {exerciseName}
-              </span>
-            )}
-          </motion.div>
-        )}
-
+        {/* Power words */}
         {phase === "power" && <PowerWord word="POWER" />}
         {phase === "movement" && <PowerWord word="MOVEMENT" />}
         {phase === "fuel" && <PowerWord word="FUEL" />}
         {phase === "mindset" && <PowerWord word="MINDSET" />}
 
+        {/* 3-2-1 countdown numbers */}
+        {isNumberPhase && (
+          <motion.div
+            key={`number-${phase}`}
+            initial={{ scale: 0.3, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 1.5, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 250, damping: 18, duration: 0.4 }}
+            className="relative z-10 flex flex-col items-center"
+          >
+            <motion.div
+              animate={{
+                scale: [1, 1.8, 1],
+                opacity: [0.4, 0, 0.4],
+              }}
+              transition={{ duration: 0.7, repeat: Infinity, ease: "easeOut" }}
+              className="absolute w-48 h-48 rounded-full border-4 border-primary"
+              style={{ left: "50%", top: "50%", transform: "translate(-50%, -50%)" }}
+            />
+            <span 
+              className="font-display text-[10rem] md:text-[14rem] leading-none text-primary"
+              style={{ textShadow: "0 0 80px hsl(var(--primary) / 0.8)" }}
+            >
+              {numberText}
+            </span>
+          </motion.div>
+        )}
+
+        {/* GO! */}
         {phase === "go" && (
           <motion.div
             key="go"
@@ -137,6 +141,11 @@ export function CountdownOverlay({
             >
               GO!
             </span>
+            {exerciseName && (
+              <span className="font-display text-xl text-foreground/70 tracking-wide mt-4">
+                {exerciseName}
+              </span>
+            )}
           </motion.div>
         )}
       </motion.div>

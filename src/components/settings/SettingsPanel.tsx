@@ -396,32 +396,10 @@ export function SettingsPanel() {
           </div>
 
           {aiPreferences?.voice_feedback_enabled && (
-            <>
-              <Separator />
-              <div className="space-y-3">
-                <Label className="text-foreground font-medium">Voice Type</Label>
-                <RadioGroup
-                  value={aiPreferences?.voice_gender || 'female'}
-                  onValueChange={(value) => updatePreferences.mutate({ voice_gender: value as 'male' | 'female' })}
-                  className="space-y-2"
-                >
-                  <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30 border border-border">
-                    <RadioGroupItem value="female" id="female-settings" />
-                    <Label htmlFor="female-settings" className="flex-1 cursor-pointer">
-                      <span className="font-medium">Female Voice</span>
-                      <p className="text-xs text-muted-foreground">Clear and encouraging tone</p>
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30 border border-border">
-                    <RadioGroupItem value="male" id="male-settings" />
-                    <Label htmlFor="male-settings" className="flex-1 cursor-pointer">
-                      <span className="font-medium">Male Voice</span>
-                      <p className="text-xs text-muted-foreground">Strong and motivating tone</p>
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </>
+            <div className="p-3 rounded-lg bg-muted/30 border border-border">
+              <p className="text-sm font-medium text-foreground">Female Voice</p>
+              <p className="text-xs text-muted-foreground">Clear and encouraging tone</p>
+            </div>
           )}
 
           <Separator />

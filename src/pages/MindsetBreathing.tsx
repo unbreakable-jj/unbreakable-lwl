@@ -275,7 +275,7 @@ const MindsetBreathing = () => {
               {voiceEnabled ? (
                 <>
                   <Volume2 className="w-4 h-4 text-primary" />
-                  <span className="text-muted-foreground">{voiceType === "male" ? "Male" : "Female"} voice guidance enabled</span>
+                  <span className="text-muted-foreground">Voice guidance enabled</span>
                 </>
               ) : (
                 <>
