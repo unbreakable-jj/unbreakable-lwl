@@ -15,9 +15,9 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("Missing configuration");
 
     const triggerDescriptions: Record<string, string> = {
-      sign_in: "The athlete just signed into the app.",
-      session_complete: "The athlete just completed a training session.",
-      habits_logged: "The athlete just completed their Daily 5 habits.",
+      sign_in: "The athlete just opened the app for a new session.",
+      session_complete: "The athlete just finished a training session.",
+      habits_logged: "The athlete just smashed all 5 daily habits.",
       programme_complete: "The athlete just completed an entire training programme.",
     };
 
@@ -34,21 +34,32 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are the Unbreakable Coach — a gritty, no-nonsense motivational voice. Generate ONE powerful, unique motivational message.
+            content: `You are the Unbreakable Coach — a Scouse fitness and mindset coach from Liverpool. You speak with raw authenticity, Scouse grit, and genuine warmth. You're the coach who's been through it all and came out the other side stronger.
+
+YOUR VOICE:
+- Scouse expressions welcome: "sound", "boss", "made up", "get in", "dead proud", "no messin'"
+- Direct, punchy, zero fluff — like a mate in the gym who won't let you quit
+- Mix toughness with heart — you push hard but you genuinely care
+- Reference the grind, the process, the daily choices that build champions
+
+BRAND VALUES — weave these naturally:
+- UNBREAKABLE: You can't be broken. Setbacks are setup for comebacks.
+- LIVE WITHOUT LIMITS: Comfort zones are where dreams go to die.
+- POWER, MOVEMENT, FUEL, MINDSET: The four pillars.
 
 RULES:
-- Maximum 2 sentences. Punchy, raw, real.
-- Match the tone to the trigger moment.
-- Mix styles: sometimes poetic, sometimes blunt, sometimes warrior-like, sometimes philosophical.
-- Never generic. Never cliché "you got this" energy. Think David Goggins meets Marcus Aurelius.
-- Include one relevant emoji at the start.
+- Maximum 2 sentences. Hit hard.
+- Tie the message to what the athlete just did (the trigger moment).
+- Never generic. Never "you got this" energy. Be SPECIFIC to the action.
+- Include one emoji at the start that fits the moment.
 - End with #UNBREAKABLE
+- NO quotation marks around the message.
 
-Return ONLY the quote text, nothing else.`
+Return ONLY the motivational message text, nothing else.`
           },
           {
             role: "user",
-            content: `${triggerContext}${context ? ` Additional context: ${context}` : ''}\n\nGenerate a unique motivational message.`
+            content: `${triggerContext}${context ? ` Context: ${context}` : ''}\n\nGenerate a unique, branded Unbreakable motivational message.`
           }
         ],
       }),
@@ -69,13 +80,12 @@ Return ONLY the quote text, nothing else.`
     });
   } catch (e) {
     console.error("generate-motivation error:", e);
-    // Fallback quotes so the popup still works
     const fallbacks = [
-      "🔥 The pain you feel today is the strength you'll carry tomorrow. Keep showing up. #UNBREAKABLE",
-      "⚔️ Champions aren't built in comfort zones. You chose this path — now own it. #UNBREAKABLE",
-      "🧱 Every rep, every step, every choice — you're building something they can't break. #UNBREAKABLE",
-      "💀 Weakness is a choice. You didn't come here to be average. #UNBREAKABLE",
-      "🔱 The world breaks everyone, but some grow strongest at the broken places. #UNBREAKABLE",
+      "🔥 You showed up when it mattered — that's what separates the unbreakable from the rest, no messin'. #UNBREAKABLE",
+      "⚔️ Every single day you choose this, you're building something they can't take from you — dead proud of you, keep going. #UNBREAKABLE",
+      "🧱 Comfort zones? Not for us. You're out here doing the work while others make excuses — that's boss that. #UNBREAKABLE",
+      "💪 The grind doesn't lie, and neither do your results — you're living without limits now. #UNBREAKABLE",
+      "🔱 Pain is temporary, but what you're building? That's forever. Sound. #UNBREAKABLE",
     ];
     const quote = fallbacks[Math.floor(Math.random() * fallbacks.length)];
     return new Response(JSON.stringify({ quote }), {

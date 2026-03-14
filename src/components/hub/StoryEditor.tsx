@@ -276,6 +276,7 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
     let imageUrl: string | null = null;
     let videoUrl: string | null = null;
     try {
+      // Handle image upload
       if (imageFile) {
         setUploadProgress('Uploading image...');
         const ext = imageFile.name.split('.').pop();
@@ -285,8 +286,23 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
         const { data } = supabase.storage.from('post-images').getPublicUrl(path);
         imageUrl = data.publicUrl;
       } else if (imagePreview && bgType === 'image') {
-        imageUrl = imagePreview;
+        // If it's a data URL or blob URL, upload it
+        if (imagePreview.startsWith('data:') || imagePreview.startsWith('blob:')) {
+          setUploadProgress('Uploading image...');
+          const resp = await fetch(imagePreview);
+          const blob = await resp.blob();
+          const ext = blob.type.split('/')[1] || 'jpg';
+          const path = `${user!.id}/${Date.now()}.${ext}`;
+          const { error } = await supabase.storage.from('post-images').upload(path, blob);
+          if (error) throw error;
+          const { data } = supabase.storage.from('post-images').getPublicUrl(path);
+          imageUrl = data.publicUrl;
+        } else {
+          imageUrl = imagePreview;
+        }
       }
+
+      // Handle video upload
       if (videoFile) {
         setUploadProgress('Compressing video...');
         const compressed = await compressVideo(videoFile, 10, 1080);
@@ -298,8 +314,36 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
         const { data } = supabase.storage.from('post-videos').getPublicUrl(path);
         videoUrl = data.publicUrl;
       } else if (videoPreview && bgType === 'video') {
-        videoUrl = videoPreview;
+        // Video from preFill (blob or external URL) — fetch and upload
+        if (videoPreview.startsWith('blob:') || videoPreview.startsWith('data:')) {
+          setUploadProgress('Uploading video...');
+          const resp = await fetch(videoPreview);
+          const blob = await resp.blob();
+          const ext = blob.type.split('/')[1] === 'quicktime' ? 'mov' : (blob.type.split('/')[1] || 'mp4');
+          const path = `stories/${user!.id}/${Date.now()}.${ext}`;
+          const { error } = await supabase.storage.from('post-videos').upload(path, blob);
+          if (error) throw error;
+          const { data } = supabase.storage.from('post-videos').getPublicUrl(path);
+          videoUrl = data.publicUrl;
+        } else {
+          // Already a public URL (shared from feed) — fetch, re-upload to stories folder
+          setUploadProgress('Uploading video...');
+          try {
+            const resp = await fetch(videoPreview);
+            const blob = await resp.blob();
+            const ext = blob.type.split('/')[1] === 'quicktime' ? 'mov' : (blob.type.split('/')[1] || 'mp4');
+            const path = `stories/${user!.id}/${Date.now()}.${ext}`;
+            const { error } = await supabase.storage.from('post-videos').upload(path, blob);
+            if (error) throw error;
+            const { data } = supabase.storage.from('post-videos').getPublicUrl(path);
+            videoUrl = data.publicUrl;
+          } catch {
+            // Fallback: use original URL directly
+            videoUrl = videoPreview;
+          }
+        }
       }
+
       setUploadProgress('Publishing...');
       await onPublish({
         content: null,
@@ -309,6 +353,7 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
         text_overlays: overlays,
         background_color: bgType === 'color' ? bgColor : null,
       });
+      toast.success('Story published!');
     } catch (err) {
       toast.error('Failed to publish story');
       console.error(err);
