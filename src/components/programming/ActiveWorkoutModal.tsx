@@ -53,7 +53,7 @@ interface ActiveWorkoutModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type ActiveTool = 'none' | 'logging' | 'notes' | 'feedback' | 'progress' | 'results';
+type ActiveTool = 'none' | 'logging' | 'notes' | 'results';
 
 export function ActiveWorkoutModal({
   session,
