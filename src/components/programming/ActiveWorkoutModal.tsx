@@ -165,18 +165,6 @@ export function ActiveWorkoutModal({
           <SessionResultsView
             session={session}
             onClose={() => setActiveTool('none')}
-            onViewFeedback={() => setActiveTool('feedback')}
-          />
-        )}
-        {activeTool === 'feedback' && (
-          <AIFeedbackView
-            sessionId={session.id}
-            onClose={() => setActiveTool('none')}
-          />
-        )}
-        {activeTool === 'progress' && (
-          <ProgressMetricsView
-            onClose={() => setActiveTool('none')}
           />
         )}
       </AnimatePresence>
