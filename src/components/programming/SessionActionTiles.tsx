@@ -57,7 +57,6 @@ export function SessionActionTiles({
     }
     if (id === 'results' && isCompleted) return '✓';
     if (id === 'notes' && hasNotes) return '✓';
-    if (id === 'feedback' && hasFeedback) return '✓';
     return null;
   };
 
