@@ -412,8 +412,6 @@ export function ActiveWorkoutModal({
           <SessionActionTiles
             onOpenLogging={() => setActiveTool('logging')}
             onOpenNotes={() => setActiveTool('notes')}
-            onOpenFeedback={() => setActiveTool('feedback')}
-            onOpenProgress={() => setActiveTool('progress')}
             onOpenResults={isCompleted ? () => setActiveTool('results') : undefined}
             completedSets={completedSets}
             totalSets={totalSets}

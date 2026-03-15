@@ -2,8 +2,6 @@ import { Card } from '@/components/ui/card';
 import { 
   ClipboardList, 
   StickyNote, 
-  Sparkles, 
-  BarChart3,
   ChevronRight,
   Trophy
 } from 'lucide-react';
