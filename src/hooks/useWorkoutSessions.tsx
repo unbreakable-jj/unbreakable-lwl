@@ -274,10 +274,55 @@ export function useWorkoutSessions() {
       
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: async (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['workout-sessions'] });
       queryClient.invalidateQueries({ queryKey: ['active-session'] });
       toast({ title: 'Workout Complete!', description: 'Great job finishing your session!' });
+
+      // Notify coaches and devs that a session was completed
+      try {
+        if (!user) return;
+        const sessionData = sessions?.find(s => s.id === variables.sessionId) || activeSession;
+        const sessionLabel = sessionData ? `${sessionData.session_type} (${sessionData.day_name})` : 'a workout session';
+
+        // Notify assigned coaches
+        const { data: coaches } = await supabase
+          .from('coaching_assignments')
+          .select('coach_id')
+          .eq('athlete_id', user.id)
+          .eq('status', 'active');
+
+        const coachNotifs = (coaches || []).map(c => ({
+          user_id: c.coach_id,
+          type: 'athlete_completed_session',
+          title: 'Session Completed ✅',
+          body: `Your athlete completed ${sessionLabel}.`,
+          data: { session_id: variables.sessionId, athlete_id: user.id, program_id: sessionData?.program_id },
+        }));
+
+        // Notify devs
+        const { data: devRoles } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .eq('role', 'dev');
+
+        const devNotifs = (devRoles || [])
+          .filter(d => d.user_id !== user.id)
+          .map(d => ({
+            user_id: d.user_id,
+            type: 'athlete_completed_session',
+            title: 'Session Completed ✅',
+            body: `An athlete completed ${sessionLabel}.`,
+            data: { session_id: variables.sessionId, athlete_id: user.id, program_id: sessionData?.program_id },
+          }));
+
+        const allNotifs = [...coachNotifs, ...devNotifs];
+        if (allNotifs.length > 0) {
+          await supabase.from('notifications').insert(allNotifs);
+        }
+      } catch (e) {
+        console.error('Failed to notify coach/dev on session complete:', e);
+      }
     },
   });
 

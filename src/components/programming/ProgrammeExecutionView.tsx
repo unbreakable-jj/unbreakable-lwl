@@ -390,12 +390,20 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
       </Card>
 
       {/* Next Session CTA */}
-      {nextSession && !showEditor && (
-        <Card className="p-6 border-2 border-primary bg-card">
+      {nextSession && !showEditor && (() => {
+        // Check if the previous session (day before this one) was completed
+        const prevDayCompleted = planners?.some(p => 
+          p.status === 'completed' && 
+          ((p.week_number === nextSession.week_number && p.day_number === nextSession.day_number - 1) ||
+           (p.week_number === nextSession.week_number - 1 && nextSession.day_number === 1))
+        );
+
+        return (
+        <Card className={`p-6 border-2 ${prevDayCompleted ? 'border-foreground bg-foreground/5' : 'border-primary bg-card'}`}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                <Dumbbell className="w-7 h-7 text-primary" />
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center shrink-0 ${prevDayCompleted ? 'bg-foreground/20' : 'bg-primary/20'}`}>
+                <Dumbbell className={`w-7 h-7 ${prevDayCompleted ? 'text-foreground' : 'text-primary'}`} />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
@@ -404,7 +412,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
                 <h3 className="font-display text-xl text-foreground">
                   {nextSession.session_type}
                 </h3>
-                <p className="text-sm text-primary">
+                <p className={`text-sm ${prevDayCompleted ? 'text-foreground/70' : 'text-primary'}`}>
                   Week {nextSession.week_number}, Day {nextSession.day_number} • {nextSession.planned_exercises.length} exercises
                 </p>
               </div>
@@ -414,7 +422,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
               size="lg" 
               onClick={() => hasActiveSession ? setShowWorkoutModal(true) : handleStartSession(nextSession)}
               disabled={isStartingSession || startSession.isPending}
-              className="gap-2 w-full sm:w-auto font-display tracking-wide"
+              className={`gap-2 w-full sm:w-auto font-display tracking-wide ${prevDayCompleted ? 'bg-foreground text-background hover:bg-foreground/90' : ''}`}
             >
               {isStartingSession || startSession.isPending ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -450,7 +458,8 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
             </div>
           )}
         </Card>
-      )}
+        );
+      })()}
 
       {/* Inline Session Editor */}
       {showEditor && nextSession && (
