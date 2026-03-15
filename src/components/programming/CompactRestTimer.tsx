@@ -99,17 +99,15 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
       return;
     }
 
+    // Clear any existing interval before starting new one
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
     intervalRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           setIsRunning(false);
-          if (beepEnabled) {
-            playBeepSequence();
-          }
-          if (vibrateEnabled && 'vibrate' in navigator) {
-            navigator.vibrate([200, 100, 200, 100, 200]);
-          }
-          onComplete?.();
           return 0;
         }
         return prev - 1;
@@ -122,7 +120,17 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
         intervalRef.current = null;
       }
     };
-  }, [isRunning, beepEnabled, vibrateEnabled, playBeepSequence, onComplete]);
+  }, [isRunning]);
+
+  // Handle timer completion effects (beep/vibrate) separately to avoid interval deps issues
+  useEffect(() => {
+    if (timeLeft === 0 && !isRunning) {
+      if (beepEnabled) playBeepSequence();
+      if (vibrateEnabled && 'vibrate' in navigator) {
+        navigator.vibrate([200, 100, 200, 100, 200]);
+      }
+    }
+  }, [timeLeft, isRunning, beepEnabled, vibrateEnabled, playBeepSequence]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

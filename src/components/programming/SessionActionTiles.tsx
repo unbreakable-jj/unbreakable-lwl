@@ -2,8 +2,6 @@ import { Card } from '@/components/ui/card';
 import { 
   ClipboardList, 
   StickyNote, 
-  Sparkles, 
-  BarChart3,
   ChevronRight,
   Trophy
 } from 'lucide-react';
@@ -12,26 +10,20 @@ import { motion } from 'framer-motion';
 interface SessionActionTilesProps {
   onOpenLogging: () => void;
   onOpenNotes: () => void;
-  onOpenFeedback: () => void;
-  onOpenProgress: () => void;
   onOpenResults?: () => void;
   completedSets: number;
   totalSets: number;
   hasNotes?: boolean;
-  hasFeedback?: boolean;
   isCompleted?: boolean;
 }
 
 export function SessionActionTiles({
   onOpenLogging,
   onOpenNotes,
-  onOpenFeedback,
-  onOpenProgress,
   onOpenResults,
   completedSets,
   totalSets,
   hasNotes,
-  hasFeedback,
   isCompleted,
 }: SessionActionTilesProps) {
   const tiles = [
@@ -57,20 +49,6 @@ export function SessionActionTiles({
       icon: StickyNote,
       onClick: onOpenNotes,
     },
-    {
-      id: 'feedback',
-      title: 'Coach Feedback',
-      description: 'Get expert insights',
-      icon: Sparkles,
-      onClick: onOpenFeedback,
-    },
-    {
-      id: 'progress',
-      title: 'View Progress',
-      description: 'Track your gains',
-      icon: BarChart3,
-      onClick: onOpenProgress,
-    },
   ];
 
   const getIndicator = (id: string) => {
@@ -79,7 +57,6 @@ export function SessionActionTiles({
     }
     if (id === 'results' && isCompleted) return '✓';
     if (id === 'notes' && hasNotes) return '✓';
-    if (id === 'feedback' && hasFeedback) return '✓';
     return null;
   };
 

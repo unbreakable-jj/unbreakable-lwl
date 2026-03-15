@@ -30,7 +30,7 @@ import {
   Loader2,
   Target,
   ArrowLeft,
-  ChevronLeft,
+  
   ChevronRight,
   Trophy,
   TrendingUp,
@@ -488,75 +488,39 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
               PREVIOUS RESULTS
             </h3>
             <span className="text-xs text-muted-foreground">
-              {(viewingResultIndex ?? 0) + 1} of {completedSessions.length}
+              {completedSessions.length} session{completedSessions.length !== 1 ? 's' : ''}
             </span>
           </div>
           
-          {/* Current result preview */}
-          {(() => {
-            const idx = viewingResultIndex ?? 0;
-            const session = completedSessions[idx];
-            if (!session) return null;
-            const completedSets = (session.exercise_logs || []).filter(l => l.completed).length;
-            const totalSets = (session.exercise_logs || []).length;
-            return (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
-                  <div>
-                    <p className="font-display text-sm text-foreground">{session.session_type}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {session.day_name} • {format(new Date(session.ended_at || session.started_at), 'MMM d, yyyy')}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {completedSets}/{totalSets} sets completed
-                      {session.duration_seconds && ` • ${Math.floor(session.duration_seconds / 60)} min`}
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="font-display tracking-wide text-xs"
-                    onClick={() => setViewingResultIndex(idx)}
-                  >
-                    VIEW RESULTS
-                  </Button>
-                </div>
+          {/* Scrollable session list */}
+          <div className="max-h-[40vh] overflow-y-auto space-y-2 overscroll-contain">
+            {completedSessions.map((session, idx) => {
+              const completedSets = (session.exercise_logs || []).filter(l => l.completed).length;
+              const totalSets = (session.exercise_logs || []).length;
+              const isExpanded = viewingResultIndex === idx;
 
-                {/* Arrow navigation */}
-                <div className="flex items-center justify-center gap-4">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    disabled={idx <= 0}
-                    onClick={() => setViewingResultIndex(Math.max(0, idx - 1))}
+              return (
+                <div key={session.id} className="rounded-lg border border-border overflow-hidden">
+                  <button
+                    onClick={() => setViewingResultIndex(isExpanded ? null : idx)}
+                    className="w-full flex items-center justify-between p-3 bg-muted/30 hover:bg-muted/50 transition-colors text-left"
                   >
-                    <ChevronLeft className="w-5 h-5" />
-                  </Button>
-                  <div className="flex gap-1">
-                    {completedSessions.map((_, i) => (
-                      <div
-                        key={i}
-                        className={`w-2 h-2 rounded-full transition-colors cursor-pointer ${
-                          i === idx ? 'bg-primary' : 'bg-muted-foreground/30'
-                        }`}
-                        onClick={() => setViewingResultIndex(i)}
-                      />
-                    ))}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    disabled={idx >= completedSessions.length - 1}
-                    onClick={() => setViewingResultIndex(Math.min(completedSessions.length - 1, idx + 1))}
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </Button>
+                    <div>
+                      <p className="font-display text-sm text-foreground">{session.session_type}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {session.day_name} • {format(new Date(session.ended_at || session.started_at), 'MMM d, yyyy')}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {completedSets}/{totalSets} sets
+                        {session.duration_seconds && ` • ${Math.floor(session.duration_seconds / 60)} min`}
+                      </p>
+                    </div>
+                    <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                  </button>
                 </div>
-              </div>
-            );
-          })()}
+              );
+            })}
+          </div>
         </Card>
       )}
 

@@ -53,7 +53,7 @@ interface ActiveWorkoutModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type ActiveTool = 'none' | 'logging' | 'notes' | 'feedback' | 'progress' | 'results';
+type ActiveTool = 'none' | 'logging' | 'notes' | 'results';
 
 export function ActiveWorkoutModal({
   session,
@@ -164,18 +164,6 @@ export function ActiveWorkoutModal({
         {activeTool === 'results' && (
           <SessionResultsView
             session={session}
-            onClose={() => setActiveTool('none')}
-            onViewFeedback={() => setActiveTool('feedback')}
-          />
-        )}
-        {activeTool === 'feedback' && (
-          <AIFeedbackView
-            sessionId={session.id}
-            onClose={() => setActiveTool('none')}
-          />
-        )}
-        {activeTool === 'progress' && (
-          <ProgressMetricsView
             onClose={() => setActiveTool('none')}
           />
         )}
@@ -424,8 +412,6 @@ export function ActiveWorkoutModal({
           <SessionActionTiles
             onOpenLogging={() => setActiveTool('logging')}
             onOpenNotes={() => setActiveTool('notes')}
-            onOpenFeedback={() => setActiveTool('feedback')}
-            onOpenProgress={() => setActiveTool('progress')}
             onOpenResults={isCompleted ? () => setActiveTool('results') : undefined}
             completedSets={completedSets}
             totalSets={totalSets}
