@@ -12,26 +12,20 @@ import { motion } from 'framer-motion';
 interface SessionActionTilesProps {
   onOpenLogging: () => void;
   onOpenNotes: () => void;
-  onOpenFeedback: () => void;
-  onOpenProgress: () => void;
   onOpenResults?: () => void;
   completedSets: number;
   totalSets: number;
   hasNotes?: boolean;
-  hasFeedback?: boolean;
   isCompleted?: boolean;
 }
 
 export function SessionActionTiles({
   onOpenLogging,
   onOpenNotes,
-  onOpenFeedback,
-  onOpenProgress,
   onOpenResults,
   completedSets,
   totalSets,
   hasNotes,
-  hasFeedback,
   isCompleted,
 }: SessionActionTilesProps) {
   const tiles = [
@@ -56,20 +50,6 @@ export function SessionActionTiles({
       description: 'Add workout notes',
       icon: StickyNote,
       onClick: onOpenNotes,
-    },
-    {
-      id: 'feedback',
-      title: 'Coach Feedback',
-      description: 'Get expert insights',
-      icon: Sparkles,
-      onClick: onOpenFeedback,
-    },
-    {
-      id: 'progress',
-      title: 'View Progress',
-      description: 'Track your gains',
-      icon: BarChart3,
-      onClick: onOpenProgress,
     },
   ];
 
