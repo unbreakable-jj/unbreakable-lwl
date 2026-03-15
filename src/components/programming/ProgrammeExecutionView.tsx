@@ -30,7 +30,7 @@ import {
   Loader2,
   Target,
   ArrowLeft,
-  ChevronLeft,
+  
   ChevronRight,
   Trophy,
   TrendingUp,
