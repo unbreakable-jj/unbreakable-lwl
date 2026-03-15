@@ -458,7 +458,8 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
             </div>
           )}
         </Card>
-      )}
+        );
+      })()}
 
       {/* Inline Session Editor */}
       {showEditor && nextSession && (

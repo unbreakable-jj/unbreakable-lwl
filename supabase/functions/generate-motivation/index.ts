@@ -87,11 +87,11 @@ Return ONLY the motivational message text, nothing else.`
   } catch (e) {
     console.error("generate-motivation error:", e);
     const fallbacks = [
-      "🔥 You showed up when it mattered — that's what separates the unbreakable from the rest, no messin'. #UNBREAKABLE",
-      "⚔️ Every single day you choose this, you're building something they can't take from you — dead proud of you, keep going. #UNBREAKABLE",
-      "🧱 Comfort zones? Not for us. You're out here doing the work while others make excuses — that's boss that. #UNBREAKABLE",
-      "💪 The grind doesn't lie, and neither do your results — you're living without limits now. #UNBREAKABLE",
-      "🔱 Pain is temporary, but what you're building? That's forever. Sound. #UNBREAKABLE",
+      "🔥 You showed up when it mattered — that's what separates the unbreakable from the rest. #UNBREAKABLE",
+      "⚔️ Every single day you choose this, you're building something they can't take from you. #UNBREAKABLE",
+      "🧱 Comfort zones don't build champions — you're out here doing the work while others make excuses. #UNBREAKABLE",
+      "💪 Power, Movement, Fuel, Mindset — four pillars, one mission: Live Without Limits. #UNBREAKABLE",
+      "🔱 Pain is temporary, but what you're building is permanent. #UNBREAKABLE",
     ];
     const quote = fallbacks[Math.floor(Math.random() * fallbacks.length)];
     return new Response(JSON.stringify({ quote }), {
