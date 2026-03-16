@@ -282,8 +282,26 @@ export function useWorkoutSessions() {
       // Notify coaches and devs that a session was completed
       try {
         if (!user) return;
-        const sessionData = sessions?.find(s => s.id === variables.sessionId) || activeSession;
-        const sessionLabel = sessionData ? `${sessionData.session_type} (${sessionData.day_name})` : 'a workout session';
+
+        // Fetch the completed session fresh to guarantee we have data
+        const { data: completedSession } = await supabase
+          .from('workout_sessions')
+          .select('session_type, day_name, program_id')
+          .eq('id', variables.sessionId)
+          .single();
+
+        const sessionLabel = completedSession
+          ? `${completedSession.session_type} (${completedSession.day_name})`
+          : 'a workout session';
+
+        // Fetch athlete display name for notification context
+        const { data: athleteProfile } = await supabase
+          .from('profiles')
+          .select('display_name, username')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        const athleteName = athleteProfile?.display_name || athleteProfile?.username || 'An athlete';
 
         // Notify assigned coaches
         const { data: coaches } = await supabase
@@ -295,9 +313,9 @@ export function useWorkoutSessions() {
         const coachNotifs = (coaches || []).map(c => ({
           user_id: c.coach_id,
           type: 'athlete_completed_session',
-          title: 'Session Completed ✅',
-          body: `Your athlete completed ${sessionLabel}.`,
-          data: { session_id: variables.sessionId, athlete_id: user.id, program_id: sessionData?.program_id },
+          title: '🏋️ Session Completed',
+          body: `${athleteName} completed ${sessionLabel}. Tap to review their results.`,
+          data: { session_id: variables.sessionId, athlete_id: user.id, program_id: completedSession?.program_id },
         }));
 
         // Notify devs
@@ -311,9 +329,9 @@ export function useWorkoutSessions() {
           .map(d => ({
             user_id: d.user_id,
             type: 'athlete_completed_session',
-            title: 'Session Completed ✅',
-            body: `An athlete completed ${sessionLabel}.`,
-            data: { session_id: variables.sessionId, athlete_id: user.id, program_id: sessionData?.program_id },
+            title: '🏋️ Session Completed',
+            body: `${athleteName} completed ${sessionLabel}. Tap to review their results.`,
+            data: { session_id: variables.sessionId, athlete_id: user.id, program_id: completedSession?.program_id },
           }));
 
         const allNotifs = [...coachNotifs, ...devNotifs];

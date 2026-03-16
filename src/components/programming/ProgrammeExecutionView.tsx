@@ -60,7 +60,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
   
   const [showWorkoutModal, setShowWorkoutModal] = useState(false);
   const [isStartingSession, setIsStartingSession] = useState(false);
-  const [viewingResultIndex, setViewingResultIndex] = useState<number | null>(null);
+  const [viewingResultSession, setViewingResultSession] = useState<WorkoutSession | null>(null);
   const [showEditor, setShowEditor] = useState(false);
   const [isSkipping, setIsSkipping] = useState(false);
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);

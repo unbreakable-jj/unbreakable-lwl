@@ -352,10 +352,10 @@ export function FoodTracker() {
   const { goals } = useNutritionGoals();
   const { analyzeDailySummary, isAnalyzing } = useNutritionFeedback();
   const [expandedMeals, setExpandedMeals] = useState<Record<MealType, boolean>>({
-    breakfast: true,
-    lunch: true,
-    dinner: true,
-    snack: true,
+    breakfast: false,
+    lunch: false,
+    dinner: false,
+    snack: false,
   });
   const [addingToMeal, setAddingToMeal] = useState<MealType | null>(null);
   const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
