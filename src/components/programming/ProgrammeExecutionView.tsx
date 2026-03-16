@@ -14,7 +14,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useSessionPlanners, SessionPlanner } from '@/hooks/useSessionPlanners';
-import { useWorkoutSessions } from '@/hooks/useWorkoutSessions';
+import { useWorkoutSessions, WorkoutSession } from '@/hooks/useWorkoutSessions';
 import { TrainingProgram } from '@/hooks/useTrainingPrograms';
 import { ActiveWorkoutModal } from './ActiveWorkoutModal';
 import { SessionResultsView } from './SessionResultsView';
