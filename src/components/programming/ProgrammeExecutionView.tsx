@@ -479,8 +479,8 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
         </Card>
       )}
 
-      {/* Session History Cycling */}
-      {completedSessions.length > 0 && (
+      {/* Session History */}
+      {completedSessions.length > 0 && !viewingResultSession && (
         <Card className="border border-border bg-card p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-display text-foreground tracking-wide flex items-center gap-2">
@@ -493,31 +493,29 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
           </div>
           
           {/* Scrollable session list */}
-          <div className="max-h-[40vh] overflow-y-auto space-y-2 overscroll-contain">
-            {completedSessions.map((session, idx) => {
-              const completedSets = (session.exercise_logs || []).filter(l => l.completed).length;
-              const totalSets = (session.exercise_logs || []).length;
-              const isExpanded = viewingResultIndex === idx;
+          <div className="max-h-[50vh] overflow-y-auto space-y-2 overscroll-contain pr-1">
+            {completedSessions.map((session) => {
+              const cSets = (session.exercise_logs || []).filter(l => l.completed).length;
+              const tSets = (session.exercise_logs || []).length;
 
               return (
-                <div key={session.id} className="rounded-lg border border-border overflow-hidden">
-                  <button
-                    onClick={() => setViewingResultIndex(isExpanded ? null : idx)}
-                    className="w-full flex items-center justify-between p-3 bg-muted/30 hover:bg-muted/50 transition-colors text-left"
-                  >
-                    <div>
-                      <p className="font-display text-sm text-foreground">{session.session_type}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {session.day_name} • {format(new Date(session.ended_at || session.started_at), 'MMM d, yyyy')}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {completedSets}/{totalSets} sets
-                        {session.duration_seconds && ` • ${Math.floor(session.duration_seconds / 60)} min`}
-                      </p>
-                    </div>
-                    <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
-                  </button>
-                </div>
+                <button
+                  key={session.id}
+                  onClick={() => setViewingResultSession(session)}
+                  className="w-full flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors text-left"
+                >
+                  <div>
+                    <p className="font-display text-sm text-foreground">{session.session_type}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {session.day_name} • {format(new Date(session.ended_at || session.started_at), 'MMM d, yyyy')}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {cSets}/{tSets} sets
+                      {session.duration_seconds && ` • ${Math.floor(session.duration_seconds / 60)} min`}
+                    </p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </button>
               );
             })}
           </div>
@@ -525,10 +523,10 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
       )}
 
       {/* Session Results Full View */}
-      {viewingResultIndex !== null && completedSessions[viewingResultIndex] && (
+      {viewingResultSession && (
         <SessionResultsView
-          session={completedSessions[viewingResultIndex]}
-          onClose={() => setViewingResultIndex(null)}
+          session={viewingResultSession}
+          onClose={() => setViewingResultSession(null)}
         />
       )}
 
