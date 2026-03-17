@@ -573,27 +573,27 @@ export default function Inbox() {
                             className={`flex ${isOwn ? 'justify-end' : 'justify-start'} group`}
                           >
                             <div className="relative">
-                              {/* Delete button on hover */}
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className={`absolute top-0 ${isOwn ? '-left-8' : '-right-8'} opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0`}
-                                  >
-                                    <MoreVertical className="w-4 h-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align={isOwn ? 'start' : 'end'}>
-                                  <DropdownMenuItem
-                                    onClick={() => handleDeleteMessage(msg)}
-                                    className="text-destructive"
-                                  >
-                                    <Trash2 className="w-4 h-4 mr-2" />
-                                    Delete message
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+                              {/* Delete button - visible on hover (desktop) and always visible on mobile */}
+                               <DropdownMenu>
+                                 <DropdownMenuTrigger asChild>
+                                   <Button
+                                     variant="ghost"
+                                     size="sm"
+                                     className={`absolute top-0 ${isOwn ? '-left-8' : '-right-8'} md:opacity-0 md:group-hover:opacity-100 opacity-70 transition-opacity h-6 w-6 p-0`}
+                                   >
+                                     <MoreVertical className="w-4 h-4" />
+                                   </Button>
+                                 </DropdownMenuTrigger>
+                                 <DropdownMenuContent align={isOwn ? 'start' : 'end'}>
+                                   <DropdownMenuItem
+                                     onClick={() => handleDeleteMessage(msg)}
+                                     className="text-destructive"
+                                   >
+                                     <Trash2 className="w-4 h-4 mr-2" />
+                                     Delete message
+                                   </DropdownMenuItem>
+                                 </DropdownMenuContent>
+                               </DropdownMenu>
                               
                               <div
                                 className={`max-w-[80%] rounded-2xl px-4 py-2 ${
