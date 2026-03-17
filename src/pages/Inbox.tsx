@@ -641,7 +641,28 @@ export default function Inbox() {
                                   )}
                                 </div>
                               </div>
-                            </div>
+                            {!isOwn && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="md:opacity-0 md:group-hover:opacity-100 opacity-60 transition-opacity h-7 w-7 p-0 shrink-0 mt-1"
+                                  >
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem
+                                    onClick={() => handleDeleteMessage(msg)}
+                                    className="text-destructive"
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Delete message
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
                           </motion.div>
                         </div>
                       );
