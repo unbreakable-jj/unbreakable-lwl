@@ -233,10 +233,31 @@ export default function Inbox() {
     }
   };
 
-  // Handle delete message
+  // Handle delete message (via dialog - legacy)
   const handleDeleteMessage = (msg: Message) => {
     setSelectedMessageForDelete(msg);
     setDeleteMessageDialogOpen(true);
+  };
+
+  // Direct delete handlers (no intermediate dialog)
+  const handleDeleteForMeDirect = async (msg: Message) => {
+    const { error } = await deleteMessageForMe(msg.id);
+    if (error) {
+      toast.error('Failed to delete message');
+    } else {
+      setMessages(prev => prev.filter(m => m.id !== msg.id));
+      toast.success('Message deleted');
+    }
+  };
+
+  const handleDeleteForEveryoneDirect = async (msg: Message) => {
+    const { error } = await deleteMessageForEveryone(msg.id);
+    if (error) {
+      toast.error('Failed to delete message');
+    } else {
+      setMessages(prev => prev.filter(m => m.id !== msg.id));
+      toast.success('Message deleted for everyone');
+    }
   };
 
   const handleDeleteForMe = async () => {
