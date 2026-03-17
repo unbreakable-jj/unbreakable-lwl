@@ -301,7 +301,7 @@ export default function MyCoaching() {
                 ) : (
                   <>
                     {activeTraining.map(p => (
-                      <Link key={p.id} to="/programming">
+                      <Link key={p.id} to="/programming/my-programmes">
                         <Card className="border-border hover:border-primary/20 transition-colors">
                           <CardContent className="p-3 flex items-center gap-3">
                             <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
