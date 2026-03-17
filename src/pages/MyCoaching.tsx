@@ -319,7 +319,7 @@ export default function MyCoaching() {
                       </Link>
                     ))}
                     {activeCardio.map(p => (
-                      <Link key={p.id} to="/tracker">
+                      <Link key={p.id} to="/tracker/my-programmes">
                         <Card className="border-border hover:border-primary/20 transition-colors">
                           <CardContent className="p-3 flex items-center gap-3">
                             <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
