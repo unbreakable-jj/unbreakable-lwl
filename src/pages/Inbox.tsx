@@ -233,10 +233,31 @@ export default function Inbox() {
     }
   };
 
-  // Handle delete message
+  // Handle delete message (via dialog - legacy)
   const handleDeleteMessage = (msg: Message) => {
     setSelectedMessageForDelete(msg);
     setDeleteMessageDialogOpen(true);
+  };
+
+  // Direct delete handlers (no intermediate dialog)
+  const handleDeleteForMeDirect = async (msg: Message) => {
+    const { error } = await deleteMessageForMe(msg.id);
+    if (error) {
+      toast.error('Failed to delete message');
+    } else {
+      setMessages(prev => prev.filter(m => m.id !== msg.id));
+      toast.success('Message deleted');
+    }
+  };
+
+  const handleDeleteForEveryoneDirect = async (msg: Message) => {
+    const { error } = await deleteMessageForEveryone(msg.id);
+    if (error) {
+      toast.error('Failed to delete message');
+    } else {
+      setMessages(prev => prev.filter(m => m.id !== msg.id));
+      toast.success('Message deleted for everyone');
+    }
   };
 
   const handleDeleteForMe = async () => {
@@ -578,24 +599,25 @@ export default function Inbox() {
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="md:opacity-0 md:group-hover:opacity-100 opacity-60 transition-opacity h-7 w-7 p-0 shrink-0 mt-1"
+                                    className="md:opacity-0 md:group-hover:opacity-100 opacity-60 transition-opacity h-7 w-7 p-0 shrink-0 self-center"
                                   >
                                     <MoreVertical className="w-4 h-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="start">
-                                  <DropdownMenuItem
-                                    onClick={() => handleDeleteMessage(msg)}
-                                    className="text-destructive"
-                                  >
+                                  <DropdownMenuItem onClick={() => handleDeleteForMeDirect(msg)} className="text-muted-foreground">
                                     <Trash2 className="w-4 h-4 mr-2" />
-                                    Delete message
+                                    Delete for me
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleDeleteForEveryoneDirect(msg)} className="text-destructive">
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Delete for everyone
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             )}
                             <div
-                              className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                              className={`max-w-[75%] rounded-2xl px-4 py-2 ${
                                 isOwn
                                   ? 'bg-primary text-primary-foreground rounded-br-sm'
                                   : 'bg-muted rounded-bl-sm'
@@ -647,18 +669,15 @@ export default function Inbox() {
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="md:opacity-0 md:group-hover:opacity-100 opacity-60 transition-opacity h-7 w-7 p-0 shrink-0 mt-1"
+                                    className="md:opacity-0 md:group-hover:opacity-100 opacity-60 transition-opacity h-7 w-7 p-0 shrink-0 self-center"
                                   >
                                     <MoreVertical className="w-4 h-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => handleDeleteMessage(msg)}
-                                    className="text-destructive"
-                                  >
+                                  <DropdownMenuItem onClick={() => handleDeleteForMeDirect(msg)} className="text-destructive">
                                     <Trash2 className="w-4 h-4 mr-2" />
-                                    Delete message
+                                    Delete for me
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
