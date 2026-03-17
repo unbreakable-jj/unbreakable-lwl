@@ -570,38 +570,37 @@ export default function Inbox() {
                           <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className={`flex ${isOwn ? 'justify-end' : 'justify-start'} group`}
+                            className={`flex ${isOwn ? 'justify-end' : 'justify-start'} group items-start gap-1`}
                           >
-                            <div className="relative">
-                              {/* Delete button - visible on hover (desktop) and always visible on mobile */}
-                               <DropdownMenu>
-                                 <DropdownMenuTrigger asChild>
-                                   <Button
-                                     variant="ghost"
-                                     size="sm"
-                                     className={`absolute top-0 ${isOwn ? '-left-8' : '-right-8'} md:opacity-0 md:group-hover:opacity-100 opacity-70 transition-opacity h-6 w-6 p-0`}
-                                   >
-                                     <MoreVertical className="w-4 h-4" />
-                                   </Button>
-                                 </DropdownMenuTrigger>
-                                 <DropdownMenuContent align={isOwn ? 'start' : 'end'}>
-                                   <DropdownMenuItem
-                                     onClick={() => handleDeleteMessage(msg)}
-                                     className="text-destructive"
-                                   >
-                                     <Trash2 className="w-4 h-4 mr-2" />
-                                     Delete message
-                                   </DropdownMenuItem>
-                                 </DropdownMenuContent>
-                               </DropdownMenu>
-                              
-                              <div
-                                className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                                  isOwn
-                                    ? 'bg-primary text-primary-foreground rounded-br-sm'
-                                    : 'bg-muted rounded-bl-sm'
-                                }`}
-                              >
+                            {isOwn && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="md:opacity-0 md:group-hover:opacity-100 opacity-60 transition-opacity h-7 w-7 p-0 shrink-0 mt-1"
+                                  >
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start">
+                                  <DropdownMenuItem
+                                    onClick={() => handleDeleteMessage(msg)}
+                                    className="text-destructive"
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Delete message
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
+                            <div
+                              className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                                isOwn
+                                  ? 'bg-primary text-primary-foreground rounded-br-sm'
+                                  : 'bg-muted rounded-bl-sm'
+                              }`}
+                            >
                                 {msg.image_url && (
                                   <img
                                     src={msg.image_url}
@@ -642,7 +641,28 @@ export default function Inbox() {
                                   )}
                                 </div>
                               </div>
-                            </div>
+                            {!isOwn && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="md:opacity-0 md:group-hover:opacity-100 opacity-60 transition-opacity h-7 w-7 p-0 shrink-0 mt-1"
+                                  >
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem
+                                    onClick={() => handleDeleteMessage(msg)}
+                                    className="text-destructive"
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Delete message
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
                           </motion.div>
                         </div>
                       );
