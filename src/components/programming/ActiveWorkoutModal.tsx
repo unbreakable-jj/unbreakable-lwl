@@ -197,6 +197,7 @@ export function ActiveWorkoutModal({
   }
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto p-0">
         {/* Header */}
