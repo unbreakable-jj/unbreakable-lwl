@@ -100,6 +100,9 @@ export function ActiveWorkoutModal({
   const [manualHours, setManualHours] = useState('');
   const [manualMinutes, setManualMinutes] = useState('');
   const [showDurationEdit, setShowDurationEdit] = useState(false);
+  const [showFinishConfirm, setShowFinishConfirm] = useState(false);
+  const [finishVisibility, setFinishVisibility] = useState<'public' | 'friends' | 'private'>('public');
+  const [finishNotes, setFinishNotes] = useState('');
 
   // Live elapsed timer
   const [elapsed, setElapsed] = useState(0);
