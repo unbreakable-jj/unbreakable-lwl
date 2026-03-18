@@ -166,7 +166,7 @@ function NotificationItem({
             </Button>
           </div>
         </div>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }
