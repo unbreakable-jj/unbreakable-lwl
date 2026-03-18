@@ -5,6 +5,18 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog';
 import { WorkoutSession } from '@/hooks/useWorkoutSessions';
 import { SessionActionTiles } from './SessionActionTiles';
 import { SessionLoggingView } from './SessionLoggingView';
@@ -29,6 +41,9 @@ import {
   Shuffle,
   Plus,
   Clock,
+  Globe,
+  Users,
+  Lock,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getExerciseDetails } from '@/lib/exerciseLibrary';
