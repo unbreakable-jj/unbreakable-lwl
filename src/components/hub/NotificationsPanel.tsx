@@ -84,7 +84,10 @@ function NotificationItem({
   onNavigate?: (path: string) => void;
 }) {
   const link = getNotificationLink(notification);
-  const handleClick = () => {
+  const isDragging = React.useRef(false);
+
+  const handleTap = () => {
+    if (isDragging.current) return;
     if (!notification.read) onMarkRead(notification.id);
     if (link && onNavigate) onNavigate(link);
   };
@@ -94,8 +97,11 @@ function NotificationItem({
       drag="x"
       dragConstraints={{ left: -80, right: 0 }}
       dragElastic={0.1}
+      dragSnapToOrigin
+      onDragStart={() => { isDragging.current = true; }}
       onDragEnd={(_: any, info: PanInfo) => {
         if (info.offset.x < -60) onDelete(notification.id);
+        setTimeout(() => { isDragging.current = false; }, 100);
       }}
       className="relative"
     >
@@ -104,8 +110,8 @@ function NotificationItem({
         <Trash2 className="w-5 h-5 text-destructive-foreground" />
       </div>
 
-      <motion.div
-        onClick={handleClick}
+      <div
+        onClick={handleTap}
         className={`p-4 border-b border-border hover:bg-muted/50 transition-colors bg-card relative ${
           !notification.read ? 'bg-primary/5 border-l-2 border-l-primary' : ''
         } ${link ? 'cursor-pointer' : ''}`}
