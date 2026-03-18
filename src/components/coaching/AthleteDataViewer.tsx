@@ -858,6 +858,15 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
                                   ))}
                                 </div>
                               )}
+
+                              {/* Inline Quick Feedback for this session */}
+                              <SessionInlineFeedback
+                                sessionId={s.id}
+                                sessionLabel={s.day_name}
+                                athleteId={athleteId}
+                                programId={s.program_id}
+                                onSaved={loadAthleteData}
+                              />
                             </div>
                           </CollapsibleContent>
                         </CardContent>
