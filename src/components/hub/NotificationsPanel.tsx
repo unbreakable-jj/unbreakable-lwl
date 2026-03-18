@@ -1,3 +1,4 @@
+import React from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -26,18 +27,40 @@ interface NotificationsPanelProps {
 function getNotificationLink(notification: Notification): string | null {
   const t = notification.type;
   const d = notification.data || {};
-  if (t === 'coaching_feedback') return '/my-coaching';
-  if (t === 'coaching_request') return '/coach';
-  if (t === 'programme_updated') return '/my-coaching';
+
+  // Coaching & feedback
+  if (t === 'coaching_feedback' || t === 'feedback_response' || t === 'programme_updated') return '/my-coaching';
+  if (t === 'coaching_request' || t === 'tier2_signup') return '/coach';
+
+  // Session / workout completions — coaches see athlete data on their dashboard
+  if (t === 'athlete_completed_session') return '/coach';
+  if (t === 'athlete_skipped_session' || t === 'adherence_alert') return '/coach';
+
+  // Athlete's own workout / programme notifications
+  if (t === 'workout_like' || t === 'workout') return '/programming/my-programmes';
+  if (t === 'ai_coaching_callout') return '/programming/my-programmes';
+
+  // Plan updates from coach
+  if (t === 'plan_update') return '/my-coaching';
+
+  // Social
   if (t === 'friend_request' || t === 'friend_accepted') return '/';
   if (t === 'post_like' || t === 'post_comment') return '/';
-  if (t === 'workout_like' || t === 'workout') return '/programming/my-programmes';
+  if (t === 'mention') return '/';
+
+  // Tracker / running
   if (t === 'run_like') return '/tracker';
   if (t === 'milestone' || t === 'trophy') return '/tracker';
-  if (t === 'tier2_signup') return '/coach';
-  if (t === 'adherence_alert' || t === 'athlete_skipped_session') return '/programming/my-programmes';
-  if (t === 'feedback_response') return '/my-coaching';
+
+  // Mindset
   if (t === 'mindset_activity_complete') return '/coach';
+
+  // Fuel
+  if (t === 'meal_plan_updated') return '/fuel/planning';
+
+  // Fallback — if there's any data with a path hint, use it
+  if (d.link) return String(d.link);
+
   return null;
 }
 
@@ -84,7 +107,10 @@ function NotificationItem({
   onNavigate?: (path: string) => void;
 }) {
   const link = getNotificationLink(notification);
-  const handleClick = () => {
+  const isDragging = React.useRef(false);
+
+  const handleTap = () => {
+    if (isDragging.current) return;
     if (!notification.read) onMarkRead(notification.id);
     if (link && onNavigate) onNavigate(link);
   };
@@ -94,8 +120,11 @@ function NotificationItem({
       drag="x"
       dragConstraints={{ left: -80, right: 0 }}
       dragElastic={0.1}
+      dragSnapToOrigin
+      onDragStart={() => { isDragging.current = true; }}
       onDragEnd={(_: any, info: PanInfo) => {
         if (info.offset.x < -60) onDelete(notification.id);
+        setTimeout(() => { isDragging.current = false; }, 100);
       }}
       className="relative"
     >
@@ -104,8 +133,8 @@ function NotificationItem({
         <Trash2 className="w-5 h-5 text-destructive-foreground" />
       </div>
 
-      <motion.div
-        onClick={handleClick}
+      <div
+        onClick={handleTap}
         className={`p-4 border-b border-border hover:bg-muted/50 transition-colors bg-card relative ${
           !notification.read ? 'bg-primary/5 border-l-2 border-l-primary' : ''
         } ${link ? 'cursor-pointer' : ''}`}
@@ -159,7 +188,7 @@ function NotificationItem({
             </Button>
           </div>
         </div>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }
