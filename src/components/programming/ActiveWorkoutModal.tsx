@@ -141,11 +141,18 @@ export function ActiveWorkoutModal({
   };
 
   const handleFinish = () => {
+    setFinishNotes(sessionNotes);
+    setFinishVisibility(visibility);
+    setShowFinishConfirm(true);
+  };
+
+  const handleConfirmFinish = () => {
     let manualDurationSeconds: number | undefined;
     if (manualHours || manualMinutes) {
       manualDurationSeconds = (parseInt(manualHours) || 0) * 3600 + (parseInt(manualMinutes) || 0) * 60;
     }
-    onComplete(sessionNotes, visibility, manualDurationSeconds);
+    setShowFinishConfirm(false);
+    onComplete(finishNotes, finishVisibility, manualDurationSeconds);
   };
 
   const formatElapsed = (s: number) => {
