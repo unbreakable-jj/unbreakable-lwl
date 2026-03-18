@@ -507,5 +507,64 @@ export function ActiveWorkoutModal({
         )}
       </DialogContent>
     </Dialog>
+
+    {/* Finish Session Confirmation */}
+    <AlertDialog open={showFinishConfirm} onOpenChange={setShowFinishConfirm}>
+      <AlertDialogContent className="max-w-sm">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            <Check className="w-5 h-5 text-primary" />
+            Complete Session?
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            You completed {completedSets}/{totalSets} sets. Ready to finish this workout?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <div className="space-y-4 py-2">
+          {/* Post to timeline visibility */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Post results to timeline</Label>
+            <div className="flex gap-2">
+              {([
+                { value: 'public' as const, label: 'Public', icon: Globe },
+                { value: 'friends' as const, label: 'Friends', icon: Users },
+                { value: 'private' as const, label: 'Private', icon: Lock },
+              ]).map(({ value, label, icon: Icon }) => (
+                <Button
+                  key={value}
+                  variant={finishVisibility === value ? 'default' : 'outline'}
+                  size="sm"
+                  className="flex-1 gap-1.5 text-xs"
+                  onClick={() => setFinishVisibility(value)}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick notes */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Session notes (optional)</Label>
+            <Textarea
+              placeholder="How did it go?"
+              value={finishNotes}
+              onChange={(e) => setFinishNotes(e.target.value)}
+              className="h-20 resize-none text-sm"
+            />
+          </div>
+        </div>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel>Keep Training</AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirmFinish}>
+            Complete & Post
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
