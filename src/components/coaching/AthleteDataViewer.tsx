@@ -858,6 +858,15 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
                                   ))}
                                 </div>
                               )}
+
+                              {/* Inline Quick Feedback for this session */}
+                              <SessionInlineFeedback
+                                sessionId={s.id}
+                                sessionLabel={s.day_name}
+                                athleteId={athleteId}
+                                programId={s.program_id}
+                                onSaved={loadAthleteData}
+                              />
                             </div>
                           </CollapsibleContent>
                         </CardContent>
@@ -1392,6 +1401,131 @@ function HabitCoachComment({ habitId, athleteId }: { habitId: string; athleteId:
           {sending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
         </Button>
       </div>
+    </div>
+  );
+}
+
+// ===== Inline Session Feedback — lets coach give feedback while viewing results =====
+function SessionInlineFeedback({
+  sessionId,
+  sessionLabel,
+  athleteId,
+  programId,
+  onSaved,
+}: {
+  sessionId: string;
+  sessionLabel: string;
+  athleteId: string;
+  programId?: string;
+  onSaved?: () => void;
+}) {
+  const { user } = useAuth();
+  const { createFeedback } = useCoachingFeedback();
+  const [open, setOpen] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [techniqueNotes, setTechniqueNotes] = useState('');
+  const [nextGoals, setNextGoals] = useState('');
+  const [generalComments, setGeneralComments] = useState('');
+  const [sending, setSending] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!user) return;
+    setSending(true);
+    const { error } = await createFeedback({
+      athlete_id: athleteId,
+      feedback_type: 'session_review',
+      title: `Session Review: ${sessionLabel}`,
+      performance_rating: rating > 0 ? rating : null,
+      technique_notes: techniqueNotes.trim() || null,
+      next_session_goals: nextGoals.trim() || null,
+      general_comments: generalComments.trim() || null,
+      related_session_id: sessionId,
+      related_program_id: programId || null,
+    });
+    setSending(false);
+    if (!error) {
+      toast.success('Feedback sent to athlete');
+      setOpen(false);
+      setRating(0);
+      setTechniqueNotes('');
+      setNextGoals('');
+      setGeneralComments('');
+      onSaved?.();
+    } else {
+      toast.error('Failed to send feedback');
+    }
+  };
+
+  if (!open) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setOpen(true)}
+        className="w-full mt-2 font-display text-xs tracking-wide gap-2 border-primary/30 text-primary hover:bg-primary/10"
+      >
+        <MessageSquare className="w-3 h-3" />
+        GIVE FEEDBACK ON THIS SESSION
+      </Button>
+    );
+  }
+
+  return (
+    <div className="mt-3 border border-primary/30 rounded-lg p-3 space-y-3 bg-primary/5">
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] font-display tracking-wide text-primary flex items-center gap-1">
+          <MessageSquare className="w-3 h-3" /> SESSION FEEDBACK
+        </p>
+        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setOpen(false)}>
+          <X className="w-3 h-3" />
+        </Button>
+      </div>
+
+      {/* Star Rating */}
+      <div className="space-y-1">
+        <p className="text-[10px] text-muted-foreground">Performance Rating</p>
+        <div className="flex gap-1">
+          {[1, 2, 3, 4, 5].map(n => (
+            <button key={n} onClick={() => setRating(rating === n ? 0 : n)} className="transition-colors">
+              <Star className={`w-5 h-5 ${n <= rating ? 'fill-primary text-primary' : 'text-muted-foreground/30'}`} />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <Textarea
+        placeholder="Technique notes..."
+        value={techniqueNotes}
+        onChange={e => setTechniqueNotes(e.target.value)}
+        className="min-h-[50px] text-xs"
+        rows={2}
+      />
+
+      <Textarea
+        placeholder="Next session goals..."
+        value={nextGoals}
+        onChange={e => setNextGoals(e.target.value)}
+        className="min-h-[50px] text-xs"
+        rows={2}
+      />
+
+      <Textarea
+        placeholder="General comments..."
+        value={generalComments}
+        onChange={e => setGeneralComments(e.target.value)}
+        className="min-h-[50px] text-xs"
+        rows={2}
+      />
+
+      <Button
+        onClick={handleSubmit}
+        disabled={sending || (!techniqueNotes.trim() && !nextGoals.trim() && !generalComments.trim() && rating === 0)}
+        className="w-full font-display tracking-wide text-xs"
+        size="sm"
+      >
+        {sending ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Send className="w-3 h-3 mr-2" />}
+        SAVE & NOTIFY ATHLETE
+      </Button>
     </div>
   );
 }
