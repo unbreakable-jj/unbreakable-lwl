@@ -16,6 +16,17 @@ export interface Post {
   updated_at: string;
 }
 
+export interface PostMediaItem {
+  id: string;
+  media_type: 'image' | 'video';
+  media_url: string;
+  thumbnail_url: string | null;
+  sort_order: number;
+  width: number | null;
+  height: number | null;
+  duration_seconds: number | null;
+}
+
 export interface PostWithProfile extends Post {
   profiles?: {
     display_name: string | null;
@@ -25,6 +36,7 @@ export interface PostWithProfile extends Post {
   kudos_count?: number;
   comments_count?: number;
   has_kudos?: boolean;
+  media_items?: PostMediaItem[];
 }
 
 export function usePosts() {
