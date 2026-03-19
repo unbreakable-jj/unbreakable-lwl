@@ -12,6 +12,7 @@ import { PostMenu } from './PostMenu';
 import { PostCommentSection } from './PostCommentSection';
 import { ShareMenu } from './ShareMenu';
 import { EditPostModal } from './EditPostModal';
+import { MediaCarousel } from './MediaCarousel';
 import { FullscreenVideoViewer } from '@/components/video/FullscreenVideoViewer';
 import { VideoQualitySelector, useVideoQuality } from '@/components/video/VideoQualitySelector';
 import { toast } from 'sonner';
