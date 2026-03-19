@@ -486,6 +486,8 @@ export function ActiveWorkoutModal({
             open={!!swappingExercise}
             onOpenChange={(open) => { if (!open) setSwappingExercise(null); }}
             exerciseName={swappingExercise}
+            currentSets={exerciseGroups[swappingExercise]?.sets}
+            currentReps={exerciseLogs.find(l => l.exercise_name === swappingExercise)?.target_reps || undefined}
             onSwap={(oldName, newEx) => {
               onSwapExercise(oldName, newEx);
               setSwappingExercise(null);

@@ -157,13 +157,15 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
     setShowWorkoutModal(false);
   };
 
-  const handleSwapExercise = (oldName: string, newExercise: { name: string; equipment: string }) => {
+  const handleSwapExercise = (oldName: string, newExercise: { name: string; equipment: string; sets?: number; reps?: string }) => {
     if (!activeSession) return;
     swapExercise.mutate({
       sessionId: activeSession.id,
       oldExerciseName: oldName,
       newExerciseName: newExercise.name,
       newEquipment: newExercise.equipment,
+      newSets: newExercise.sets,
+      newReps: newExercise.reps,
     }, {
       onSuccess: () => {
         toast({ title: 'Exercise Swapped', description: `Switched to ${newExercise.name}` });
