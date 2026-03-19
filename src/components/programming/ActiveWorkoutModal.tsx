@@ -60,7 +60,7 @@ interface ActiveWorkoutModalProps {
   }) => void;
   onComplete: (notes?: string, visibility?: 'public' | 'friends' | 'private', manualDurationSeconds?: number) => void;
   onCancel: () => void;
-  onSwapExercise?: (oldName: string, newExercise: { name: string; equipment: string }) => void;
+  onSwapExercise?: (oldName: string, newExercise: { name: string; equipment: string; sets?: number; reps?: string }) => void;
   onAddExercise?: (exercise: { name: string; equipment: string; sets: number; reps: string }) => void;
   isSwapping?: boolean;
   isAddingExercise?: boolean;
