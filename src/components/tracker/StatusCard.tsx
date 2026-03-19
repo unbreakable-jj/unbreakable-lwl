@@ -167,67 +167,74 @@ export function StatusCard({ post, onKudos, onDelete, onToggleComments, onUpdate
           </div>
         )}
 
-        {/* Image */}
-        {post.image_url && (
+        {/* Media Carousel (multi-media) */}
+        {post.media_items && post.media_items.length > 0 ? (
           <div className="px-4 pb-3">
-            <img
-              src={post.image_url}
-              alt="Post"
-              className="rounded-lg w-full max-h-[500px] object-cover"
-            />
+            <MediaCarousel items={post.media_items} />
           </div>
-        )}
+        ) : (
+          <>
+            {/* Legacy single image */}
+            {post.image_url && (
+              <div className="px-4 pb-3">
+                <img
+                  src={post.image_url}
+                  alt="Post"
+                  className="rounded-lg w-full max-h-[500px] object-cover"
+                />
+              </div>
+            )}
 
-        {/* Video */}
-        {post.video_url && (
-          <div className="px-4 pb-3 relative group flex justify-center">
-            <video
-              ref={videoRef}
-              src={post.video_url}
-              className="rounded-lg max-w-full max-h-[600px] cursor-pointer"
-              loop
-              muted={isMuted}
-              playsInline
-              preload="auto"
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              onClick={togglePlayPause}
-            />
-            {/* Video Controls Overlay */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-              <Button
-                variant="secondary"
-                size="icon"
-                className="bg-black/50 hover:bg-black/70 text-white h-14 w-14 rounded-full pointer-events-auto"
-                onClick={togglePlayPause}
-              >
-                {isPlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-1" />}
-              </Button>
-            </div>
-            {/* Bottom Controls */}
-            <div className="absolute bottom-4 right-4 flex items-center gap-2">
-              <Button
-                variant="secondary"
-                size="icon"
-                className="bg-black/50 hover:bg-black/70 text-white h-8 w-8"
-                onClick={() => setShowFullscreen(true)}
-              >
-                <Maximize className="w-4 h-4" />
-              </Button>
-              <VideoQualitySelector
-                currentQuality={quality}
-                onQualityChange={setQuality}
-              />
-              <Button
-                variant="secondary"
-                size="icon"
-                className="bg-black/50 hover:bg-black/70 text-white h-8 w-8"
-                onClick={toggleMute}
-              >
-                {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              </Button>
-            </div>
-          </div>
+            {/* Legacy single video */}
+            {post.video_url && (
+              <div className="px-4 pb-3 relative group flex justify-center">
+                <video
+                  ref={videoRef}
+                  src={post.video_url}
+                  className="rounded-lg max-w-full max-h-[600px] cursor-pointer"
+                  loop
+                  muted={isMuted}
+                  playsInline
+                  preload="auto"
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                  onClick={togglePlayPause}
+                />
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="bg-black/50 hover:bg-black/70 text-white h-14 w-14 rounded-full pointer-events-auto"
+                    onClick={togglePlayPause}
+                  >
+                    {isPlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-1" />}
+                  </Button>
+                </div>
+                <div className="absolute bottom-4 right-4 flex items-center gap-2">
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="bg-black/50 hover:bg-black/70 text-white h-8 w-8"
+                    onClick={() => setShowFullscreen(true)}
+                  >
+                    <Maximize className="w-4 h-4" />
+                  </Button>
+                  <VideoQualitySelector
+                    currentQuality={quality}
+                    onQualityChange={setQuality}
+                  />
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="bg-black/50 hover:bg-black/70 text-white h-8 w-8"
+                    onClick={toggleMute}
+                  >
+                    {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Actions */}
