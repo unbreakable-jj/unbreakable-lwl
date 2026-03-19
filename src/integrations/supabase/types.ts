@@ -1481,6 +1481,59 @@ export type Database = {
           },
         ]
       }
+      post_media: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          file_size_bytes: number | null
+          height: number | null
+          id: string
+          media_type: string
+          media_url: string
+          post_id: string
+          sort_order: number
+          thumbnail_url: string | null
+          user_id: string
+          width: number | null
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          file_size_bytes?: number | null
+          height?: number | null
+          id?: string
+          media_type: string
+          media_url: string
+          post_id: string
+          sort_order?: number
+          thumbnail_url?: string | null
+          user_id: string
+          width?: number | null
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          file_size_bytes?: number | null
+          height?: number | null
+          id?: string
+          media_type?: string
+          media_url?: string
+          post_id?: string
+          sort_order?: number
+          thumbnail_url?: string | null
+          user_id?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           comments_enabled: boolean

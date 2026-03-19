@@ -16,6 +16,17 @@ export interface Post {
   updated_at: string;
 }
 
+export interface PostMediaItem {
+  id: string;
+  media_type: 'image' | 'video';
+  media_url: string;
+  thumbnail_url: string | null;
+  sort_order: number;
+  width: number | null;
+  height: number | null;
+  duration_seconds: number | null;
+}
+
 export interface PostWithProfile extends Post {
   profiles?: {
     display_name: string | null;
@@ -25,6 +36,7 @@ export interface PostWithProfile extends Post {
   kudos_count?: number;
   comments_count?: number;
   has_kudos?: boolean;
+  media_items?: PostMediaItem[];
 }
 
 export function usePosts() {
@@ -48,13 +60,14 @@ export function usePosts() {
       // Get kudos counts, profiles, and user kudos status
       const postsWithCounts = await Promise.all(
         data.map(async (post) => {
-          const [kudosResult, commentsResult, hasKudosResult, profileResult] = await Promise.all([
+          const [kudosResult, commentsResult, hasKudosResult, profileResult, mediaResult] = await Promise.all([
             supabase.from('post_kudos').select('id', { count: 'exact', head: true }).eq('post_id', post.id),
             supabase.from('post_comments').select('id', { count: 'exact', head: true }).eq('post_id', post.id),
             user
               ? supabase.from('post_kudos').select('id').eq('post_id', post.id).eq('user_id', user.id).maybeSingle()
               : Promise.resolve({ data: null }),
             supabase.from('profiles').select('display_name, avatar_url, username').eq('user_id', post.user_id).maybeSingle(),
+            supabase.from('post_media').select('id, media_type, media_url, thumbnail_url, sort_order, width, height, duration_seconds').eq('post_id', post.id).order('sort_order'),
           ]);
 
           return {
@@ -64,6 +77,7 @@ export function usePosts() {
             kudos_count: kudosResult.count || 0,
             comments_count: commentsResult.count || 0,
             has_kudos: !!hasKudosResult.data,
+            media_items: (mediaResult.data as PostMediaItem[]) || [],
           };
         })
       );
