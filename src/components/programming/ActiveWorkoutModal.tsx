@@ -60,7 +60,7 @@ interface ActiveWorkoutModalProps {
   }) => void;
   onComplete: (notes?: string, visibility?: 'public' | 'friends' | 'private', manualDurationSeconds?: number) => void;
   onCancel: () => void;
-  onSwapExercise?: (oldName: string, newExercise: { name: string; equipment: string }) => void;
+  onSwapExercise?: (oldName: string, newExercise: { name: string; equipment: string; sets?: number; reps?: string }) => void;
   onAddExercise?: (exercise: { name: string; equipment: string; sets: number; reps: string }) => void;
   isSwapping?: boolean;
   isAddingExercise?: boolean;
@@ -486,6 +486,8 @@ export function ActiveWorkoutModal({
             open={!!swappingExercise}
             onOpenChange={(open) => { if (!open) setSwappingExercise(null); }}
             exerciseName={swappingExercise}
+            currentSets={exerciseGroups[swappingExercise]?.sets}
+            currentReps={exerciseLogs.find(l => l.exercise_name === swappingExercise)?.target_reps || undefined}
             onSwap={(oldName, newEx) => {
               onSwapExercise(oldName, newEx);
               setSwappingExercise(null);

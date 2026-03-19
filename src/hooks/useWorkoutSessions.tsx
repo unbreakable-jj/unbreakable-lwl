@@ -395,53 +395,97 @@ export function useWorkoutSessions() {
       oldExerciseName,
       newExerciseName,
       newEquipment,
+      newSets,
+      newReps,
     }: {
       sessionId: string;
       oldExerciseName: string;
       newExerciseName: string;
       newEquipment: string;
+      newSets?: number;
+      newReps?: string;
     }) => {
       if (!user) throw new Error('Must be logged in');
 
-      // Update all exercise logs for this exercise in this session
-      const { error } = await supabase
+      // Get existing logs for this exercise
+      const { data: existingLogs, error: fetchError } = await supabase
         .from('exercise_logs')
-        .update({
+        .select('*')
+        .eq('session_id', sessionId)
+        .eq('exercise_name', oldExerciseName)
+        .order('set_number', { ascending: true });
+
+      if (fetchError) throw fetchError;
+      const currentCount = existingLogs?.length || 0;
+      const targetSets = newSets ?? currentCount;
+
+      if (targetSets === currentCount) {
+        // Same number of sets — just rename
+        const { error } = await supabase
+          .from('exercise_logs')
+          .update({
+            exercise_name: newExerciseName,
+            equipment: newEquipment,
+            ...(newReps !== undefined ? { target_reps: newReps } : {}),
+          })
+          .eq('session_id', sessionId)
+          .eq('exercise_name', oldExerciseName);
+        if (error) throw error;
+      } else if (targetSets > currentCount) {
+        // Rename existing + add more sets
+        const { error: renameErr } = await supabase
+          .from('exercise_logs')
+          .update({
+            exercise_name: newExerciseName,
+            equipment: newEquipment,
+            ...(newReps !== undefined ? { target_reps: newReps } : {}),
+          })
+          .eq('session_id', sessionId)
+          .eq('exercise_name', oldExerciseName);
+        if (renameErr) throw renameErr;
+
+        const extraLogs = Array.from({ length: targetSets - currentCount }, (_, i) => ({
+          session_id: sessionId,
+          user_id: user.id,
           exercise_name: newExerciseName,
           equipment: newEquipment,
-        })
-        .eq('session_id', sessionId)
-        .eq('exercise_name', oldExerciseName);
+          set_number: currentCount + i + 1,
+          target_reps: newReps ?? existingLogs?.[0]?.target_reps ?? null,
+          completed: false,
+        }));
+        const { error: insertErr } = await supabase.from('exercise_logs').insert(extraLogs);
+        if (insertErr) throw insertErr;
+      } else {
+        // Fewer sets — rename the ones we keep, delete the rest
+        const keepIds = existingLogs!.slice(0, targetSets).map(l => l.id);
+        const deleteIds = existingLogs!.slice(targetSets).map(l => l.id);
 
-      if (error) throw error;
-    },
-    onMutate: async ({ sessionId, oldExerciseName, newExerciseName, newEquipment }) => {
-      await queryClient.cancelQueries({ queryKey: ['active-session', user?.id] });
-      const previousSession = queryClient.getQueryData<WorkoutSession | null>(['active-session', user?.id]);
-
-      if (previousSession?.exercise_logs) {
-        const updatedLogs = previousSession.exercise_logs.map((log) => {
-          if (log.exercise_name === oldExerciseName) {
-            return { ...log, exercise_name: newExerciseName, equipment: newEquipment };
-          }
-          return log;
-        });
-        queryClient.setQueryData(['active-session', user?.id], {
-          ...previousSession,
-          exercise_logs: updatedLogs,
-        });
+        if (keepIds.length > 0) {
+          const { error: renameErr } = await supabase
+            .from('exercise_logs')
+            .update({
+              exercise_name: newExerciseName,
+              equipment: newEquipment,
+              ...(newReps !== undefined ? { target_reps: newReps } : {}),
+            })
+            .in('id', keepIds);
+          if (renameErr) throw renameErr;
+        }
+        if (deleteIds.length > 0) {
+          const { error: deleteErr } = await supabase
+            .from('exercise_logs')
+            .delete()
+            .in('id', deleteIds);
+          if (deleteErr) throw deleteErr;
+        }
       }
-      return { previousSession };
     },
-    onError: (err, variables, context) => {
-      if (context?.previousSession) {
-        queryClient.setQueryData(['active-session', user?.id], context.previousSession);
-      }
-      toast({ title: 'Swap Failed', description: 'Could not swap exercise', variant: 'destructive' });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['workout-sessions'] });
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['active-session'] });
+      queryClient.invalidateQueries({ queryKey: ['workout-sessions'] });
+    },
+    onError: () => {
+      toast({ title: 'Swap Failed', description: 'Could not swap exercise', variant: 'destructive' });
     },
   });
 
