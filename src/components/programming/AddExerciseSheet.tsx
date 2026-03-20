@@ -60,7 +60,7 @@ export function AddExerciseSheet({ open, onOpenChange, onAddExercise, isAdding }
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="max-h-[80vh] flex flex-col z-[60]">
+      <SheetContent side="bottom" className="max-h-[80vh] flex flex-col z-[70]">
         <SheetHeader className="pb-4 shrink-0">
           <SheetTitle className="font-display tracking-wide flex items-center gap-2">
             <Plus className="w-5 h-5 text-primary" />
