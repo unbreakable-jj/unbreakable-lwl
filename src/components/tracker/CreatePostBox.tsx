@@ -239,6 +239,8 @@ export function CreatePostBox({ onPostCreated }: CreatePostBoxProps) {
         }));
 
         await supabase.from('post_media').insert(mediaRows);
+        // Refetch so the post now includes all media_items
+        await refetchPosts();
       }
 
       setOverallProgress(100);
