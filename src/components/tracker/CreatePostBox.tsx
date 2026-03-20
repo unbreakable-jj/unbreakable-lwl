@@ -26,7 +26,7 @@ interface CreatePostBoxProps {
 export function CreatePostBox({ onPostCreated }: CreatePostBoxProps) {
   const { user } = useAuth();
   const { profile } = useProfile();
-  const { createPost } = usePosts();
+  const { createPost, refetch: refetchPosts } = usePosts();
   const { extractAndSaveHashtags } = useHashtagPrediction();
 
   const [content, setContent] = useState('');
