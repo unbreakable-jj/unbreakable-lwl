@@ -480,36 +480,38 @@ export function ActiveWorkoutModal({
           </div>
         </div>
 
-        {/* Exercise Swap Sheet */}
-        {swappingExercise && onSwapExercise && (
-          <ExerciseSwapSheet
-            open={!!swappingExercise}
-            onOpenChange={(open) => { if (!open) setSwappingExercise(null); }}
-            exerciseName={swappingExercise}
-            currentSets={exerciseGroups[swappingExercise]?.sets}
-            currentReps={exerciseLogs.find(l => l.exercise_name === swappingExercise)?.target_reps || undefined}
-            onSwap={(oldName, newEx) => {
-              onSwapExercise(oldName, newEx);
-              setSwappingExercise(null);
-            }}
-            isSwapping={isSwapping}
-          />
-        )}
-
-        {/* Add Exercise Sheet */}
-        {onAddExercise && (
-          <AddExerciseSheet
-            open={showAddExercise}
-            onOpenChange={setShowAddExercise}
-            onAddExercise={(exercise) => {
-              onAddExercise(exercise);
-              setShowAddExercise(false);
-            }}
-            isAdding={isAddingExercise}
-          />
-        )}
+        {/* Sheets moved outside DialogContent below */}
       </DialogContent>
     </Dialog>
+
+    {/* Exercise Swap Sheet - rendered outside Dialog to avoid z-index conflicts */}
+    {swappingExercise && onSwapExercise && (
+      <ExerciseSwapSheet
+        open={!!swappingExercise}
+        onOpenChange={(isOpen) => { if (!isOpen) setSwappingExercise(null); }}
+        exerciseName={swappingExercise}
+        currentSets={exerciseGroups[swappingExercise]?.sets}
+        currentReps={exerciseLogs.find(l => l.exercise_name === swappingExercise)?.target_reps || undefined}
+        onSwap={(oldName, newEx) => {
+          onSwapExercise(oldName, newEx);
+          setSwappingExercise(null);
+        }}
+        isSwapping={isSwapping}
+      />
+    )}
+
+    {/* Add Exercise Sheet - rendered outside Dialog to avoid z-index conflicts */}
+    {onAddExercise && (
+      <AddExerciseSheet
+        open={showAddExercise}
+        onOpenChange={setShowAddExercise}
+        onAddExercise={(exercise) => {
+          onAddExercise(exercise);
+          setShowAddExercise(false);
+        }}
+        isAdding={isAddingExercise}
+      />
+    )}
 
     {/* Finish Session Confirmation */}
     <AlertDialog open={showFinishConfirm} onOpenChange={setShowFinishConfirm}>

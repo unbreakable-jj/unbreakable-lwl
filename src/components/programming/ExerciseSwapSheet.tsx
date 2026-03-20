@@ -124,7 +124,7 @@ export function ExerciseSwapSheet({
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
-      <SheetContent side="bottom" className="max-h-[80vh] flex flex-col z-[60]">
+      <SheetContent side="bottom" className="max-h-[80vh] flex flex-col z-[70]">
         <SheetHeader className="pb-4 shrink-0">
           <SheetTitle className="font-display tracking-wide flex items-center gap-2">
             <Shuffle className="w-5 h-5 text-primary" />
