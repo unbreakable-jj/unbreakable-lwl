@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import { Play, Square, Pause, Timer, Globe, Users, Lock, Footprints, Bike, Edit3, Waves, Droplets, Save, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CountdownOverlay } from '@/components/CountdownOverlay';
+import { useCardioVoice } from '@/hooks/useCardioVoice';
 
 interface CardioTrackerModalProps {
   isOpen: boolean;
