@@ -114,6 +114,9 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   const lastVoiceKmRef = useRef(0);
   const preAcquireWatchRef = useRef<number | null>(null);
 
+  // ElevenLabs TTS voice - works in background / screen off
+  const { speak: speakUpdate, cleanup: cleanupVoice } = useCardioVoice({ enabled: voiceEnabled });
+
   // Post-session state (also used for manual entry)
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
