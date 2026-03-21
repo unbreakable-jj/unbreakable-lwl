@@ -2,20 +2,20 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Wind, Zap, Target, Heart, Volume2, VolumeX, Flame, ArrowRight } from "lucide-react";
+import { Wind, Zap, Target, Heart, Volume2, VolumeX, Flame, ArrowRight, Clock } from "lucide-react";
 import { ThemedLogo } from "@/components/ThemedLogo";
 import { NavigationDrawer } from "@/components/NavigationDrawer";
 import { ThemeToggle } from "@/components/hub/ThemeToggle";
 import { UnifiedFooter } from "@/components/UnifiedFooter";
 import { CountdownOverlay } from "@/components/CountdownOverlay";
-import { getVisibleExercises, BreathingExercise } from "@/lib/breathingExercises";
+import { getVisibleExercises, BreathingExercise, DURATION_OPTIONS } from "@/lib/breathingExercises";
 import { ImmersiveSessionView } from "@/components/mindset/ImmersiveSessionView";
 import { useBreathingAudio } from "@/hooks/useBreathingAudio";
 import { useAIPreferences } from "@/hooks/useAIPreferences";
 import { VoiceSettingsSheet } from "@/components/coaching/VoiceSettingsSheet";
 
 type BreathPhase = "idle" | "inhale" | "hold" | "exhale" | "rest" | "complete";
-type ViewState = "selection" | "countdown" | "exercise" | "complete";
+type ViewState = "selection" | "duration" | "countdown" | "exercise" | "complete";
 
 const heroContent = {
   title: "UNBREAKABLE",
@@ -35,12 +35,13 @@ const heroContent = {
 const MindsetBreathing = () => {
   const [view, setView] = useState<ViewState>("selection");
   const [selectedExercise, setSelectedExercise] = useState<BreathingExercise | null>(null);
+  const [selectedMinutes, setSelectedMinutes] = useState(3);
   const [isActive, setIsActive] = useState(false);
   const [phase, setPhase] = useState<BreathPhase>("idle");
   const [currentCycle, setCurrentCycle] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
   
-  // Use global voice preferences from user_ai_preferences table
   const { preferences: aiPrefs, updatePreferences } = useAIPreferences();
   const voiceEnabled = aiPrefs?.voice_feedback_enabled ?? false;
   const setVoiceEnabled = (enabled: boolean) => updatePreferences.mutate({ voice_feedback_enabled: enabled });
@@ -58,14 +59,12 @@ const MindsetBreathing = () => {
     return (inhale + hold + exhale + rest) * 1000;
   }, []);
 
-  const getPhaseFromTime = useCallback((elapsed: number, exercise: BreathingExercise): { phase: BreathPhase; cycle: number } => {
-    const cycleDuration = getCycleDuration(exercise);
-    const totalDuration = exercise.cycles * cycleDuration;
-    
-    if (elapsed >= totalDuration) {
-      return { phase: "complete", cycle: exercise.cycles };
+  const getPhaseFromTime = useCallback((elapsed: number, exercise: BreathingExercise, totalDurationMs: number): { phase: BreathPhase; cycle: number } => {
+    if (elapsed >= totalDurationMs) {
+      return { phase: "complete", cycle: 0 };
     }
 
+    const cycleDuration = getCycleDuration(exercise);
     const cycleNumber = Math.floor(elapsed / cycleDuration) + 1;
     const timeInCycle = elapsed % cycleDuration;
     const { inhale, hold, exhale } = exercise.phases;
@@ -120,37 +119,40 @@ const MindsetBreathing = () => {
   const startExercise = useCallback(() => {
     if (!selectedExercise) return;
     
+    const totalDurationMs = selectedMinutes * 60 * 1000;
+    
     setIsActive(true);
     setView("exercise");
     setCurrentCycle(1);
     setPhase("inhale");
     setProgress(0);
+    setRemainingSeconds(selectedMinutes * 60);
     lastPhaseRef.current = "idle";
     startTimeRef.current = Date.now();
 
-    const cycleDuration = getCycleDuration(selectedExercise);
-    const totalDuration = selectedExercise.cycles * cycleDuration;
-
     intervalRef.current = setInterval(() => {
       const elapsed = Date.now() - startTimeRef.current;
-      const progressPercent = Math.min((elapsed / totalDuration) * 100, 100);
+      const progressPercent = Math.min((elapsed / totalDurationMs) * 100, 100);
+      const remaining = Math.max(0, Math.ceil((totalDurationMs - elapsed) / 1000));
       
       setProgress(progressPercent);
+      setRemainingSeconds(remaining);
 
-      const { phase: currentPhase, cycle } = getPhaseFromTime(elapsed, selectedExercise);
+      const { phase: currentPhase, cycle } = getPhaseFromTime(elapsed, selectedExercise, totalDurationMs);
       setPhase(currentPhase);
       setCurrentCycle(cycle);
 
-      if (elapsed >= totalDuration) {
+      if (elapsed >= totalDurationMs) {
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
         }
         setIsActive(false);
         setView("complete");
         setPhase("complete");
+        setRemainingSeconds(0);
       }
     }, 100);
-  }, [selectedExercise, getCycleDuration, getPhaseFromTime]);
+  }, [selectedExercise, selectedMinutes, getCycleDuration, getPhaseFromTime]);
 
   const handleCountdownComplete = useCallback(() => {
     startExercise();
@@ -164,21 +166,26 @@ const MindsetBreathing = () => {
 
   const selectExercise = useCallback((exercise: BreathingExercise) => {
     setSelectedExercise(exercise);
+    setView("duration");
+  }, []);
+
+  const startWithDuration = useCallback((minutes: number) => {
+    setSelectedMinutes(minutes);
     
-    if (voiceEnabled) {
+    if (selectedExercise && voiceEnabled) {
       const textsToPreload = [
         "Get ready", "Power", "Movement", "Fuel", "Mindset", "Go!",
-        exercise.scripts.inhale,
-        exercise.scripts.hold,
-        exercise.scripts.exhale,
-        exercise.scripts.closing,
+        selectedExercise.scripts.inhale,
+        selectedExercise.scripts.hold,
+        selectedExercise.scripts.exhale,
+        selectedExercise.scripts.closing,
       ];
-      if (exercise.scripts.rest) textsToPreload.push(exercise.scripts.rest);
+      if (selectedExercise.scripts.rest) textsToPreload.push(selectedExercise.scripts.rest);
       preloadAudio(textsToPreload);
     }
     
     setView("countdown");
-  }, [voiceEnabled, preloadAudio]);
+  }, [selectedExercise, voiceEnabled, preloadAudio]);
 
   const toggleBreathing = useCallback(() => {
     if (isActive) {
@@ -201,6 +208,7 @@ const MindsetBreathing = () => {
     setPhase("idle");
     setCurrentCycle(0);
     setProgress(0);
+    setRemainingSeconds(0);
     setView("selection");
     setSelectedExercise(null);
     lastPhaseRef.current = "idle";
@@ -231,7 +239,11 @@ const MindsetBreathing = () => {
     }
   };
 
-  // Voice settings now use the global VoiceSettingsSheet component
+  const formatTimeDisplay = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
 
   // Selection view
   if (view === "selection") {
@@ -249,16 +261,12 @@ const MindsetBreathing = () => {
               </div>
               <div className="flex items-center gap-2">
                 <VoiceSettingsSheet />
-
                 <NavigationDrawer />
               </div>
             </div>
           </div>
         </header>
 
-        {/* Voice settings accessed via header icon */}
-
-        {/* Hero */}
         <section className="pt-32 pb-12 text-center px-6">
           <div className="max-w-4xl mx-auto">
             <ThemedLogo className="h-32 md:h-40 object-contain mx-auto mb-6" />
@@ -289,7 +297,6 @@ const MindsetBreathing = () => {
 
         <main className="container mx-auto px-6 py-8">
           <div className="max-w-6xl mx-auto">
-            {/* Description Card */}
             <div className="bg-card border-2 border-primary/30 neon-border-subtle rounded-lg p-8 md:p-10 mb-10 text-center max-w-4xl mx-auto">
               <p className="text-muted-foreground leading-relaxed mb-4">
                 {heroContent.intro}{' '}
@@ -315,34 +322,36 @@ const MindsetBreathing = () => {
             </h2>
 
             <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-              {getVisibleExercises().map((exercise) => (
-                <Card
-                  key={exercise.id}
-                  className="bg-card border-2 border-primary/30 neon-border-subtle border-l-4 border-l-primary p-6 cursor-pointer hover:bg-muted/50 transition-all group"
-                  onClick={() => selectExercise(exercise)}
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
-                      {getIntensityIcon(exercise.intensity)}
+              {getVisibleExercises().map((exercise) => {
+                const cycleSec = exercise.phases.inhale + exercise.phases.hold + exercise.phases.exhale + (exercise.phases.rest || 0);
+                return (
+                  <Card
+                    key={exercise.id}
+                    className="bg-card border-2 border-primary/30 neon-border-subtle border-l-4 border-l-primary p-6 cursor-pointer hover:bg-muted/50 transition-all group"
+                    onClick={() => selectExercise(exercise)}
+                  >
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                        {getIntensityIcon(exercise.intensity)}
+                      </div>
+                      <div>
+                        <h3 className="font-display text-xl text-foreground tracking-wide">{exercise.name}</h3>
+                        <p className="text-xs text-primary font-display">{cycleSec}s per cycle</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-display text-xl text-foreground tracking-wide">{exercise.name}</h3>
-                      <p className="text-xs text-primary font-display">{exercise.duration}</p>
+                    <p className="text-primary font-display text-sm tracking-wide mb-3">{exercise.tagline}</p>
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">{exercise.description}</p>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border">
+                      <span>Choose your duration</span>
+                      <span className="capitalize">{exercise.intensity} intensity</span>
                     </div>
-                  </div>
-                  <p className="text-primary font-display text-sm tracking-wide mb-3">{exercise.tagline}</p>
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-4">{exercise.description}</p>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border">
-                    <span>{exercise.cycles} cycles</span>
-                    <span className="capitalize">{exercise.intensity} intensity</span>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
             </div>
           </div>
         </main>
 
-        {/* Coach Banner */}
         <section className="container mx-auto px-6 py-12 border-t border-border">
           <Link to="/help" className="block max-w-3xl mx-auto">
             <Card className="border-2 border-primary/40 bg-primary/5 p-6 hover:bg-primary/10 transition-all neon-border-subtle">
@@ -369,6 +378,65 @@ const MindsetBreathing = () => {
     );
   }
 
+  // Duration picker view
+  if (view === "duration" && selectedExercise) {
+    const cycleSec = selectedExercise.phases.inhale + selectedExercise.phases.hold + selectedExercise.phases.exhale + (selectedExercise.phases.rest || 0);
+    
+    return (
+      <div className="fixed inset-0 z-40 bg-background flex flex-col items-center justify-center overflow-hidden">
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "radial-gradient(circle at center, hsl(var(--primary) / 0.1), transparent 60%)"
+          }}
+        />
+
+        <div className="relative z-10 text-center px-6 max-w-md w-full">
+          <h2 className="font-display text-3xl md:text-4xl text-primary tracking-wide mb-2 neon-glow-subtle">
+            {selectedExercise.name}
+          </h2>
+          <p className="text-muted-foreground font-display tracking-wide mb-2">
+            {selectedExercise.tagline}
+          </p>
+          <p className="text-sm text-muted-foreground mb-10">
+            {cycleSec}s per cycle — repeats for your chosen duration
+          </p>
+
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <Clock className="w-5 h-5 text-primary" />
+            <h3 className="font-display text-xl text-foreground tracking-wide">
+              SET YOUR TIMER
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 mb-10">
+            {DURATION_OPTIONS.map((opt) => (
+              <Button
+                key={opt.minutes}
+                variant="outline"
+                className="h-16 font-display text-lg tracking-wide border-2 border-primary/30 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all"
+                onClick={() => startWithDuration(opt.minutes)}
+              >
+                {opt.label}
+              </Button>
+            ))}
+          </div>
+
+          <Button
+            variant="ghost"
+            className="text-muted-foreground"
+            onClick={() => {
+              setView("selection");
+              setSelectedExercise(null);
+            }}
+          >
+            ← Back
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   // Countdown view
   if (view === "countdown") {
     return (
@@ -391,7 +459,7 @@ const MindsetBreathing = () => {
       phase={phase}
       progress={progress}
       currentCycle={currentCycle}
-      totalCycles={selectedExercise?.cycles || 9}
+      remainingSeconds={remainingSeconds}
       phaseDuration={phaseDuration}
       isActive={isActive}
       isComplete={view === "complete"}

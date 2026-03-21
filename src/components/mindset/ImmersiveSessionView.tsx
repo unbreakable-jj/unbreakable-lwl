@@ -9,7 +9,7 @@ interface ImmersiveSessionViewProps {
   phase: BreathPhase;
   progress: number;
   currentCycle: number;
-  totalCycles: number;
+  remainingSeconds: number;
   phaseDuration: number;
   isActive: boolean;
   isComplete: boolean;
@@ -25,7 +25,7 @@ export function ImmersiveSessionView({
   phase,
   progress,
   currentCycle,
-  totalCycles,
+  remainingSeconds,
   phaseDuration,
   isActive,
   isComplete,
@@ -47,9 +47,15 @@ export function ImmersiveSessionView({
     }
   };
 
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div className="fixed inset-0 z-40 bg-background flex flex-col items-center justify-center overflow-hidden">
-      {/* Ambient background glow - responds to phase */}
+      {/* Ambient background glow */}
       <div 
         className={`absolute inset-0 transition-opacity duration-1000 ${
           phase === "inhale" ? "opacity-100" : phase === "hold" ? "opacity-80" : "opacity-30"
@@ -59,14 +65,25 @@ export function ImmersiveSessionView({
         }}
       />
 
-      {/* Cycle indicator - top */}
+      {/* Timer + cycle indicator - top */}
       <div className="absolute top-8 left-1/2 -translate-x-1/2 text-center z-10">
-        <p className="font-display text-lg text-muted-foreground tracking-widest">
-          {isComplete ? "SESSION COMPLETE" : `${Math.min(currentCycle, totalCycles)} / ${totalCycles}`}
-        </p>
+        {isComplete ? (
+          <p className="font-display text-lg text-muted-foreground tracking-widest">
+            SESSION COMPLETE
+          </p>
+        ) : (
+          <>
+            <p className="font-display text-3xl text-primary tracking-widest neon-glow-subtle">
+              {formatTime(remainingSeconds)}
+            </p>
+            <p className="font-display text-sm text-muted-foreground tracking-widest mt-1">
+              CYCLE {currentCycle}
+            </p>
+          </>
+        )}
       </div>
 
-      {/* Main breathing visual - centered and large */}
+      {/* Main breathing visual */}
       <div className="flex-1 flex items-center justify-center w-full">
         <div className="relative">
           <BreathingVisual
@@ -77,7 +94,7 @@ export function ImmersiveSessionView({
         </div>
       </div>
 
-      {/* Phase text - below orb */}
+      {/* Phase text */}
       <div className="absolute bottom-32 md:bottom-36 left-1/2 -translate-x-1/2 text-center z-10">
         <AnimatePresence mode="wait">
           <motion.h2
@@ -92,7 +109,6 @@ export function ImmersiveSessionView({
           </motion.h2>
         </AnimatePresence>
 
-        {/* Completion message */}
         {isComplete && closingMessage && (
           <motion.p
             initial={{ opacity: 0 }}
@@ -105,7 +121,7 @@ export function ImmersiveSessionView({
         )}
       </div>
 
-      {/* Controls - bottom */}
+      {/* Controls */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-10">
         <Button
           variant="outline"
@@ -116,7 +132,6 @@ export function ImmersiveSessionView({
           <ChevronLeft className="w-5 h-5" />
         </Button>
 
-        {/* Voice mute toggle */}
         <Button
           variant="outline"
           size="icon"
