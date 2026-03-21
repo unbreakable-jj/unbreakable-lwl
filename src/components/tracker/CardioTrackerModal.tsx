@@ -411,29 +411,8 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     };
   }, []);
 
-  // Voice gender - female only
-  const voiceGender = 'female';
-
-  // Voice prompt function using Web Speech API
-  const speakUpdate = useCallback((text: string) => {
-    if (!voiceEnabled || !('speechSynthesis' in window)) return;
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    utterance.volume = 1;
-    // Try to select a voice matching the gender preference
-    const voices = window.speechSynthesis.getVoices();
-    if (voices.length > 0) {
-      const genderKeywords = voiceGender === 'female' 
-        ? ['female', 'woman', 'fiona', 'samantha', 'karen', 'moira', 'tessa', 'victoria', 'zira']
-        : ['male', 'man', 'daniel', 'alex', 'david', 'james', 'george', 'thomas'];
-      const preferred = voices.find(v => 
-        genderKeywords.some(k => v.name.toLowerCase().includes(k))
-      );
-      if (preferred) utterance.voice = preferred;
-    }
-    window.speechSynthesis.speak(utterance);
-  }, [voiceEnabled, voiceGender]);
+  // ElevenLabs TTS voice - works in background / screen off
+  const { speak: speakUpdate, cleanup: cleanupVoice } = useCardioVoice({ enabled: voiceEnabled });
 
   // Voice prompts every 1km
   useEffect(() => {
