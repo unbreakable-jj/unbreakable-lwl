@@ -415,8 +415,6 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     };
   }, [cleanupVoice]);
 
-  // ElevenLabs TTS voice - works in background / screen off
-  const { speak: speakUpdate, cleanup: cleanupVoice } = useCardioVoice({ enabled: voiceEnabled });
 
   // Voice prompts every 1km
   useEffect(() => {
