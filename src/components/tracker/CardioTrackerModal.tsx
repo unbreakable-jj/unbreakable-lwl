@@ -408,8 +408,9 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       if (preAcquireWatchRef.current !== null) {
         navigator.geolocation.clearWatch(preAcquireWatchRef.current);
       }
+      cleanupVoice();
     };
-  }, []);
+  }, [cleanupVoice]);
 
   // ElevenLabs TTS voice - works in background / screen off
   const { speak: speakUpdate, cleanup: cleanupVoice } = useCardioVoice({ enabled: voiceEnabled });
