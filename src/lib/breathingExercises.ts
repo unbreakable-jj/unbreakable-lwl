@@ -3,9 +3,6 @@ export interface BreathingExercise {
   name: string;
   tagline: string;
   description: string;
-  duration: string;
-  durationMinutes: number;
-  cycles: number;
   phases: {
     inhale: number; // seconds
     hold: number;
@@ -23,21 +20,24 @@ export interface BreathingExercise {
   };
   intensity: "high" | "medium" | "calm";
   color: string;
-  isVisible?: boolean; // Controls visibility in UI
+  isVisible?: boolean;
 }
 
-// Power Breath: 4-7-8 pattern
-// Each cycle = 4 + 7 + 8 = 19 seconds
-// 3 minutes = 180 seconds / 19 = ~9.5 cycles → 9 complete cycles
+export const DURATION_OPTIONS = [
+  { label: "2 MIN", minutes: 2 },
+  { label: "3 MIN", minutes: 3 },
+  { label: "5 MIN", minutes: 5 },
+  { label: "10 MIN", minutes: 10 },
+  { label: "15 MIN", minutes: 15 },
+  { label: "20 MIN", minutes: 20 },
+];
+
 export const BREATHING_EXERCISES: BreathingExercise[] = [
   {
     id: "power-breath",
     name: "POWER BREATH",
     tagline: "4-7-8 Pattern",
     description: "The scientifically-proven 4-7-8 technique. Inhale for 4, hold for 7, release for 8. This pattern activates your parasympathetic nervous system while building mental resilience.",
-    duration: "3 MIN",
-    durationMinutes: 3,
-    cycles: 9,
     phases: {
       inhale: 4,
       hold: 7,
@@ -60,9 +60,6 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
     name: "BOX BREATHING",
     tagline: "4-4-4-4 Pattern",
     description: "The Navy SEAL technique for staying calm under fire. Equal phases of inhale, hold, exhale, hold create total nervous system balance and razor-sharp focus.",
-    duration: "4 MIN",
-    durationMinutes: 4,
-    cycles: 15,
     phases: {
       inhale: 4,
       hold: 4,
@@ -87,9 +84,6 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
     name: "TACTICAL CALM",
     tagline: "4-2-6 Pattern",
     description: "A rapid stress-reset technique. Short inhale, brief hold, extended exhale. Designed to activate your parasympathetic response fast — when you need calm NOW.",
-    duration: "3 MIN",
-    durationMinutes: 3,
-    cycles: 15,
     phases: {
       inhale: 4,
       hold: 2,
@@ -112,9 +106,6 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
     name: "DEEP RESET",
     tagline: "4-4-6-2 Pattern",
     description: "Slow, deep breathing for recovery and stress release. Extended exhale with a brief rest activates your parasympathetic nervous system for total restoration.",
-    duration: "5 MIN",
-    durationMinutes: 5,
-    cycles: 19,
     phases: {
       inhale: 4,
       hold: 4,
@@ -136,13 +127,17 @@ export const BREATHING_EXERCISES: BreathingExercise[] = [
   },
 ];
 
-// Get only visible exercises for UI display
 export const getVisibleExercises = (): BreathingExercise[] => {
   return BREATHING_EXERCISES.filter((ex) => ex.isVisible !== false);
 };
 
 export const getExerciseById = (id: string): BreathingExercise | undefined => {
   return BREATHING_EXERCISES.find((ex) => ex.id === id);
+};
+
+export const getCycleDurationSeconds = (exercise: BreathingExercise): number => {
+  const { inhale, hold, exhale, rest = 0 } = exercise.phases;
+  return inhale + hold + exhale + rest;
 };
 
 export const getPhaseText = (
