@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import { Play, Square, Pause, Timer, Globe, Users, Lock, Footprints, Bike, Edit3, Waves, Droplets, Save, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CountdownOverlay } from '@/components/CountdownOverlay';
+import { useCardioVoice } from '@/hooks/useCardioVoice';
 
 interface CardioTrackerModalProps {
   isOpen: boolean;
@@ -112,6 +113,9 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   const sessionStartRef = useRef<Date | null>(null);
   const lastVoiceKmRef = useRef(0);
   const preAcquireWatchRef = useRef<number | null>(null);
+
+  // ElevenLabs TTS voice - works in background / screen off
+  const { speak: speakUpdate, cleanup: cleanupVoice } = useCardioVoice({ enabled: voiceEnabled });
 
   // Post-session state (also used for manual entry)
   const [title, setTitle] = useState('');
@@ -407,32 +411,10 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       if (preAcquireWatchRef.current !== null) {
         navigator.geolocation.clearWatch(preAcquireWatchRef.current);
       }
+      cleanupVoice();
     };
-  }, []);
+  }, [cleanupVoice]);
 
-  // Voice gender - female only
-  const voiceGender = 'female';
-
-  // Voice prompt function using Web Speech API
-  const speakUpdate = useCallback((text: string) => {
-    if (!voiceEnabled || !('speechSynthesis' in window)) return;
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    utterance.volume = 1;
-    // Try to select a voice matching the gender preference
-    const voices = window.speechSynthesis.getVoices();
-    if (voices.length > 0) {
-      const genderKeywords = voiceGender === 'female' 
-        ? ['female', 'woman', 'fiona', 'samantha', 'karen', 'moira', 'tessa', 'victoria', 'zira']
-        : ['male', 'man', 'daniel', 'alex', 'david', 'james', 'george', 'thomas'];
-      const preferred = voices.find(v => 
-        genderKeywords.some(k => v.name.toLowerCase().includes(k))
-      );
-      if (preferred) utterance.voice = preferred;
-    }
-    window.speechSynthesis.speak(utterance);
-  }, [voiceEnabled, voiceGender]);
 
   // Voice prompts every 1km
   useEffect(() => {
