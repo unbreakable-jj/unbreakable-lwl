@@ -122,6 +122,9 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   const pausedDurationRef = useRef(0);
   const activityRef = useRef<ActivityType | null>(initialActivity || null);
   const lastAcceptedPositionRef = useRef<Position | null>(null);
+  const distanceRef = useRef(0);
+  const voiceEnabledRef = useRef(voiceEnabled);
+  const speakUpdateRef = useRef(speakUpdate);
 
   // ElevenLabs TTS voice - works in background / screen off
   const { speak: speakUpdate, cleanup: cleanupVoice } = useCardioVoice({ enabled: voiceEnabled });
@@ -144,6 +147,8 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   useEffect(() => {
     pausedDurationRef.current = pausedDuration;
   }, [pausedDuration]);
+  useEffect(() => { voiceEnabledRef.current = voiceEnabled; }, [voiceEnabled]);
+  useEffect(() => { speakUpdateRef.current = speakUpdate; }, [speakUpdate]);
 
   const syncElapsedTime = useCallback(() => {
     if (!sessionStartRef.current) return;
@@ -160,6 +165,23 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     syncElapsedTime();
     timerRef.current = setInterval(syncElapsedTime, 1000);
   }, [syncElapsedTime]);
+
+  const buildVoiceMessage = useCallback((km: number, totalDistance: number) => {
+    const now = Date.now();
+    const elapsed = sessionStartRef.current
+      ? Math.max(0, Math.floor((now - sessionStartRef.current.getTime()) / 1000) - pausedDurationRef.current)
+      : 0;
+    const hrs = Math.floor(elapsed / 3600);
+    const mins = Math.floor((elapsed % 3600) / 60);
+    const secs = elapsed % 60;
+    const timeStr = `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    let paceStr = '--:--';
+    if (totalDistance > 0) {
+      const ps = Math.round(elapsed / totalDistance);
+      paceStr = `${Math.floor(ps / 60)}:${(ps % 60).toString().padStart(2, '0')}`;
+    }
+    return `${km} kilometre${km > 1 ? 's' : ''} completed. Total distance ${totalDistance.toFixed(2)} K. Total time ${timeStr}. Average pace ${paceStr} per kilometre.`;
+  }, []);
 
   const processGpsPosition = useCallback((position: GeolocationPosition) => {
     const { latitude, longitude, accuracy, speed } = position.coords;
@@ -198,9 +220,18 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     setPositions((prev) => [...prev, nextPosition]);
 
     if (distanceResult.incrementKm > 0) {
-      setDistance((prev) => prev + distanceResult.incrementKm);
+      setDistance((prev) => {
+        const newDist = prev + distanceResult.incrementKm;
+        distanceRef.current = newDist;
+        const currentKm = Math.floor(newDist);
+        if (currentKm > lastVoiceKmRef.current && currentKm >= 1 && voiceEnabledRef.current) {
+          lastVoiceKmRef.current = currentKm;
+          speakUpdateRef.current(buildVoiceMessage(currentKm, newDist));
+        }
+        return newDist;
+      });
     }
-  }, []);
+  }, [buildVoiceMessage]);
 
   const requestCurrentPosition = useCallback(() => {
     if (!navigator.geolocation) return;
@@ -272,6 +303,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     sessionStartRef.current = sessionStart;
     setPositions([]);
     setDistance(0);
+    distanceRef.current = 0;
     setElapsedSeconds(0);
     setPausedDuration(0);
     pausedDurationRef.current = 0;
@@ -360,6 +392,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
         setStartTime(sessionStart);
         sessionStartRef.current = sessionStart;
         setDistance(session.distance || 0);
+        distanceRef.current = session.distance || 0;
         setPausedDuration(session.pausedDuration || 0);
         pausedDurationRef.current = session.pausedDuration || 0;
         setIsPaused(session.isPaused || false);
@@ -437,27 +470,6 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     };
   }, [cleanupVoice]);
 
-
-  // Voice prompts every 1km
-  useEffect(() => {
-    if (phase !== 'tracking' || isPaused || distance === 0) return;
-    
-    const currentKm = Math.floor(distance);
-    if (currentKm > lastVoiceKmRef.current && currentKm >= 1) {
-      lastVoiceKmRef.current = currentKm;
-      
-      const totalKm = distance.toFixed(2);
-      const timeStr = formatTime(elapsedSeconds);
-      const avgPace = calculatePace();
-      
-      speakUpdate(
-        `${currentKm} kilometre${currentKm > 1 ? 's' : ''} completed. ` +
-        `Total distance ${totalKm} K. ` +
-        `Total time ${timeStr}. ` +
-        `Average pace ${avgPace} per kilometre.`
-      );
-    }
-  }, [distance, phase, isPaused, elapsedSeconds, speakUpdate]);
 
   // Pre-acquire GPS signal during countdown
   const handlePreAcquireGps = useCallback(() => {
@@ -713,6 +725,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     setVisibility('public');
     setPositions([]);
     setDistance(0);
+    distanceRef.current = 0;
     setElapsedSeconds(0);
     setStartTime(null);
     setManualDistance('');
