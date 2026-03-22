@@ -21,6 +21,12 @@ import { Play, Square, Pause, Timer, Globe, Users, Lock, Footprints, Bike, Edit3
 import { motion, AnimatePresence } from 'framer-motion';
 import { CountdownOverlay } from '@/components/CountdownOverlay';
 import { useCardioVoice } from '@/hooks/useCardioVoice';
+import {
+  calculateDistanceIncrement,
+  getPersistedTrackerPositions,
+  positionsToRouteGeoJSON,
+  type CardioTrackerActivity,
+} from '@/lib/cardioTracking';
 
 interface CardioTrackerModalProps {
   isOpen: boolean;
@@ -113,6 +119,9 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   const sessionStartRef = useRef<Date | null>(null);
   const lastVoiceKmRef = useRef(0);
   const preAcquireWatchRef = useRef<number | null>(null);
+  const pausedDurationRef = useRef(0);
+  const activityRef = useRef<ActivityType | null>(initialActivity || null);
+  const lastAcceptedPositionRef = useRef<Position | null>(null);
 
   // ElevenLabs TTS voice - works in background / screen off
   const { speak: speakUpdate, cleanup: cleanupVoice } = useCardioVoice({ enabled: voiceEnabled });
@@ -128,20 +137,86 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   const [manualMinutes, setManualMinutes] = useState('');
   const [manualSeconds, setManualSeconds] = useState('0');
 
-  // Haversine distance calculation
-  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-    const R = 6371;
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  };
+  useEffect(() => {
+    activityRef.current = activity;
+  }, [activity]);
+
+  useEffect(() => {
+    pausedDurationRef.current = pausedDuration;
+  }, [pausedDuration]);
+
+  const syncElapsedTime = useCallback(() => {
+    if (!sessionStartRef.current) return;
+
+    const totalElapsed = Math.floor((Date.now() - sessionStartRef.current.getTime()) / 1000);
+    setElapsedSeconds(Math.max(0, totalElapsed - pausedDurationRef.current));
+  }, []);
+
+  const restartElapsedTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    syncElapsedTime();
+    timerRef.current = setInterval(syncElapsedTime, 1000);
+  }, [syncElapsedTime]);
+
+  const processGpsPosition = useCallback((position: GeolocationPosition) => {
+    const { latitude, longitude, accuracy, speed } = position.coords;
+
+    setGpsAccuracy(accuracy);
+
+    const nextPosition: Position = {
+      lat: latitude,
+      lng: longitude,
+      timestamp: position.timestamp || Date.now(),
+      accuracy,
+      speed,
+    };
+
+    const distanceResult = calculateDistanceIncrement({
+      activity: (activityRef.current || 'run') as CardioTrackerActivity,
+      previousPosition: lastAcceptedPositionRef.current,
+      nextPosition,
+    });
+
+    if (!distanceResult.accepted) {
+      if (distanceResult.displaySpeedKph !== null) {
+        setCurrentSpeed(distanceResult.displaySpeedKph);
+      }
+      setGpsStatus('acquiring');
+      return;
+    }
+
+    lastAcceptedPositionRef.current = nextPosition;
+    setGpsStatus('active');
+
+    if (distanceResult.displaySpeedKph !== null) {
+      setCurrentSpeed(distanceResult.displaySpeedKph);
+    }
+
+    setPositions((prev) => [...prev, nextPosition]);
+
+    if (distanceResult.incrementKm > 0) {
+      setDistance((prev) => prev + distanceResult.incrementKm);
+    }
+  }, []);
+
+  const requestCurrentPosition = useCallback(() => {
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      processGpsPosition,
+      () => {
+        // No-op: watchPosition is still the primary source.
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 5000,
+        timeout: 15000,
+      }
+    );
+  }, [processGpsPosition]);
 
   const selectActivity = (type: ActivityType) => {
     setActivity(type);
@@ -165,86 +240,30 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     setDistance(0);
     setElapsedSeconds(0);
     setPausedDuration(0);
+    pausedDurationRef.current = 0;
     setIsPaused(false);
     setGpsStatus('acquiring');
     setGpsAccuracy(null);
     setCurrentSpeed(null);
+    lastAcceptedPositionRef.current = null;
 
     // Start timer using timestamp-based calculation for background accuracy
-    timerRef.current = setInterval(() => {
-      if (sessionStartRef.current) {
-        const now = Date.now();
-        const totalElapsed = Math.floor((now - sessionStartRef.current.getTime()) / 1000);
-        // Subtract paused duration from total elapsed time
-        setElapsedSeconds(totalElapsed - pausedDuration);
-      }
-    }, 1000);
+    restartElapsedTimer();
 
     // Start GPS tracking immediately - no waiting
     startGpsTracking();
-    
-    // Auto-set GPS status to active after 2 seconds if still acquiring
-    setTimeout(() => {
-      setGpsStatus(prev => prev === 'acquiring' ? 'active' : prev);
-    }, 2000);
-  }, [pausedDuration]);
+
+    requestCurrentPosition();
+  }, [requestCurrentPosition, restartElapsedTimer, startGpsTracking]);
 
   const startGpsTracking = useCallback(() => {
+    if (watchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+    }
+
     // Request location permission and start high-accuracy GPS tracking
     watchIdRef.current = navigator.geolocation.watchPosition(
-      (position) => {
-        const { latitude, longitude, accuracy, speed } = position.coords;
-        
-        // Update GPS status and accuracy
-        setGpsStatus('active');
-        setGpsAccuracy(accuracy);
-        
-        // Update current speed from GPS if available (m/s to km/h)
-        if (speed !== null && speed > 0) {
-          setCurrentSpeed(speed * 3.6);
-        }
-
-        const newPosition: Position = {
-          lat: latitude,
-          lng: longitude,
-          timestamp: Date.now(),
-          accuracy: accuracy,
-          speed: speed,
-        };
-
-        setPositions((prev) => {
-          // Filter out positions with poor accuracy (> 20 meters)
-          if (accuracy > 20) {
-            console.log(`GPS accuracy poor: ${accuracy}m - skipping`);
-            return prev;
-          }
-
-          if (prev.length > 0) {
-            const lastPos = prev[prev.length - 1];
-            const segmentDistance = calculateDistance(
-              lastPos.lat,
-              lastPos.lng,
-              newPosition.lat,
-              newPosition.lng
-            );
-            
-            // Only add if moved more than 3 meters (improved threshold)
-            // and the movement is plausible (not GPS drift)
-            const timeDelta = (newPosition.timestamp - lastPos.timestamp) / 1000;
-            const speedMps = segmentDistance * 1000 / timeDelta;
-            
-            // Filter out unrealistic speeds (> 50 km/h for running/walking, > 80 for cycling)
-            const maxSpeed = 80 / 3.6; // 80 km/h in m/s
-            
-            if (segmentDistance > 0.003 && speedMps < maxSpeed) {
-              setDistance((d) => d + segmentDistance);
-              return [...prev, newPosition];
-            }
-            return prev;
-          }
-          return [newPosition];
-        });
-      },
+      processGpsPosition,
       (error) => {
         console.error('GPS Error:', error.code, error.message);
         setGpsStatus('error');
@@ -265,11 +284,11 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       },
       {
         enableHighAccuracy: true,  // Use GPS for precise tracking
-        maximumAge: 0,             // Always get fresh position
-        timeout: 10000,            // 10 second timeout (increased for better accuracy)
+        maximumAge: 5000,
+        timeout: 20000,
       }
     );
-  }, []);
+  }, [processGpsPosition]);
 
   const pauseTracking = useCallback(() => {
     setIsPaused(true);
@@ -292,7 +311,9 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     // Calculate how long we were paused and add to pausedDuration
     if (pauseStartRef.current) {
       const pausedTime = Math.floor((Date.now() - pauseStartRef.current) / 1000);
-      setPausedDuration((prev) => prev + pausedTime);
+      const nextPausedDuration = pausedDurationRef.current + pausedTime;
+      pausedDurationRef.current = nextPausedDuration;
+      setPausedDuration(nextPausedDuration);
       pauseStartRef.current = null;
     }
     
@@ -300,20 +321,12 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     setGpsStatus('acquiring');
 
     // Restart timer with updated paused duration
-    timerRef.current = setInterval(() => {
-      if (sessionStartRef.current) {
-        const now = Date.now();
-        const totalElapsed = Math.floor((now - sessionStartRef.current.getTime()) / 1000);
-        setPausedDuration((currentPaused) => {
-          setElapsedSeconds(totalElapsed - currentPaused);
-          return currentPaused;
-        });
-      }
-    }, 1000);
+    restartElapsedTimer();
 
     // Restart GPS tracking
     startGpsTracking();
-  }, []);
+    requestCurrentPosition();
+  }, [requestCurrentPosition, restartElapsedTimer, startGpsTracking]);
 
   const stopTracking = useCallback(() => {
     // If paused, finalize the paused duration
@@ -344,6 +357,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     if (saved) {
       try {
         const session = JSON.parse(saved);
+        const restoredPositions = session.positions || [];
         setActivity(session.activity);
         setPhase('tracking');
         const sessionStart = new Date(session.startTime);
@@ -351,29 +365,24 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
         sessionStartRef.current = sessionStart;
         setDistance(session.distance || 0);
         setPausedDuration(session.pausedDuration || 0);
+        pausedDurationRef.current = session.pausedDuration || 0;
         setIsPaused(session.isPaused || false);
-        setPositions(session.positions || []);
+        setPositions(restoredPositions);
+        lastAcceptedPositionRef.current = restoredPositions.length > 0 ? restoredPositions[restoredPositions.length - 1] : null;
         lastVoiceKmRef.current = session.lastVoiceKm || 0;
+        setCurrentSpeed(session.currentSpeed ?? null);
 
         // Recalculate elapsed
         const now = Date.now();
         const totalElapsed = Math.floor((now - sessionStart.getTime()) / 1000);
-        setElapsedSeconds(totalElapsed - (session.pausedDuration || 0));
+        setElapsedSeconds(Math.max(0, totalElapsed - pausedDurationRef.current));
 
         // Restart timer
-        timerRef.current = setInterval(() => {
-          if (sessionStartRef.current) {
-            const t = Date.now();
-            const total = Math.floor((t - sessionStartRef.current.getTime()) / 1000);
-            setPausedDuration((currentPaused) => {
-              setElapsedSeconds(total - currentPaused);
-              return currentPaused;
-            });
-          }
-        }, 1000);
+        restartElapsedTimer();
 
         if (!session.isPaused) {
           startGpsTracking();
+          requestCurrentPosition();
         }
         setGpsStatus(session.isPaused ? 'paused' : 'acquiring');
         toast.info('Resumed your active cardio session');
@@ -381,7 +390,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
         localStorage.removeItem(STORAGE_KEY);
       }
     }
-  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen, requestCurrentPosition, restartElapsedTimer, startGpsTracking]);
 
   // Save session to localStorage whenever tracking state changes
   useEffect(() => {
@@ -392,12 +401,29 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
         distance,
         pausedDuration,
         isPaused,
-        positions: positions.slice(-50),
+        positions: getPersistedTrackerPositions(positions),
         lastVoiceKm: lastVoiceKmRef.current,
+        currentSpeed,
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
     }
-  }, [phase, startTime, distance, pausedDuration, isPaused, positions, activity]);
+  }, [phase, startTime, distance, pausedDuration, isPaused, positions, activity, currentSpeed]);
+
+  useEffect(() => {
+    const handleVisibilityRecovery = () => {
+      if (!document.hidden && phase === 'tracking' && !isPaused) {
+        requestCurrentPosition();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityRecovery);
+    window.addEventListener('focus', handleVisibilityRecovery);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityRecovery);
+      window.removeEventListener('focus', handleVisibilityRecovery);
+    };
+  }, [isPaused, phase, requestCurrentPosition]);
 
   // Cleanup on unmount - DON'T clear localStorage (session persists)
   useEffect(() => {
@@ -570,6 +596,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     const paceSeconds = Math.round(elapsedSeconds / distance);
     const speedKph = calculateSpeed();
     const activityLabel = ACTIVITY_CONFIG[activity!].label;
+    const routePolyline = positions.length > 1 ? positionsToRouteGeoJSON(positions) : null;
 
     const { error, data } = await createRun({
       title: title || `${activityLabel} Session`,
@@ -582,7 +609,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       average_speed_kph: Math.round(speedKph * 100) / 100,
       elevation_gain_m: null,
       calories_burned: Math.round(distance * 60),
-      route_polyline: null,
+      route_polyline: routePolyline,
       map_snapshot_url: null,
       is_gps_tracked: true,
       weather_conditions: null,
@@ -700,6 +727,8 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     setIsPaused(false);
     pauseStartRef.current = null;
     sessionStartRef.current = null;
+    pausedDurationRef.current = 0;
+    lastAcceptedPositionRef.current = null;
     lastVoiceKmRef.current = 0;
     setCurrentSpeed(null);
     setGpsAccuracy(null);
