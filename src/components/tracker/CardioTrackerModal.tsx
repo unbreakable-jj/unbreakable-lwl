@@ -231,31 +231,6 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
     }
   };
 
-  const startTracking = useCallback(() => {
-    setPhase('tracking');
-    const sessionStart = new Date();
-    setStartTime(sessionStart);
-    sessionStartRef.current = sessionStart;
-    setPositions([]);
-    setDistance(0);
-    setElapsedSeconds(0);
-    setPausedDuration(0);
-    pausedDurationRef.current = 0;
-    setIsPaused(false);
-    setGpsStatus('acquiring');
-    setGpsAccuracy(null);
-    setCurrentSpeed(null);
-    lastAcceptedPositionRef.current = null;
-
-    // Start timer using timestamp-based calculation for background accuracy
-    restartElapsedTimer();
-
-    // Start GPS tracking immediately - no waiting
-    startGpsTracking();
-
-    requestCurrentPosition();
-  }, [requestCurrentPosition, restartElapsedTimer, startGpsTracking]);
-
   const startGpsTracking = useCallback(() => {
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
@@ -289,6 +264,27 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       }
     );
   }, [processGpsPosition]);
+
+  const startTracking = useCallback(() => {
+    setPhase('tracking');
+    const sessionStart = new Date();
+    setStartTime(sessionStart);
+    sessionStartRef.current = sessionStart;
+    setPositions([]);
+    setDistance(0);
+    setElapsedSeconds(0);
+    setPausedDuration(0);
+    pausedDurationRef.current = 0;
+    setIsPaused(false);
+    setGpsStatus('acquiring');
+    setGpsAccuracy(null);
+    setCurrentSpeed(null);
+    lastAcceptedPositionRef.current = null;
+
+    restartElapsedTimer();
+    startGpsTracking();
+    requestCurrentPosition();
+  }, [requestCurrentPosition, restartElapsedTimer, startGpsTracking]);
 
   const pauseTracking = useCallback(() => {
     setIsPaused(true);
