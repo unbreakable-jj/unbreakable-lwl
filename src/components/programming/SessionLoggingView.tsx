@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { FullScreenToolView } from './FullScreenToolView';
 import { CompactRestTimer } from './CompactRestTimer';
 import { ExerciseCoachingPanel } from './ExerciseCoachingPanel';
@@ -123,18 +123,21 @@ export function SessionLoggingView({
   });
 
   // Sync local inputs when new exercise logs appear (e.g. added sets)
-  useMemo(() => {
-    exerciseLogs.forEach((log) => {
-      if (!localInputs[log.id]) {
-        setLocalInputs((prev) => ({
-          ...prev,
-          [log.id]: {
+  useEffect(() => {
+    setLocalInputs((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      exerciseLogs.forEach((log) => {
+        if (!next[log.id]) {
+          next[log.id] = {
             reps: log.actual_reps?.toString() || '',
             weight: log.weight_kg?.toString() || '',
             rpe: log.rpe?.toString() || '',
-          },
-        }));
-      }
+          };
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
     });
   }, [exerciseLogs]);
   
