@@ -193,8 +193,8 @@ export function SessionLoggingView({
       icon={<ClipboardList className="w-5 h-5" />}
       onClose={onClose}
     >
-      <ScrollArea className={`h-[calc(100vh-180px)] ${showTimer ? 'pb-24' : ''}`}>
-        <div className="space-y-4 max-w-2xl mx-auto pb-8">
+      <div className="h-[calc(100vh-180px)] overflow-y-auto" style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}>
+        <div className={`space-y-4 max-w-2xl mx-auto pb-8 ${showTimer ? 'pb-24' : ''}`}>
           {/* Progress Bar */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
