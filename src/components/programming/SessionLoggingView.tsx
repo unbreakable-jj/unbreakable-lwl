@@ -445,6 +445,19 @@ export function SessionLoggingView({
                             </div>
                           </div>
                         ))}
+
+                        {/* Add Set Button */}
+                        {onAddSet && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onAddSet(exerciseName, firstLog.equipment, firstLog.target_reps)}
+                            className="w-full gap-1.5 font-display tracking-wide text-xs border-primary/30 hover:bg-primary/5 mt-1"
+                          >
+                            <Plus className="w-3.5 h-3.5 text-primary" />
+                            ADD SET
+                          </Button>
+                        )}
                       </div>
                     </motion.div>
                   )}
@@ -453,7 +466,7 @@ export function SessionLoggingView({
             );
           })}
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Fixed Compact Rest Timer - Always visible for manual use */}
       <div className="sticky bottom-0 left-0 right-0 z-10">
