@@ -177,6 +177,7 @@ export function ActiveWorkoutModal({
             exerciseLogs={exerciseLogs}
             onUpdateLog={onUpdateLog}
             onStartRest={handleStartRest}
+            onAddSet={onAddSet}
             onClose={() => setActiveTool('none')}
           />
         )}
