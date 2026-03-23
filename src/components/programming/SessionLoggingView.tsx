@@ -36,6 +36,7 @@ interface SessionLoggingViewProps {
     painFlag?: boolean;
   }) => void;
   onStartRest: (exerciseType: string) => void;
+  onAddSet?: (exerciseName: string, equipment: string, targetReps: string | null) => void;
   onClose: () => void;
 }
 
