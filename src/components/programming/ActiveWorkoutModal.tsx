@@ -62,6 +62,7 @@ interface ActiveWorkoutModalProps {
   onCancel: () => void;
   onSwapExercise?: (oldName: string, newExercise: { name: string; equipment: string; sets?: number; reps?: string }) => void;
   onAddExercise?: (exercise: { name: string; equipment: string; sets: number; reps: string }) => void;
+  onAddSet?: (exerciseName: string, equipment: string, targetReps: string | null) => void;
   isSwapping?: boolean;
   isAddingExercise?: boolean;
   open: boolean;
@@ -77,6 +78,7 @@ export function ActiveWorkoutModal({
   onCancel,
   onSwapExercise,
   onAddExercise,
+  onAddSet,
   isSwapping,
   isAddingExercise,
   open,
@@ -175,6 +177,7 @@ export function ActiveWorkoutModal({
             exerciseLogs={exerciseLogs}
             onUpdateLog={onUpdateLog}
             onStartRest={handleStartRest}
+            onAddSet={onAddSet}
             onClose={() => setActiveTool('none')}
           />
         )}

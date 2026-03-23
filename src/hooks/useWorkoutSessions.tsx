@@ -531,6 +531,51 @@ export function useWorkoutSessions() {
     },
   });
 
+  const addSetToExercise = useMutation({
+    mutationFn: async ({
+      sessionId,
+      exerciseName,
+      equipment,
+      targetReps,
+    }: {
+      sessionId: string;
+      exerciseName: string;
+      equipment: string;
+      targetReps: string | null;
+    }) => {
+      if (!user) throw new Error('Must be logged in');
+
+      // Find max set_number for this exercise in this session
+      const { data: existingLogs } = await supabase
+        .from('exercise_logs')
+        .select('set_number')
+        .eq('session_id', sessionId)
+        .eq('exercise_name', exerciseName)
+        .order('set_number', { ascending: false })
+        .limit(1);
+
+      const nextSet = (existingLogs?.[0]?.set_number || 0) + 1;
+
+      const { error } = await supabase.from('exercise_logs').insert({
+        session_id: sessionId,
+        user_id: user.id,
+        exercise_name: exerciseName,
+        equipment,
+        set_number: nextSet,
+        target_reps: targetReps,
+        completed: false,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['active-session'] });
+      queryClient.invalidateQueries({ queryKey: ['workout-sessions'] });
+    },
+    onError: () => {
+      toast({ title: 'Error', description: 'Could not add set', variant: 'destructive' });
+    },
+  });
+
   return {
     sessions,
     activeSession,
@@ -542,5 +587,6 @@ export function useWorkoutSessions() {
     updateSession,
     swapExercise,
     addExerciseToSession,
+    addSetToExercise,
   };
 }

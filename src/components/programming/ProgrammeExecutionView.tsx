@@ -55,6 +55,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
     cancelSession,
     swapExercise,
     addExerciseToSession,
+    addSetToExercise,
   } = useWorkoutSessions();
   const { toast } = useToast();
   
@@ -541,6 +542,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
           onCancel={handleCancelWorkout}
           onSwapExercise={handleSwapExercise}
           onAddExercise={(exercise) => addExerciseToSession.mutate({ sessionId: activeSession.id, exercise })}
+          onAddSet={(exerciseName, equipment, targetReps) => addSetToExercise.mutate({ sessionId: activeSession.id, exerciseName, equipment, targetReps })}
           isSwapping={swapExercise.isPending}
           isAddingExercise={addExerciseToSession.isPending}
           open={showWorkoutModal}

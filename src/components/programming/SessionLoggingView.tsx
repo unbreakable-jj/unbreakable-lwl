@@ -6,9 +6,8 @@ import { ExerciseLog } from '@/hooks/useWorkoutSessions';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Switch } from '@/components/ui/switch';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { 
   ClipboardList, 
@@ -21,6 +20,7 @@ import {
   Lightbulb,
   BookOpen,
   AlertTriangle,
+  Plus,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getExerciseDetails } from '@/lib/exerciseLibrary';
@@ -37,6 +37,7 @@ interface SessionLoggingViewProps {
     painFlag?: boolean;
   }) => void;
   onStartRest: (exerciseType: string) => void;
+  onAddSet?: (exerciseName: string, equipment: string, targetReps: string | null) => void;
   onClose: () => void;
 }
 
@@ -95,6 +96,7 @@ export function SessionLoggingView({
   exerciseLogs,
   onUpdateLog,
   onStartRest,
+  onAddSet,
   onClose,
 }: SessionLoggingViewProps) {
   // Memoize the grouped exercises to prevent recalculation on every render
@@ -119,6 +121,22 @@ export function SessionLoggingView({
     });
     return initial;
   });
+
+  // Sync local inputs when new exercise logs appear (e.g. added sets)
+  useMemo(() => {
+    exerciseLogs.forEach((log) => {
+      if (!localInputs[log.id]) {
+        setLocalInputs((prev) => ({
+          ...prev,
+          [log.id]: {
+            reps: log.actual_reps?.toString() || '',
+            weight: log.weight_kg?.toString() || '',
+            rpe: log.rpe?.toString() || '',
+          },
+        }));
+      }
+    });
+  }, [exerciseLogs]);
   
   const completedCount = exerciseLogs.filter((l) => l.completed).length;
   const totalCount = exerciseLogs.length;
@@ -192,8 +210,8 @@ export function SessionLoggingView({
       icon={<ClipboardList className="w-5 h-5" />}
       onClose={onClose}
     >
-      <ScrollArea className={`h-[calc(100vh-180px)] ${showTimer ? 'pb-24' : ''}`}>
-        <div className="space-y-4 max-w-2xl mx-auto pb-8">
+      <div className="h-[calc(100vh-180px)] overflow-y-auto" style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}>
+        <div className={`space-y-4 max-w-2xl mx-auto pb-8 ${showTimer ? 'pb-24' : ''}`}>
           {/* Progress Bar */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
@@ -444,6 +462,19 @@ export function SessionLoggingView({
                             </div>
                           </div>
                         ))}
+
+                        {/* Add Set Button */}
+                        {onAddSet && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onAddSet(exerciseName, firstLog.equipment, firstLog.target_reps)}
+                            className="w-full gap-1.5 font-display tracking-wide text-xs border-primary/30 hover:bg-primary/5 mt-1"
+                          >
+                            <Plus className="w-3.5 h-3.5 text-primary" />
+                            ADD SET
+                          </Button>
+                        )}
                       </div>
                     </motion.div>
                   )}
@@ -452,7 +483,7 @@ export function SessionLoggingView({
             );
           })}
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Fixed Compact Rest Timer - Always visible for manual use */}
       <div className="sticky bottom-0 left-0 right-0 z-10">
