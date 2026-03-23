@@ -62,6 +62,7 @@ interface ActiveWorkoutModalProps {
   onCancel: () => void;
   onSwapExercise?: (oldName: string, newExercise: { name: string; equipment: string; sets?: number; reps?: string }) => void;
   onAddExercise?: (exercise: { name: string; equipment: string; sets: number; reps: string }) => void;
+  onAddSet?: (exerciseName: string, equipment: string, targetReps: string | null) => void;
   isSwapping?: boolean;
   isAddingExercise?: boolean;
   open: boolean;
