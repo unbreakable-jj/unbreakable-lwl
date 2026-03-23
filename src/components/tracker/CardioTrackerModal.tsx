@@ -124,10 +124,11 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
   const lastAcceptedPositionRef = useRef<Position | null>(null);
   const distanceRef = useRef(0);
   const voiceEnabledRef = useRef(voiceEnabled);
-  const speakUpdateRef = useRef(speakUpdate);
 
   // ElevenLabs TTS voice - works in background / screen off
   const { speak: speakUpdate, cleanup: cleanupVoice } = useCardioVoice({ enabled: voiceEnabled });
+
+  const speakUpdateRef = useRef(speakUpdate);
 
   // Post-session state (also used for manual entry)
   const [title, setTitle] = useState('');
