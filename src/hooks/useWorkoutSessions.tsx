@@ -587,5 +587,6 @@ export function useWorkoutSessions() {
     updateSession,
     swapExercise,
     addExerciseToSession,
+    addSetToExercise,
   };
 }
