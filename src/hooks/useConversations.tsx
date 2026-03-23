@@ -84,11 +84,12 @@ export function useConversations() {
     }
 
     // Get all participants for these conversations
+    // Fetch ALL participants (including those who soft-deleted the conversation)
+    // so the other party still sees the correct name/avatar.
     const { data: allParticipants } = await supabase
       .from('conversation_participants')
       .select('conversation_id, user_id, joined_at, last_read_at')
-      .in('conversation_id', conversationIds)
-      .eq('is_deleted', false);
+      .in('conversation_id', conversationIds);
 
     // Get participant profiles
     const participantIds = [...new Set((allParticipants || []).map((p) => p.user_id))];
