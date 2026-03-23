@@ -123,13 +123,23 @@ export function SessionLoggingView({
   });
 
   // Sync local inputs when new exercise logs appear (e.g. added sets)
-  const exerciseLogIds = exerciseLogs.map(l => l.id).join(',');
-  useState(() => {
-    // This runs only on mount; for updates we use the effect below
-  });
-  
-  // Use useEffect to handle new logs appearing
-  const { useEffect: _ue } = { useEffect: undefined }; // dummy to avoid import changes
+  useEffect(() => {
+    setLocalInputs((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      exerciseLogs.forEach((log) => {
+        if (!next[log.id]) {
+          next[log.id] = {
+            reps: log.actual_reps?.toString() || '',
+            weight: log.weight_kg?.toString() || '',
+            rpe: log.rpe?.toString() || '',
+          };
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [exerciseLogs]);
   
   const completedCount = exerciseLogs.filter((l) => l.completed).length;
   const totalCount = exerciseLogs.length;
