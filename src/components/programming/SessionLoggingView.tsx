@@ -95,6 +95,7 @@ export function SessionLoggingView({
   exerciseLogs,
   onUpdateLog,
   onStartRest,
+  onAddSet,
   onClose,
 }: SessionLoggingViewProps) {
   // Memoize the grouped exercises to prevent recalculation on every render
