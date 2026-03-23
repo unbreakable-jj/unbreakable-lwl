@@ -55,6 +55,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
     cancelSession,
     swapExercise,
     addExerciseToSession,
+    addSetToExercise,
   } = useWorkoutSessions();
   const { toast } = useToast();
   
