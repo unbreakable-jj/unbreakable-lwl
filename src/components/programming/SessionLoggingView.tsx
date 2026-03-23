@@ -121,6 +121,22 @@ export function SessionLoggingView({
     });
     return initial;
   });
+
+  // Sync local inputs when new exercise logs appear (e.g. added sets)
+  useMemo(() => {
+    exerciseLogs.forEach((log) => {
+      if (!localInputs[log.id]) {
+        setLocalInputs((prev) => ({
+          ...prev,
+          [log.id]: {
+            reps: log.actual_reps?.toString() || '',
+            weight: log.weight_kg?.toString() || '',
+            rpe: log.rpe?.toString() || '',
+          },
+        }));
+      }
+    });
+  }, [exerciseLogs]);
   
   const completedCount = exerciseLogs.filter((l) => l.completed).length;
   const totalCount = exerciseLogs.length;
