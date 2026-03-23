@@ -78,6 +78,7 @@ export function ActiveWorkoutModal({
   onCancel,
   onSwapExercise,
   onAddExercise,
+  onAddSet,
   isSwapping,
   isAddingExercise,
   open,
