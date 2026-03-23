@@ -20,6 +20,7 @@ import {
   Lightbulb,
   BookOpen,
   AlertTriangle,
+  Plus,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getExerciseDetails } from '@/lib/exerciseLibrary';
