@@ -63,6 +63,8 @@ export function StoriesSection() {
     }
   }, [showViewer, activeUserIndex, groupedStories]);
 
+  const [activeMediaSlide, setActiveMediaSlide] = useState(0);
+
   const handlePublishStory = async (data: {
     content: string | null;
     image_url: string | null;
@@ -70,6 +72,7 @@ export function StoriesSection() {
     visibility: string;
     text_overlays: TextOverlayData[];
     background_color: string | null;
+    media_items?: any[];
   }) => {
     const { error } = await createStory({
       content: data.content,
@@ -78,6 +81,7 @@ export function StoriesSection() {
       visibility: data.visibility,
       text_overlays: data.text_overlays,
       background_color: data.background_color,
+      media_items: data.media_items,
     });
 
     if (error) {
@@ -130,6 +134,7 @@ export function StoriesSection() {
   const openViewer = (userIndex: number) => {
     setActiveUserIndex(userIndex);
     setActiveStoryIndex(0);
+    setActiveMediaSlide(0);
     setShowViewer(true);
     setIsPaused(false);
     setProgress(0);
@@ -139,10 +144,12 @@ export function StoriesSection() {
     const currentUserStories = groupedStories[activeUserIndex]?.stories || [];
     if (activeStoryIndex < currentUserStories.length - 1) {
       setActiveStoryIndex(prev => prev + 1);
+      setActiveMediaSlide(0);
       setProgress(0);
     } else if (activeUserIndex < groupedStories.length - 1) {
       setActiveUserIndex(prev => prev + 1);
       setActiveStoryIndex(0);
+      setActiveMediaSlide(0);
       setProgress(0);
     } else {
       setShowViewer(false);
@@ -152,11 +159,13 @@ export function StoriesSection() {
   const prevStory = useCallback(() => {
     if (activeStoryIndex > 0) {
       setActiveStoryIndex(prev => prev - 1);
+      setActiveMediaSlide(0);
       setProgress(0);
     } else if (activeUserIndex > 0) {
       setActiveUserIndex(prev => prev - 1);
       const prevUserStories = groupedStories[activeUserIndex - 1]?.stories || [];
       setActiveStoryIndex(prevUserStories.length - 1);
+      setActiveMediaSlide(0);
       setProgress(0);
     }
   }, [activeUserIndex, activeStoryIndex, groupedStories]);
@@ -388,54 +397,150 @@ export function StoriesSection() {
                 backgroundColor: getStoryBgColor(currentStory) || '#1C1C1E',
               }}
             >
-              {/* Video */}
-              {currentStory.video_url && (
-                <div className="absolute inset-0">
-                  <video
-                    ref={storyVideoRef}
-                    src={currentStory.video_url}
-                    className="w-full h-full object-contain"
-                    autoPlay loop muted={isMuted} playsInline
-                    onEnded={nextStory}
-                  />
-                  <div className="absolute bottom-20 right-4 flex flex-col gap-2 z-10" data-story-controls>
-                    <button
-                      className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (storyVideoRef.current) {
-                          if (isPlaying) storyVideoRef.current.pause();
-                          else storyVideoRef.current.play();
-                          setIsPlaying(!isPlaying);
-                        }
-                      }}
-                    >
-                      {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                    </button>
-                    <button
-                      className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (storyVideoRef.current) {
-                          storyVideoRef.current.muted = !isMuted;
-                          setIsMuted(!isMuted);
-                        }
-                      }}
-                    >
-                      {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-              )}
+              {/* Multi-media carousel */}
+              {(() => {
+                const mediaArr = (currentStory as any).media_items as Array<{ type: string; url: string }> | undefined;
+                const hasMultiMedia = mediaArr && mediaArr.length > 0;
 
-              {/* Image */}
-              {currentStory.image_url && !currentStory.video_url && (
-                <img
-                  src={currentStory.image_url}
-                  alt="Story"
-                  className="absolute inset-0 w-full h-full object-contain"
-                />
-              )}
+                if (hasMultiMedia) {
+                  const currentSlide = mediaArr[activeMediaSlide] || mediaArr[0];
+                  return (
+                    <>
+                      {/* Dot indicators */}
+                      {mediaArr.length > 1 && (
+                        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-30 flex gap-1.5" data-story-controls>
+                          {mediaArr.map((_, idx) => (
+                            <button
+                              key={idx}
+                              className={`w-2 h-2 rounded-full transition-all ${
+                                idx === activeMediaSlide ? 'bg-white scale-125' : 'bg-white/40'
+                              }`}
+                              onClick={(e) => { e.stopPropagation(); setActiveMediaSlide(idx); }}
+                            />
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Swipe areas for multi-media */}
+                      {mediaArr.length > 1 && (
+                        <>
+                          <button
+                            className="absolute left-0 top-1/4 bottom-1/4 w-16 z-10"
+                            data-story-controls
+                            onClick={(e) => { e.stopPropagation(); setActiveMediaSlide(prev => Math.max(0, prev - 1)); }}
+                          />
+                          <button
+                            className="absolute right-0 top-1/4 bottom-1/4 w-16 z-10"
+                            data-story-controls
+                            onClick={(e) => { e.stopPropagation(); setActiveMediaSlide(prev => Math.min(mediaArr.length - 1, prev + 1)); }}
+                          />
+                        </>
+                      )}
+
+                      {currentSlide.type === 'video' ? (
+                        <video
+                          ref={storyVideoRef}
+                          src={currentSlide.url}
+                          className="w-full h-full object-contain"
+                          autoPlay loop muted={isMuted} playsInline
+                          onEnded={nextStory}
+                        />
+                      ) : (
+                        <img
+                          src={currentSlide.url}
+                          alt="Story"
+                          className="absolute inset-0 w-full h-full object-contain"
+                        />
+                      )}
+
+                      {/* Video controls for multi-media video */}
+                      {currentSlide.type === 'video' && (
+                        <div className="absolute bottom-20 right-4 flex flex-col gap-2 z-10" data-story-controls>
+                          <button
+                            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (storyVideoRef.current) {
+                                if (isPlaying) storyVideoRef.current.pause();
+                                else storyVideoRef.current.play();
+                                setIsPlaying(!isPlaying);
+                              }
+                            }}
+                          >
+                            {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                          </button>
+                          <button
+                            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (storyVideoRef.current) {
+                                storyVideoRef.current.muted = !isMuted;
+                                setIsMuted(!isMuted);
+                              }
+                            }}
+                          >
+                            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  );
+                }
+
+                // Fallback: legacy single image/video
+                return (
+                  <>
+                    {/* Video */}
+                    {currentStory.video_url && (
+                      <div className="absolute inset-0">
+                        <video
+                          ref={storyVideoRef}
+                          src={currentStory.video_url}
+                          className="w-full h-full object-contain"
+                          autoPlay loop muted={isMuted} playsInline
+                          onEnded={nextStory}
+                        />
+                        <div className="absolute bottom-20 right-4 flex flex-col gap-2 z-10" data-story-controls>
+                          <button
+                            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (storyVideoRef.current) {
+                                if (isPlaying) storyVideoRef.current.pause();
+                                else storyVideoRef.current.play();
+                                setIsPlaying(!isPlaying);
+                              }
+                            }}
+                          >
+                            {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                          </button>
+                          <button
+                            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (storyVideoRef.current) {
+                                storyVideoRef.current.muted = !isMuted;
+                                setIsMuted(!isMuted);
+                              }
+                            }}
+                          >
+                            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Image */}
+                    {currentStory.image_url && !currentStory.video_url && (
+                      <img
+                        src={currentStory.image_url}
+                        alt="Story"
+                        className="absolute inset-0 w-full h-full object-contain"
+                      />
+                    )}
+                  </>
+                );
+              })()}
 
               {/* Text overlays */}
               {getStoryOverlays(currentStory).map(overlay => (

@@ -2209,6 +2209,7 @@ export type Database = {
           expires_at: string
           id: string
           image_url: string | null
+          media_items: Json | null
           text_overlays: Json | null
           user_id: string
           video_url: string | null
@@ -2221,6 +2222,7 @@ export type Database = {
           expires_at?: string
           id?: string
           image_url?: string | null
+          media_items?: Json | null
           text_overlays?: Json | null
           user_id: string
           video_url?: string | null
@@ -2233,6 +2235,7 @@ export type Database = {
           expires_at?: string
           id?: string
           image_url?: string | null
+          media_items?: Json | null
           text_overlays?: Json | null
           user_id?: string
           video_url?: string | null
