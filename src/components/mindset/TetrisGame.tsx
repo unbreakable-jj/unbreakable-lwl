@@ -276,7 +276,11 @@ const TetrisGame = () => {
       setLinesCleared(linesClearedRef.current);
       playHit();
 
-      const pts = (POINTS[cleared] || cleared * 100) * levelRef.current;
+      const basePts = POINTS[cleared] || cleared;
+      // Back-to-back bonus: consecutive clears get +1 bonus
+      const comboBonus = comboRef.current > 0 ? comboRef.current : 0;
+      const pts = basePts + comboBonus;
+      comboRef.current++;
       scoreRef.current += pts;
       setScore(scoreRef.current);
 
