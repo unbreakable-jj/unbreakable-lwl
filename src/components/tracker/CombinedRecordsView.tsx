@@ -263,7 +263,7 @@ export function CombinedRecordsView() {
               {CARDIO_ACTIVITY_CONFIG[cardioSub].label} <span className="text-primary">RECORDS</span>
             </h3>
             <div className="grid gap-3">
-              {filteredPRs.map((pr, index) => (
+              {prs.map((pr, index) => (
                 <motion.div
                   key={pr.type}
                   initial={{ opacity: 0, x: -20 }}
