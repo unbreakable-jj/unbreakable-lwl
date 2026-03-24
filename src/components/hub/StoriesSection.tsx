@@ -159,11 +159,13 @@ export function StoriesSection() {
   const prevStory = useCallback(() => {
     if (activeStoryIndex > 0) {
       setActiveStoryIndex(prev => prev - 1);
+      setActiveMediaSlide(0);
       setProgress(0);
     } else if (activeUserIndex > 0) {
       setActiveUserIndex(prev => prev - 1);
       const prevUserStories = groupedStories[activeUserIndex - 1]?.stories || [];
       setActiveStoryIndex(prevUserStories.length - 1);
+      setActiveMediaSlide(0);
       setProgress(0);
     }
   }, [activeUserIndex, activeStoryIndex, groupedStories]);
