@@ -550,10 +550,7 @@ const TetrisGame = () => {
   const hardDrop = useCallback(() => {
     const p = currentPieceRef.current;
     const ghostY = getGhostY(boardRef.current, p);
-    const distance = ghostY - p.y;
     currentPieceRef.current = { ...p, y: ghostY };
-    scoreRef.current += distance * 2;
-    setScore(scoreRef.current);
     lockPiece();
   }, [lockPiece]);
 
