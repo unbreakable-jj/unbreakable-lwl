@@ -544,8 +544,6 @@ const TetrisGame = () => {
     const moved = { ...p, y: p.y + 1 };
     if (isValid(boardRef.current, moved)) {
       currentPieceRef.current = moved;
-      scoreRef.current += 1;
-      setScore(scoreRef.current);
     }
   }, []);
 
