@@ -73,7 +73,7 @@ const INITIAL_DROP_INTERVAL = 800;
 const MIN_DROP_INTERVAL = 100;
 const SPEED_FACTOR = 40; // ms reduction per level
 
-const POINTS = { 1: 100, 2: 300, 3: 500, 4: 800 } as Record<number, number>;
+const POINTS = { 1: 1, 2: 3, 3: 5, 4: 8 } as Record<number, number>;
 
 type Cell = number | null; // null = empty, number = piece id
 type Board = Cell[][];
@@ -193,6 +193,7 @@ const TetrisGame = () => {
   const levelRef = useRef(1);
   const particlesRef = useRef<Particle[]>([]);
   const screenShakeRef = useRef(0);
+  const comboRef = useRef(0);
 
   const [score, setScore] = useState(0);
   const [linesCleared, setLinesCleared] = useState(0);
@@ -276,7 +277,11 @@ const TetrisGame = () => {
       setLinesCleared(linesClearedRef.current);
       playHit();
 
-      const pts = (POINTS[cleared] || cleared * 100) * levelRef.current;
+      const basePts = POINTS[cleared] || cleared;
+      // Back-to-back bonus: consecutive clears get +1 bonus
+      const comboBonus = comboRef.current > 0 ? comboRef.current : 0;
+      const pts = basePts + comboBonus;
+      comboRef.current++;
       scoreRef.current += pts;
       setScore(scoreRef.current);
 
@@ -288,6 +293,8 @@ const TetrisGame = () => {
       }
 
       screenShakeRef.current = cleared >= 4 ? 12 : cleared >= 2 ? 6 : 3;
+    } else {
+      comboRef.current = 0; // Reset combo when no lines cleared
     }
 
     // Next piece
@@ -501,7 +508,7 @@ const TetrisGame = () => {
     boardRef.current = createBoard();
     currentPieceRef.current = randomPiece();
     nextPieceRef.current = randomPiece();
-    scoreRef.current = 0; linesClearedRef.current = 0; levelRef.current = 1;
+    scoreRef.current = 0; linesClearedRef.current = 0; levelRef.current = 1; comboRef.current = 0;
     setScore(0); setLinesCleared(0); setLevel(1);
     particlesRef.current = []; screenShakeRef.current = 0;
     setGameState("playing");
@@ -537,18 +544,13 @@ const TetrisGame = () => {
     const moved = { ...p, y: p.y + 1 };
     if (isValid(boardRef.current, moved)) {
       currentPieceRef.current = moved;
-      scoreRef.current += 1;
-      setScore(scoreRef.current);
     }
   }, []);
 
   const hardDrop = useCallback(() => {
     const p = currentPieceRef.current;
     const ghostY = getGhostY(boardRef.current, p);
-    const distance = ghostY - p.y;
     currentPieceRef.current = { ...p, y: ghostY };
-    scoreRef.current += distance * 2;
-    setScore(scoreRef.current);
     lockPiece();
   }, [lockPiece]);
 
