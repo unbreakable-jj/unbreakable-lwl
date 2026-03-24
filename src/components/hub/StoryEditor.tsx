@@ -9,8 +9,10 @@ import { TextOverlayData, DEFAULT_OVERLAY, StoryTextOverlay, FONT_OPTIONS } from
 import { Slider } from '@/components/ui/slider';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { compressVideo } from '@/lib/videoUtils';
 import { toast } from 'sonner';
+import { Progress } from '@/components/ui/progress';
+import { uploadMediaFile, validateVideoDuration, type MediaUploadItem } from '@/lib/mediaUpload';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const PRESET_COLORS = [
   '#FFFFFF', '#000000', '#FF3B30', '#FF9500', '#FFCC00',
@@ -18,6 +20,16 @@ const PRESET_COLORS = [
   '#1C1C1E', '#0A0A0A', '#1A1A2E', '#16213E', '#0F3460',
   '#533483', '#2C061F', '#374045', '#2C3333',
 ];
+
+const MAX_MEDIA = 5;
+const MAX_IMAGE_SIZE = 20 * 1024 * 1024;
+const MAX_VIDEO_SIZE = 500 * 1024 * 1024;
+
+export interface StoryMediaItem {
+  type: 'image' | 'video';
+  url: string;
+  thumbnail_url?: string | null;
+}
 
 interface StoryEditorProps {
   onPublish: (data: {
@@ -27,6 +39,7 @@ interface StoryEditorProps {
     visibility: string;
     text_overlays: TextOverlayData[];
     background_color: string | null;
+    media_items: StoryMediaItem[];
   }) => Promise<void>;
   onClose: () => void;
   preFill?: {
@@ -40,24 +53,36 @@ interface StoryEditorProps {
 export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
   const { user } = useAuth();
   const canvasRef = useRef<HTMLDivElement>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [bgType, setBgType] = useState<'color' | 'image' | 'video'>(
-    preFill?.video_url ? 'video' : preFill?.image_url ? 'image' : 'color'
-  );
+  // Media items state (up to 5)
+  const [mediaItems, setMediaItems] = useState<MediaUploadItem[]>(() => {
+    const items: MediaUploadItem[] = [];
+    if (preFill?.image_url) {
+      items.push({
+        file: new File([], 'prefill.jpg'),
+        type: 'image',
+        previewUrl: preFill.image_url,
+        progress: 100,
+        status: 'done',
+        uploadedUrl: preFill.image_url,
+      });
+    }
+    if (preFill?.video_url) {
+      items.push({
+        file: new File([], 'prefill.mp4'),
+        type: 'video',
+        previewUrl: preFill.video_url,
+        progress: 100,
+        status: 'done',
+        uploadedUrl: preFill.video_url,
+      });
+    }
+    return items;
+  });
+  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+
   const [bgColor, setBgColor] = useState(preFill?.background_color || '#1C1C1E');
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(preFill?.image_url || null);
-  const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [videoPreview, setVideoPreview] = useState<string | null>(preFill?.video_url || null);
-
-  // Image transform state
-  const [imgScale, setImgScale] = useState(1);
-  const [imgPos, setImgPos] = useState({ x: 0, y: 0 });
-  const [imgRotation, setImgRotation] = useState(0);
-  const imgDragRef = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
-  const imgPinchRef = useRef<{ dist: number; scale: number; angle: number; rotation: number } | null>(null);
 
   const [overlays, setOverlays] = useState<TextOverlayData[]>(() => {
     if (preFill?.content) {
@@ -83,8 +108,11 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
   const [visibility, setVisibility] = useState<'public' | 'friends' | 'private'>('public');
   const [publishing, setPublishing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
+  const [overallProgress, setOverallProgress] = useState(0);
 
   const selectedOverlay = overlays.find(o => o.id === selectedId);
+  const hasMedia = mediaItems.length > 0;
+  const currentMedia = mediaItems[activeMediaIndex];
 
   const cycleVisibility = () => {
     setVisibility(v => v === 'public' ? 'friends' : v === 'friends' ? 'private' : 'public');
@@ -133,7 +161,6 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
     setEditingTextId(null);
   };
 
-  // Toggle border on/off for selected overlay
   const toggleBorder = () => {
     if (!selectedOverlay) return;
     pushUndo();
@@ -144,7 +171,6 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
     }
   };
 
-  // Toggle background box on selected overlay
   const toggleOverlayBg = () => {
     if (!selectedOverlay) return;
     pushUndo();
@@ -175,183 +201,202 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
     Math.atan2(t2.clientY - t1.clientY, t2.clientX - t1.clientX) * (180 / Math.PI);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (e.touches.length === 2) {
+    if (e.touches.length === 2 && selectedId) {
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       const dist = Math.sqrt(dx * dx + dy * dy);
       const angle = getTouchAngle(e.touches[0], e.touches[1]);
-
-      if (selectedId) {
-        const overlay = overlays.find(o => o.id === selectedId);
-        setInitialPinchDistance(dist);
-        setInitialScale(overlay?.scale || 1);
-        setInitialAngle(angle);
-        setInitialRotation(overlay?.rotation || 0);
-      } else if (bgType === 'image' && imagePreview) {
-        imgPinchRef.current = { dist, scale: imgScale, angle, rotation: imgRotation };
-      }
+      const overlay = overlays.find(o => o.id === selectedId);
+      setInitialPinchDistance(dist);
+      setInitialScale(overlay?.scale || 1);
+      setInitialAngle(angle);
+      setInitialRotation(overlay?.rotation || 0);
     }
-  }, [selectedId, overlays, bgType, imagePreview, imgScale, imgRotation]);
+  }, [selectedId, overlays]);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (e.touches.length === 2) {
+    if (e.touches.length === 2 && selectedId && initialPinchDistance) {
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       const currentDist = Math.sqrt(dx * dx + dy * dy);
       const currentAngle = getTouchAngle(e.touches[0], e.touches[1]);
-
-      if (selectedId && initialPinchDistance) {
-        const newScale = Math.max(0.3, Math.min(3, initialScale * (currentDist / initialPinchDistance)));
-        const angleDelta = currentAngle - initialAngle;
-        const newRotation = Math.round(initialRotation + angleDelta);
-        updateOverlay(selectedId, { scale: newScale, rotation: newRotation });
-      } else if (imgPinchRef.current) {
-        const newScale = Math.max(0.5, Math.min(5, imgPinchRef.current.scale * (currentDist / imgPinchRef.current.dist)));
-        const angleDelta = currentAngle - imgPinchRef.current.angle;
-        setImgScale(newScale);
-        setImgRotation(imgPinchRef.current.rotation + angleDelta);
-      }
+      const newScale = Math.max(0.3, Math.min(3, initialScale * (currentDist / initialPinchDistance)));
+      const angleDelta = currentAngle - initialAngle;
+      const newRotation = Math.round(initialRotation + angleDelta);
+      updateOverlay(selectedId, { scale: newScale, rotation: newRotation });
     }
   }, [selectedId, initialPinchDistance, initialScale, initialAngle, initialRotation, updateOverlay]);
 
   const handleTouchEnd = useCallback(() => {
     setInitialPinchDistance(null);
-    imgPinchRef.current = null;
   }, []);
 
   const handleCanvasPointerDown = (e: React.PointerEvent) => {
     if ((e.target as HTMLElement).closest('[data-overlay]')) return;
     setSelectedId(null);
     setShowColorPicker(false);
+  };
 
-    if (bgType === 'image' && imagePreview) {
-      imgDragRef.current = { startX: e.clientX, startY: e.clientY, origX: imgPos.x, origY: imgPos.y };
-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  // Media file selection - supports multiple
+  const handleFilesSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const remaining = MAX_MEDIA - mediaItems.length;
+    if (remaining <= 0) {
+      toast.error(`Maximum ${MAX_MEDIA} media items allowed`);
+      return;
     }
-  };
 
-  const handleCanvasPointerMove = (e: React.PointerEvent) => {
-    if (imgDragRef.current) {
-      const dx = e.clientX - imgDragRef.current.startX;
-      const dy = e.clientY - imgDragRef.current.startY;
-      setImgPos({ x: imgDragRef.current.origX + dx, y: imgDragRef.current.origY + dy });
+    const toAdd = files.slice(0, remaining);
+    if (files.length > remaining) {
+      toast.info(`Only ${remaining} more item${remaining > 1 ? 's' : ''} can be added`);
     }
+
+    const newItems: MediaUploadItem[] = [];
+
+    for (const file of toAdd) {
+      const isVideo = file.type.startsWith('video/');
+      const isImage = file.type.startsWith('image/');
+
+      if (!isVideo && !isImage) {
+        toast.error(`${file.name} is not a supported format`);
+        continue;
+      }
+
+      if (isImage && file.size > MAX_IMAGE_SIZE) {
+        toast.error(`${file.name} exceeds 20MB limit`);
+        continue;
+      }
+
+      if (isVideo && file.size > MAX_VIDEO_SIZE) {
+        toast.error(`${file.name} exceeds 500MB limit`);
+        continue;
+      }
+
+      if (isVideo) {
+        const { valid, duration } = await validateVideoDuration(file);
+        if (!valid) {
+          toast.error(`${file.name} exceeds 90 second limit (${Math.round(duration)}s)`);
+          continue;
+        }
+      }
+
+      newItems.push({
+        file,
+        type: isVideo ? 'video' : 'image',
+        previewUrl: URL.createObjectURL(file),
+        progress: 0,
+        status: 'pending',
+      });
+    }
+
+    if (newItems.length) {
+      setMediaItems(prev => [...prev, ...newItems]);
+      setActiveMediaIndex(mediaItems.length); // Show newly added
+    }
+
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleCanvasPointerUp = () => {
-    imgDragRef.current = null;
-  };
-
-  // Media handlers - no auto-crop, use object-contain
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { toast.error('Image must be under 5MB'); return; }
-    setVideoFile(null); setVideoPreview(null);
-    setBgType('image'); setImageFile(file);
-    setImgScale(1); setImgPos({ x: 0, y: 0 }); setImgRotation(0);
-    const reader = new FileReader();
-    reader.onloadend = () => setImagePreview(reader.result as string);
-    reader.readAsDataURL(file);
-    setShowColorPicker(false);
-  };
-
-  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 500 * 1024 * 1024) { toast.error('Video must be under 500MB'); return; }
-    setImageFile(null); setImagePreview(null);
-    setBgType('video'); setVideoFile(file);
-    setVideoPreview(URL.createObjectURL(file));
-    setShowColorPicker(false);
+  const removeMediaItem = (index: number) => {
+    setMediaItems(prev => {
+      const item = prev[index];
+      if (item && !item.uploadedUrl) URL.revokeObjectURL(item.previewUrl);
+      return prev.filter((_, i) => i !== index);
+    });
+    setActiveMediaIndex(prev => Math.max(0, Math.min(prev, mediaItems.length - 2)));
   };
 
   // Publish
   const handlePublish = async () => {
-    if (overlays.length === 0 && !imageFile && !videoFile && !imagePreview && !videoPreview && bgType === 'color') {
+    if (overlays.length === 0 && mediaItems.length === 0 && !bgColor) {
       toast.error('Add some content to your story');
       return;
     }
-    setPublishing(true);
-    let imageUrl: string | null = null;
-    let videoUrl: string | null = null;
-    try {
-      // Handle image upload
-      if (imageFile) {
-        setUploadProgress('Uploading image...');
-        const ext = imageFile.name.split('.').pop();
-        const path = `${user!.id}/${Date.now()}.${ext}`;
-        const { error } = await supabase.storage.from('post-images').upload(path, imageFile);
-        if (error) throw error;
-        const { data } = supabase.storage.from('post-images').getPublicUrl(path);
-        imageUrl = data.publicUrl;
-      } else if (imagePreview && bgType === 'image') {
-        // If it's a data URL or blob URL, upload it
-        if (imagePreview.startsWith('data:') || imagePreview.startsWith('blob:')) {
-          setUploadProgress('Uploading image...');
-          const resp = await fetch(imagePreview);
-          const blob = await resp.blob();
-          const ext = blob.type.split('/')[1] || 'jpg';
-          const path = `${user!.id}/${Date.now()}.${ext}`;
-          const { error } = await supabase.storage.from('post-images').upload(path, blob);
-          if (error) throw error;
-          const { data } = supabase.storage.from('post-images').getPublicUrl(path);
-          imageUrl = data.publicUrl;
-        } else {
-          imageUrl = imagePreview;
-        }
-      }
+    if (!user) return;
 
-      // Handle video upload
-      if (videoFile) {
-        setUploadProgress('Compressing video...');
-        const compressed = await compressVideo(videoFile, 10, 1080);
-        setUploadProgress('Uploading video...');
-        const ext = compressed.name.split('.').pop() || 'webm';
-        const path = `stories/${user!.id}/${Date.now()}.${ext}`;
-        const { error } = await supabase.storage.from('post-videos').upload(path, compressed);
-        if (error) throw error;
-        const { data } = supabase.storage.from('post-videos').getPublicUrl(path);
-        videoUrl = data.publicUrl;
-      } else if (videoPreview && bgType === 'video') {
-        // Video from preFill (blob or external URL) — fetch and upload
-        if (videoPreview.startsWith('blob:') || videoPreview.startsWith('data:')) {
-          setUploadProgress('Uploading video...');
-          const resp = await fetch(videoPreview);
-          const blob = await resp.blob();
-          const ext = blob.type.split('/')[1] === 'quicktime' ? 'mov' : (blob.type.split('/')[1] || 'mp4');
-          const path = `stories/${user!.id}/${Date.now()}.${ext}`;
-          const { error } = await supabase.storage.from('post-videos').upload(path, blob);
-          if (error) throw error;
-          const { data } = supabase.storage.from('post-videos').getPublicUrl(path);
-          videoUrl = data.publicUrl;
-        } else {
-          // Already a public URL (shared from feed) — fetch, re-upload to stories folder
-          setUploadProgress('Uploading video...');
-          try {
-            const resp = await fetch(videoPreview);
-            const blob = await resp.blob();
-            const ext = blob.type.split('/')[1] === 'quicktime' ? 'mov' : (blob.type.split('/')[1] || 'mp4');
-            const path = `stories/${user!.id}/${Date.now()}.${ext}`;
-            const { error } = await supabase.storage.from('post-videos').upload(path, blob);
-            if (error) throw error;
-            const { data } = supabase.storage.from('post-videos').getPublicUrl(path);
-            videoUrl = data.publicUrl;
-          } catch {
-            // Fallback: use original URL directly
-            videoUrl = videoPreview;
-          }
+    setPublishing(true);
+    setOverallProgress(0);
+
+    try {
+      const uploadedMedia: StoryMediaItem[] = [];
+      const totalItems = mediaItems.length;
+
+      // Upload all pending media
+      for (let i = 0; i < mediaItems.length; i++) {
+        const item = mediaItems[i];
+
+        // Already uploaded (prefill)
+        if (item.status === 'done' && item.uploadedUrl) {
+          uploadedMedia.push({
+            type: item.type,
+            url: item.uploadedUrl,
+            thumbnail_url: item.thumbnailUrl || null,
+          });
+          continue;
         }
+
+        const itemLabel = `${item.type === 'image' ? 'Image' : 'Video'} ${i + 1}/${totalItems}`;
+
+        setMediaItems(prev =>
+          prev.map((m, idx) => idx === i ? { ...m, status: 'uploading' as const } : m)
+        );
+
+        const result = await uploadMediaFile(
+          user.id,
+          item.file,
+          item.type,
+          (pct, stage) => {
+            const baseProgress = (i / totalItems) * 100;
+            const itemProgress = (pct / 100) * (100 / totalItems);
+            setOverallProgress(Math.round(baseProgress + itemProgress));
+            setUploadProgress(`${itemLabel}: ${stage}`);
+            setMediaItems(prev =>
+              prev.map((m, idx) => idx === i ? { ...m, progress: pct } : m)
+            );
+          }
+        );
+
+        if (result.error) {
+          toast.error(`Failed to upload ${item.file.name}`);
+          setMediaItems(prev =>
+            prev.map((m, idx) => idx === i ? { ...m, status: 'error' as const } : m)
+          );
+          setPublishing(false);
+          setOverallProgress(0);
+          setUploadProgress(null);
+          return;
+        }
+
+        setMediaItems(prev =>
+          prev.map((m, idx) =>
+            idx === i ? { ...m, status: 'done' as const, progress: 100, uploadedUrl: result.url, thumbnailUrl: result.thumbnailUrl || undefined } : m
+          )
+        );
+
+        uploadedMedia.push({
+          type: item.type,
+          url: result.url,
+          thumbnail_url: result.thumbnailUrl,
+        });
       }
 
       setUploadProgress('Publishing...');
+      setOverallProgress(95);
+
+      // For backward compat, set first image/video on the story row
+      const firstImage = uploadedMedia.find(m => m.type === 'image');
+      const firstVideo = uploadedMedia.find(m => m.type === 'video');
+
       await onPublish({
         content: null,
-        image_url: imageUrl,
-        video_url: videoUrl,
+        image_url: firstImage?.url || null,
+        video_url: firstVideo?.url || null,
         visibility,
         text_overlays: overlays,
-        background_color: bgType === 'color' ? bgColor : null,
+        background_color: mediaItems.length === 0 ? bgColor : null,
+        media_items: uploadedMedia,
       });
       toast.success('Story published!');
     } catch (err) {
@@ -360,12 +405,19 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
     } finally {
       setPublishing(false);
       setUploadProgress(null);
+      setOverallProgress(0);
     }
   };
 
   useEffect(() => {
-    return () => { if (videoPreview) URL.revokeObjectURL(videoPreview); };
-  }, [videoPreview]);
+    return () => {
+      mediaItems.forEach(item => {
+        if (!item.uploadedUrl && item.previewUrl.startsWith('blob:')) {
+          URL.revokeObjectURL(item.previewUrl);
+        }
+      });
+    };
+  }, []);
 
   return (
     <div className="fixed inset-0 z-[60] bg-black flex flex-col" style={{ touchAction: 'none' }}>
@@ -396,33 +448,49 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
         </div>
       </div>
 
-      {/* Full-screen 9:16 canvas */}
+      {/* Full-screen canvas */}
       <div
         ref={canvasRef}
         className="flex-1 relative overflow-hidden"
-        style={{ backgroundColor: bgType === 'color' ? bgColor : '#000' }}
+        style={{ backgroundColor: !hasMedia ? bgColor : '#000' }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onPointerDown={handleCanvasPointerDown}
-        onPointerMove={handleCanvasPointerMove}
-        onPointerUp={handleCanvasPointerUp}
       >
-        {/* Image background - object-contain to avoid cropping */}
-        {bgType === 'image' && imagePreview && (
-          <img
-            src={imagePreview}
-            alt="Background"
-            className="absolute inset-0 w-full h-full object-contain pointer-events-none"
-            style={{
-              transform: `translate(${imgPos.x}px, ${imgPos.y}px) scale(${imgScale}) rotate(${imgRotation}deg)`,
-              transformOrigin: 'center center',
-            }}
-            draggable={false}
-          />
+        {/* Current media display */}
+        {hasMedia && currentMedia && (
+          <>
+            {currentMedia.type === 'image' ? (
+              <img
+                src={currentMedia.uploadedUrl || currentMedia.previewUrl}
+                alt="Story media"
+                className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+                draggable={false}
+              />
+            ) : (
+              <video
+                src={currentMedia.uploadedUrl || currentMedia.previewUrl}
+                autoPlay loop muted playsInline
+                className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+              />
+            )}
+          </>
         )}
-        {bgType === 'video' && videoPreview && (
-          <video src={videoPreview} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-contain pointer-events-none" />
+
+        {/* Media dot indicators */}
+        {mediaItems.length > 1 && (
+          <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30 flex gap-1.5">
+            {mediaItems.map((_, idx) => (
+              <button
+                key={idx}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  idx === activeMediaIndex ? 'bg-white scale-125' : 'bg-white/40'
+                }`}
+                onClick={(e) => { e.stopPropagation(); setActiveMediaIndex(idx); }}
+              />
+            ))}
+          </div>
         )}
 
         {/* Text overlays on canvas */}
@@ -460,6 +528,67 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
           </div>
         ))}
       </div>
+
+      {/* Media thumbnails strip */}
+      {mediaItems.length > 0 && (
+        <div className="absolute bottom-28 left-0 right-0 z-30 px-4">
+          <div className="flex items-center gap-2 justify-center">
+            {mediaItems.map((item, idx) => (
+              <div
+                key={idx}
+                className={`relative w-14 h-14 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                  idx === activeMediaIndex ? 'border-primary scale-110' : 'border-white/20'
+                }`}
+                onClick={(e) => { e.stopPropagation(); setActiveMediaIndex(idx); }}
+              >
+                {item.type === 'image' ? (
+                  <img src={item.previewUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-muted/50 flex items-center justify-center">
+                    <Video className="w-4 h-4 text-white/70" />
+                  </div>
+                )}
+
+                {item.status === 'uploading' && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                    <Loader2 className="w-4 h-4 text-white animate-spin" />
+                  </div>
+                )}
+
+                {!publishing && (
+                  <button
+                    className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center"
+                    onClick={(e) => { e.stopPropagation(); removeMediaItem(idx); }}
+                  >
+                    <X className="w-3 h-3 text-white" />
+                  </button>
+                )}
+              </div>
+            ))}
+
+            {/* Add more button */}
+            {mediaItems.length < MAX_MEDIA && !publishing && (
+              <button
+                onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                className="w-14 h-14 rounded-lg border-2 border-dashed border-white/30 flex items-center justify-center text-white/50 hover:border-white/60 transition-colors"
+              >
+                <Plus className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+          <p className="text-center text-white/40 text-[10px] mt-1 font-display">
+            {mediaItems.length}/{MAX_MEDIA} MEDIA
+          </p>
+        </div>
+      )}
+
+      {/* Upload progress bar */}
+      {publishing && overallProgress > 0 && (
+        <div className="absolute bottom-24 left-4 right-4 z-30 space-y-1">
+          <Progress value={overallProgress} className="h-1.5" />
+          <p className="text-center text-white/60 text-[10px]">{uploadProgress || `${overallProgress}%`}</p>
+        </div>
+      )}
 
       {/* Text editing overlay */}
       {editingTextId && (
@@ -528,9 +657,6 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
                   e.stopPropagation();
                   if (colorTarget === 'bg') {
                     setBgColor(c);
-                    setBgType('color');
-                    setImageFile(null); setImagePreview(null);
-                    setVideoFile(null); if (videoPreview) URL.revokeObjectURL(videoPreview); setVideoPreview(null);
                   } else if (colorTarget === 'border' && selectedId) {
                     updateOverlay(selectedId, { borderColor: c });
                   } else if (colorTarget === 'overlay-bg' && selectedId) {
@@ -547,7 +673,7 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
 
       {/* Selected overlay quick actions */}
       {selectedOverlay && !editingTextId && (
-        <div className={`absolute left-1/2 -translate-x-1/2 z-31 flex flex-col items-center gap-1 animate-in fade-in duration-150 ${showColorPicker ? 'bottom-40' : 'bottom-24'}`}>
+        <div className={`absolute left-1/2 -translate-x-1/2 z-31 flex flex-col items-center gap-1 animate-in fade-in duration-150 ${showColorPicker || hasMedia ? 'bottom-44' : 'bottom-24'}`}>
           {/* Row 0: Font size slider + font family */}
           <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md rounded-full px-3 py-1.5 min-w-[260px]">
             <span className="text-white/60 text-[10px] font-display shrink-0">Aa</span>
@@ -657,16 +783,11 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
             <Type className="w-5 h-5" />
           </button>
           <button
-            className="w-12 h-12 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center text-white active:scale-90 transition-transform"
-            onClick={(e) => { e.stopPropagation(); imageInputRef.current?.click(); }}
+            className={`w-12 h-12 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center text-white active:scale-90 transition-transform ${mediaItems.length >= MAX_MEDIA ? 'opacity-30' : ''}`}
+            onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+            disabled={mediaItems.length >= MAX_MEDIA}
           >
             <Image className="w-5 h-5" />
-          </button>
-          <button
-            className="w-12 h-12 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center text-white active:scale-90 transition-transform"
-            onClick={(e) => { e.stopPropagation(); videoInputRef.current?.click(); }}
-          >
-            <Video className="w-5 h-5" />
           </button>
           <button
             className={`w-12 h-12 rounded-full backdrop-blur-sm flex items-center justify-center text-white active:scale-90 transition-transform ${showColorPicker ? 'bg-white/30' : 'bg-white/15'}`}
@@ -692,9 +813,15 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
         </div>
       </div>
 
-      {/* Hidden file inputs */}
-      <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
-      <input ref={videoInputRef} type="file" accept="video/*" className="hidden" onChange={handleVideoSelect} />
+      {/* Hidden file input - accepts both images and videos, multiple */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,video/*"
+        className="hidden"
+        onChange={handleFilesSelect}
+        multiple
+      />
     </div>
   );
 }

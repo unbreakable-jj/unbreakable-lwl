@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { generateVideoThumbnail, compressVideo } from '@/lib/videoUtils';
 import { notifyMentionedUsers } from '@/lib/mentionNotifications';
+import type { StoryMediaItem } from '@/components/hub/StoryEditor';
 
 export interface Story {
   id: string;
@@ -13,6 +13,7 @@ export interface Story {
   visibility: string;
   expires_at: string;
   created_at: string;
+  media_items?: StoryMediaItem[];
   profiles?: {
     display_name: string | null;
     username: string | null;
@@ -34,7 +35,6 @@ export function useStories() {
   const fetchStories = useCallback(async () => {
     setLoading(true);
     
-    // Fetch non-expired stories only
     const { data, error } = await supabase
       .from('stories')
       .select('*')
@@ -47,7 +47,6 @@ export function useStories() {
       return;
     }
 
-    // Fetch profiles for story owners
     const userIds = [...new Set((data || []).map(s => s.user_id))];
     
     if (userIds.length === 0) {
@@ -68,6 +67,7 @@ export function useStories() {
 
     const storiesWithProfiles = (data || []).map(s => ({
       ...s,
+      media_items: Array.isArray((s as any).media_items) ? (s as any).media_items : [],
       profiles: profileMap[s.user_id] || null,
     }));
 
@@ -79,22 +79,17 @@ export function useStories() {
     fetchStories();
   }, [fetchStories]);
 
-  // Real-time subscription for stories
   useEffect(() => {
     const channel = supabase
       .channel('stories-realtime')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'stories' },
-        () => {
-          fetchStories();
-        }
+        () => { fetchStories(); }
       )
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, [fetchStories]);
 
   const createStory = async (story: {
@@ -104,6 +99,7 @@ export function useStories() {
     visibility?: string;
     text_overlays?: any[];
     background_color?: string | null;
+    media_items?: StoryMediaItem[];
   }) => {
     if (!user) return { error: new Error('Not authenticated') };
 
@@ -117,12 +113,12 @@ export function useStories() {
         visibility: story.visibility || 'public',
         text_overlays: (story.text_overlays || []) as any,
         background_color: story.background_color || null,
+        media_items: (story.media_items || []) as any,
       } as any)
       .select()
       .single();
 
     if (!error && data) {
-      // Notify mentioned users from text overlays
       const allText = (story.text_overlays || []).map((o: any) => o.text || '').join(' ');
       if (allText) {
         notifyMentionedUsers(allText, user.id, 'story', (data as any).id);
@@ -149,7 +145,6 @@ export function useStories() {
     return { error };
   };
 
-  // Group stories by user
   const groupedStories: GroupedStory[] = Object.values(
     stories.reduce((acc, story) => {
       if (!acc[story.user_id]) {
@@ -164,61 +159,11 @@ export function useStories() {
     }, {} as Record<string, GroupedStory>)
   );
 
-  // Sort stories within each group by created_at ascending (oldest first for viewing)
   groupedStories.forEach(group => {
     group.stories.sort((a, b) => 
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     );
   });
-
-  const uploadVideo = async (
-    file: File,
-    onProgress?: (stage: string) => void
-  ): Promise<{ url: string | null; thumbnailUrl: string | null; error: Error | null }> => {
-    if (!user) return { url: null, thumbnailUrl: null, error: new Error('Not authenticated') };
-
-    try {
-      onProgress?.('Compressing video...');
-      const compressedFile = await compressVideo(file, 10, 1080);
-
-      onProgress?.('Generating thumbnail...');
-      const thumbnail = await generateVideoThumbnail(compressedFile);
-
-      onProgress?.('Uploading video...');
-      const timestamp = Date.now();
-      const videoExt = compressedFile.name.split('.').pop() || 'webm';
-      const videoFileName = `stories/${user.id}/${timestamp}.${videoExt}`;
-
-      const { error: videoUploadError } = await supabase.storage
-        .from('post-videos')
-        .upload(videoFileName, compressedFile);
-
-      if (videoUploadError) {
-        return { url: null, thumbnailUrl: null, error: videoUploadError };
-      }
-
-      const { data: videoData } = supabase.storage.from('post-videos').getPublicUrl(videoFileName);
-
-      let thumbnailUrl: string | null = null;
-      if (thumbnail) {
-        onProgress?.('Uploading thumbnail...');
-        const thumbFileName = `stories/${user.id}/${timestamp}_thumb.jpg`;
-
-        const { error: thumbUploadError } = await supabase.storage
-          .from('post-images')
-          .upload(thumbFileName, thumbnail);
-
-        if (!thumbUploadError) {
-          const { data: thumbData } = supabase.storage.from('post-images').getPublicUrl(thumbFileName);
-          thumbnailUrl = thumbData.publicUrl;
-        }
-      }
-
-      return { url: videoData.publicUrl, thumbnailUrl, error: null };
-    } catch (error) {
-      return { url: null, thumbnailUrl: null, error: error as Error };
-    }
-  };
 
   return {
     stories,
@@ -227,6 +172,5 @@ export function useStories() {
     refetch: fetchStories,
     createStory,
     deleteStory,
-    uploadVideo,
   };
 }
