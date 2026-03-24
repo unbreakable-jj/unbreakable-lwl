@@ -144,10 +144,12 @@ export function StoriesSection() {
     const currentUserStories = groupedStories[activeUserIndex]?.stories || [];
     if (activeStoryIndex < currentUserStories.length - 1) {
       setActiveStoryIndex(prev => prev + 1);
+      setActiveMediaSlide(0);
       setProgress(0);
     } else if (activeUserIndex < groupedStories.length - 1) {
       setActiveUserIndex(prev => prev + 1);
       setActiveStoryIndex(0);
+      setActiveMediaSlide(0);
       setProgress(0);
     } else {
       setShowViewer(false);
