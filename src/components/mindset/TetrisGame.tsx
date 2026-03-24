@@ -73,7 +73,7 @@ const INITIAL_DROP_INTERVAL = 800;
 const MIN_DROP_INTERVAL = 100;
 const SPEED_FACTOR = 40; // ms reduction per level
 
-const POINTS = { 1: 100, 2: 300, 3: 500, 4: 800 } as Record<number, number>;
+const POINTS = { 1: 1, 2: 3, 3: 5, 4: 8 } as Record<number, number>;
 
 type Cell = number | null; // null = empty, number = piece id
 type Board = Cell[][];
