@@ -63,6 +63,8 @@ export function StoriesSection() {
     }
   }, [showViewer, activeUserIndex, groupedStories]);
 
+  const [activeMediaSlide, setActiveMediaSlide] = useState(0);
+
   const handlePublishStory = async (data: {
     content: string | null;
     image_url: string | null;
@@ -70,6 +72,7 @@ export function StoriesSection() {
     visibility: string;
     text_overlays: TextOverlayData[];
     background_color: string | null;
+    media_items?: any[];
   }) => {
     const { error } = await createStory({
       content: data.content,
@@ -78,6 +81,7 @@ export function StoriesSection() {
       visibility: data.visibility,
       text_overlays: data.text_overlays,
       background_color: data.background_color,
+      media_items: data.media_items,
     });
 
     if (error) {
