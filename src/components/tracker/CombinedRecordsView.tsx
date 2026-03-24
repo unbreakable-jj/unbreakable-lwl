@@ -72,11 +72,6 @@ export function CombinedRecordsView() {
     return records.some(r => r.activity_type === cardioSub);
   }, [records, cardioSub]);
 
-  // Check if any PRs exist for current activity type
-  const hasRecordsForActivity = useMemo(() => {
-    return records.some(r => r.activity_type === cardioSub);
-  }, [records, cardioSub]);
-
   // Bodyweight exercise names (reps-only tracking)
   const BODYWEIGHT_NAMES = useMemo(() => new Set([
     'pull-ups', 'chin-ups', 'press-ups', 'dips', 'muscle-ups', 'handstand push-ups',
