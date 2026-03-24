@@ -293,6 +293,8 @@ const TetrisGame = () => {
       }
 
       screenShakeRef.current = cleared >= 4 ? 12 : cleared >= 2 ? 6 : 3;
+    } else {
+      comboRef.current = 0; // Reset combo when no lines cleared
     }
 
     // Next piece
