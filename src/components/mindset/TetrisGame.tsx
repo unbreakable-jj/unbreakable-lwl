@@ -508,7 +508,7 @@ const TetrisGame = () => {
     boardRef.current = createBoard();
     currentPieceRef.current = randomPiece();
     nextPieceRef.current = randomPiece();
-    scoreRef.current = 0; linesClearedRef.current = 0; levelRef.current = 1;
+    scoreRef.current = 0; linesClearedRef.current = 0; levelRef.current = 1; comboRef.current = 0;
     setScore(0); setLinesCleared(0); setLevel(1);
     particlesRef.current = []; screenShakeRef.current = 0;
     setGameState("playing");
