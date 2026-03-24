@@ -65,16 +65,12 @@ export function CombinedRecordsView() {
   const [showExercisePicker, setShowExercisePicker] = useState(false);
   const [exerciseSearch, setExerciseSearch] = useState('');
 
-  const prs = getAllPRsWithLabels();
-  // const allMedals = getAllMedalsWithStatus(); // Trophy system hidden for now
+  const prs = getAllPRsWithLabels(cardioSub);
 
-  // Filter PRs by selected cardio activity type
-  const filteredPRs = useMemo(() => {
-    return prs.map(pr => ({
-      ...pr,
-      record: pr.record && (pr.record as any).activity_type === cardioSub ? pr.record : undefined,
-    }));
-  }, [prs, cardioSub]);
+  // Check if any PRs exist for current activity type
+  const hasRecordsForActivity = useMemo(() => {
+    return records.some(r => r.activity_type === cardioSub);
+  }, [records, cardioSub]);
 
   // Check if any PRs exist for current activity type
   const hasRecordsForActivity = useMemo(() => {
