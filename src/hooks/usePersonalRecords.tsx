@@ -116,10 +116,13 @@ export function usePersonalRecords() {
     return records.find(r => r.distance_type === distanceType);
   };
 
-  const getAllPRsWithLabels = () => {
+  const getAllPRsWithLabels = (activityType?: string) => {
     return PR_DISTANCES.map(distance => ({
       ...distance,
-      record: records.find(r => r.distance_type === distance.type),
+      record: records.find(r =>
+        r.distance_type === distance.type &&
+        (activityType ? r.activity_type === activityType : true)
+      ),
     }));
   };
 
