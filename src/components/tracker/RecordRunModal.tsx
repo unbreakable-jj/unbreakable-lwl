@@ -287,6 +287,7 @@ export function RecordRunModal({ isOpen, onClose }: RecordRunModalProps) {
       distance_km: runData.distance_km,
       duration_seconds: runData.duration_seconds,
       started_at: runData.started_at,
+      activity_type: 'run',
     });
 
     // Build stats for medal check
