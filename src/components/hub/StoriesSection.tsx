@@ -134,6 +134,7 @@ export function StoriesSection() {
   const openViewer = (userIndex: number) => {
     setActiveUserIndex(userIndex);
     setActiveStoryIndex(0);
+    setActiveMediaSlide(0);
     setShowViewer(true);
     setIsPaused(false);
     setProgress(0);
