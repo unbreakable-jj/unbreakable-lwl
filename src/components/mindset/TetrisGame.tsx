@@ -193,6 +193,7 @@ const TetrisGame = () => {
   const levelRef = useRef(1);
   const particlesRef = useRef<Particle[]>([]);
   const screenShakeRef = useRef(0);
+  const comboRef = useRef(0);
 
   const [score, setScore] = useState(0);
   const [linesCleared, setLinesCleared] = useState(0);
