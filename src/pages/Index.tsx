@@ -115,18 +115,7 @@ const Index = () => {
     }
   }, [user, loading, settings]);
 
-  // Listen for custom events from other parts of the app to trigger motivation
-  useEffect(() => {
-    const handler = (e: CustomEvent) => {
-      if (settings && (settings as any).motivational_popups_enabled === false) return;
-      setMotivationTrigger(e.detail?.trigger || 'session_complete');
-      setMotivationContext(e.detail?.context);
-      setShowMotivation(true);
-      setMotivationState({ lastShown: Date.now(), visitCount: 0 });
-    };
-    window.addEventListener('show-motivation', handler as EventListener);
-    return () => window.removeEventListener('show-motivation', handler as EventListener);
-  }, [settings]);
+   // Custom event listener disabled — popups only on sign-in for now
 
   if (loading || (user && onboardingLoading)) {
     return (

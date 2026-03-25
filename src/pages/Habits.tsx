@@ -69,10 +69,7 @@ const Habits = () => {
     await saveHabits({ ...habits, journal: localJournal });
     setJournalDirty(false);
     toast.success('Journal saved!');
-    // Show motivational popup if all 5 complete
-    if (completedCount === 5) {
-      setShowMotivation(true);
-    }
+    // Motivational popup disabled — only triggers on sign-in for now
   };
 
   return (
