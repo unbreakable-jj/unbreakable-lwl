@@ -41,12 +41,7 @@ export function SessionResultsView({ session, onClose, onViewFeedback }: Session
   const [durationMinutes, setDurationMinutes] = useState('');
   const [showMotivation, setShowMotivation] = useState(false);
 
-  useEffect(() => {
-    if (session.status === 'completed') {
-      const t = setTimeout(() => setShowMotivation(true), 500);
-      return () => clearTimeout(t);
-    }
-  }, [session.status]);
+  // Motivational popup disabled — only triggers on sign-in for now
   
   const logs = session.exercise_logs || [];
   const completedSets = logs.filter(l => l.completed).length;
