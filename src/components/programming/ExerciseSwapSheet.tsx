@@ -124,88 +124,88 @@ export function ExerciseSwapSheet({
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
-      <SheetContent side="bottom" className="max-h-[80vh] flex flex-col z-[70]">
-        <SheetHeader className="pb-4 shrink-0">
-          <SheetTitle className="font-display tracking-wide flex items-center gap-2">
-            <Shuffle className="w-5 h-5 text-primary" />
-            {selectedExercise ? 'CONFIGURE SWAP' : 'SWAP EXERCISE'}
-          </SheetTitle>
-          <p className="text-sm text-muted-foreground">
-            {selectedExercise ? (
-              <>Swapping <span className="text-foreground font-medium">{exerciseName}</span> → <span className="text-primary font-medium">{selectedExercise.name}</span></>
-            ) : (
-              <>Swap <span className="text-foreground font-medium">{exerciseName}</span> for an alternative:</>
-            )}
-          </p>
-        </SheetHeader>
-
-        {selectedExercise ? (
-          <div className="flex-1 min-h-0 flex flex-col pb-6 gap-4">
-            <Card className="p-4 border-primary/30 bg-primary/5">
-              <div className="flex items-center gap-2 mb-1">
-                <Dumbbell className="w-4 h-4 text-primary" />
-                <span className="font-display text-sm text-foreground">{selectedExercise.name}</span>
-                <Badge variant="outline" className="text-xs">{selectedExercise.equipment}</Badge>
-              </div>
-            </Card>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label className="text-xs font-display tracking-wide">SETS</Label>
-                <Input
-                  type="number"
-                  inputMode="numeric"
-                  value={newSets}
-                  onChange={(e) => setNewSets(e.target.value)}
-                  className="mt-1"
-                  min="1"
-                  max="10"
-                  placeholder={String(currentSets || 3)}
-                />
-              </div>
-              <div>
-                <Label className="text-xs font-display tracking-wide">TARGET REPS</Label>
-                <Input
-                  value={newReps}
-                  onChange={(e) => setNewReps(e.target.value)}
-                  className="mt-1"
-                  placeholder={currentReps || '10'}
-                />
-              </div>
-            </div>
-
-            <p className="text-[11px] text-muted-foreground">
-              Adjust sets and reps or keep the current targets.
+      <SheetContent side="bottom" className="z-[70]">
+        <div className="max-h-[75vh] overflow-y-auto" style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}>
+          <SheetHeader className="pb-4">
+            <SheetTitle className="font-display tracking-wide flex items-center gap-2">
+              <Shuffle className="w-5 h-5 text-primary" />
+              {selectedExercise ? 'CONFIGURE SWAP' : 'SWAP EXERCISE'}
+            </SheetTitle>
+            <p className="text-sm text-muted-foreground">
+              {selectedExercise ? (
+                <>Swapping <span className="text-foreground font-medium">{exerciseName}</span> → <span className="text-primary font-medium">{selectedExercise.name}</span></>
+              ) : (
+                <>Swap <span className="text-foreground font-medium">{exerciseName}</span> for an alternative:</>
+              )}
             </p>
+          </SheetHeader>
 
-            <div className="flex gap-2 mt-auto">
-              <Button variant="outline" onClick={handleBack} className="gap-1 font-display tracking-wide">
-                <ChevronLeft className="w-4 h-4" />
-                BACK
-              </Button>
-              <Button
-                onClick={handleConfirmSwap}
-                disabled={isSwapping}
-                className="flex-1 gap-2 font-display tracking-wide"
-              >
-                {isSwapping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                CONFIRM SWAP
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="flex-1 min-h-0 flex flex-col pb-6 gap-4">
-            <div className="relative shrink-0">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search alternatives..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+          {selectedExercise ? (
+            <div className="space-y-4 pb-6">
+              <Card className="p-4 border-primary/30 bg-primary/5">
+                <div className="flex items-center gap-2">
+                  <Dumbbell className="w-4 h-4 text-primary" />
+                  <span className="font-display text-sm text-foreground">{selectedExercise.name}</span>
+                  <Badge variant="outline" className="text-xs">{selectedExercise.equipment}</Badge>
+                </div>
+              </Card>
 
-            <div className="flex-1 min-h-0 max-h-[50vh] overflow-y-auto" style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs font-display tracking-wide">SETS</Label>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    value={newSets}
+                    onChange={(e) => setNewSets(e.target.value)}
+                    className="mt-1"
+                    min="1"
+                    max="10"
+                    placeholder={String(currentSets || 3)}
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs font-display tracking-wide">TARGET REPS</Label>
+                  <Input
+                    value={newReps}
+                    onChange={(e) => setNewReps(e.target.value)}
+                    className="mt-1"
+                    placeholder={currentReps || '10'}
+                  />
+                </div>
+              </div>
+
+              <p className="text-[11px] text-muted-foreground">
+                Adjust sets and reps or keep the current targets.
+              </p>
+
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleBack} className="gap-1 font-display tracking-wide">
+                  <ChevronLeft className="w-4 h-4" />
+                  BACK
+                </Button>
+                <Button
+                  onClick={handleConfirmSwap}
+                  disabled={isSwapping}
+                  className="flex-1 gap-2 font-display tracking-wide"
+                >
+                  {isSwapping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  CONFIRM SWAP
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4 pb-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search alternatives..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
               <div className="space-y-2">
                 {filteredSuggestions.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-4">
@@ -244,8 +244,8 @@ export function ExerciseSwapSheet({
                 ))}
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </SheetContent>
     </Sheet>
   );
