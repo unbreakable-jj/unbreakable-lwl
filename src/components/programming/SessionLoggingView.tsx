@@ -55,16 +55,25 @@ const equipmentColors: Record<string, string> = {
   running: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
 };
 
-// Stable grouping function that preserves order based on first occurrence
+// Equipment priority: compound/barbell first, then machines/cables, then isolation/bodyweight
+const equipmentPriority: Record<string, number> = {
+  barbell: 0,
+  dumbbell: 1,
+  kettlebell: 2,
+  machine: 3,
+  cable: 4,
+  bands: 5,
+  bodyweight: 6,
+  cardio: 7,
+  running: 8,
+};
+
+// Stable grouping function that orders compound lifts first, then accessories
 function groupByExercise(logs: ExerciseLog[]): Array<[string, ExerciseLog[]]> {
   const groups: Map<string, ExerciseLog[]> = new Map();
   
   // Sort logs by set_number first to ensure consistent order
-  const sortedLogs = [...logs].sort((a, b) => {
-    // First by exercise name order (preserved by Map insertion order)
-    // Then by set number
-    return a.set_number - b.set_number;
-  });
+  const sortedLogs = [...logs].sort((a, b) => a.set_number - b.set_number);
   
   sortedLogs.forEach((log) => {
     const existing = groups.get(log.exercise_name);
@@ -80,7 +89,17 @@ function groupByExercise(logs: ExerciseLog[]): Array<[string, ExerciseLog[]]> {
     logs.sort((a, b) => a.set_number - b.set_number);
   });
   
-  return Array.from(groups.entries());
+  // Sort exercise groups: compound/barbell first, then by equipment priority
+  const entries = Array.from(groups.entries());
+  entries.sort((a, b) => {
+    const eqA = a[1][0]?.equipment || '';
+    const eqB = b[1][0]?.equipment || '';
+    const priA = equipmentPriority[eqA] ?? 99;
+    const priB = equipmentPriority[eqB] ?? 99;
+    return priA - priB;
+  });
+  
+  return entries;
 }
 
 // Local state manager for input values to prevent re-renders during typing
