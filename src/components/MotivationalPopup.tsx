@@ -26,9 +26,11 @@ export function MotivationalPopup({ trigger, context, open, onClose }: Motivatio
       setQuote(data.quote || '');
     } catch {
       const fallbacks = [
-        "🔥 The pain you feel today is the strength you'll carry tomorrow. Keep showing up. #UNBREAKABLE",
-        "⚔️ Champions aren't built in comfort zones. You chose this path — now own it. #UNBREAKABLE",
-        "🧱 Every rep, every step, every choice — you're building something they can't break. #UNBREAKABLE",
+        "🦍 Somewhere out there, the old you is watching from the sofa — make them jealous. #UNBREAKABLE",
+        "🔥 Your alarm went off and you chose war instead of snooze — that's a different breed. #UNBREAKABLE",
+        "⚡ Gravity just filed a complaint about you — keep lifting, let it cry. #UNBREAKABLE",
+        "🧠 The battle between your ears is the hardest fight — and you're winning it. #UNBREAKABLE",
+        "🏴 Nobody's coming to save you, and that's the best news you'll hear all day. #UNBREAKABLE",
       ];
       setQuote(fallbacks[Math.floor(Math.random() * fallbacks.length)]);
     } finally {
