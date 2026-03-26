@@ -80,7 +80,14 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
     }
     return items;
   });
-  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+  const [activeMediaIndex, setActiveMediaIndexRaw] = useState(0);
+  const setActiveMediaIndex = useCallback((idx: number | ((prev: number) => number)) => {
+    setActiveMediaIndexRaw(idx);
+    setSelectedId(null);
+    setShowTextTools(false);
+    setShowColorPicker(false);
+    setUndoStack([]);
+  }, []);
 
   const [bgColor, setBgColor] = useState(preFill?.background_color || '#1C1C1E');
 
