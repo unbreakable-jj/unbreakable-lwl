@@ -5,6 +5,7 @@ export const level2Unit1Assessment: UnitAssessment = {
   title: 'Understanding the Body — Unit Assessment',
   passMarkPercent: 80,
   questions: [
+    // ─── CHAPTER 1: Basic Anatomy (6 questions) ───
     {
       type: 'multiple_choice',
       question: 'Which plane of movement does a squat primarily occur in?',
@@ -21,11 +22,85 @@ export const level2Unit1Assessment: UnitAssessment = {
     },
     {
       type: 'multiple_choice',
+      question: 'A lateral raise moves the arm away from the midline. Which plane of movement does this occur in?',
+      options: ['Sagittal plane', 'Frontal plane', 'Transverse plane', 'Oblique plane'],
+      correctAnswer: 1,
+      explanation: 'The frontal (coronal) plane divides the body into front and back. Movements that take limbs away from or towards the midline — abduction and adduction — occur in this plane.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What does the anatomical term "proximal" mean?',
+      options: ['Further from the trunk', 'Closer to the trunk', 'Towards the back', 'Towards the surface'],
+      correctAnswer: 1,
+      explanation: 'Proximal means closer to the point of attachment or the trunk. The elbow is proximal to the wrist.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'Which anatomical term describes a position closer to the surface of the body?',
+      options: ['Deep', 'Medial', 'Superficial', 'Inferior'],
+      correctAnswer: 2,
+      explanation: 'Superficial means closer to the surface. For example, the skin is superficial to the muscles beneath it.',
+    },
+    {
+      type: 'scenario',
+      question: 'Which plane of movement is the primary concern for this exercise?',
+      scenario: 'A personal trainer asks a client to perform a standing Russian twist holding a medicine ball. The client rotates their torso left and right while keeping their hips facing forward.',
+      options: ['Sagittal plane', 'Frontal plane', 'Transverse plane', 'All three planes equally'],
+      correctAnswer: 2,
+      explanation: 'Rotation of the torso occurs in the transverse plane, which divides the body into upper and lower halves. Twisting and rotational movements are transverse plane movements.',
+    },
+
+    // ─── CHAPTER 2: Skeletal System (6 questions) ───
+    {
+      type: 'multiple_choice',
       question: 'Which type of joint allows movement in all directions?',
       options: ['Hinge joint', 'Pivot joint', 'Ball-and-socket joint', 'Gliding joint'],
       correctAnswer: 2,
       explanation: 'Ball-and-socket joints (shoulder, hip) allow the greatest range of movement in all directions.',
     },
+    {
+      type: 'multiple_choice',
+      question: 'Which of the following is a function of the skeletal system?',
+      options: ['Producing hormones', 'Storing fat for energy', 'Protecting vital organs', 'Regulating body temperature'],
+      correctAnswer: 2,
+      explanation: 'The skeletal system protects vital organs — the ribcage protects the lungs and heart, and the skull protects the brain.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'The knee joint is classified as which type of synovial joint?',
+      options: ['Ball-and-socket', 'Pivot', 'Hinge', 'Saddle'],
+      correctAnswer: 2,
+      explanation: 'The knee is a hinge joint, primarily allowing flexion and extension in one plane of movement.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'Which type of bone is primarily found in the wrist and ankle?',
+      options: ['Long bones', 'Flat bones', 'Short bones', 'Irregular bones'],
+      correctAnswer: 2,
+      explanation: 'Short bones are roughly cube-shaped and are found in the wrist (carpals) and ankle (tarsals). They provide stability with limited movement.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is the role of articular cartilage in a synovial joint?',
+      options: ['To produce red blood cells', 'To reduce friction between bone surfaces', 'To store calcium for bone growth', 'To connect muscle to bone'],
+      correctAnswer: 1,
+      explanation: 'Articular (hyaline) cartilage covers the ends of bones in a synovial joint, providing a smooth surface that reduces friction during movement.',
+    },
+    {
+      type: 'scenario',
+      question: 'What is the most likely explanation for this limitation?',
+      scenario: 'A client cannot fully extend their arm overhead during a shoulder press. An assessment reveals no muscular weakness, but the client reports a history of a dislocated shoulder. The trainer notices limited range of motion in all directions.',
+      options: [
+        'Weak deltoid muscles',
+        'Damage to the ball-and-socket joint capsule or surrounding ligaments',
+        'A hinge joint restriction at the elbow',
+        'Tight hamstrings affecting upper body movement',
+      ],
+      correctAnswer: 1,
+      explanation: 'A history of dislocation can damage the joint capsule and ligaments of the ball-and-socket shoulder joint, restricting its full multi-directional range of motion.',
+    },
+
+    // ─── CHAPTER 3: Muscular System (6 questions) ───
     {
       type: 'multiple_choice',
       question: 'What is an eccentric muscle contraction?',
@@ -47,6 +122,43 @@ export const level2Unit1Assessment: UnitAssessment = {
     },
     {
       type: 'multiple_choice',
+      question: 'During a bicep curl, what type of contraction occurs in the biceps as you lift the weight upward?',
+      options: ['Eccentric', 'Isometric', 'Concentric', 'Passive'],
+      correctAnswer: 2,
+      explanation: 'Concentric contraction is when the muscle shortens under tension. The biceps shorten as the weight is curled upward.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'Which muscle fibre type is best suited for endurance activities such as marathon running?',
+      options: ['Type IIx (fast-twitch)', 'Type IIa (intermediate)', 'Type I (slow-twitch)', 'Type III (super-fast)'],
+      correctAnswer: 2,
+      explanation: 'Type I (slow-twitch) fibres are fatigue-resistant and rely on aerobic metabolism, making them ideal for sustained, low-intensity activities.',
+    },
+    {
+      type: 'scenario',
+      question: 'Which muscle is acting as the agonist during the lowering phase?',
+      scenario: 'A trainee performs a controlled 4-second lowering phase on a Romanian deadlift. They maintain tension in the back of their legs throughout the movement.',
+      options: ['Quadriceps', 'Hamstrings', 'Calves', 'Erector spinae'],
+      correctAnswer: 1,
+      explanation: 'During the lowering (eccentric) phase of a Romanian deadlift, the hamstrings are the primary agonist — they lengthen under tension to control the descent.',
+    },
+    {
+      type: 'scenario',
+      question: 'What is the most likely cause of this issue?',
+      scenario: 'A trainee only performs bench press, bicep curls, and shoulder press in every session. After 6 months, they develop rounded shoulders and upper back pain.',
+      options: [
+        'They are not training heavy enough',
+        'They have a muscular imbalance — too much anterior work, not enough posterior',
+        'They need to stretch more before training',
+        'Their nutrition is inadequate',
+      ],
+      correctAnswer: 1,
+      explanation: 'All three exercises target anterior (front) muscles. Without balanced posterior work (rows, rear delt work, back exercises), the front muscles become dominant, pulling the shoulders forward and causing postural issues.',
+    },
+
+    // ─── CHAPTER 4: Cardiovascular System (6 questions) ───
+    {
+      type: 'multiple_choice',
       question: 'What is stroke volume?',
       options: [
         'The number of heartbeats per minute',
@@ -57,6 +169,59 @@ export const level2Unit1Assessment: UnitAssessment = {
       correctAnswer: 1,
       explanation: 'Stroke volume is the amount of blood the heart pumps out with each contraction. It increases with cardiovascular training.',
     },
+    {
+      type: 'multiple_choice',
+      question: 'What is a chronic adaptation of regular cardiovascular training?',
+      options: [
+        'Increased resting heart rate',
+        'Decreased capillary density',
+        'Increased stroke volume',
+        'Decreased VO2 max',
+      ],
+      correctAnswer: 2,
+      explanation: 'Regular cardiovascular training increases stroke volume — the heart becomes stronger and pumps more blood per beat, which lowers resting heart rate.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'Which chamber of the heart pumps oxygenated blood to the body?',
+      options: ['Right atrium', 'Right ventricle', 'Left atrium', 'Left ventricle'],
+      correctAnswer: 3,
+      explanation: 'The left ventricle is the most muscular chamber and is responsible for pumping oxygenated blood through the aorta to the rest of the body.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is the correct formula for cardiac output?',
+      options: [
+        'Heart rate × blood pressure',
+        'Stroke volume × heart rate',
+        'VO2 max × heart rate',
+        'Blood volume ÷ heart rate',
+      ],
+      correctAnswer: 1,
+      explanation: 'Cardiac output = stroke volume × heart rate. It represents the total volume of blood the heart pumps per minute.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'Which blood vessels carry deoxygenated blood back to the heart?',
+      options: ['Arteries', 'Arterioles', 'Capillaries', 'Veins'],
+      correctAnswer: 3,
+      explanation: 'Veins carry deoxygenated blood back to the heart (with the exception of the pulmonary veins, which carry oxygenated blood from the lungs).',
+    },
+    {
+      type: 'scenario',
+      question: 'What is the most likely physiological explanation for this change?',
+      scenario: 'A previously sedentary client begins a 12-week cardiovascular training programme. At the start, their resting heart rate was 78 bpm. After 12 weeks, it has dropped to 62 bpm, despite no change in medication or body weight.',
+      options: [
+        'Their heart has become weaker',
+        'Their stroke volume has increased, so the heart pumps more blood per beat',
+        'Their blood volume has decreased',
+        'They have developed a heart condition',
+      ],
+      correctAnswer: 1,
+      explanation: 'Cardiovascular training increases stroke volume — the heart ejects more blood per contraction, so it doesn\'t need to beat as frequently at rest to maintain adequate cardiac output.',
+    },
+
+    // ─── CHAPTER 5: Energy Systems (6 questions) ───
     {
       type: 'multiple_choice',
       question: 'Which energy system is primarily used during a heavy single repetition on the deadlift?',
@@ -70,6 +235,20 @@ export const level2Unit1Assessment: UnitAssessment = {
       options: ['30-60 seconds', '2-5 minutes', '8-12 seconds', '15-30 minutes'],
       correctAnswer: 2,
       explanation: 'The ATP-PC system provides immediate, high-intensity energy for approximately 8-12 seconds before it needs to be replenished.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'Which by-product of anaerobic glycolysis contributes to the "burning" sensation during high-rep sets?',
+      options: ['Carbon dioxide', 'Lactic acid (lactate)', 'Creatine phosphate', 'Adenosine'],
+      correctAnswer: 1,
+      explanation: 'During anaerobic glycolysis, the rapid breakdown of glucose produces lactate and hydrogen ions. The accumulation of hydrogen ions lowers pH in the muscle, contributing to the burning sensation and fatigue.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'Which energy system is the primary source of ATP during a 30-minute steady-state jog?',
+      options: ['ATP-PC system', 'Anaerobic glycolysis', 'Aerobic system', 'All three equally'],
+      correctAnswer: 2,
+      explanation: 'The aerobic system is the dominant energy provider for sustained, lower-intensity activities lasting longer than 2-3 minutes, using oxygen to metabolise fats and carbohydrates.',
     },
     {
       type: 'scenario',
@@ -86,40 +265,16 @@ export const level2Unit1Assessment: UnitAssessment = {
     },
     {
       type: 'scenario',
-      question: 'What is the most likely cause of this issue?',
-      scenario: 'A trainee only performs bench press, bicep curls, and shoulder press in every session. After 6 months, they develop rounded shoulders and upper back pain.',
+      question: 'Which energy system contribution best explains this athlete\'s performance profile?',
+      scenario: 'A 400m sprinter completes the first 200m in 22 seconds but slows dramatically in the final 100m, finishing in 52 seconds. After the race, they experience significant leg heaviness and nausea.',
       options: [
-        'They are not training heavy enough',
-        'They have a muscular imbalance — too much anterior work, not enough posterior',
-        'They need to stretch more before training',
-        'Their nutrition is inadequate',
-      ],
-      correctAnswer: 1,
-      explanation: 'All three exercises target anterior (front) muscles. Without balanced posterior work (rows, rear delt work, back exercises), the front muscles become dominant, pulling the shoulders forward and causing postural issues.',
-    },
-    {
-      type: 'multiple_choice',
-      question: 'What is a chronic adaptation of regular cardiovascular training?',
-      options: [
-        'Increased resting heart rate',
-        'Decreased capillary density',
-        'Increased stroke volume',
-        'Decreased VO2 max',
+        'The aerobic system fatigued due to lack of oxygen',
+        'The ATP-PC system provided energy for the full race but ran out at the end',
+        'The anaerobic glycolytic system dominated the middle portion, causing lactate accumulation and fatigue',
+        'The athlete did not warm up properly',
       ],
       correctAnswer: 2,
-      explanation: 'Regular cardiovascular training increases stroke volume — the heart becomes stronger and pumps more blood per beat, which lowers resting heart rate.',
-    },
-    {
-      type: 'multiple_choice',
-      question: 'Which of the following is a function of the skeletal system?',
-      options: [
-        'Producing hormones',
-        'Storing fat for energy',
-        'Protecting vital organs',
-        'Regulating body temperature',
-      ],
-      correctAnswer: 2,
-      explanation: 'The skeletal system protects vital organs — for example, the ribcage protects the lungs and heart, and the skull protects the brain.',
+      explanation: 'A 400m sprint (~50 seconds) primarily uses the ATP-PC system for the initial burst, then shifts heavily to anaerobic glycolysis. The accumulation of lactate and hydrogen ions from glycolysis causes the dramatic slowdown, leg heaviness, and nausea in the final phase.',
     },
   ],
 };
