@@ -177,6 +177,8 @@ export const level2Unit1: Unit = {
             'Quadriceps and Hamstrings — when you extend the knee, quads contract and hamstrings relax',
             'Chest and Back — when you push, chest contracts and back relaxes',
           ],
+        },
+        {
           paragraphs: [
             'Understanding this pairing helps you build balanced programmes. If you only train one side of a pair, you create muscular imbalances that lead to poor posture and injury.',
           ],
