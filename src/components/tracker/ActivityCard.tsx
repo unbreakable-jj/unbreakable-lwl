@@ -8,7 +8,7 @@ import { Heart, MessageCircle, MapPin, Clock, Zap, TrendingUp, Globe, Users, Loc
 import { RunWithProfile } from '@/hooks/useRuns';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
-import { RunMap, geoJSONToPositions } from './RunMap';
+
 import { CommentSection } from './CommentSection';
 import { PostMenu } from './PostMenu';
 import { ShareMenu } from './ShareMenu';
