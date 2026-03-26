@@ -195,6 +195,8 @@ export const level2Unit4: Unit = {
             'Weeks 5–8: Strength phase — 4–5 sets of 4–6 reps at higher intensity (80–85% 1RM).',
             'Weeks 9–12: Power/peaking phase — 3–5 sets of 1–3 reps at near-maximal intensity (90–100% 1RM).',
           ],
+        },
+        {
           paragraphs: [
             'Linear periodisation is simple, effective, and well-suited to beginners and intermediate trainees. Its main limitation is that qualities developed in earlier phases may diminish as focus shifts to later phases.',
           ],
@@ -257,6 +259,8 @@ export const level2Unit4: Unit = {
             'Activate the nervous system for maximal force production.',
             'Identify any pain or discomfort before loading heavily.',
           ],
+        },
+        {
           paragraphs: [
             'A typical warm-up protocol for a heavy compound lift might include: empty bar × 10, 40% × 8, 60% × 5, 80% × 3, then working sets at the prescribed load.',
           ],
