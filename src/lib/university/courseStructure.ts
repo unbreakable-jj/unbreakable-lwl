@@ -1,6 +1,8 @@
 import type { Level } from './types';
 import { level2Unit1 } from './level2/unit1';
+import { level2Unit2 } from './level2/unit2';
 import { level2Unit1Assessment } from './level2/assessments';
+import { level2Unit2Assessment } from './level2/unit2-assessments';
 
 export const PASS_MARK_PERCENT = 80;
 
@@ -12,12 +14,7 @@ export const courseData: Level[] = [
     description: 'Master the fundamentals of anatomy, nutrition, exercise science, and programme building. This level provides the essential knowledge every serious gym user needs.',
     units: [
       level2Unit1,
-      {
-        number: 2,
-        title: 'Principles of Nutrition',
-        description: 'Macronutrients, micronutrients, hydration, energy balance, and food label literacy.',
-        chapters: [],
-      },
+      level2Unit2,
       {
         number: 3,
         title: 'Introduction to Exercise',
