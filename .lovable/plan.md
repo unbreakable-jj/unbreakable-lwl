@@ -1,44 +1,41 @@
 
 
-## Plan: Build Level 2, Unit 2 — Principles of Nutrition
+## Plan: Build Level 2, Unit 3 — Introduction to Exercise
 
-**7 chapters** — nutrition warrants more depth than anatomy given the breadth of topics (macros, micros, hydration, energy balance, food labels, meal timing, and practical application).
+8 chapters, 48-question assessment. Same proven pattern as Units 1 and 2.
 
 ### Chapter Breakdown
 
 | # | Title | Key Topics |
 |---|-------|-----------|
-| 1 | Understanding Macronutrients | Protein, carbohydrates, fats — roles, sources, caloric values, quality |
-| 2 | Micronutrients & Their Role | Vitamins, minerals, deficiency signs, food sources vs supplements |
-| 3 | Hydration & Fluid Balance | Water's role, electrolytes, dehydration signs, intake guidelines, exercise hydration |
-| 4 | Energy Balance & Body Composition | TDEE, BMR, caloric surplus/deficit, thermic effect, practical tracking |
-| 5 | Reading Food Labels | Serving sizes, ingredient lists, nutritional claims, spotting hidden sugars/fats |
-| 6 | Nutrient Timing & Meal Structure | Pre/post workout nutrition, meal frequency myths, practical meal building |
-| 7 | Putting It All Together | Building a balanced day of eating, common mistakes, sustainable habits |
+| 1 | Types of Training | Resistance, cardiovascular, flexibility, HIIT — definitions, benefits, applications |
+| 2 | Warm-Up & Cool-Down | Physiological purpose, RAMP protocol, dynamic vs static stretching, cool-down structure |
+| 3 | Resistance Training Fundamentals | Reps, sets, tempo, rest periods, rep range continuum (strength/hypertrophy/endurance) |
+| 4 | Cardiovascular Training Principles | Steady-state vs interval, heart rate zones, FITT principle, RPE scale |
+| 5 | Flexibility & Mobility | ROM, PNF stretching, foam rolling, mobility drills, injury prevention |
+| 6 | Exercise Selection & Technique | Compound vs isolation, movement patterns, bilateral/unilateral, common faults |
+| 7 | Recovery & Adaptation | SAID principle, supercompensation curve, sleep, overtraining signs, deload |
+| 8 | Training for Special Populations | Beginners, older adults, pre/postnatal, medical referral awareness |
 
 ### Deliverables
 
-1. **Content file** — `src/lib/university/level2/unit2.ts` — 7 chapters, each with learning outcome, assessment criteria, content sections, Unbreakable Insight, Coach Note, and Practical Task
-2. **AI-generated diagrams** — 7 dark technical illustrations (same brand style: neon orange on dark background):
-   - Macronutrient breakdown chart
-   - Micronutrient sources diagram
-   - Hydration balance visual
-   - Energy balance equation diagram
-   - Food label anatomy
-   - Nutrient timing timeline
-   - Balanced plate composition
-3. **Assessment file** — `src/lib/university/level2/unit2-assessments.ts` — 42 questions (6 per chapter), mix of multiple choice and scenario-based, 80% pass mark
-4. **Course structure update** — `src/lib/university/courseStructure.ts` — wire in unit2 data and assessment
+1. `src/lib/university/level2/unit3.ts` — 8 chapters with full NVQ-standard content
+2. `src/lib/university/level2/unit3-assessments.ts` — 48 questions (6 per chapter), 80% pass mark
+3. 8 AI-generated dark technical diagrams in `src/assets/university/`
+4. `src/lib/university/courseStructure.ts` — wire in unit 3 data and assessment
 
-### Files to create/edit
-- Create `src/assets/university/` — 7 new diagram PNGs
-- Create `src/lib/university/level2/unit2.ts`
-- Create `src/lib/university/level2/unit2-assessments.ts`
-- Edit `src/lib/university/courseStructure.ts` — import and wire unit 2
-- Edit `src/lib/university/level2/assessments.ts` — export unit 2 assessment alongside unit 1
+### Diagrams (neon orange on dark)
+- Training types comparison matrix
+- RAMP warm-up protocol flow
+- Rep range continuum
+- Heart rate training zones
+- Flexibility/mobility types diagram
+- Movement patterns chart
+- Supercompensation curve
+- Special populations considerations
 
 ### Technical Notes
-- Same pattern as Unit 1: static TS content, image imports, progress tracked in DB
-- No new components needed — existing `ChapterContent`, `AssessmentQuiz` handle everything
-- 42 questions = 6 per chapter × 7 chapters
+- No new components — existing `ChapterContent` and `AssessmentQuiz` handle everything
+- Same static TS pattern as Units 1 and 2
+- Progress tracking already works via existing DB schema
 
