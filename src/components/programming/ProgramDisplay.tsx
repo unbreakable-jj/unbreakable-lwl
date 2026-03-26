@@ -1,4 +1,4 @@
-import { useState } from 'react';
+
 import { GeneratedProgram, WorkoutDay } from '@/lib/programTypes';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
