@@ -67,22 +67,12 @@ const defaultFormData: RecipeFormData = {
 };
 
 const CATEGORY_TABS = [
-  { value: 'all', label: 'ALL', icon: '🔥' },
   { value: 'breakfast', label: 'BREAKFAST', icon: '🌅' },
   { value: 'lunch', label: 'LUNCH', icon: '🥗' },
   { value: 'main', label: 'MAIN', icon: '🍽️' },
   { value: 'snack', label: 'SNACKS', icon: '🍿' },
   { value: 'desserts', label: 'DESSERTS', icon: '🍫' },
   { value: 'shakes', label: 'SHAKES', icon: '🥤' },
-];
-
-const PACK_OPTIONS = [
-  { value: 'all', label: 'All Packs' },
-  { value: 'low-carb', label: '🥬 Low-Carb Pack' },
-  { value: 'high-protein', label: '💪 High Protein Pack' },
-  { value: '5-ingredient', label: '🔥 5-Ingredient Pack' },
-  { value: 'mine', label: '📝 My Recipes' },
-  { value: 'favourites', label: '⭐ Favourites' },
 ];
 
 const DIETARY_TAG_MAP: Record<string, string> = {
@@ -108,8 +98,7 @@ export function RecipeLibrary() {
   const [showFilters, setShowFilters] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [formData, setFormData] = useState<RecipeFormData>(defaultFormData);
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [activePack, setActivePack] = useState('all');
+  const [activeCategory, setActiveCategory] = useState('breakfast');
   const [viewingRecipe, setViewingRecipe] = useState<Recipe | null>(null);
   const [addToPlanRecipe, setAddToPlanRecipe] = useState<Recipe | null>(null);
 
@@ -132,17 +121,7 @@ export function RecipeLibrary() {
   const getFilteredRecipes = () => {
     let filtered = recipes || [];
 
-    if (activePack === 'mine') {
-      filtered = myRecipes;
-    } else if (activePack === 'favourites') {
-      filtered = favouriteRecipes;
-    } else if (activePack !== 'all') {
-      filtered = filtered.filter((r) => r.pack === activePack);
-    }
-
-    if (activeCategory !== 'all') {
-      filtered = filtered.filter((r) => r.category === activeCategory);
-    }
+    filtered = filtered.filter((r) => r.category === activeCategory);
 
     if (searchQuery) {
       filtered = filtered.filter((r) =>
