@@ -342,7 +342,7 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
 
   // Publish
   const handlePublish = async () => {
-    if (overlays.length === 0 && mediaItems.length === 0 && !bgColor) {
+    if (Object.values(overlaysBySlide).flat().length === 0 && mediaItems.length === 0 && !bgColor) {
       toast.error('Add some content to your story');
       return;
     }
