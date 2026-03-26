@@ -19,7 +19,7 @@ import {
   ChevronUp,
   Lightbulb,
   BookOpen,
-  AlertTriangle,
+  
   Plus,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -427,12 +427,10 @@ export function SessionLoggingView({
                                 />
                               </div>
                               <div className="col-span-2 flex items-center justify-center gap-1">
-                                {/* 3-level comfort: 😊 Good / 😐 Discomfort / 😣 Pain */}
-                                <div className="flex gap-0.5">
+                                <div className="flex gap-1">
                                   {([
-                                    { value: 1, emoji: '😊', label: 'Good' },
-                                    { value: 2, emoji: '😐', label: 'Discomfort' },
-                                    { value: 3, emoji: '😣', label: 'Pain' },
+                                    { value: 1, emoji: '👍', label: 'Good' },
+                                    { value: 3, emoji: '👎', label: 'Bad' },
                                   ] as const).map((level) => (
                                     <button
                                       key={level.value}
@@ -445,7 +443,7 @@ export function SessionLoggingView({
                                       className="p-0 leading-none"
                                       title={level.label}
                                     >
-                                      <span className={`text-sm ${
+                                      <span className={`text-base ${
                                         (log as any).confidence_rating === level.value
                                           ? 'opacity-100'
                                           : 'opacity-30 grayscale'
@@ -454,25 +452,24 @@ export function SessionLoggingView({
                                       </span>
                                     </button>
                                   ))}
-                                </div>
-                                {/* Injury flag */}
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const current = (log as any).pain_flag || false;
-                                    onUpdateLog(log.id, { painFlag: !current });
-                                  }}
-                                  className="p-0.5"
-                                  title="Flag injury"
-                                >
-                                  <AlertTriangle
-                                    className={`w-3 h-3 ${
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const current = (log as any).pain_flag || false;
+                                      onUpdateLog(log.id, { painFlag: !current });
+                                    }}
+                                    className="p-0 leading-none"
+                                    title="Flag injury"
+                                  >
+                                    <span className={`text-base ${
                                       (log as any).pain_flag
-                                        ? 'text-red-500 fill-red-500/20'
-                                        : 'text-muted-foreground/30'
-                                    }`}
-                                  />
-                                </button>
+                                        ? 'opacity-100'
+                                        : 'opacity-30 grayscale'
+                                    }`}>
+                                      ❗
+                                    </span>
+                                  </button>
+                                </div>
                               </div>
                               <div className="col-span-2 flex justify-center">
                                 <Checkbox
