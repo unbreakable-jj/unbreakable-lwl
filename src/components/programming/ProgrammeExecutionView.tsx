@@ -101,6 +101,9 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
   const [showEditor, setShowEditor] = useState(false);
   const [isSkipping, setIsSkipping] = useState(false);
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
+  const [showCardioTracker, setShowCardioTracker] = useState(false);
+  const [cardioActivity, setCardioActivity] = useState<'walk' | 'run' | 'cycle' | 'row' | 'swim'>('run');
+  const [cardioPlannerId, setCardioPlannerId] = useState<string | null>(null);
 
   // Progression state
   const [progressionSuggestions, setProgressionSuggestions] = useState<PowerProgressionSuggestion[]>([]);
