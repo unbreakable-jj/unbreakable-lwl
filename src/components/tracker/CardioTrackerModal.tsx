@@ -32,6 +32,7 @@ interface CardioTrackerModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialActivity?: 'walk' | 'run' | 'cycle' | 'row' | 'swim';
+  onSessionSaved?: () => void;
 }
 
 type ActivityType = 'walk' | 'run' | 'cycle' | 'row' | 'swim';
