@@ -139,6 +139,15 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
 
   const handleStartSession = async (planner: SessionPlanner) => {
     if (isStartingSession) return;
+    
+    // If it's a cardio session, open the cardio tracker instead
+    if (isCardioSession(planner)) {
+      setCardioActivity(getCardioActivity(planner));
+      setCardioPlannerId(planner.id);
+      setShowCardioTracker(true);
+      return;
+    }
+    
     setIsStartingSession(true);
     
     try {
@@ -159,6 +168,15 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
       console.error('Failed to start session:', error);
     } finally {
       setIsStartingSession(false);
+    }
+  };
+
+  const handleCardioTrackerClose = () => {
+    setShowCardioTracker(false);
+    // Mark the planner as complete when cardio tracker closes (session was saved)
+    if (cardioPlannerId) {
+      markComplete.mutate(cardioPlannerId);
+      setCardioPlannerId(null);
     }
   };
 
