@@ -84,14 +84,24 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
 
   const [bgColor, setBgColor] = useState(preFill?.background_color || '#1C1C1E');
 
-  const [overlays, setOverlays] = useState<TextOverlayData[]>(() => {
+  // Per-slide overlays: key = media index (0 = background-only / first slide)
+  const [overlaysBySlide, setOverlaysBySlide] = useState<Record<number, TextOverlayData[]>>(() => {
     if (preFill?.content) {
       const id = crypto.randomUUID();
-      return [{ ...DEFAULT_OVERLAY, id, text: preFill.content, x: 50, y: 50, fontSize: 24 }];
+      return { 0: [{ ...DEFAULT_OVERLAY, id, text: preFill.content, x: 50, y: 50, fontSize: 24 }] };
     }
-    return [];
+    return {};
   });
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Derived: current slide's overlays
+  const overlays = overlaysBySlide[activeMediaIndex] || [];
+  const setOverlays = useCallback((updater: (prev: TextOverlayData[]) => TextOverlayData[]) => {
+    setOverlaysBySlide(prev => ({
+      ...prev,
+      [activeMediaIndex]: updater(prev[activeMediaIndex] || []),
+    }));
+  }, [activeMediaIndex]);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [showColorPicker, setShowColorPicker] = useState(false);
