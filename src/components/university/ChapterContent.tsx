@@ -50,7 +50,17 @@ export function ChapterContent({ chapter }: Props) {
               ))}
             </ul>
           )}
-          {section.imagePlaceholder && (
+          {section.imageUrl && (
+            <div className="my-4 rounded-lg overflow-hidden border border-primary/20">
+              <img
+                src={section.imageUrl}
+                alt={section.imageAlt || ''}
+                className="w-full h-auto"
+                loading="lazy"
+              />
+            </div>
+          )}
+          {section.imagePlaceholder && !section.imageUrl && (
             <ImagePlaceholder description={section.imagePlaceholder} />
           )}
         </div>
