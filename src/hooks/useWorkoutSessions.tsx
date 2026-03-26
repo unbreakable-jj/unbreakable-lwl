@@ -97,6 +97,48 @@ export function useWorkoutSessions() {
       exercises: Array<{ name: string; equipment: string; sets: number; reps: string }>;
     }) => {
       if (!user) throw new Error('Must be logged in');
+
+      // Look up the most recent completed session for this programme to pre-fill targets
+      let previousLogsByExercise: Record<string, Array<{ set_number: number; actual_reps: number | null; weight_kg: number | null }>> = {};
+
+      if (programId) {
+        const { data: prevSessions } = await supabase
+          .from('workout_sessions')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('program_id', programId)
+          .eq('status', 'completed')
+          .order('ended_at', { ascending: false })
+          .limit(3);
+
+        if (prevSessions && prevSessions.length > 0) {
+          const prevIds = prevSessions.map(s => s.id);
+          const { data: prevLogs } = await supabase
+            .from('exercise_logs')
+            .select('exercise_name, set_number, actual_reps, weight_kg')
+            .in('session_id', prevIds)
+            .eq('completed', true)
+            .order('created_at', { ascending: false });
+
+          if (prevLogs) {
+            // Group by exercise name, keeping the most recent logs only
+            for (const log of prevLogs) {
+              if (!previousLogsByExercise[log.exercise_name]) {
+                previousLogsByExercise[log.exercise_name] = [];
+              }
+              // Only keep one entry per set_number (most recent first due to order)
+              const existing = previousLogsByExercise[log.exercise_name];
+              if (!existing.find(e => e.set_number === log.set_number)) {
+                existing.push({
+                  set_number: log.set_number,
+                  actual_reps: log.actual_reps,
+                  weight_kg: log.weight_kg,
+                });
+              }
+            }
+          }
+        }
+      }
       
       // Create the session
       const { data: session, error: sessionError } = await supabase
@@ -114,18 +156,26 @@ export function useWorkoutSessions() {
       
       if (sessionError) throw sessionError;
       
-      // Create exercise logs for each set
+      // Create exercise logs for each set, pre-filling from previous results
       const exerciseLogs = exercises.flatMap((exercise) => {
         const numSets = typeof exercise.sets === 'number' ? exercise.sets : parseInt(String(exercise.sets)) || 3;
-        return Array.from({ length: numSets }, (_, i) => ({
-          session_id: session.id,
-          user_id: user.id,
-          exercise_name: exercise.name,
-          equipment: exercise.equipment,
-          set_number: i + 1,
-          target_reps: exercise.reps,
-          completed: false,
-        }));
+        const prevLogs = previousLogsByExercise[exercise.name] || [];
+
+        return Array.from({ length: numSets }, (_, i) => {
+          const setNum = i + 1;
+          const prevSet = prevLogs.find(l => l.set_number === setNum) || prevLogs[0];
+
+          return {
+            session_id: session.id,
+            user_id: user.id,
+            exercise_name: exercise.name,
+            equipment: exercise.equipment,
+            set_number: setNum,
+            target_reps: prevSet?.actual_reps ? String(prevSet.actual_reps) : (exercise.reps || null),
+            weight_kg: prevSet?.weight_kg ?? null,
+            completed: false,
+          };
+        });
       });
       
       if (exerciseLogs.length > 0) {
