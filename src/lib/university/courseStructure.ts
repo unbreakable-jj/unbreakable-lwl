@@ -17,12 +17,7 @@ export const courseData: Level[] = [
     units: [
       level2Unit1,
       level2Unit2,
-      {
-        number: 3,
-        title: 'Introduction to Exercise',
-        description: 'Training types, warm-up and cool-down protocols, rep ranges, recovery, and exercise selection.',
-        chapters: [],
-      },
+      level2Unit3,
       {
         number: 4,
         title: 'Building Your Foundation',
