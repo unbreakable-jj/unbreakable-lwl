@@ -1,31 +1,37 @@
 
 
-## Plan: Build Level 2, Unit 4 — Building Your Foundation
+## Plan: Rewrite All University Content — Personal Learner Voice
 
-Unit 4 does not exist yet. It needs the same full treatment as Units 1–3: complete NVQ-standard chapter content, branded diagrams, and a comprehensive assessment.
+### Problem
+All 4 units and all 4 assessments use PT-instructor language ("a client", "personal trainer", "your client"). The course is for people learning for **themselves**, not to become trainers.
 
-### Chapter Breakdown — 8 Chapters
+### Voice Shift
+- "A client reports knee pain" → "You notice knee pain during squats"
+- "A personal trainer asks a client to perform..." → "You are performing..."
+- "How would you advise a client..." → "What approach would work best for you..."
+- "my clients" → "your own training"
+- "Build rapport with nervous clients" → "Build confidence in the gym"
 
-| # | Title | Key Topics |
-|---|-------|-----------|
-| 1 | Setting SMART Goals | SMART framework, outcome vs process goals, short/medium/long-term, review cycles |
-| 2 | Understanding Training Frequency | Split routines (full-body, upper/lower, PPL), weekly volume, recovery between sessions |
-| 3 | Programme Structure & Periodisation | Mesocycles, linear vs undulating periodisation, progressive overload planning, deload weeks |
-| 4 | Exercise Order & Session Design | Compound-first principle, warm-up sets, accessory placement, session duration |
-| 5 | Tracking & Measuring Progress | Training logs, body measurements, performance metrics, when to change programme |
-| 6 | Sleep & Stress Management | Sleep hygiene, circadian rhythm, cortisol, stress reduction, recovery quality |
-| 7 | Lifestyle Factors & Adherence | Consistency, habit stacking, social support, managing setbacks, motivation vs discipline |
-| 8 | Building Your First Programme | Selecting exercises, rep schemes, weekly layout, 4-week starter template |
+### Files to Edit (8 files)
 
-### Deliverables
+| File | What Changes |
+|------|-------------|
+| `src/lib/university/level2/unit1.ts` | Coach notes, practical tasks — reframe from teaching others to self-learning |
+| `src/lib/university/level2/unit2.ts` | Content paragraphs, coach notes — personal nutrition perspective |
+| `src/lib/university/level2/unit3.ts` | Heaviest rewrite — Ch8 "Special Populations" reframed to "Understanding Individual Differences" for self-awareness |
+| `src/lib/university/level2/unit4.ts` | Coach notes, practical tasks — already mostly self-focused but has stray PT references |
+| `src/lib/university/level2/assessments.ts` | All scenario questions reframed to "you" perspective |
+| `src/lib/university/level2/unit2-assessments.ts` | Scenario questions reframed |
+| `src/lib/university/level2/unit3-assessments.ts` | Scenario questions reframed |
+| `src/lib/university/level2/unit4-assessments.ts` | Scenario questions reframed |
 
-1. **`src/lib/university/level2/unit4.ts`** — 8 chapters, each with learning outcome, assessment criteria, content sections, Unbreakable Insight, Coach Note, Practical Task
-2. **`src/lib/university/level2/unit4-assessments.ts`** — 48 questions (6 per chapter), mix of multiple choice and scenario-based, 80% pass mark
-3. **8 diagrams** in `src/assets/university/` — dark technical style (neon orange on dark): SMART framework, training splits matrix, periodisation timeline, session structure flow, progress tracking methods, sleep/recovery cycle, habit formation loop, sample programme template
-4. **`src/lib/university/courseStructure.ts`** — import and wire unit 4 + assessment, replace the empty placeholder unit 4
+### What Stays the Same
+- All chapter structures, topics, learning outcomes, diagram references
+- Question counts and pass marks unchanged
+- No new files or components
 
-### Technical Notes
-- Same proven pattern as Units 1–3: static TS content, image imports, existing components handle rendering
-- No new components needed
-- After this, the Level 2 Final Assessment (combined from all 4 units) is the next deliverable
+### Execution Order
+1. All 4 unit content files (unit1–4.ts) — rewrite all PT language to personal learner voice
+2. All 4 assessment files — rewrite all scenario/question framing to "you" perspective
+3. Consistency pass across all 8 files
 
