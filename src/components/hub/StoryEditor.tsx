@@ -418,12 +418,15 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
       const firstImage = uploadedMedia.find(m => m.type === 'image');
       const firstVideo = uploadedMedia.find(m => m.type === 'video');
 
+      // Flatten all slides' overlays for storage
+      const allOverlays = Object.values(overlaysBySlide).flat();
+
       await onPublish({
         content: null,
         image_url: firstImage?.url || null,
         video_url: firstVideo?.url || null,
         visibility,
-        text_overlays: overlays,
+        text_overlays: allOverlays,
         background_color: mediaItems.length === 0 ? bgColor : null,
         media_items: uploadedMedia,
       });
