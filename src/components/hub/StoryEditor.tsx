@@ -345,7 +345,18 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
       if (item && !item.uploadedUrl) URL.revokeObjectURL(item.previewUrl);
       return prev.filter((_, i) => i !== index);
     });
-    setActiveMediaIndex(prev => Math.max(0, Math.min(prev, mediaItems.length - 2)));
+    // Re-index overlays: remove this slide's overlays and shift higher indices down
+    setOverlaysBySlide(prev => {
+      const next: Record<number, TextOverlayData[]> = {};
+      for (const [key, val] of Object.entries(prev)) {
+        const k = Number(key);
+        if (k < index) next[k] = val;
+        else if (k > index) next[k - 1] = val;
+        // k === index is dropped
+      }
+      return next;
+    });
+    setActiveMediaIndexRaw(prev => Math.max(0, Math.min(prev, mediaItems.length - 2)));
   };
 
   // Publish
