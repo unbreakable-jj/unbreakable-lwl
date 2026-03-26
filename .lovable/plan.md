@@ -1,25 +1,44 @@
 
 
-## Plan: Expand Unit 1 Assessment to 30 Questions
+## Plan: Build Level 2, Unit 2 — Principles of Nutrition
 
-Currently 12 questions. Will expand to 30 — 6 per chapter, with a mix of multiple choice and scenario-based questions maintaining UK NVQ-standard depth.
+**7 chapters** — nutrition warrants more depth than anatomy given the breadth of topics (macros, micros, hydration, energy balance, food labels, meal timing, and practical application).
 
-### Question Distribution
+### Chapter Breakdown
 
-| Chapter | Topic | Questions |
-|---------|-------|-----------|
-| 1 — Basic Anatomy | Planes, directional terms, body regions | 6 (keep 2 existing + 4 new) |
-| 2 — Skeletal System | Bone types, joint classification, functions | 6 (keep 1 existing + 5 new) |
-| 3 — Muscular System | Contraction types, agonist/antagonist, fibre types | 6 (keep 2 existing + 4 new) |
-| 4 — Cardiovascular System | Heart, blood flow, acute/chronic responses | 6 (keep 3 existing + 3 new) |
-| 5 — Energy Systems | ATP-PC, glycolysis, aerobic, application | 6 (keep 4 existing + 2 new) |
+| # | Title | Key Topics |
+|---|-------|-----------|
+| 1 | Understanding Macronutrients | Protein, carbohydrates, fats — roles, sources, caloric values, quality |
+| 2 | Micronutrients & Their Role | Vitamins, minerals, deficiency signs, food sources vs supplements |
+| 3 | Hydration & Fluid Balance | Water's role, electrolytes, dehydration signs, intake guidelines, exercise hydration |
+| 4 | Energy Balance & Body Composition | TDEE, BMR, caloric surplus/deficit, thermic effect, practical tracking |
+| 5 | Reading Food Labels | Serving sizes, ingredient lists, nutritional claims, spotting hidden sugars/fats |
+| 6 | Nutrient Timing & Meal Structure | Pre/post workout nutrition, meal frequency myths, practical meal building |
+| 7 | Putting It All Together | Building a balanced day of eating, common mistakes, sustainable habits |
 
-### Question Type Mix
-- ~20 multiple choice (knowledge recall)
-- ~10 scenario-based (applied understanding)
+### Deliverables
 
-### File to edit
-- `src/lib/university/level2/assessments.ts` — Replace the 12-question array with 30 questions
+1. **Content file** — `src/lib/university/level2/unit2.ts` — 7 chapters, each with learning outcome, assessment criteria, content sections, Unbreakable Insight, Coach Note, and Practical Task
+2. **AI-generated diagrams** — 7 dark technical illustrations (same brand style: neon orange on dark background):
+   - Macronutrient breakdown chart
+   - Micronutrient sources diagram
+   - Hydration balance visual
+   - Energy balance equation diagram
+   - Food label anatomy
+   - Nutrient timing timeline
+   - Balanced plate composition
+3. **Assessment file** — `src/lib/university/level2/unit2-assessments.ts` — 42 questions (6 per chapter), mix of multiple choice and scenario-based, 80% pass mark
+4. **Course structure update** — `src/lib/university/courseStructure.ts` — wire in unit2 data and assessment
 
-No other files need changing — the `AssessmentQuiz` component already handles any question count dynamically.
+### Files to create/edit
+- Create `src/assets/university/` — 7 new diagram PNGs
+- Create `src/lib/university/level2/unit2.ts`
+- Create `src/lib/university/level2/unit2-assessments.ts`
+- Edit `src/lib/university/courseStructure.ts` — import and wire unit 2
+- Edit `src/lib/university/level2/assessments.ts` — export unit 2 assessment alongside unit 1
+
+### Technical Notes
+- Same pattern as Unit 1: static TS content, image imports, progress tracked in DB
+- No new components needed — existing `ChapterContent`, `AssessmentQuiz` handle everything
+- 42 questions = 6 per chapter × 7 chapters
 
