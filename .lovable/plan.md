@@ -1,37 +1,42 @@
 
 
-## Plan: Rewrite All University Content — Personal Learner Voice
+## Plan: Full Text Polish Pass — Unit by Unit
 
-### Problem
-All 4 units and all 4 assessments use PT-instructor language ("a client", "personal trainer", "your client"). The course is for people learning for **themselves**, not to become trainers.
+Systematic sweep of all 8 content + assessment files for spelling, punctuation, grammar, stray PT/instructor language, and consistency. No image changes in this pass.
 
-### Voice Shift
-- "A client reports knee pain" → "You notice knee pain during squats"
-- "A personal trainer asks a client to perform..." → "You are performing..."
-- "How would you advise a client..." → "What approach would work best for you..."
-- "my clients" → "your own training"
-- "Build rapport with nervous clients" → "Build confidence in the gym"
+### Scope
 
-### Files to Edit (8 files)
+**8 files, processed in order:**
 
-| File | What Changes |
-|------|-------------|
-| `src/lib/university/level2/unit1.ts` | Coach notes, practical tasks — reframe from teaching others to self-learning |
-| `src/lib/university/level2/unit2.ts` | Content paragraphs, coach notes — personal nutrition perspective |
-| `src/lib/university/level2/unit3.ts` | Heaviest rewrite — Ch8 "Special Populations" reframed to "Understanding Individual Differences" for self-awareness |
-| `src/lib/university/level2/unit4.ts` | Coach notes, practical tasks — already mostly self-focused but has stray PT references |
-| `src/lib/university/level2/assessments.ts` | All scenario questions reframed to "you" perspective |
-| `src/lib/university/level2/unit2-assessments.ts` | Scenario questions reframed |
-| `src/lib/university/level2/unit3-assessments.ts` | Scenario questions reframed |
-| `src/lib/university/level2/unit4-assessments.ts` | Scenario questions reframed |
+| # | File | Focus |
+|---|------|-------|
+| 1 | `unit1.ts` | Spelling, punctuation, grammar, voice consistency |
+| 2 | `unit2.ts` | Same + check for any missed PT language |
+| 3 | `unit3.ts` | Fix confirmed "client" reference (line 218) + full sweep |
+| 4 | `unit4.ts` | Full sweep — check "trainee" references are contextually appropriate |
+| 5 | `assessments.ts` (Unit 1) | All 30 questions — spelling, answer accuracy, explanation clarity |
+| 6 | `unit2-assessments.ts` | 42 questions — same checks |
+| 7 | `unit3-assessments.ts` | 48 questions — same checks |
+| 8 | `unit4-assessments.ts` | 48 questions — same checks |
+| 9 | `final-assessment.ts` | 80 questions — same checks |
+
+### What Gets Fixed
+
+- **Voice**: Any remaining "client", "trainer", "PT" references → personal learner voice
+- **Spelling/Grammar**: UK English throughout (e.g., "programme" not "program", "organise" not "organize")
+- **Punctuation**: Consistent em dashes, bullet formatting, apostrophes
+- **Content accuracy**: Assessment answers checked against chapter content
+- **Consistency**: Terminology aligned across all units (same terms for same concepts)
+- **"trainee" usage**: Context-dependent — kept where it means "person training" (i.e. the learner), replaced where it implies a coach-trainee relationship
 
 ### What Stays the Same
-- All chapter structures, topics, learning outcomes, diagram references
-- Question counts and pass marks unchanged
-- No new files or components
 
-### Execution Order
-1. All 4 unit content files (unit1–4.ts) — rewrite all PT language to personal learner voice
-2. All 4 assessment files — rewrite all scenario/question framing to "you" perspective
-3. Consistency pass across all 8 files
+- All chapter structures, topics, and learning outcomes
+- All images (no regeneration this pass)
+- Question counts and pass marks
+- Component code — no UI changes
+
+### Execution
+
+Each file edited individually with all corrections applied in a single pass per file. Total: 9 file edits.
 
