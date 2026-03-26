@@ -2351,6 +2351,72 @@ export type Database = {
         }
         Relationships: []
       }
+      university_assessments: {
+        Row: {
+          answers: Json
+          attempted_at: string
+          id: string
+          is_final: boolean
+          level: number
+          passed: boolean
+          score: number
+          total: number
+          unit_number: number
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          attempted_at?: string
+          id?: string
+          is_final?: boolean
+          level: number
+          passed?: boolean
+          score: number
+          total: number
+          unit_number: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          attempted_at?: string
+          id?: string
+          is_final?: boolean
+          level?: number
+          passed?: boolean
+          score?: number
+          total?: number
+          unit_number?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      university_progress: {
+        Row: {
+          chapter_number: number
+          completed_at: string
+          id: string
+          level: number
+          unit_number: number
+          user_id: string
+        }
+        Insert: {
+          chapter_number: number
+          completed_at?: string
+          id?: string
+          level: number
+          unit_number: number
+          user_id: string
+        }
+        Update: {
+          chapter_number?: number
+          completed_at?: string
+          id?: string
+          level?: number
+          unit_number?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_ai_preferences: {
         Row: {
           auto_progression_enabled: boolean | null
