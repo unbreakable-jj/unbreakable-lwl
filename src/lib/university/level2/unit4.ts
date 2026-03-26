@@ -354,7 +354,7 @@ export const level2Unit4: Unit = {
         },
       ],
       unbreakableInsight: 'What gets measured gets managed. The simple act of writing down your numbers forces you to confront reality — and reality is where progress happens.',
-      coachNote: 'I\'ve coached hundreds of people, and the ones who track their sessions consistently make twice the progress of those who don\'t. It takes two minutes per session. There\'s no excuse not to do it.',
+      coachNote: 'The people who make the most progress are rarely the most talented or the most motivated. They\'re the ones who track their sessions consistently. It takes two minutes per session. There\'s no excuse not to do it.',
       practicalTask: {
         title: 'Build Your Tracking System',
         instructions: 'Set up a training log (digital or paper) and track three consecutive sessions in detail. Include: exercise name, sets, reps, weight, RPE, and any notes. Additionally, take baseline body measurements and a progress photo. Review your data after the three sessions and note any observations.',
@@ -433,7 +433,7 @@ export const level2Unit4: Unit = {
         },
       ],
       unbreakableInsight: 'You don\'t grow in the gym. You grow when you sleep. The most underrated performance enhancer in fitness is a consistent 8-hour sleep routine.',
-      coachNote: 'I always ask my clients about their sleep before adjusting their programme. If sleep is poor, no amount of training optimisation will fix the problem. Fix the sleep first.',
+      coachNote: 'Always consider your sleep before adjusting your programme. If sleep is poor, no amount of training optimisation will fix the problem. Fix the sleep first.',
       practicalTask: {
         title: 'One-Week Sleep Audit',
         instructions: 'For seven consecutive days, record: bedtime, wake time, total hours slept, sleep quality (1–10), and any factors that may have affected sleep (caffeine, screens, stress, late meals). At the end of the week, identify your three biggest sleep disruptors and create a plan to address them.',
@@ -504,7 +504,7 @@ export const level2Unit4: Unit = {
         },
       ],
       unbreakableInsight: 'You don\'t need more motivation. You need better systems. Design your environment and your routines so that training becomes the path of least resistance.',
-      coachNote: 'The clients who get the best results are rarely the most talented or the most motivated. They\'re the ones who show up consistently — even on days when they don\'t feel like it. Build the habit, and the results will follow.',
+      coachNote: 'The people who get the best results are rarely the most talented or the most motivated. They\'re the ones who show up consistently — even on days when they don\'t feel like it. Build the habit, and the results will follow.',
       practicalTask: {
         title: 'Build Your Training Habit System',
         instructions: 'Identify three habit stacks that link your training to existing daily routines. Write out your personal "barrier plan" — a list of your three most common excuses for missing training, each paired with a pre-planned solution. Commit to following this system for two weeks and journal the results.',
