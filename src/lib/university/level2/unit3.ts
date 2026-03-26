@@ -215,7 +215,7 @@ export const level2Unit3: Unit = {
         reflectionQuestions: [
           'How does the warm-up change depending on the type of session that follows?',
           'Why might a static stretch be counterproductive before a heavy squat session?',
-          'What signs would indicate that a client is adequately warmed up?',
+          'What signs would indicate that you are adequately warmed up?',
         ],
       },
     },
