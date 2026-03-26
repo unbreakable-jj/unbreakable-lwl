@@ -24,12 +24,7 @@ export const courseData: Level[] = [
       level2Unit4,
     ],
     assessments: [level2Unit1Assessment, level2Unit2Assessment, level2Unit3Assessment, level2Unit4Assessment],
-    finalAssessment: {
-      unitNumber: 0,
-      title: 'Level 2 Final Assessment',
-      passMarkPercent: 80,
-      questions: [],
-    },
+    finalAssessment: level2FinalAssessment,
   },
   {
     level: 3,
