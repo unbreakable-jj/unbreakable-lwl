@@ -97,8 +97,11 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [colorTarget, setColorTarget] = useState<'text' | 'bg' | 'overlay-bg' | 'border'>('bg');
   const [undoStack, setUndoStack] = useState<TextOverlayData[][]>([]);
+  const [showTextTools, setShowTextTools] = useState(false);
 
   const [isDragging, setIsDragging] = useState(false);
+  const [showDeleteZone, setShowDeleteZone] = useState(false);
+  const [isOverDeleteZone, setIsOverDeleteZone] = useState(false);
   const dragStartRef = useRef<{ x: number; y: number; overlayX: number; overlayY: number } | null>(null);
   const [initialPinchDistance, setInitialPinchDistance] = useState<number | null>(null);
   const [initialScale, setInitialScale] = useState(1);
@@ -141,6 +144,7 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
     setEditingTextId(id);
     setEditText(DEFAULT_OVERLAY.text);
     setShowColorPicker(false);
+    setShowTextTools(true);
   };
 
   const updateOverlay = useCallback((id: string, updates: Partial<TextOverlayData>) => {
@@ -152,6 +156,7 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
     pushUndo();
     setOverlays(prev => prev.filter(o => o.id !== selectedId));
     setSelectedId(null);
+    setShowTextTools(false);
   };
 
   const commitTextEdit = () => {
@@ -181,6 +186,12 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
     }
   };
 
+  // Check if pointer is over delete zone
+  const checkDeleteZone = useCallback((clientY: number) => {
+    const threshold = window.innerHeight - 100;
+    setIsOverDeleteZone(clientY > threshold);
+  }, []);
+
   // Overlay drag
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!isDragging || !selectedId || !dragStartRef.current || !canvasRef.current) return;
@@ -190,12 +201,22 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
     const newX = Math.max(5, Math.min(95, dragStartRef.current.overlayX + deltaX));
     const newY = Math.max(5, Math.min(95, dragStartRef.current.overlayY + deltaY));
     updateOverlay(selectedId, { x: newX, y: newY });
-  }, [isDragging, selectedId, updateOverlay]);
+    checkDeleteZone(e.clientY);
+  }, [isDragging, selectedId, updateOverlay, checkDeleteZone]);
 
   const handlePointerUp = useCallback(() => {
+    if (isDragging && isOverDeleteZone && selectedId) {
+      // Drop on delete zone — remove the overlay
+      pushUndo();
+      setOverlays(prev => prev.filter(o => o.id !== selectedId));
+      setSelectedId(null);
+      setShowTextTools(false);
+    }
     setIsDragging(false);
+    setShowDeleteZone(false);
+    setIsOverDeleteZone(false);
     dragStartRef.current = null;
-  }, []);
+  }, [isDragging, isOverDeleteZone, selectedId]);
 
   const getTouchAngle = (t1: React.Touch, t2: React.Touch) =>
     Math.atan2(t2.clientY - t1.clientY, t2.clientX - t1.clientX) * (180 / Math.PI);
@@ -235,6 +256,7 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
     if ((e.target as HTMLElement).closest('[data-overlay]')) return;
     setSelectedId(null);
     setShowColorPicker(false);
+    setShowTextTools(false);
   };
 
   // Media file selection - supports multiple
@@ -293,7 +315,7 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
 
     if (newItems.length) {
       setMediaItems(prev => [...prev, ...newItems]);
-      setActiveMediaIndex(mediaItems.length); // Show newly added
+      setActiveMediaIndex(mediaItems.length);
     }
 
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -323,11 +345,9 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
       const uploadedMedia: StoryMediaItem[] = [];
       const totalItems = mediaItems.length;
 
-      // Upload all pending media
       for (let i = 0; i < mediaItems.length; i++) {
         const item = mediaItems[i];
 
-        // Already uploaded (prefill)
         if (item.status === 'done' && item.uploadedUrl) {
           uploadedMedia.push({
             type: item.type,
@@ -385,7 +405,6 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
       setUploadProgress('Publishing...');
       setOverallProgress(95);
 
-      // For backward compat, set first image/video on the story row
       const firstImage = uploadedMedia.find(m => m.type === 'image');
       const firstVideo = uploadedMedia.find(m => m.type === 'video');
 
@@ -421,7 +440,7 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
 
   return (
     <div className="fixed inset-0 z-[60] bg-black flex flex-col" style={{ touchAction: 'none' }}>
-      {/* Transparent top bar */}
+      {/* Top bar - Instagram style */}
       <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-3 pt-[env(safe-area-inset-top,12px)] py-3 z-30">
         <button
           className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white"
@@ -430,20 +449,19 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
           <X className="w-5 h-5" />
         </button>
         <div className="flex items-center gap-2">
+          {undoStack.length > 0 && (
+            <button
+              className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white"
+              onClick={(e) => { e.stopPropagation(); handleUndo(); }}
+            >
+              <Undo2 className="w-5 h-5" />
+            </button>
+          )}
           <button
             className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white"
             onClick={cycleVisibility}
           >
             {visIcon}
-          </button>
-          <button
-            className="h-10 px-5 rounded-full bg-primary text-primary-foreground font-display tracking-wide text-sm flex items-center gap-1.5 disabled:opacity-50"
-            onClick={handlePublish}
-            disabled={publishing}
-          >
-            {publishing ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /><span className="text-xs">{uploadProgress || 'POSTING'}</span></>
-            ) : 'SHARE'}
           </button>
         </div>
       </div>
@@ -502,10 +520,12 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
               e.stopPropagation();
               setSelectedId(overlay.id);
               setShowColorPicker(false);
+              setShowTextTools(true);
               pushUndo();
               const ov = overlays.find(o => o.id === overlay.id);
               if (ov) {
                 setIsDragging(true);
+                setShowDeleteZone(true);
                 dragStartRef.current = { x: e.clientX, y: e.clientY, overlayX: ov.x, overlayY: ov.y };
                 (e.target as HTMLElement).setPointerCapture(e.pointerId);
               }
@@ -523,20 +543,47 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
               overlay={overlay}
               isEditing={true}
               isSelected={selectedId === overlay.id}
-              onSelect={() => { setSelectedId(overlay.id); setShowColorPicker(false); }}
+              onSelect={() => { setSelectedId(overlay.id); setShowColorPicker(false); setShowTextTools(true); }}
             />
           </div>
         ))}
+
+        {/* Drag-to-delete zone — appears at bottom when dragging */}
+        <AnimatePresence>
+          {(isDragging && showDeleteZone) && (
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              transition={{ duration: 0.15 }}
+              className={`absolute bottom-0 left-0 right-0 z-40 flex flex-col items-center justify-center py-8 transition-colors duration-150 ${
+                isOverDeleteZone
+                  ? 'bg-red-500/40'
+                  : 'bg-gradient-to-t from-black/60 to-transparent'
+              }`}
+            >
+              <motion.div
+                animate={isOverDeleteZone ? { scale: 1.3 } : { scale: 1 }}
+                transition={{ type: 'spring', stiffness: 300 }}
+              >
+                <Trash2 className={`w-8 h-8 transition-colors ${isOverDeleteZone ? 'text-red-400' : 'text-white/60'}`} />
+              </motion.div>
+              <span className={`text-xs mt-1 font-display tracking-wider transition-colors ${isOverDeleteZone ? 'text-red-300' : 'text-white/40'}`}>
+                {isOverDeleteZone ? 'RELEASE TO DELETE' : 'DRAG HERE TO DELETE'}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Media thumbnails strip */}
-      {mediaItems.length > 0 && (
+      {mediaItems.length > 0 && !isDragging && (
         <div className="absolute bottom-28 left-0 right-0 z-30 px-4">
           <div className="flex items-center gap-2 justify-center">
             {mediaItems.map((item, idx) => (
               <div
                 key={idx}
-                className={`relative w-14 h-14 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                className={`relative w-12 h-12 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
                   idx === activeMediaIndex ? 'border-primary scale-110' : 'border-white/20'
                 }`}
                 onClick={(e) => { e.stopPropagation(); setActiveMediaIndex(idx); }}
@@ -566,19 +613,15 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
               </div>
             ))}
 
-            {/* Add more button */}
             {mediaItems.length < MAX_MEDIA && !publishing && (
               <button
                 onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                className="w-14 h-14 rounded-lg border-2 border-dashed border-white/30 flex items-center justify-center text-white/50 hover:border-white/60 transition-colors"
+                className="w-12 h-12 rounded-lg border-2 border-dashed border-white/30 flex items-center justify-center text-white/50"
               >
                 <Plus className="w-5 h-5" />
               </button>
             )}
           </div>
-          <p className="text-center text-white/40 text-[10px] mt-1 font-display">
-            {mediaItems.length}/{MAX_MEDIA} MEDIA
-          </p>
         </div>
       )}
 
@@ -612,58 +655,37 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
 
       {/* Horizontal colour slider */}
       {showColorPicker && !editingTextId && (
-        <div className="absolute bottom-24 left-0 right-0 z-30 px-4 animate-in slide-in-from-bottom-2 duration-150">
-          <div className="flex items-center gap-1 mb-2 justify-center">
-            {colorTarget === 'border' && selectedOverlay && (
-              <div className="flex items-center gap-2 bg-black/60 backdrop-blur-sm rounded-full px-3 py-1">
-                <button
-                  className="text-white/70 text-[10px] font-display"
-                  onClick={() => {
-                    if (!selectedOverlay) return;
-                    const w = Math.max(1, (selectedOverlay.borderWidth || 2) - 1);
-                    updateOverlay(selectedOverlay.id, { borderWidth: w });
-                  }}
-                >
-                  <Minus className="w-3 h-3" />
-                </button>
-                <span className="text-white text-[10px] font-display w-4 text-center">{selectedOverlay.borderWidth || 2}</span>
-                <button
-                  className="text-white/70 text-[10px] font-display"
-                  onClick={() => {
-                    if (!selectedOverlay) return;
-                    const w = Math.min(8, (selectedOverlay.borderWidth || 2) + 1);
-                    updateOverlay(selectedOverlay.id, { borderWidth: w });
-                  }}
-                >
-                  <Plus className="w-3 h-3" />
-                </button>
-              </div>
-            )}
-          </div>
+        <div className="absolute bottom-20 left-0 right-0 z-30 px-4 animate-in slide-in-from-bottom-2 duration-150">
+          {colorTarget === 'border' && selectedOverlay && (
+            <div className="flex items-center gap-2 bg-black/60 backdrop-blur-sm rounded-full px-3 py-1 mx-auto w-fit mb-1">
+              <button className="text-white/70" onClick={() => { if (!selectedOverlay) return; updateOverlay(selectedOverlay.id, { borderWidth: Math.max(1, (selectedOverlay.borderWidth || 2) - 1) }); }}>
+                <Minus className="w-3 h-3" />
+              </button>
+              <span className="text-white text-[10px] font-display w-4 text-center">{selectedOverlay.borderWidth || 2}</span>
+              <button className="text-white/70" onClick={() => { if (!selectedOverlay) return; updateOverlay(selectedOverlay.id, { borderWidth: Math.min(8, (selectedOverlay.borderWidth || 2) + 1) }); }}>
+                <Plus className="w-3 h-3" />
+              </button>
+            </div>
+          )}
           <div className="flex items-center gap-2 overflow-x-auto py-2 scrollbar-hide">
             {PRESET_COLORS.map(c => (
               <button
                 key={c}
-                className={`w-8 h-8 rounded-full shrink-0 border-2 transition-all ${
-                  (colorTarget === 'bg' ? bgColor : 
+                className={`w-7 h-7 rounded-full shrink-0 border-2 transition-all ${
+                  (colorTarget === 'bg' ? bgColor :
                    colorTarget === 'border' ? selectedOverlay?.borderColor :
                    colorTarget === 'overlay-bg' ? selectedOverlay?.backgroundColor :
                    selectedOverlay?.color) === c
-                    ? 'border-white scale-125' 
+                    ? 'border-white scale-125'
                     : 'border-white/20'
                 }`}
                 style={{ backgroundColor: c }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (colorTarget === 'bg') {
-                    setBgColor(c);
-                  } else if (colorTarget === 'border' && selectedId) {
-                    updateOverlay(selectedId, { borderColor: c });
-                  } else if (colorTarget === 'overlay-bg' && selectedId) {
-                    updateOverlay(selectedId, { backgroundColor: c });
-                  } else if (selectedId) {
-                    updateOverlay(selectedId, { color: c });
-                  }
+                  if (colorTarget === 'bg') setBgColor(c);
+                  else if (colorTarget === 'border' && selectedId) updateOverlay(selectedId, { borderColor: c });
+                  else if (colorTarget === 'overlay-bg' && selectedId) updateOverlay(selectedId, { backgroundColor: c });
+                  else if (selectedId) updateOverlay(selectedId, { color: c });
                 }}
               />
             ))}
@@ -671,149 +693,148 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
         </div>
       )}
 
-      {/* Selected overlay quick actions */}
-      {selectedOverlay && !editingTextId && (
-        <div className={`absolute left-1/2 -translate-x-1/2 z-31 flex flex-col items-center gap-1 animate-in fade-in duration-150 ${showColorPicker || hasMedia ? 'bottom-44' : 'bottom-24'}`}>
-          {/* Row 0: Font size slider + font family */}
-          <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md rounded-full px-3 py-1.5 min-w-[260px]">
-            <span className="text-white/60 text-[10px] font-display shrink-0">Aa</span>
-            <Slider
-              value={[selectedOverlay.fontSize]}
-              onValueChange={([v]) => updateOverlay(selectedOverlay.id, { fontSize: v })}
-              min={12}
-              max={72}
-              step={1}
-              className="flex-1"
-            />
-            <span className="text-white text-[10px] font-display w-5 text-center shrink-0">{selectedOverlay.fontSize}</span>
-          </div>
-          {/* Font family selector */}
-          <div className="flex items-center gap-1 overflow-x-auto bg-black/60 backdrop-blur-md rounded-full px-2 py-1 max-w-[300px] scrollbar-hide">
-            {FONT_OPTIONS.map(f => (
+      {/* Selected overlay text tools — compact Instagram-style */}
+      <AnimatePresence>
+        {selectedOverlay && showTextTools && !editingTextId && !isDragging && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className={`absolute left-2 right-2 z-31 space-y-1.5 ${showColorPicker || hasMedia ? 'bottom-40' : 'bottom-20'}`}
+          >
+            {/* Font size + font family in one row */}
+            <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md rounded-full px-3 py-1.5">
+              <span className="text-white/50 text-[10px] shrink-0">Aa</span>
+              <Slider
+                value={[selectedOverlay.fontSize]}
+                onValueChange={([v]) => updateOverlay(selectedOverlay.id, { fontSize: v })}
+                min={12} max={72} step={1}
+                className="flex-1"
+              />
+              <span className="text-white text-[10px] font-display w-5 text-center shrink-0">{selectedOverlay.fontSize}</span>
+            </div>
+            {/* Font family */}
+            <div className="flex items-center gap-1 overflow-x-auto bg-black/60 backdrop-blur-md rounded-full px-2 py-1 scrollbar-hide">
+              {FONT_OPTIONS.map(f => (
+                <button
+                  key={f.value}
+                  className={`shrink-0 px-2 py-0.5 rounded-full text-[10px] transition-colors ${
+                    (selectedOverlay.fontFamily || "'Bebas Neue', sans-serif") === f.value
+                      ? 'bg-white/25 text-white' : 'text-white/50'
+                  }`}
+                  style={{ fontFamily: f.value }}
+                  onClick={(e) => { e.stopPropagation(); updateOverlay(selectedOverlay.id, { fontFamily: f.value }); }}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+            {/* Formatting + colour controls — single compact row */}
+            <div className="flex items-center gap-0.5 bg-black/60 backdrop-blur-md rounded-full px-1.5 py-1 justify-center">
+              {(['left', 'center', 'right'] as const).map(align => (
+                <button
+                  key={align}
+                  className={`w-7 h-7 rounded-full flex items-center justify-center ${selectedOverlay.textAlign === align ? 'bg-white/20' : ''} text-white`}
+                  onClick={(e) => { e.stopPropagation(); updateOverlay(selectedOverlay.id, { textAlign: align }); }}
+                >
+                  {align === 'left' ? <AlignLeft className="w-3 h-3" /> : align === 'center' ? <AlignCenter className="w-3 h-3" /> : <AlignRight className="w-3 h-3" />}
+                </button>
+              ))}
               <button
-                key={f.value}
-                className={`shrink-0 px-2 py-1 rounded-full text-[10px] transition-colors ${
-                  (selectedOverlay.fontFamily || "'Bebas Neue', sans-serif") === f.value
-                    ? 'bg-white/25 text-white'
-                    : 'text-white/60 hover:text-white'
-                }`}
-                style={{ fontFamily: f.value }}
-                onClick={(e) => { e.stopPropagation(); updateOverlay(selectedOverlay.id, { fontFamily: f.value }); }}
+                className={`w-7 h-7 rounded-full flex items-center justify-center ${selectedOverlay.fontWeight === 'bold' ? 'bg-white/20' : ''} text-white`}
+                onClick={(e) => { e.stopPropagation(); updateOverlay(selectedOverlay.id, { fontWeight: selectedOverlay.fontWeight === 'bold' ? 'normal' : 'bold' }); }}
               >
-                {f.label}
+                <Bold className="w-3 h-3" />
               </button>
-            ))}
-          </div>
-          {/* Row 1: Text formatting */}
-          <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-full px-2 py-1">
-            {(['left', 'center', 'right'] as const).map(align => (
+              <div className="w-px h-5 bg-white/20 mx-0.5" />
               <button
-                key={align}
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${selectedOverlay.textAlign === align ? 'bg-white/20' : ''} text-white`}
-                onClick={(e) => { e.stopPropagation(); updateOverlay(selectedOverlay.id, { textAlign: align }); }}
+                className="w-7 h-7 rounded-full flex items-center justify-center text-white"
+                onClick={(e) => { e.stopPropagation(); setColorTarget('text'); setShowColorPicker(true); }}
               >
-                {align === 'left' ? <AlignLeft className="w-3.5 h-3.5" /> : align === 'center' ? <AlignCenter className="w-3.5 h-3.5" /> : <AlignRight className="w-3.5 h-3.5" />}
+                <div className="w-4 h-4 rounded-full border-2 border-white" style={{ backgroundColor: selectedOverlay.color }} />
               </button>
-            ))}
-            <button
-              className={`w-8 h-8 rounded-full flex items-center justify-center ${selectedOverlay.fontWeight === 'bold' ? 'bg-white/20' : ''} text-white`}
-              onClick={(e) => { e.stopPropagation(); updateOverlay(selectedOverlay.id, { fontWeight: selectedOverlay.fontWeight === 'bold' ? 'normal' : 'bold' }); }}
-            >
-              <Bold className="w-3.5 h-3.5" />
-            </button>
-            <button
-              className="w-8 h-8 rounded-full flex items-center justify-center text-white"
-              onClick={(e) => { e.stopPropagation(); setEditingTextId(selectedOverlay.id); setEditText(selectedOverlay.text); }}
-            >
-              <Type className="w-3.5 h-3.5" />
-            </button>
-          </div>
-          {/* Row 2: Color & border controls */}
-          <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-full px-2 py-1">
-            <button
-              className="w-8 h-8 rounded-full flex items-center justify-center text-white"
-              onClick={(e) => { e.stopPropagation(); setColorTarget('text'); setShowColorPicker(true); }}
-              title="Text colour"
-            >
-              <div className="w-4 h-4 rounded-full border-2 border-white" style={{ backgroundColor: selectedOverlay.color }} />
-            </button>
-            <button
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${selectedOverlay.backgroundColor ? 'bg-white/20' : ''}`}
-              onClick={(e) => { e.stopPropagation(); toggleOverlayBg(); }}
-              title="Toggle box"
-            >
-              <Square className="w-3.5 h-3.5" />
-            </button>
-            {selectedOverlay.backgroundColor && (
               <button
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white"
-                onClick={(e) => { e.stopPropagation(); setColorTarget('overlay-bg'); setShowColorPicker(true); }}
-                title="Box colour"
+                className={`w-7 h-7 rounded-full flex items-center justify-center text-white ${selectedOverlay.backgroundColor ? 'bg-white/20' : ''}`}
+                onClick={(e) => { e.stopPropagation(); toggleOverlayBg(); }}
               >
-                <div className="w-4 h-4 rounded border border-white/50" style={{ backgroundColor: selectedOverlay.backgroundColor }} />
+                <Square className="w-3 h-3" />
               </button>
-            )}
-            <button
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${selectedOverlay.showBorder ? 'bg-white/20' : ''}`}
-              onClick={(e) => { e.stopPropagation(); toggleBorder(); }}
-              title="Toggle border"
-            >
-              <span className="text-[10px] font-bold border border-white/60 px-1 rounded">B</span>
-            </button>
-            {selectedOverlay.showBorder && (
+              {selectedOverlay.backgroundColor && (
+                <button
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-white"
+                  onClick={(e) => { e.stopPropagation(); setColorTarget('overlay-bg'); setShowColorPicker(true); }}
+                >
+                  <div className="w-4 h-4 rounded border border-white/50" style={{ backgroundColor: selectedOverlay.backgroundColor }} />
+                </button>
+              )}
               <button
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white"
-                onClick={(e) => { e.stopPropagation(); setColorTarget('border'); setShowColorPicker(true); }}
-                title="Border colour"
+                className={`w-7 h-7 rounded-full flex items-center justify-center text-white ${selectedOverlay.showBorder ? 'bg-white/20' : ''}`}
+                onClick={(e) => { e.stopPropagation(); toggleBorder(); }}
               >
-                <div className="w-4 h-4 rounded border-2" style={{ borderColor: selectedOverlay.borderColor || '#FFF', backgroundColor: 'transparent' }} />
+                <span className="text-[9px] font-bold border border-white/60 px-0.5 rounded">B</span>
               </button>
-            )}
+              {selectedOverlay.showBorder && (
+                <button
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-white"
+                  onClick={(e) => { e.stopPropagation(); setColorTarget('border'); setShowColorPicker(true); }}
+                >
+                  <div className="w-4 h-4 rounded border-2" style={{ borderColor: selectedOverlay.borderColor || '#FFF', backgroundColor: 'transparent' }} />
+                </button>
+              )}
+              <div className="w-px h-5 bg-white/20 mx-0.5" />
+              <button
+                className="w-7 h-7 rounded-full flex items-center justify-center text-white"
+                onClick={(e) => { e.stopPropagation(); setEditingTextId(selectedOverlay.id); setEditText(selectedOverlay.text); }}
+              >
+                <Type className="w-3 h-3" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Bottom toolbar — clean Instagram-style */}
+      {!isDragging && (
+        <div className="absolute bottom-0 left-0 right-0 z-30 pb-[env(safe-area-inset-bottom,8px)]">
+          <div className="flex items-center justify-between px-4 py-3">
+            {/* Left side tools */}
+            <div className="flex items-center gap-3">
+              <button
+                className="w-11 h-11 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white active:scale-90 transition-transform"
+                onClick={(e) => { e.stopPropagation(); addTextOverlay(); }}
+              >
+                <Type className="w-5 h-5" />
+              </button>
+              <button
+                className={`w-11 h-11 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white active:scale-90 transition-transform ${mediaItems.length >= MAX_MEDIA ? 'opacity-30' : ''}`}
+                onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                disabled={mediaItems.length >= MAX_MEDIA}
+              >
+                <Image className="w-5 h-5" />
+              </button>
+              <button
+                className={`w-11 h-11 rounded-full backdrop-blur-sm flex items-center justify-center text-white active:scale-90 transition-transform ${showColorPicker ? 'bg-white/25' : 'bg-white/10'}`}
+                onClick={(e) => { e.stopPropagation(); setColorTarget('bg'); setShowColorPicker(!showColorPicker); }}
+              >
+                <Palette className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Share button — right side */}
+            <button
+              className="h-11 px-6 rounded-full bg-primary text-primary-foreground font-display tracking-wider text-sm flex items-center gap-2 disabled:opacity-50 active:scale-95 transition-transform"
+              onClick={handlePublish}
+              disabled={publishing}
+            >
+              {publishing ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /><span className="text-xs">{uploadProgress || 'POSTING'}</span></>
+              ) : 'SHARE'}
+            </button>
           </div>
         </div>
       )}
 
-      {/* Bottom floating toolbar */}
-      <div className="absolute bottom-0 left-0 right-0 z-30 pb-[env(safe-area-inset-bottom,8px)]">
-        <div className="flex items-center justify-center gap-4 py-3">
-          <button
-            className="w-12 h-12 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center text-white active:scale-90 transition-transform"
-            onClick={(e) => { e.stopPropagation(); addTextOverlay(); }}
-          >
-            <Type className="w-5 h-5" />
-          </button>
-          <button
-            className={`w-12 h-12 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center text-white active:scale-90 transition-transform ${mediaItems.length >= MAX_MEDIA ? 'opacity-30' : ''}`}
-            onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-            disabled={mediaItems.length >= MAX_MEDIA}
-          >
-            <Image className="w-5 h-5" />
-          </button>
-          <button
-            className={`w-12 h-12 rounded-full backdrop-blur-sm flex items-center justify-center text-white active:scale-90 transition-transform ${showColorPicker ? 'bg-white/30' : 'bg-white/15'}`}
-            onClick={(e) => { e.stopPropagation(); setColorTarget('bg'); setShowColorPicker(!showColorPicker); }}
-          >
-            <Palette className="w-5 h-5" />
-          </button>
-          <button
-            className={`w-12 h-12 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center transition-transform active:scale-90 ${undoStack.length === 0 ? 'text-white/30' : 'text-white'}`}
-            onClick={(e) => { e.stopPropagation(); handleUndo(); }}
-            disabled={undoStack.length === 0}
-          >
-            <Undo2 className="w-5 h-5" />
-          </button>
-          {selectedId && (
-            <button
-              className="w-12 h-12 rounded-full bg-red-500/30 backdrop-blur-sm flex items-center justify-center text-red-400 active:scale-90 transition-transform"
-              onClick={(e) => { e.stopPropagation(); deleteSelected(); }}
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Hidden file input - accepts both images and videos, multiple */}
+      {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"
