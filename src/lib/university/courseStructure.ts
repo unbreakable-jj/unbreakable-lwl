@@ -7,6 +7,7 @@ import { level2Unit1Assessment } from './level2/assessments';
 import { level2Unit2Assessment } from './level2/unit2-assessments';
 import { level2Unit3Assessment } from './level2/unit3-assessments';
 import { level2Unit4Assessment } from './level2/unit4-assessments';
+import { level2FinalAssessment } from './level2/final-assessment';
 
 export const PASS_MARK_PERCENT = 80;
 
@@ -23,12 +24,7 @@ export const courseData: Level[] = [
       level2Unit4,
     ],
     assessments: [level2Unit1Assessment, level2Unit2Assessment, level2Unit3Assessment, level2Unit4Assessment],
-    finalAssessment: {
-      unitNumber: 0,
-      title: 'Level 2 Final Assessment',
-      passMarkPercent: 80,
-      questions: [],
-    },
+    finalAssessment: level2FinalAssessment,
   },
   {
     level: 3,
