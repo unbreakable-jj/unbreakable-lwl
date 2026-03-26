@@ -19,9 +19,6 @@ import {
   Filter,
   X,
   UtensilsCrossed,
-  Beef,
-  Leaf,
-  Zap,
   CalendarPlus
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -251,7 +248,6 @@ export function RecipeLibrary() {
 
   const filteredRecipes = getFilteredRecipes();
   const totalRecipes = recipes?.length || 0;
-  const uniquePacks = new Set(recipes?.map(r => r.pack).filter(Boolean) || []);
 
   return (
     <div className="space-y-6">
