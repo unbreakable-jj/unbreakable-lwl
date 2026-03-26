@@ -34,33 +34,6 @@ export function ProgramDisplay({ program, onReset, savedProgramId, forUserId }: 
     saveProgram.mutate({ program, forUserId });
   };
 
-  const handleStartWorkout = (day: WorkoutDay) => {
-    if (!user) return;
-    
-    const exercises = day.exercises.map((ex) => ({
-      name: ex.name,
-      equipment: ex.equipment,
-      sets: typeof ex.sets === 'number' ? ex.sets : parseInt(String(ex.sets)) || 3,
-      reps: ex.reps,
-    }));
-
-    startSession.mutate(
-      {
-        programId: savedProgramId,
-        weekNumber: selectedWeek,
-        dayName: day.day,
-        sessionType: day.sessionType,
-        exercises,
-      },
-      {
-        onSuccess: () => {
-          setSelectedDay(day);
-          setShowWorkoutModal(true);
-        },
-      }
-    );
-  };
-
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header - Matches Cardio Style */}
@@ -117,9 +90,7 @@ export function ProgramDisplay({ program, onReset, savedProgramId, forUserId }: 
               {phases.map((phase, idx) => (
                 <div
                   key={idx}
-                  className={`bg-muted/30 rounded-lg p-4 border-l-4 ${
-                    phase === currentPhase ? 'border-l-primary' : 'border-l-border'
-                  }`}
+                  className="bg-muted/30 rounded-lg p-4 border-l-4 border-l-border"
                 >
                   <p className="font-display text-primary tracking-wide text-sm">
                     {phase.weeks}
@@ -187,24 +158,3 @@ export function ProgramDisplay({ program, onReset, savedProgramId, forUserId }: 
           </Card>
         )}
       </div>
-
-      {/* Active Workout Modal */}
-      {sessionForModal && (
-        <ActiveWorkoutModal
-          session={sessionForModal}
-          open={showWorkoutModal}
-          onOpenChange={setShowWorkoutModal}
-          onUpdateLog={(logId, data) => updateExerciseLog.mutate({ logId, ...data })}
-          onComplete={(notes, visibility) => {
-            completeSession.mutate({ sessionId: sessionForModal.id, notes, visibility });
-            setShowWorkoutModal(false);
-          }}
-          onCancel={() => {
-            cancelSession.mutate(sessionForModal.id);
-            setShowWorkoutModal(false);
-          }}
-        />
-      )}
-    </div>
-  );
-}
