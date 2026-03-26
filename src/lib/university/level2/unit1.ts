@@ -1,4 +1,8 @@
 import type { Unit } from '../types';
+import ch1AnatomicalPlanes from '@/assets/university/ch1-anatomical-planes.png';
+import ch2JointTypes from '@/assets/university/ch2-joint-types.png';
+import ch3MuscleGroups from '@/assets/university/ch3-muscle-groups.png';
+import ch5EnergySystems from '@/assets/university/ch5-energy-systems.png';
 
 export const level2Unit1: Unit = {
   number: 1,
