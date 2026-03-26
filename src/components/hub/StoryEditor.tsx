@@ -141,7 +141,7 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
     if (undoStack.length === 0) return;
     const last = undoStack[undoStack.length - 1];
     setUndoStack(prev => prev.slice(0, -1));
-    setOverlays(last);
+    setOverlays(() => last);
     setSelectedId(null);
   };
 
