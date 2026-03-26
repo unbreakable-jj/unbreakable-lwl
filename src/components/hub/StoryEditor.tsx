@@ -123,6 +123,14 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [overallProgress, setOverallProgress] = useState(0);
 
+  const setActiveMediaIndex = useCallback((idx: number | ((prev: number) => number)) => {
+    setActiveMediaIndexRaw(idx);
+    setSelectedId(null);
+    setShowTextTools(false);
+    setShowColorPicker(false);
+    setUndoStack([]);
+  }, []);
+
   const selectedOverlay = overlays.find(o => o.id === selectedId);
   const hasMedia = mediaItems.length > 0;
   const currentMedia = mediaItems[activeMediaIndex];
