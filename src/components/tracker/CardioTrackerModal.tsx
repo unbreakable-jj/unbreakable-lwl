@@ -32,6 +32,7 @@ interface CardioTrackerModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialActivity?: 'walk' | 'run' | 'cycle' | 'row' | 'swim';
+  onSessionSaved?: () => void;
 }
 
 type ActivityType = 'walk' | 'run' | 'cycle' | 'row' | 'swim';
@@ -83,7 +84,7 @@ const ACTIVITY_CONFIG = {
   },
 };
 
-export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioTrackerModalProps) {
+export function CardioTrackerModal({ isOpen, onClose, initialActivity, onSessionSaved }: CardioTrackerModalProps) {
   const { createRun } = useRuns();
   const { checkAndUpdatePRs } = usePersonalRecords();
   const { checkAndAwardMedals } = useMedals();
@@ -646,6 +647,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       }
       setLoading(false);
       toast.success('Session saved!');
+      onSessionSaved?.();
       resetAndClose();
     }
   };
@@ -713,6 +715,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioT
       }
       setLoading(false);
       toast.success('Session saved!');
+      onSessionSaved?.();
       resetAndClose();
     }
   };

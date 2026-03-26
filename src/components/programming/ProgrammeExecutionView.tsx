@@ -37,7 +37,43 @@ import {
   SkipForward,
   Edit3,
   AlertTriangle,
+  Footprints,
+  Bike,
+  Waves,
+  Droplets,
 } from 'lucide-react';
+import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
+
+// Helper to detect if a session is cardio-type based on exercises or session name
+const CARDIO_SESSION_KEYWORDS = ['run', 'walk', 'cycle', 'swim', 'row', 'cardio', 'jog', 'sprint', 'interval run', 'tempo run', 'easy run', 'long run', 'recovery run', 'steady state'];
+const CARDIO_EQUIPMENT = ['running', 'cardio'];
+
+function isCardioSession(planner: SessionPlanner): boolean {
+  const sessionTypeLower = planner.session_type.toLowerCase();
+  if (CARDIO_SESSION_KEYWORDS.some(kw => sessionTypeLower.includes(kw))) return true;
+  // If ALL exercises are cardio equipment
+  if (planner.planned_exercises.length > 0 && planner.planned_exercises.every(ex => CARDIO_EQUIPMENT.includes(ex.equipment))) return true;
+  return false;
+}
+
+function getCardioActivity(planner: SessionPlanner): 'walk' | 'run' | 'cycle' | 'row' | 'swim' {
+  const st = planner.session_type.toLowerCase();
+  if (st.includes('walk')) return 'walk';
+  if (st.includes('cycle') || st.includes('bike') || st.includes('cycling')) return 'cycle';
+  if (st.includes('row')) return 'row';
+  if (st.includes('swim')) return 'swim';
+  return 'run'; // default cardio = run
+}
+
+function getCardioIcon(activity: string) {
+  switch (activity) {
+    case 'walk': return <Footprints className="w-7 h-7" />;
+    case 'cycle': return <Bike className="w-7 h-7" />;
+    case 'row': return <Waves className="w-7 h-7" />;
+    case 'swim': return <Droplets className="w-7 h-7" />;
+    default: return <Footprints className="w-7 h-7" />;
+  }
+}
 
 interface ProgrammeExecutionViewProps {
   program: TrainingProgram;
@@ -65,6 +101,9 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
   const [showEditor, setShowEditor] = useState(false);
   const [isSkipping, setIsSkipping] = useState(false);
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
+  const [showCardioTracker, setShowCardioTracker] = useState(false);
+  const [cardioActivity, setCardioActivity] = useState<'walk' | 'run' | 'cycle' | 'row' | 'swim'>('run');
+  const [cardioPlannerId, setCardioPlannerId] = useState<string | null>(null);
 
   // Progression state
   const [progressionSuggestions, setProgressionSuggestions] = useState<PowerProgressionSuggestion[]>([]);
@@ -100,6 +139,15 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
 
   const handleStartSession = async (planner: SessionPlanner) => {
     if (isStartingSession) return;
+    
+    // If it's a cardio session, open the cardio tracker instead
+    if (isCardioSession(planner)) {
+      setCardioActivity(getCardioActivity(planner));
+      setCardioPlannerId(planner.id);
+      setShowCardioTracker(true);
+      return;
+    }
+    
     setIsStartingSession(true);
     
     try {
@@ -120,6 +168,18 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
       console.error('Failed to start session:', error);
     } finally {
       setIsStartingSession(false);
+    }
+  };
+
+  const handleCardioTrackerClose = () => {
+    setShowCardioTracker(false);
+    setCardioPlannerId(null);
+  };
+
+  const handleCardioSessionSaved = () => {
+    // Mark the planner as complete only when the cardio session is actually saved
+    if (cardioPlannerId) {
+      markComplete.mutate(cardioPlannerId);
     }
   };
 
@@ -400,13 +460,19 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
           ((p.week_number === nextSession.week_number && p.day_number === nextSession.day_number - 1) ||
            (p.week_number === nextSession.week_number - 1 && nextSession.day_number === 1))
         );
+        const isCardio = isCardioSession(nextSession);
+        const cardioAct = isCardio ? getCardioActivity(nextSession) : null;
 
         return (
         <Card className={`p-6 border-2 ${prevDayCompleted ? 'border-foreground bg-foreground/5' : 'border-primary bg-card'}`}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className={`w-14 h-14 rounded-full flex items-center justify-center shrink-0 ${prevDayCompleted ? 'bg-foreground/20' : 'bg-primary/20'}`}>
-                <Dumbbell className={`w-7 h-7 ${prevDayCompleted ? 'text-foreground' : 'text-primary'}`} />
+                {isCardio ? (
+                  <span className={prevDayCompleted ? 'text-foreground' : 'text-primary'}>{getCardioIcon(cardioAct!)}</span>
+                ) : (
+                  <Dumbbell className={`w-7 h-7 ${prevDayCompleted ? 'text-foreground' : 'text-primary'}`} />
+                )}
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
@@ -432,7 +498,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
               ) : (
                 <Play className="w-5 h-5" />
               )}
-              {hasActiveSession ? 'CONTINUE' : 'START WORKOUT'}
+              {hasActiveSession ? 'CONTINUE' : isCardio ? 'START CARDIO' : 'START WORKOUT'}
             </Button>
           </div>
 
@@ -591,6 +657,14 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Cardio Tracker Modal for cardio sessions */}
+      <CardioTrackerModal
+        isOpen={showCardioTracker}
+        onClose={handleCardioTrackerClose}
+        initialActivity={cardioActivity}
+        onSessionSaved={handleCardioSessionSaved}
+      />
     </div>
   );
 }
