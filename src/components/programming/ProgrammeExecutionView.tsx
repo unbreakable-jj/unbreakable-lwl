@@ -173,10 +173,13 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
 
   const handleCardioTrackerClose = () => {
     setShowCardioTracker(false);
-    // Mark the planner as complete when cardio tracker closes (session was saved)
+    setCardioPlannerId(null);
+  };
+
+  const handleCardioSessionSaved = () => {
+    // Mark the planner as complete only when the cardio session is actually saved
     if (cardioPlannerId) {
       markComplete.mutate(cardioPlannerId);
-      setCardioPlannerId(null);
     }
   };
 
