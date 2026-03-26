@@ -495,7 +495,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
               ) : (
                 <Play className="w-5 h-5" />
               )}
-              {hasActiveSession ? 'CONTINUE' : 'START WORKOUT'}
+              {hasActiveSession ? 'CONTINUE' : isCardio ? 'START CARDIO' : 'START WORKOUT'}
             </Button>
           </div>
 
