@@ -37,7 +37,12 @@ import {
   SkipForward,
   Edit3,
   AlertTriangle,
+  Footprints,
+  Bike,
+  Waves,
+  Droplets,
 } from 'lucide-react';
+import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
 
 interface ProgrammeExecutionViewProps {
   program: TrainingProgram;
