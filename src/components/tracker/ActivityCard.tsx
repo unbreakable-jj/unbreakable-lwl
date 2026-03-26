@@ -186,14 +186,13 @@ export function ActivityCard({ run, onKudos, onDelete, onToggleComments, onUpdat
           </div>
         </div>
 
-        {/* Map for GPS tracked runs */}
-        {run.is_gps_tracked && run.route_polyline && (
-          <div className="px-4 py-3">
-            <RunMap 
-              positions={geoJSONToPositions(run.route_polyline)}
-              showReplay={true}
-              showExport={true}
-            />
+        {/* GPS tracked indicator */}
+        {run.is_gps_tracked && (
+          <div className="px-4 py-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span>GPS Tracked</span>
+            </div>
           </div>
         )}
 
