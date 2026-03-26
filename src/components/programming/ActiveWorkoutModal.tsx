@@ -498,6 +498,9 @@ export function ActiveWorkoutModal({
         onSwap={(oldName, newEx) => {
           onSwapExercise(oldName, newEx);
           setSwappingExercise(null);
+          // Auto-expand swapped exercise in list
+          setExpandedExercise(newEx.name);
+          setShowExercises(true);
         }}
         isSwapping={isSwapping}
       />

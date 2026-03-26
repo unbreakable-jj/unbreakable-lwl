@@ -426,7 +426,7 @@ export function useWorkoutSessions() {
           .update({
             exercise_name: newExerciseName,
             equipment: newEquipment,
-            ...(newReps !== undefined ? { target_reps: newReps } : {}),
+            target_reps: newReps ?? null,
           })
           .eq('session_id', sessionId)
           .eq('exercise_name', oldExerciseName);
@@ -438,7 +438,7 @@ export function useWorkoutSessions() {
           .update({
             exercise_name: newExerciseName,
             equipment: newEquipment,
-            ...(newReps !== undefined ? { target_reps: newReps } : {}),
+            target_reps: newReps ?? null,
           })
           .eq('session_id', sessionId)
           .eq('exercise_name', oldExerciseName);
@@ -450,7 +450,7 @@ export function useWorkoutSessions() {
           exercise_name: newExerciseName,
           equipment: newEquipment,
           set_number: currentCount + i + 1,
-          target_reps: newReps ?? existingLogs?.[0]?.target_reps ?? null,
+          target_reps: newReps ?? null,
           completed: false,
         }));
         const { error: insertErr } = await supabase.from('exercise_logs').insert(extraLogs);
@@ -466,7 +466,7 @@ export function useWorkoutSessions() {
             .update({
               exercise_name: newExerciseName,
               equipment: newEquipment,
-              ...(newReps !== undefined ? { target_reps: newReps } : {}),
+              target_reps: newReps ?? null,
             })
             .in('id', keepIds);
           if (renameErr) throw renameErr;
