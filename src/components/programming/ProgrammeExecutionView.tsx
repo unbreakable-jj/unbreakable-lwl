@@ -663,6 +663,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
         isOpen={showCardioTracker}
         onClose={handleCardioTrackerClose}
         initialActivity={cardioActivity}
+        onSessionSaved={handleCardioSessionSaved}
       />
     </div>
   );
