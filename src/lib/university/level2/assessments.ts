@@ -44,7 +44,7 @@ export const level2Unit1Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'Which plane of movement is the primary concern for this exercise?',
-      scenario: 'A personal trainer asks a client to perform a standing Russian twist holding a medicine ball. The client rotates their torso left and right while keeping their hips facing forward.',
+      scenario: 'You are performing a standing Russian twist holding a medicine ball. You rotate your torso left and right while keeping your hips facing forward.',
       options: ['Sagittal plane', 'Frontal plane', 'Transverse plane', 'All three planes equally'],
       correctAnswer: 2,
       explanation: 'Rotation of the torso occurs in the transverse plane, which divides the body into upper and lower halves. Twisting and rotational movements are transverse plane movements.',
@@ -89,7 +89,7 @@ export const level2Unit1Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is the most likely explanation for this limitation?',
-      scenario: 'A client cannot fully extend their arm overhead during a shoulder press. An assessment reveals no muscular weakness, but the client reports a history of a dislocated shoulder. The trainer notices limited range of motion in all directions.',
+      scenario: 'You notice you cannot fully extend your arm overhead during a shoulder press. There is no muscular weakness, but you have a history of a dislocated shoulder. You notice limited range of motion in all directions.',
       options: [
         'Weak deltoid muscles',
         'Damage to the ball-and-socket joint capsule or surrounding ligaments',
@@ -137,7 +137,7 @@ export const level2Unit1Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'Which muscle is acting as the agonist during the lowering phase?',
-      scenario: 'A trainee performs a controlled 4-second lowering phase on a Romanian deadlift. They maintain tension in the back of their legs throughout the movement.',
+      scenario: 'You perform a controlled 4-second lowering phase on a Romanian deadlift. You maintain tension in the back of your legs throughout the movement.',
       options: ['Quadriceps', 'Hamstrings', 'Calves', 'Erector spinae'],
       correctAnswer: 1,
       explanation: 'During the lowering (eccentric) phase of a Romanian deadlift, the hamstrings are the primary agonist — they lengthen under tension to control the descent.',
@@ -145,7 +145,7 @@ export const level2Unit1Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is the most likely cause of this issue?',
-      scenario: 'A trainee only performs bench press, bicep curls, and shoulder press in every session. After 6 months, they develop rounded shoulders and upper back pain.',
+      scenario: 'You only perform bench press, bicep curls, and shoulder press in every session. After 6 months, you develop rounded shoulders and upper back pain.',
       options: [
         'They are not training heavy enough',
         'They have a muscular imbalance — too much anterior work, not enough posterior',
@@ -210,7 +210,7 @@ export const level2Unit1Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is the most likely physiological explanation for this change?',
-      scenario: 'A previously sedentary client begins a 12-week cardiovascular training programme. At the start, their resting heart rate was 78 bpm. After 12 weeks, it has dropped to 62 bpm, despite no change in medication or body weight.',
+      scenario: 'You begin a 12-week cardiovascular training programme after being sedentary. At the start, your resting heart rate was 78 bpm. After 12 weeks, it has dropped to 62 bpm, despite no change in medication or body weight.',
       options: [
         'Their heart has become weaker',
         'Their stroke volume has increased, so the heart pumps more blood per beat',
@@ -253,7 +253,7 @@ export const level2Unit1Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'Based on this scenario, which training adjustment would be most appropriate?',
-      scenario: 'A gym user performs 5 sets of 3 reps on bench press with 90 seconds rest between sets. They report that their performance drops significantly after the second set and they cannot complete their target reps.',
+      scenario: 'You perform 5 sets of 3 reps on bench press with 90 seconds rest between sets. Your performance drops significantly after the second set and you cannot complete your target reps.',
       options: [
         'Reduce the weight by 20%',
         'Increase rest periods to 3-5 minutes',

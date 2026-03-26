@@ -44,8 +44,8 @@ export const level2Unit3Assessment: UnitAssessment = {
     },
     {
       type: 'scenario',
-      question: 'Which training approach would you recommend and why?',
-      scenario: 'A new client wants to improve general health, lose body fat, and build some muscle. They have 4 days per week available to train.',
+      question: 'Which training approach would be most appropriate and why?',
+      scenario: 'You want to improve general health, lose body fat, and build some muscle. You have 4 days per week available to train.',
       options: [
         'Four HIIT sessions per week for maximum calorie burn',
         'Four steady-state cardio sessions of 60 minutes each',
@@ -119,8 +119,8 @@ export const level2Unit3Assessment: UnitAssessment = {
     },
     {
       type: 'scenario',
-      question: 'Design the Potentiate phase of their warm-up. Which approach is most appropriate?',
-      scenario: 'A client is preparing for a heavy lower body session starting with barbell back squats at 100kg working weight.',
+      question: 'Design the Potentiate phase of your warm-up. Which approach is most appropriate?',
+      scenario: 'You are preparing for a heavy lower body session starting with barbell back squats at 100kg working weight.',
       options: [
         '10 minutes of static hamstring stretches',
         'Bodyweight squats → goblet squats → empty bar squats → ramping sets (60kg → 80kg → 90kg)',
@@ -195,27 +195,27 @@ export const level2Unit3Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is the most likely issue and solution?',
-      scenario: 'A client is performing bench press with a target of 8-10 reps. They consistently complete 15 reps before feeling fatigued.',
+      scenario: 'You are performing bench press with a target of 8-10 reps. You consistently complete 15 reps before feeling fatigued.',
       options: [
-        'They are overtraining — reduce to 2 sessions per week',
+        'You are overtraining — reduce to 2 sessions per week',
         'The load is too light — increase weight so that 10 reps is genuinely challenging',
-        'They should slow their tempo to 10-0-10-0',
-        'They are naturally suited to endurance training and should switch to cardio',
+        'You should slow your tempo to 10-0-10-0',
+        'You are naturally suited to endurance training and should switch to cardio',
       ],
       correctAnswer: 1,
-      explanation: 'If a trainee can easily complete 15 reps when targeting 8-10, the load is too light. The weight should be increased so that completing 10 reps is difficult but achievable with good form.',
+      explanation: 'If you can easily complete 15 reps when targeting 8-10, the load is too light. The weight should be increased so that completing 10 reps is difficult but achievable with good form.',
     },
     {
       type: 'multiple_choice',
       question: 'What does RIR 2 mean in the context of resistance training?',
       options: [
-        'The client should rest for 2 minutes between sets',
-        'The client should perform 2 repetitions per set',
-        'The client could complete 2 more reps before reaching failure',
-        'The client has completed 2 rounds of the exercise',
+        'You should rest for 2 minutes between sets',
+        'You should perform 2 repetitions per set',
+        'You could complete 2 more reps before reaching failure',
+        'You have completed 2 rounds of the exercise',
       ],
       correctAnswer: 2,
-      explanation: 'RIR (Reps in Reserve) indicates how many additional reps could be performed before failure. RIR 2 means the trainee finishes the set with approximately 2 reps remaining before they would fail.',
+      explanation: 'RIR (Reps in Reserve) indicates how many additional reps could be performed before failure. RIR 2 means you finish the set with approximately 2 reps remaining before you would fail.',
     },
     {
       type: 'multiple_choice',
@@ -257,8 +257,8 @@ export const level2Unit3Assessment: UnitAssessment = {
     },
     {
       type: 'scenario',
-      question: 'How would you estimate their maximum heart rate and calculate their Zone 2 range?',
-      scenario: 'A 40-year-old client wants to train in heart rate Zone 2 for aerobic base building. They do not have a lab-tested MHR.',
+      question: 'How would you estimate your maximum heart rate and calculate your Zone 2 range?',
+      scenario: 'You are 40 years old and want to train in heart rate Zone 2 for aerobic base building. You do not have a lab-tested MHR.',
       options: [
         'MHR = 220 - 40 = 180 bpm; Zone 2 = 108-126 bpm (60-70% of 180)',
         'MHR = 200 - 40 = 160 bpm; Zone 2 = 80-100 bpm (50-60% of 160)',
@@ -294,15 +294,15 @@ export const level2Unit3Assessment: UnitAssessment = {
     },
     {
       type: 'multiple_choice',
-      question: 'Using the Talk Test, which description indicates a client is working at moderate intensity?',
+      question: 'Using the Talk Test, which description indicates you are working at moderate intensity?',
       options: [
-        'They can sing a song without difficulty',
-        'They can speak in short sentences but not hold a full conversation',
-        'They cannot say more than a word or two',
-        'They can hold a comfortable, flowing conversation',
+        'You can sing a song without difficulty',
+        'You can speak in short sentences but not hold a full conversation',
+        'You cannot say more than a word or two',
+        'You can hold a comfortable, flowing conversation',
       ],
       correctAnswer: 1,
-      explanation: 'At moderate intensity, a client can speak in short sentences but would struggle to hold a full, flowing conversation. Comfortable conversation indicates low intensity; inability to speak indicates high/maximal intensity.',
+      explanation: 'At moderate intensity, you can speak in short sentences but would struggle to hold a full, flowing conversation. Comfortable conversation indicates low intensity; inability to speak indicates high/maximal intensity.',
     },
 
     // ─── CHAPTER 5: Flexibility & Mobility (6 questions) ─────────
@@ -345,12 +345,12 @@ export const level2Unit3Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is the most likely limitation and appropriate intervention?',
-      scenario: 'A client cannot achieve a full-depth squat. Their heels rise off the floor and they lean excessively forward. They have adequate hip flexibility when tested passively.',
+      scenario: 'You cannot achieve a full-depth squat. Your heels rise off the floor and you lean excessively forward. You have adequate hip flexibility when tested passively.',
       options: [
-        'Tight hamstrings — prescribe static hamstring stretches before squatting',
-        'Limited ankle dorsiflexion — prescribe ankle mobility drills and consider heel-elevated squats',
-        'Tight chest muscles — prescribe chest stretches',
-        'Weak biceps — prescribe more arm curls',
+        'Tight hamstrings — perform static hamstring stretches before squatting',
+        'Limited ankle dorsiflexion — perform ankle mobility drills and consider heel-elevated squats',
+        'Tight chest muscles — perform chest stretches',
+        'Weak biceps — perform more arm curls',
       ],
       correctAnswer: 1,
       explanation: 'Heels rising and excessive forward lean in a squat commonly indicate limited ankle dorsiflexion. Ankle mobility drills (e.g., knee-to-wall test, banded ankle mobilisations) and heel-elevated squats can address this restriction.',
@@ -361,8 +361,8 @@ export const level2Unit3Assessment: UnitAssessment = {
       options: [
         'Only after training, never before',
         'Pre-exercise or post-exercise — it does not reduce force production like static stretching',
-        'Only when a client is injured',
-        'Only for competitive athletes, not general population clients',
+        'Only when you are injured',
+        'Only for competitive athletes, not general gym users',
       ],
       correctAnswer: 1,
       explanation: 'Foam rolling can be used pre-exercise (to improve ROM without the force-reduction effects of static stretching) or post-exercise (to aid recovery). It is appropriate for all populations.',
@@ -408,7 +408,7 @@ export const level2Unit3Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is the most appropriate exercise selection approach?',
-      scenario: 'A beginner client has never performed any free weight exercises. They want to develop leg strength for everyday activities.',
+      scenario: 'You have never performed any free weight exercises. You want to develop leg strength for everyday activities.',
       options: [
         'Start with heavy barbell back squats at 80% of estimated 1RM',
         'Begin with bodyweight squats, progressing to goblet squats, then barbell squats as competence develops',
@@ -447,12 +447,12 @@ export const level2Unit3Assessment: UnitAssessment = {
       question: 'Why should compound exercises generally be placed before isolation exercises in a session?',
       options: [
         'Isolation exercises are more important and should be saved for last',
-        'Compound exercises require more neuromuscular coordination and energy, so they should be performed when the client is freshest',
+        'Compound exercises require more neuromuscular coordination and energy, so they should be performed when you are freshest',
         'It does not matter — exercise order has no effect on performance',
         'Isolation exercises serve as a warm-up for compound movements',
       ],
       correctAnswer: 1,
-      explanation: 'Compound exercises involve multiple joints and muscle groups, requiring greater neuromuscular coordination, energy, and focus. Performing them first (when the client is freshest) maximises performance and reduces injury risk.',
+      explanation: 'Compound exercises involve multiple joints and muscle groups, requiring greater neuromuscular coordination, energy, and focus. Performing them first (when you are freshest) maximises performance and reduces injury risk.',
     },
 
     // ─── CHAPTER 7: Recovery & Adaptation (6 questions) ──────────
@@ -483,7 +483,7 @@ export const level2Unit3Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is the most appropriate recommendation?',
-      scenario: 'A client reports persistent fatigue, declining performance over 3 weeks, disturbed sleep, and increased irritability despite training consistently 6 days per week.',
+      scenario: 'You are experiencing persistent fatigue, declining performance over 3 weeks, disturbed sleep, and increased irritability despite training consistently 6 days per week.',
       options: [
         'Increase training frequency to 7 days to push through the plateau',
         'Add a pre-workout supplement for more energy',
@@ -558,7 +558,7 @@ export const level2Unit3Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'Which exercise should be avoided and why?',
-      scenario: 'A pregnant client in her second trimester wants to continue her resistance training programme. She currently performs barbell hip thrusts, standing overhead press, and supine (lying on back) bench press.',
+      scenario: 'A pregnant woman in her second trimester wants to continue her resistance training programme. She currently performs barbell hip thrusts, standing overhead press, and supine (lying on back) bench press.',
       options: [
         'All exercises should be stopped — exercise is unsafe during pregnancy',
         'Supine bench press — lying on the back after the first trimester can compress the vena cava, reducing blood flow',
@@ -572,26 +572,26 @@ export const level2Unit3Assessment: UnitAssessment = {
       type: 'multiple_choice',
       question: 'What is the PAR-Q used for?',
       options: [
-        'Measuring a client\'s 1 rep max on all exercises',
+        'Measuring your 1 rep max on all exercises',
         'Screening for health conditions that may require medical clearance before exercise',
-        'Calculating a client\'s macronutrient requirements',
+        'Calculating your macronutrient requirements',
         'Determining which training split is most appropriate',
       ],
       correctAnswer: 1,
-      explanation: 'The Physical Activity Readiness Questionnaire (PAR-Q) is a standardised health screening tool that identifies individuals who may need medical clearance before beginning an exercise programme. It is completed by all new clients.',
+      explanation: 'The Physical Activity Readiness Questionnaire (PAR-Q) is a standardised health screening tool that identifies individuals who may need medical clearance before beginning an exercise programme. It should be completed before starting a new training programme.',
     },
     {
       type: 'scenario',
-      question: 'What is your most important action?',
-      scenario: 'During a training session, a 55-year-old client suddenly reports chest pain and shortness of breath that came on during a set of squats.',
+      question: 'What is the most important action?',
+      scenario: 'During a training session, a 55-year-old gym user suddenly experiences chest pain and shortness of breath during a set of squats.',
       options: [
-        'Tell them to push through — it is probably just muscle soreness',
-        'Stop the exercise immediately and refer the client for medical assessment',
+        'Push through — it is probably just muscle soreness',
+        'Stop the exercise immediately and seek medical assessment',
         'Switch to a lighter exercise and monitor',
-        'Have them lie down and perform static stretches until it passes',
+        'Lie down and perform static stretches until it passes',
       ],
       correctAnswer: 1,
-      explanation: 'Chest pain and sudden shortness of breath during exercise are potential signs of a cardiac event and require immediate cessation of exercise and medical referral. A fitness professional must recognise this is beyond their scope and act accordingly.',
+      explanation: 'Chest pain and sudden shortness of breath during exercise are potential signs of a cardiac event and require immediate cessation of exercise and medical attention. This is beyond anything that can be self-managed.',
     },
     {
       type: 'multiple_choice',

@@ -29,7 +29,7 @@ export const level2Unit3: Unit = {
           heading: 'Why Understanding Training Types Matters',
           paragraphs: [
             'Exercise is not a single activity — it is a broad category encompassing many distinct training methods, each producing specific physiological adaptations. A well-rounded fitness programme draws from multiple training types to develop strength, cardiovascular fitness, flexibility, and body composition simultaneously.',
-            'Understanding what each type of training achieves — and its limitations — is the first step toward designing effective programmes for yourself or others.',
+            'Understanding what each type of training achieves — and its limitations — is the first step toward designing effective programmes for your own goals.',
           ],
         },
         {
@@ -88,14 +88,14 @@ export const level2Unit3: Unit = {
           heading: 'Combining Training Types',
           paragraphs: [
             'No single training type delivers all adaptations. An effective programme typically includes resistance training as a foundation, cardiovascular work for heart health and energy expenditure, flexibility training for movement quality, and potentially HIIT for time-efficient conditioning.',
-            'The proportion of each depends on individual goals: a powerlifter prioritises resistance training, a marathon runner prioritises cardiovascular work, and a general fitness client benefits from a balanced blend of all four.',
+            'The proportion of each depends on individual goals: a powerlifter prioritises resistance training, a marathon runner prioritises cardiovascular work, and someone focused on general fitness benefits from a balanced blend of all four.',
           ],
           imageUrl: u3ch1Img,
           imageAlt: 'Comparison of four main training types: resistance, cardiovascular, flexibility, and HIIT',
         },
       ],
-      unbreakableInsight: 'The best programme is not the one with the most volume — it is the one that strategically balances training types to match the individual\'s goals, recovery capacity, and lifestyle. Variety is not randomness; it is intentional design.',
-      coachNote: 'When clients ask "what\'s the best type of exercise?", redirect the question: "Best for what goal?" This teaches them to think in outcomes rather than trends. Most general population clients benefit from 2–3 resistance sessions, 2 cardio sessions, and daily mobility work per week.',
+      unbreakableInsight: 'The best programme is not the one with the most volume — it is the one that strategically balances training types to match your goals, recovery capacity, and lifestyle. Variety is not randomness; it is intentional design.',
+      coachNote: 'When you ask yourself "what\'s the best type of exercise?", redirect the question: "Best for what goal?" This teaches you to think in outcomes rather than trends. Most people benefit from 2–3 resistance sessions, 2 cardio sessions, and daily mobility work per week.',
       practicalTask: {
         title: 'Training Type Audit',
         instructions: 'Review your current weekly training schedule (or design an ideal one). Categorise each session by training type. Identify any gaps — are you missing flexibility work? Is cardiovascular training absent? Write a revised weekly plan that includes at least three of the four training types.',
@@ -203,12 +203,12 @@ export const level2Unit3: Unit = {
           heading: 'Static vs Dynamic Stretching: Timing Matters',
           paragraphs: [
             'Research consistently shows that static stretching before training can temporarily reduce strength and power output. Dynamic stretching, by contrast, enhances readiness. The general guideline: dynamic stretching in the warm-up, static stretching in the cool-down.',
-            'Exception: if a client has a specific mobility limitation that restricts safe execution of an exercise, a brief static stretch of that area during the warm-up may be appropriate, followed by dynamic movement.',
+            'Exception: if you have a specific mobility limitation that restricts safe execution of an exercise, a brief static stretch of that area during the warm-up may be appropriate, followed by dynamic movement.',
           ],
         },
       ],
       unbreakableInsight: 'The warm-up is not separate from the workout — it IS the first part of the workout. Treat it with the same intention and structure as your main session. The quality of your warm-up directly predicts the quality of your performance.',
-      coachNote: 'Most gym-goers either skip the warm-up entirely or spend 20 minutes on a cross-trainer without any activation or mobilisation. Teach clients the RAMP method as a non-negotiable habit. A good warm-up takes 10–15 minutes and dramatically improves session quality.',
+      coachNote: 'Most gym-goers either skip the warm-up entirely or spend 20 minutes on a cross-trainer without any activation or mobilisation. Use the RAMP method as a non-negotiable habit. A good warm-up takes 10–15 minutes and dramatically improves session quality.',
       practicalTask: {
         title: 'Design a RAMP Warm-Up',
         instructions: 'Choose a training session type (e.g., lower body strength, upper body hypertrophy, full-body circuit). Design a complete RAMP warm-up specific to that session, listing 2–3 exercises for each phase with sets, reps, and duration.',
@@ -313,7 +313,7 @@ export const level2Unit3: Unit = {
         },
       ],
       unbreakableInsight: 'The rep range continuum is a tool, not a law. What matters most is that you train with sufficient intensity (close to failure), appropriate volume (enough sets), and progressive overload (doing more over time). The numbers serve the principle — never the other way around.',
-      coachNote: 'New trainees often pick loads that are far too light because they are unfamiliar with what "hard" should feel like. Teach the concept of RIR early: "You should finish the set thinking you could have done 1–2 more, but it would have been genuinely difficult." This builds the skill of auto-regulation.',
+      coachNote: 'When you\'re new to training, it\'s common to pick loads that are far too light because you\'re unfamiliar with what "hard" should feel like. Learn the concept of RIR early: "You should finish the set thinking you could have done 1–2 more, but it would have been genuinely difficult." This builds the skill of auto-regulation.',
       practicalTask: {
         title: 'Rep Range Application',
         instructions: 'Select three exercises (e.g., squat, bench press, bicep curl). For each exercise, write a prescription for: (a) a strength-focused set, (b) a hypertrophy-focused set, and (c) an endurance-focused set. Include reps, sets, estimated load (% of max or RPE), tempo, and rest periods.',
@@ -353,7 +353,7 @@ export const level2Unit3: Unit = {
             'Relies heavily on fat oxidation as a fuel source at lower intensities',
             'Lower injury risk per session compared to high-intensity methods',
             'Suitable for beginners building a cardiovascular base',
-            'Can be monotonous — adherence may be an issue for some clients',
+            'Can be monotonous — adherence may be an issue for some people',
           ],
         },
         {
@@ -386,7 +386,7 @@ export const level2Unit3: Unit = {
         },
         {
           paragraphs: [
-            'Most general fitness clients should spend the majority of their cardiovascular training in Zones 2–3, with occasional Zone 4–5 work for variety and progression. The 80/20 rule — 80% low intensity, 20% high intensity — is a well-supported framework used by elite endurance athletes and applicable to recreational exercisers.',
+            'Most people should spend the majority of their cardiovascular training in Zones 2–3, with occasional Zone 4–5 work for variety and progression. The 80/20 rule — 80% low intensity, 20% high intensity — is a well-supported framework used by elite endurance athletes and applicable to recreational exercisers.',
           ],
         },
         {
@@ -418,7 +418,7 @@ export const level2Unit3: Unit = {
         },
       ],
       unbreakableInsight: 'More is not always better with cardio. Most people train too hard on easy days and too easy on hard days. Polarised training — genuinely easy aerobic work combined with genuinely hard interval work — produces better results than constantly training in the uncomfortable middle ground.',
-      coachNote: 'Zone 2 training is the most undervalued tool in fitness. It builds the aerobic engine that supports everything else — including recovery between resistance training sets. Encourage clients to embrace "boring" low-intensity work. The Talk Test is your simplest coaching tool: if they can chat comfortably, they are in Zone 2.',
+      coachNote: 'Zone 2 training is the most undervalued tool in fitness. It builds the aerobic engine that supports everything else — including recovery between resistance training sets. Embrace "boring" low-intensity work. The Talk Test is the simplest intensity tool: if you can chat comfortably, you are in Zone 2.',
       practicalTask: {
         title: 'Cardiovascular Session Design',
         instructions: 'Using the FITT principle, design two cardiovascular training sessions: one steady-state session (Zone 2) and one interval session (Zones 4–5). Include modality, duration, work/rest intervals (if applicable), warm-up, and cool-down.',
@@ -525,7 +525,7 @@ export const level2Unit3: Unit = {
         },
       ],
       unbreakableInsight: 'Flexibility without control is instability. Mobility without strength is fragility. The goal is not to become the most flexible person in the gym — it is to own the range of motion you have and gradually expand it with control. If you cannot stabilise a position, you should not be stretching into it.',
-      coachNote: 'Most clients need more hip and thoracic mobility, not more hamstring flexibility. When someone cannot squat to depth, the issue is rarely tight hamstrings — it is usually limited ankle dorsiflexion, hip flexion mobility, or thoracic extension. Assess movement before prescribing stretches.',
+      coachNote: 'Most people need more hip and thoracic mobility, not more hamstring flexibility. When you cannot squat to depth, the issue is rarely tight hamstrings — it is usually limited ankle dorsiflexion, hip flexion mobility, or thoracic extension. Assess your movement before prescribing yourself stretches.',
       practicalTask: {
         title: 'Mobility Assessment & Routine',
         instructions: 'Test your own range of motion at three key joints: ankles (knee-to-wall test), hips (deep squat hold), and thoracic spine (seated rotation). Note any limitations. Design a 10-minute daily mobility routine targeting your identified restrictions using a combination of foam rolling, dynamic stretching, and mobility drills.',
@@ -545,7 +545,7 @@ export const level2Unit3: Unit = {
       assessmentCriteria: [
         'Differentiate between compound and isolation exercises.',
         'Identify the six fundamental human movement patterns.',
-        'Explain the factors influencing exercise selection for a given client.',
+        'Explain the factors influencing exercise selection for a given individual.',
         'Recognise common technique faults and their potential consequences.',
       ],
       content: [
@@ -601,7 +601,7 @@ export const level2Unit3: Unit = {
             'Injury history: avoiding exercises that aggravate existing conditions',
             'Individual anatomy: limb length, joint structure, and mobility affect optimal exercise selection',
             'Equipment availability: a home gym requires different exercise choices than a fully equipped commercial facility',
-            'Client preference: adherence is highest when clients enjoy their training',
+            'Personal preference: adherence is highest when you enjoy your training',
           ],
         },
         {
@@ -624,13 +624,13 @@ export const level2Unit3: Unit = {
         },
       ],
       unbreakableInsight: 'The best exercise is the one you can perform with excellent technique through a full range of motion. A perfectly executed goblet squat will always build more muscle and less injury risk than a poorly performed barbell squat. Master the movement before loading the movement.',
-      coachNote: 'Resist the urge to prescribe advanced exercises to beginners — it is not impressive, it is irresponsible. Build a foundation: bodyweight → dumbbell → barbell. Every client should earn the right to progress to more complex movements by demonstrating competence at simpler ones.',
+      coachNote: 'Resist the urge to jump straight to advanced exercises — it is not impressive, it is a recipe for injury. Build a foundation: bodyweight → dumbbell → barbell. Earn the right to progress to more complex movements by demonstrating competence at simpler ones.',
       practicalTask: {
         title: 'Movement Pattern Programme',
         instructions: 'Design a full-body training session using the six movement patterns. For each pattern, select one compound exercise and one isolation or accessory exercise. Specify sets, reps, and rest periods. Then identify one common technique fault for each compound exercise and explain how you would correct it.',
         reflectionQuestions: [
           'Why should compound exercises generally be placed before isolation exercises in a session?',
-          'How would you modify exercise selection for a client with limited shoulder mobility?',
+          'How would you modify exercise selection if you had limited shoulder mobility?',
           'What is the value of including unilateral exercises alongside bilateral lifts?',
         ],
       },
@@ -741,7 +741,7 @@ export const level2Unit3: Unit = {
         },
       ],
       unbreakableInsight: 'You do not get fitter in the gym — you get fitter recovering from the gym. Training provides the stimulus; sleep, nutrition, and rest provide the adaptation. The hardest-training person with the worst recovery will always lose to the moderately-training person who recovers brilliantly.',
-      coachNote: 'Most clients under-recover rather than overtrain. Before adding more sessions, ask: are they sleeping 7+ hours? Eating enough protein? Managing stress? Often the answer to plateau is not "train harder" but "recover better". Schedule deloads proactively — do not wait until clients are burned out.',
+      coachNote: 'Most people under-recover rather than overtrain. Before adding more sessions, ask: are you sleeping 7+ hours? Eating enough protein? Managing stress? Often the answer to a plateau is not "train harder" but "recover better". Schedule deloads proactively — do not wait until you are burned out.',
       practicalTask: {
         title: 'Recovery Audit',
         instructions: 'Track your sleep, nutrition, and subjective recovery (1–10 scale) for one week alongside your training. At the end of the week, analyse: are your recovery practices supporting your training demands? Identify your weakest recovery factor and create an action plan to improve it.',
@@ -756,20 +756,20 @@ export const level2Unit3: Unit = {
     // ─── CHAPTER 8: Training for Special Populations ────────────────
     {
       number: 8,
-      title: 'Training for Special Populations',
-      learningOutcome: 'Understand the key considerations, modifications, and referral pathways when working with special populations including beginners, older adults, and pre/postnatal clients.',
+      title: 'Understanding Individual Differences',
+      learningOutcome: 'Understand the key considerations and modifications for training across different life stages and circumstances, including beginners, older adults, and pre/postnatal individuals.',
       assessmentCriteria: [
-        'Identify the key principles for training beginners safely and effectively.',
-        'Describe the physiological considerations for training older adults.',
+        'Identify the key principles for beginning a training programme safely and effectively.',
+        'Describe the physiological considerations for training as you age.',
         'Outline the general guidelines for pre- and postnatal exercise.',
-        'Explain when and how to refer a client to a medical professional.',
+        'Explain when to seek medical clearance before starting or modifying an exercise programme.',
       ],
       content: [
         {
-          heading: 'Why Special Populations Require Different Approaches',
+          heading: 'Why Individual Differences Matter',
           paragraphs: [
-            'Not all clients present with the same baseline fitness, health status, or physiological considerations. Special populations — including complete beginners, older adults, pre/postnatal women, and those with medical conditions — require modified programming to ensure safety and effectiveness.',
-            'A Level 2 fitness professional must understand when to modify, when to refer, and the general principles that guide safe practice.',
+            'Not everyone starts from the same baseline. Factors such as age, training experience, medical history, pregnancy, and physical limitations all affect how you should approach exercise. Understanding these differences — whether for yourself or for people you train alongside — ensures safety and effectiveness.',
+            'This chapter covers the key considerations you should be aware of across different circumstances.',
           ],
         },
         {
@@ -818,7 +818,7 @@ export const level2Unit3: Unit = {
             'Avoid exercises with a high risk of falling or abdominal trauma',
             'Relaxin hormone increases joint laxity — avoid overstretching and heavy ballistic movements',
             'Pelvic floor exercises (Kegels) are important throughout pregnancy',
-            'Monitor with the Talk Test — the client should be able to maintain conversation',
+            'Monitor intensity with the Talk Test — you should be able to maintain conversation',
             'RPE should generally stay at 6–7 out of 10',
             'Stay hydrated and avoid overheating',
             'Exercise is beneficial for gestational diabetes prevention, mood, and easier labour',
@@ -836,38 +836,29 @@ export const level2Unit3: Unit = {
           ],
         },
         {
-          heading: 'Medical Referral Awareness',
+          heading: 'When to Seek Medical Clearance',
           paragraphs: [
-            'A Level 2 fitness professional must recognise the boundaries of their competence. Certain situations require medical referral before exercise can safely continue.',
+            'There are situations where medical clearance should be obtained before starting or modifying an exercise programme. Recognising these situations is an important part of training safely.',
           ],
           bullets: [
-            'Chest pain, dizziness, or fainting during exercise — stop immediately and refer',
-            'Uncontrolled hypertension (systolic > 180 or diastolic > 100)',
-            'Known cardiac conditions without medical clearance',
-            'Acute injury with significant swelling, deformity, or loss of function',
-            'Suspected eating disorder or disordered relationship with exercise',
-            'Pregnancy complications (e.g., pre-eclampsia, placenta praevia)',
-            'Mental health crisis — beyond the scope of a fitness professional',
-            'When in doubt: refer. It is always better to be cautious than to put a client at risk.',
-          ],
-        },
-        {
-          heading: 'The PAR-Q and Health Screening',
-          paragraphs: [
-            'The Physical Activity Readiness Questionnaire (PAR-Q) is a standardised health screening tool used before beginning an exercise programme. It identifies individuals who may need medical clearance before training.',
-            'All new clients should complete a PAR-Q or equivalent health screening form. If any questions are answered "yes", the client should seek medical clearance before starting a programme. This protects both the client and the fitness professional.',
+            'Any new, unexplained symptoms during exercise (chest pain, dizziness, fainting) — stop immediately and seek medical advice',
+            'Known cardiovascular conditions, diabetes, or respiratory conditions',
+            'Recent surgery or significant injury',
+            'Pregnancy (especially if not previously active)',
+            'The PAR-Q (Physical Activity Readiness Questionnaire) is a simple screening tool that helps identify whether medical clearance is needed before beginning exercise',
+            'When in doubt, seek clearance — it is always better to be safe',
           ],
         },
       ],
-      unbreakableInsight: 'The best trainers are not the ones who push every client to the limit — they are the ones who know when to push and when to hold back. Training special populations is not about doing less; it is about doing what is appropriate with intelligence and care.',
-      coachNote: 'You will encounter clients who fall outside the general population: beginners who are intimidated, older adults who have been told "just take it easy", and postnatal mothers who want to return to fitness but are unsure what is safe. Your role is to empower them with appropriate, evidence-based exercise — not to scare them away or push them beyond safe limits. Know your scope. Refer when needed. And never underestimate the impact of making someone feel confident in a gym for the first time.',
+      unbreakableInsight: 'Understanding individual differences is not about limiting what you can do — it is about training intelligently within your current circumstances. Whether you are a complete beginner, returning from injury, or navigating a life stage like pregnancy or ageing, the principles of safe, progressive training still apply.',
+      coachNote: 'Wherever you are starting from, the fundamentals remain the same: move well before moving heavy, progress gradually, listen to your body, and seek professional advice when something does not feel right. There is always a way to train — it just needs to be appropriate for your situation.',
       practicalTask: {
-        title: 'Special Population Programme',
-        instructions: 'Choose one special population (beginner, older adult 65+, or postnatal client 8 weeks post-vaginal delivery). Design a 4-week introductory programme including: session frequency, exercise selection, sets, reps, rest periods, and any specific considerations or modifications. Include a note on when you would refer to a medical professional.',
+        title: 'Personal Considerations Audit',
+        instructions: 'Reflect on your own training circumstances. Do any of the considerations covered in this chapter apply to you? If so, identify at least two specific modifications you should make to your current training. If not, consider someone you know (a family member, friend, or gym partner) and think about what modifications might apply to them.',
         reflectionQuestions: [
-          'How does your exercise selection differ from a programme for a healthy, experienced adult?',
-          'What are the three most important safety considerations for your chosen population?',
-          'How would you build confidence and adherence with a client who is nervous about exercise?',
+          'Are there any health conditions or physical limitations that should influence your training approach?',
+          'Have you completed a PAR-Q or sought medical clearance if applicable?',
+          'How would your training change if your circumstances changed (e.g., injury, ageing, pregnancy)?',
         ],
       },
     },

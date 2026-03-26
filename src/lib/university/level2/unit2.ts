@@ -500,7 +500,7 @@ export const level2Unit2: Unit = {
         },
       ],
       unbreakableInsight: 'Stop stressing about the "perfect" meal timing. The person who eats well-balanced meals at irregular times will always outperform the person who obsesses over timing but eats poorly. Get the basics right first — total calories, adequate protein, real food. Timing is the polish, not the foundation.',
-      coachNote: 'At this level, the most important takeaway is: eat a balanced meal 2-3 hours before training, and a protein-rich meal or shake within a few hours after. Everything beyond that is optimisation. Don\'t let clients skip meals before training and then wonder why they feel weak.',
+      coachNote: 'At this level, the most important takeaway is: eat a balanced meal 2-3 hours before training, and a protein-rich meal or shake within a few hours after. Everything beyond that is optimisation. Don\'t skip meals before training and then wonder why you feel weak.',
       practicalTask: {
         title: 'Training Day Meal Planner',
         instructions: 'Design a full day of eating for a training day, including a pre-workout meal, a post-workout meal, and 2-3 additional meals. Ensure each meal contains adequate protein (20-40g) and that carbohydrate intake is placed around your training session.',
@@ -590,7 +590,7 @@ export const level2Unit2: Unit = {
         },
       ],
       unbreakableInsight: 'The fitness industry wants you to believe nutrition is complicated so you keep buying products and programmes. It isn\'t. Eat enough protein. Eat your vegetables. Drink water. Move your body. Be consistent. That\'s 90% of the game. Everything else is optimisation.',
-      coachNote: 'This chapter is the most important one in the unit. If a client walks away understanding energy balance, the importance of protein, the value of whole foods, and the 80/20 principle — they have more knowledge than 90% of gym users. Encourage simplicity and consistency over complexity and perfection.',
+      coachNote: 'This chapter is the most important one in the unit. If you walk away understanding energy balance, the importance of protein, the value of whole foods, and the 80/20 principle — you have more knowledge than 90% of gym users. Focus on simplicity and consistency over complexity and perfection.',
       practicalTask: {
         title: 'Full Day Nutrition Plan',
         instructions: 'Design a complete day of eating that reflects everything you\'ve learned in this unit. Include 3-5 meals, ensure adequate protein distribution, include vegetables, plan hydration, and apply the 80/20 principle by including one food you enjoy that may not be "optimal".',

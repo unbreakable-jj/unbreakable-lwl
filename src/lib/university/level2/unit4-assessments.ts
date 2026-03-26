@@ -28,7 +28,7 @@ export const level2Unit4Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'Is this goal SMART? If not, identify the missing component.',
-      scenario: 'A client says: "I want to get stronger." They have no specific target, no timeline, and no way to measure progress.',
+      scenario: 'You say: "I want to get stronger." You have no specific target, no timeline, and no way to measure progress.',
       options: [
         'It is SMART — it is a valid strength goal',
         'It is missing Specific, Measurable, and Time-bound components',
@@ -47,13 +47,13 @@ export const level2Unit4Assessment: UnitAssessment = {
     },
     {
       type: 'scenario',
-      question: 'What type of goal should the trainer recommend to keep this client engaged day-to-day?',
-      scenario: 'A new client sets a long-term goal to compete in a powerlifting meet in 12 months. They are motivated but worried about losing interest during the long journey.',
+      question: 'What type of goal would help you stay engaged day-to-day?',
+      scenario: 'You set a long-term goal to compete in a powerlifting meet in 12 months. You are motivated but worried about losing interest during the long journey.',
       options: [
         'Only focus on the competition date to maintain urgency',
         'Set weekly process goals such as "attend 4 sessions" and "increase squat by 2.5 kg this week"',
         'Remove the long-term goal and focus only on short-term targets',
-        'Tell them motivation will naturally sustain them for 12 months',
+        'Trust that motivation will naturally sustain you for 12 months',
       ],
       correctAnswer: 1,
       explanation: 'Short-term process goals provide daily and weekly targets that maintain engagement and create a sense of achievement while working towards the long-term outcome.',
@@ -88,8 +88,8 @@ export const level2Unit4Assessment: UnitAssessment = {
     },
     {
       type: 'scenario',
-      question: 'What training split would you recommend?',
-      scenario: 'An intermediate trainee can commit to exactly 4 training days per week. They want to train each muscle group at least twice per week with moderate volume.',
+      question: 'What training split would be most appropriate?',
+      scenario: 'You are an intermediate trainee who can commit to exactly 4 training days per week. You want to train each muscle group at least twice per week with moderate volume.',
       options: [
         'Push/Pull/Legs (3-day rotation)',
         'Full-body 4 days per week',
@@ -121,7 +121,7 @@ export const level2Unit4Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What adjustment should be considered?',
-      scenario: 'A trainee is following a Push/Pull/Legs split 6 days per week but reports constant fatigue, declining performance, and frequent illness.',
+      scenario: 'You are following a Push/Pull/Legs split 6 days per week but notice constant fatigue, declining performance, and frequent illness.',
       options: [
         'Increase training volume to push through the plateau',
         'Add a seventh training day for active recovery',
@@ -172,7 +172,7 @@ export const level2Unit4Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'Which periodisation model best suits this approach?',
-      scenario: 'A trainee wants to develop strength and hypertrophy simultaneously. They prefer varying rep ranges within each training week rather than dedicating entire blocks to one quality.',
+      scenario: 'You want to develop strength and hypertrophy simultaneously. You prefer varying rep ranges within each training week rather than dedicating entire blocks to one quality.',
       options: [
         'Linear periodisation',
         'Undulating periodisation',
@@ -192,12 +192,12 @@ export const level2Unit4Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is the most likely cause and the best solution?',
-      scenario: 'A client has been following the same programme for 16 weeks without any planned variation. Their progress stalled at week 10 and they feel demotivated.',
+      scenario: 'You have been following the same programme for 16 weeks without any planned variation. Your progress stalled at week 10 and you feel demotivated.',
       options: [
-        'They need to train harder within the same programme',
-        'They have hit a training plateau due to lack of periodisation — introduce mesocycles and planned variation',
-        'They should take a month off training completely',
-        'They should switch to a completely different sport',
+        'You need to train harder within the same programme',
+        'You have hit a training plateau due to lack of periodisation — introduce mesocycles and planned variation',
+        'You should take a month off training completely',
+        'You should switch to a completely different sport',
       ],
       correctAnswer: 1,
       explanation: 'Without periodisation, the body adapts to a fixed stimulus and progress stalls. Introducing structured mesocycles with planned variation in volume and intensity would restart progress.',
@@ -226,7 +226,7 @@ export const level2Unit4Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is wrong with this exercise order?',
-      scenario: 'A trainee performs their lower-body session in this order: leg extensions, leg curls, back squats, lunges, calf raises.',
+      scenario: 'You perform your lower-body session in this order: leg extensions, leg curls, back squats, lunges, calf raises.',
       options: [
         'Nothing — the order is fine',
         'Calf raises should be performed first',
@@ -234,7 +234,7 @@ export const level2Unit4Assessment: UnitAssessment = {
         'Lunges should be removed from the session',
       ],
       correctAnswer: 2,
-      explanation: 'Back squats are the heaviest compound movement and should be performed first when the trainee is freshest. Pre-fatiguing with isolation exercises reduces squat performance and increases injury risk.',
+      explanation: 'Back squats are the heaviest compound movement and should be performed first when you are freshest. Pre-fatiguing with isolation exercises reduces squat performance and increases injury risk.',
     },
     {
       type: 'multiple_choice',
@@ -258,7 +258,7 @@ export const level2Unit4Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is the most appropriate warm-up set protocol?',
-      scenario: 'A trainee\'s working sets for bench press are at 80 kg. They need to perform warm-up sets before their working weight.',
+      scenario: 'Your working sets for bench press are at 80 kg. You need to perform warm-up sets before your working weight.',
       options: [
         'Jump straight to 80 kg — warm-up sets waste time',
         'Bar × 10, 40 kg × 8, 60 kg × 5, 70 kg × 3, then working sets at 80 kg',
@@ -291,8 +291,8 @@ export const level2Unit4Assessment: UnitAssessment = {
     },
     {
       type: 'scenario',
-      question: 'What should this client do?',
-      scenario: 'A client has been following a programme for 6 weeks. Their training log shows consistent weight increases for the first 4 weeks, but the last 2 weeks show no improvement across any exercises.',
+      question: 'What should you do?',
+      scenario: 'You have been following a programme for 6 weeks. Your training log shows consistent weight increases for the first 4 weeks, but the last 2 weeks show no improvement across any exercises.',
       options: [
         'Immediately switch to a completely different programme',
         'Continue for another 1–2 weeks to confirm a genuine plateau, then review nutrition, sleep, and recovery before making programme changes',
@@ -309,7 +309,7 @@ export const level2Unit4Assessment: UnitAssessment = {
         'At random times throughout the day',
         'Only after training sessions',
         'Under consistent conditions — same time of day, same hydration state',
-        'Only when the client feels they have made progress',
+        'Only when you feel you have made progress',
       ],
       correctAnswer: 2,
       explanation: 'Consistency of measurement conditions ensures reliability. Taking measurements at the same time, under the same conditions, minimises the impact of daily fluctuations.',
@@ -324,12 +324,12 @@ export const level2Unit4Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is the most appropriate response?',
-      scenario: 'A client has been training for 4 weeks and is frustrated because the scale weight has not changed, despite their training log showing consistent strength improvements and their clothes fitting better.',
+      scenario: 'You have been training for 4 weeks and are frustrated because the scale weight has not changed, despite your training log showing consistent strength improvements and your clothes fitting better.',
       options: [
-        'The client is not making progress and needs a new programme',
-        'Scale weight is the only reliable measure — they should eat less',
-        'They are likely gaining muscle and losing fat simultaneously (body recomposition). The strength improvements and clothing fit are positive indicators.',
-        'They should stop tracking body weight entirely and only use the mirror',
+        'You are not making progress and need a new programme',
+        'Scale weight is the only reliable measure — you should eat less',
+        'You are likely gaining muscle and losing fat simultaneously (body recomposition). The strength improvements and clothing fit are positive indicators.',
+        'You should stop tracking body weight entirely and only use the mirror',
       ],
       correctAnswer: 2,
       explanation: 'Body recomposition (simultaneous muscle gain and fat loss) is common in beginners. Multiple tracking methods reveal that progress is occurring even when scale weight is unchanged.',
@@ -365,11 +365,11 @@ export const level2Unit4Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is the most likely underlying issue?',
-      scenario: 'A trainee reports feeling constantly fatigued, is experiencing declining strength despite a good programme, has increased body fat around the abdomen, and is frequently ill. Their training volume has not changed.',
+      scenario: 'You feel constantly fatigued, are experiencing declining strength despite a good programme, have increased body fat around the abdomen, and are frequently ill. Your training volume has not changed.',
       options: [
-        'They are not training hard enough',
+        'You are not training hard enough',
         'Chronically elevated cortisol from poor sleep and/or excessive stress is impairing recovery and promoting fat storage',
-        'They need to add more training volume',
+        'You need to add more training volume',
         'This is normal and expected after several months of training',
       ],
       correctAnswer: 1,
@@ -385,7 +385,7 @@ export const level2Unit4Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What should be addressed first?',
-      scenario: 'A client asks you to redesign their training programme because their progress has stalled. During your consultation, they reveal they are sleeping 5 hours per night, working 60-hour weeks, and consuming 4+ coffees after midday.',
+      scenario: 'You want to redesign your training programme because progress has stalled. You are sleeping 5 hours per night, working 60-hour weeks, and consuming 4+ coffees after midday.',
       options: [
         'Redesign the programme with more volume and intensity',
         'Address sleep and stress first — no programme change will overcome chronic sleep deprivation and excessive caffeine',
@@ -424,15 +424,15 @@ export const level2Unit4Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is the most effective response?',
-      scenario: 'A client says: "I know I should go to the gym, but I just can\'t find the motivation. I\'ll start again when I feel ready."',
+      scenario: 'You think: "I know I should go to the gym, but I just can\'t find the motivation. I\'ll start again when I feel ready."',
       options: [
-        'Wait until they feel motivated — forcing it will create negative associations',
-        'Explain that motivation is unreliable and help them build systems (habit stacking, reducing barriers, scheduling sessions) that make training the default behaviour',
-        'Tell them they are being lazy',
-        'Suggest they try a different sport instead',
+        'Wait until you feel motivated — forcing it will create negative associations',
+        'Recognise that motivation is unreliable and build systems (habit stacking, reducing barriers, scheduling sessions) that make training the default behaviour',
+        'Accept that you are being lazy',
+        'Try a different sport instead',
       ],
       correctAnswer: 1,
-      explanation: 'Motivation fluctuates and cannot be relied upon for consistency. Building systems — reducing barriers, habit stacking, scheduling — creates consistency regardless of how the client feels on any given day.',
+      explanation: 'Motivation fluctuates and cannot be relied upon for consistency. Building systems — reducing barriers, habit stacking, scheduling — creates consistency regardless of how you feel on any given day.',
     },
     {
       type: 'multiple_choice',
@@ -448,13 +448,13 @@ export const level2Unit4Assessment: UnitAssessment = {
     },
     {
       type: 'scenario',
-      question: 'What pre-planned strategy would best help this client?',
-      scenario: 'A client identifies that their biggest barrier to training is arriving home from work tired and then not wanting to leave the house again to go to the gym.',
+      question: 'What pre-planned strategy would best help you?',
+      scenario: 'Your biggest barrier to training is arriving home from work tired and then not wanting to leave the house again to go to the gym.',
       options: [
-        'Tell them to try harder and push through the tiredness',
-        'Suggest they go directly to the gym from work, keeping a gym bag in the car, so they never go home first',
-        'Suggest training only on weekends when they are less tired',
-        'Reduce their programme to once per week',
+        'Try harder and push through the tiredness',
+        'Go directly to the gym from work, keeping a gym bag in the car, so you never go home first',
+        'Only train on weekends when you are less tired',
+        'Reduce your programme to once per week',
       ],
       correctAnswer: 1,
       explanation: 'Removing the barrier (going home first) eliminates the cue that triggers inactivity. Going directly to the gym from work, with a pre-packed bag, makes training the path of least resistance.',
@@ -515,12 +515,12 @@ export const level2Unit4Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is the best advice?',
-      scenario: 'A new client has designed their first 4-week programme. It contains 10 exercises per session, with 5 sets of each, training 6 days per week. They have never trained before.',
+      scenario: 'You have designed your first 4-week programme. It contains 10 exercises per session, with 5 sets of each, training 6 days per week. You have never trained before.',
       options: [
-        'The programme looks thorough — approve it',
+        'The programme looks thorough — follow it',
         'It is far too much volume and frequency for a beginner. Reduce to 4–6 exercises, 3 sets each, 3–4 days per week, and prioritise movement quality over volume.',
         'Add more exercises to ensure complete coverage',
-        'The volume is fine but they should train 7 days per week',
+        'The volume is fine but you should train 7 days per week',
       ],
       correctAnswer: 1,
       explanation: 'A beginner doing 50 working sets per session, 6 days per week, will quickly experience excessive fatigue, soreness, and injury risk. A simpler programme (4–6 exercises, 3 sets, 3–4 days) is more effective and sustainable.',
@@ -528,7 +528,7 @@ export const level2Unit4Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What should be included in the programme that is currently missing?',
-      scenario: 'A trainee\'s 4-week programme includes exercises, sets, reps, and rest periods. However, they have not included any warm-up protocol, cool-down, or progression strategy.',
+      scenario: 'Your 4-week programme includes exercises, sets, reps, and rest periods. However, you have not included any warm-up protocol, cool-down, or progression strategy.',
       options: [
         'Nothing is missing — exercises and sets are all that matter',
         'Only a cool-down is needed',

@@ -44,7 +44,7 @@ export const level2Unit2Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is the most likely cause of their symptoms?',
-      scenario: 'A client following a very low-carbohydrate diet reports feeling lethargic during training sessions, experiencing brain fog during the day, and having poor recovery between sessions. Their protein and fat intake are adequate.',
+      scenario: 'You have been following a very low-carbohydrate diet and notice you feel lethargic during training sessions, experience brain fog during the day, and have poor recovery between sessions. Your protein and fat intake are adequate.',
       options: [
         'They are consuming too much protein',
         'They are not consuming enough dietary fat',
@@ -104,7 +104,7 @@ export const level2Unit2Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'Which micronutrient deficiency is most likely contributing to these symptoms?',
-      scenario: 'A female endurance runner has been experiencing increasing fatigue, breathlessness during runs she previously handled easily, and pale skin. Her training load has not changed, and she reports eating mostly chicken, pasta, and salads with little red meat or leafy greens.',
+      scenario: 'You are a female endurance runner experiencing increasing fatigue, breathlessness during runs you previously handled easily, and pale skin. Your training load has not changed, and you eat mostly chicken, pasta, and salads with little red meat or leafy greens.',
       options: [
         'Vitamin C deficiency',
         'Calcium deficiency',
@@ -159,7 +159,7 @@ export const level2Unit2Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is the most likely cause of these symptoms?',
-      scenario: 'An athlete completes a 90-minute training session on a hot day, drinking only 200ml of water throughout. Afterwards, they experience dizziness, a headache, muscle cramps, and dark yellow urine.',
+      scenario: 'You complete a 90-minute training session on a hot day, drinking only 200ml of water throughout. Afterwards, you experience dizziness, a headache, muscle cramps, and dark yellow urine.',
       options: [
         'They consumed too much water',
         'They are experiencing symptoms of moderate dehydration and electrolyte loss',
@@ -219,8 +219,8 @@ export const level2Unit2Assessment: UnitAssessment = {
     },
     {
       type: 'scenario',
-      question: 'What is the most appropriate advice?',
-      scenario: 'A client has been in a caloric deficit of 800 calories per day for 8 weeks. They initially lost weight rapidly but have now plateaued. They report feeling constantly tired, irritable, and are losing motivation to train.',
+      question: 'What is the most appropriate action?',
+      scenario: 'You have been in a caloric deficit of 800 calories per day for 8 weeks. You initially lost weight rapidly but have now plateaued. You feel constantly tired, irritable, and are losing motivation to train.',
       options: [
         'Reduce calories further to restart weight loss',
         'Add an extra gym session per day to burn more calories',
@@ -279,8 +279,8 @@ export const level2Unit2Assessment: UnitAssessment = {
     },
     {
       type: 'scenario',
-      question: 'What should the client be aware of?',
-      scenario: 'A client is trying to lose weight and switches to a "low fat" yoghurt because it claims to be healthy. The original yoghurt has 5g fat and 8g sugar per 100g. The "low fat" version has 1.5g fat and 18g sugar per 100g.',
+      question: 'What should you be aware of?',
+      scenario: 'You are trying to lose weight and switch to a "low fat" yoghurt because it claims to be healthy. The original yoghurt has 5g fat and 8g sugar per 100g. The "low fat" version has 1.5g fat and 18g sugar per 100g.',
       options: [
         'The low-fat version is clearly healthier because it has less fat',
         'The low-fat version has significantly more sugar, likely added to compensate for reduced fat and flavour',
@@ -288,7 +288,7 @@ export const level2Unit2Assessment: UnitAssessment = {
         'Both yoghurts are equally unhealthy',
       ],
       correctAnswer: 1,
-      explanation: 'This is a classic example of how "low fat" marketing can be misleading. The reduced fat has been compensated with more than double the sugar. The additional sugar contributes to calorie intake without improving satiety, potentially making the "healthier" option worse for the client\'s fat loss goal.',
+      explanation: 'This is a classic example of how "low fat" marketing can be misleading. The reduced fat has been compensated with more than double the sugar. The additional sugar contributes to calorie intake without improving satiety, potentially making the "healthier" option worse for your fat loss goal.',
     },
 
     // ─── CHAPTER 6: Nutrient Timing & Meal Structure (6 questions) ───
@@ -332,29 +332,29 @@ export const level2Unit2Assessment: UnitAssessment = {
     },
     {
       type: 'scenario',
-      question: 'What is the most appropriate advice?',
-      scenario: 'A client trains at 6am before work. They say they cannot eat a full meal before training because it makes them feel nauseous. They currently train on an empty stomach and report feeling weak during sessions.',
+      question: 'What is the most appropriate solution?',
+      scenario: 'You train at 6am before work. You cannot eat a full meal before training because it makes you feel nauseous. You currently train on an empty stomach and feel weak during sessions.',
       options: [
-        'Force them to eat a full meal 30 minutes before training',
-        'Suggest a small, easily digestible snack (e.g., banana or rice cakes) 30 minutes before, and ensure a balanced meal the evening before',
-        'Tell them to stop training in the morning',
-        'Recommend a pre-workout supplement to replace food',
+        'Force yourself to eat a full meal 30 minutes before training',
+        'Try a small, easily digestible snack (e.g., banana or rice cakes) 30 minutes before, and ensure a balanced meal the evening before',
+        'Stop training in the morning',
+        'Use a pre-workout supplement to replace food',
       ],
       correctAnswer: 1,
       explanation: 'Not everyone can tolerate a full meal before early morning training. A small, easily digestible snack 30 minutes before provides some fuel without causing nausea. Additionally, ensuring a good evening meal the night before helps top up glycogen stores.',
     },
     {
       type: 'scenario',
-      question: 'Which aspect of their nutrition would have the biggest impact on their results?',
-      scenario: 'A client is obsessed with nutrient timing. They eat within exactly 30 minutes of training, time their carbohydrates precisely, and set alarms for meal times. However, their total daily protein intake is only 60g (they weigh 80kg), and they rarely eat vegetables.',
+      question: 'Which aspect of nutrition would have the biggest impact on results?',
+      scenario: 'You are obsessed with nutrient timing. You eat within exactly 30 minutes of training, time your carbohydrates precisely, and set alarms for meal times. However, your total daily protein intake is only 60g (you weigh 80kg), and you rarely eat vegetables.',
       options: [
-        'Their meal timing is already optimal — they just need to train harder',
-        'They should focus on increasing total protein intake and food quality before worrying about timing',
-        'They need to time their carbohydrates even more precisely',
-        'Their vegetable intake does not matter at Level 2',
+        'Your meal timing is already optimal — you just need to train harder',
+        'You should focus on increasing total protein intake and food quality before worrying about timing',
+        'You need to time your carbohydrates even more precisely',
+        'Your vegetable intake does not matter at Level 2',
       ],
       correctAnswer: 1,
-      explanation: 'This client has prioritised timing (an advanced optimisation) while neglecting the fundamentals — inadequate protein (should be 128-176g at 80kg) and poor food quality. Fixing total protein intake and adding vegetables would have a far greater impact than perfecting meal timing.',
+      explanation: 'You have prioritised timing (an advanced optimisation) while neglecting the fundamentals — inadequate protein (should be 128-176g at 80kg) and poor food quality. Fixing total protein intake and adding vegetables would have a far greater impact than perfecting meal timing.',
     },
 
     // ─── CHAPTER 7: Putting It All Together (6 questions) ───
@@ -404,12 +404,12 @@ export const level2Unit2Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'What is the most appropriate response?',
-      scenario: 'A new client says they want to "eat clean" and has eliminated all carbohydrates, dairy, sugar, and processed food from their diet. They follow this strictly for 3 weeks, then binge on junk food for an entire weekend, feel guilty, and restart the cycle on Monday.',
+      scenario: 'You decide to "eat clean" and eliminate all carbohydrates, dairy, sugar, and processed food from your diet. You follow this strictly for 3 weeks, then binge on junk food for an entire weekend, feel guilty, and restart the cycle on Monday.',
       options: [
-        'Encourage them to try harder and be more disciplined',
-        'Suggest a less restrictive approach following the 80/20 principle to support long-term consistency',
-        'Recommend they eliminate even more food groups to avoid temptation',
-        'Tell them their willpower will improve over time',
+        'Try harder and be more disciplined next time',
+        'Adopt a less restrictive approach following the 80/20 principle to support long-term consistency',
+        'Eliminate even more food groups to avoid temptation',
+        'Accept that willpower will improve over time',
       ],
       correctAnswer: 1,
       explanation: 'This is a classic restrict-binge cycle caused by overly rigid dieting. The 80/20 approach — eating well 80% of the time while allowing flexibility — reduces psychological deprivation, prevents binge episodes, and supports sustainable long-term nutrition. The best diet is the one you can maintain.',
@@ -417,7 +417,7 @@ export const level2Unit2Assessment: UnitAssessment = {
     {
       type: 'scenario',
       question: 'Based on everything covered in this unit, what single change would have the greatest impact on this person\'s health and performance?',
-      scenario: 'A 30-year-old gym user eats mostly takeaway food, drinks 2-3 energy drinks per day, consumes very little protein (about 40g daily despite weighing 85kg), rarely eats vegetables, and drinks less than 1 litre of water per day. They want to build muscle and improve their energy levels.',
+      scenario: 'You eat mostly takeaway food, drink 2-3 energy drinks per day, consume very little protein (about 40g daily despite weighing 85kg), rarely eat vegetables, and drink less than 1 litre of water per day. You want to build muscle and improve your energy levels.',
       options: [
         'Buy a pre-workout supplement for more energy',
         'Start tracking calories immediately with a detailed food diary',
@@ -425,7 +425,7 @@ export const level2Unit2Assessment: UnitAssessment = {
         'Switch to a ketogenic diet to burn fat',
       ],
       correctAnswer: 2,
-      explanation: 'This person has several fundamental gaps. The highest-impact changes are: increasing protein (from 40g to 136-187g) to support muscle growth, replacing energy drinks with water to improve hydration and reduce sugar intake, and adding vegetables for micronutrient density and fibre. These basic changes would transform their nutrition before any advanced strategies are needed.',
+      explanation: 'You have several fundamental gaps. The highest-impact changes are: increasing protein (from 40g to 136-187g) to support muscle growth, replacing energy drinks with water to improve hydration and reduce sugar intake, and adding vegetables for micronutrient density and fibre. These basic changes would transform your nutrition before any advanced strategies are needed.',
     },
   ],
 };
