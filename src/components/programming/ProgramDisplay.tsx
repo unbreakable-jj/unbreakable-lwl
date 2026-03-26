@@ -158,3 +158,6 @@ export function ProgramDisplay({ program, onReset, savedProgramId, forUserId }: 
           </Card>
         )}
       </div>
+    </div>
+  );
+}
