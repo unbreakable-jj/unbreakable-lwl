@@ -299,18 +299,8 @@ export function RecipeLibrary() {
         </div>
         
         <div className="flex gap-2 items-center w-full sm:w-auto">
-          <Select value={activePack} onValueChange={setActivePack}>
-            <SelectTrigger className="w-full sm:w-[200px] border-primary/20 bg-card/80">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {PACK_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+
+
 
           <Button
             variant="outline"
@@ -481,27 +471,8 @@ export function RecipeLibrary() {
         </Card>
       )}
 
-      {/* Pack header when filtering */}
-      {activePack !== 'all' && activePack !== 'mine' && activePack !== 'favourites' && (
-        <div className="text-center py-5 border border-primary/30 rounded-lg bg-card/50 shadow-[0_0_20px_hsl(var(--primary)/0.15)]">
-          <div className="flex items-center justify-center gap-2 mb-1">
-            {activePack === 'low-carb' ? (
-              <Leaf className="w-5 h-5 text-primary" />
-            ) : activePack === '5-ingredient' ? (
-              <Zap className="w-5 h-5 text-primary" />
-            ) : (
-              <Beef className="w-5 h-5 text-primary" />
-            )}
-            <h2 className="font-display text-xl tracking-wider">
-              <span className="text-primary neon-glow-subtle">UNBREAKABLE </span>
-              {activePack === 'low-carb' ? 'LOW-CARB PACK' : activePack === '5-ingredient' ? '5-INGREDIENT PACK' : 'HIGH PROTEIN PACK'}
-            </h2>
-          </div>
-          <p className="text-[10px] text-muted-foreground font-display tracking-[0.2em]">
-            FUEL WITH REAL INTENT • KEEP SHOWING UP
-          </p>
-        </div>
-      )}
+
+
 
       {/* Results count */}
       <div className="flex items-center justify-between">
@@ -652,15 +623,13 @@ export function RecipeLibrary() {
           <ChefHat className="w-12 h-12 text-primary/30 mx-auto mb-4" />
           <p className="text-muted-foreground font-display tracking-wider">NO RECIPES FOUND</p>
           <p className="text-xs text-muted-foreground mt-1">Try adjusting your filters</p>
-          {activePack === 'mine' && (
-            <Button 
+          <Button 
               variant="outline" 
               className="mt-4 font-display tracking-wide border-primary/40 text-primary"
               onClick={() => setShowCreateModal(true)}
             >
               CREATE YOUR FIRST RECIPE
             </Button>
-          )}
         </div>
       )}
 
