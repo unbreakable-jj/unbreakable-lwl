@@ -647,6 +647,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity, onSession
       }
       setLoading(false);
       toast.success('Session saved!');
+      onSessionSaved?.();
       resetAndClose();
     }
   };
