@@ -80,18 +80,28 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
     }
     return items;
   });
-  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+  const [activeMediaIndex, setActiveMediaIndexRaw] = useState(0);
 
   const [bgColor, setBgColor] = useState(preFill?.background_color || '#1C1C1E');
 
-  const [overlays, setOverlays] = useState<TextOverlayData[]>(() => {
+  // Per-slide overlays: key = media index (0 = background-only / first slide)
+  const [overlaysBySlide, setOverlaysBySlide] = useState<Record<number, TextOverlayData[]>>(() => {
     if (preFill?.content) {
       const id = crypto.randomUUID();
-      return [{ ...DEFAULT_OVERLAY, id, text: preFill.content, x: 50, y: 50, fontSize: 24 }];
+      return { 0: [{ ...DEFAULT_OVERLAY, id, text: preFill.content, x: 50, y: 50, fontSize: 24 }] };
     }
-    return [];
+    return {};
   });
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Derived: current slide's overlays
+  const overlays = overlaysBySlide[activeMediaIndex] || [];
+  const setOverlays = useCallback((updater: (prev: TextOverlayData[]) => TextOverlayData[]) => {
+    setOverlaysBySlide(prev => ({
+      ...prev,
+      [activeMediaIndex]: updater(prev[activeMediaIndex] || []),
+    }));
+  }, [activeMediaIndex]);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -113,6 +123,14 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [overallProgress, setOverallProgress] = useState(0);
 
+  const setActiveMediaIndex = useCallback((idx: number | ((prev: number) => number)) => {
+    setActiveMediaIndexRaw(idx);
+    setSelectedId(null);
+    setShowTextTools(false);
+    setShowColorPicker(false);
+    setUndoStack([]);
+  }, []);
+
   const selectedOverlay = overlays.find(o => o.id === selectedId);
   const hasMedia = mediaItems.length > 0;
   const currentMedia = mediaItems[activeMediaIndex];
@@ -131,7 +149,7 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
     if (undoStack.length === 0) return;
     const last = undoStack[undoStack.length - 1];
     setUndoStack(prev => prev.slice(0, -1));
-    setOverlays(last);
+    setOverlays(() => last);
     setSelectedId(null);
   };
 
@@ -149,7 +167,7 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
 
   const updateOverlay = useCallback((id: string, updates: Partial<TextOverlayData>) => {
     setOverlays(prev => prev.map(o => o.id === id ? { ...o, ...updates } : o));
-  }, []);
+  }, [setOverlays]);
 
   const deleteSelected = () => {
     if (!selectedId) return;
@@ -327,12 +345,23 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
       if (item && !item.uploadedUrl) URL.revokeObjectURL(item.previewUrl);
       return prev.filter((_, i) => i !== index);
     });
-    setActiveMediaIndex(prev => Math.max(0, Math.min(prev, mediaItems.length - 2)));
+    // Re-index overlays: remove this slide's overlays and shift higher indices down
+    setOverlaysBySlide(prev => {
+      const next: Record<number, TextOverlayData[]> = {};
+      for (const [key, val] of Object.entries(prev)) {
+        const k = Number(key);
+        if (k < index) next[k] = val;
+        else if (k > index) next[k - 1] = val;
+        // k === index is dropped
+      }
+      return next;
+    });
+    setActiveMediaIndexRaw(prev => Math.max(0, Math.min(prev, mediaItems.length - 2)));
   };
 
   // Publish
   const handlePublish = async () => {
-    if (overlays.length === 0 && mediaItems.length === 0 && !bgColor) {
+    if (Object.values(overlaysBySlide).flat().length === 0 && mediaItems.length === 0 && !bgColor) {
       toast.error('Add some content to your story');
       return;
     }
@@ -408,12 +437,15 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
       const firstImage = uploadedMedia.find(m => m.type === 'image');
       const firstVideo = uploadedMedia.find(m => m.type === 'video');
 
+      // Flatten all slides' overlays for storage
+      const allOverlays = Object.values(overlaysBySlide).flat();
+
       await onPublish({
         content: null,
         image_url: firstImage?.url || null,
         video_url: firstVideo?.url || null,
         visibility,
-        text_overlays: overlays,
+        text_overlays: allOverlays,
         background_color: mediaItems.length === 0 ? bgColor : null,
         media_items: uploadedMedia,
       });
