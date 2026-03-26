@@ -159,7 +159,7 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
 
   const updateOverlay = useCallback((id: string, updates: Partial<TextOverlayData>) => {
     setOverlays(prev => prev.map(o => o.id === id ? { ...o, ...updates } : o));
-  }, []);
+  }, [setOverlays]);
 
   const deleteSelected = () => {
     if (!selectedId) return;
