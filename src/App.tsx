@@ -149,6 +149,15 @@ const App = () => (
               <Route path="/university" element={
                 <SubscribedRoute><University /></SubscribedRoute>
               } />
+              <Route path="/university/:level" element={
+                <SubscribedRoute><UniversityLevel /></SubscribedRoute>
+              } />
+              <Route path="/university/:level/:unit/:chapter" element={
+                <SubscribedRoute><UniversityChapter /></SubscribedRoute>
+              } />
+              <Route path="/university/:level/:unit/assessment" element={
+                <SubscribedRoute><UniversityAssessment /></SubscribedRoute>
+              } />
               
               {/* Habits */}
               <Route path="/habits" element={
