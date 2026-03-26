@@ -98,8 +98,16 @@ export function useWorkoutSessions() {
     }) => {
       if (!user) throw new Error('Must be logged in');
 
-      // Look up the most recent completed session for this programme to pre-fill targets
-      let previousLogsByExercise: Record<string, Array<{ set_number: number; actual_reps: number | null; weight_kg: number | null }>> = {};
+      // ---------- Progressive overload pre-fill ----------
+      // 1. Fetch recent completed logs for this programme
+      let previousLogsByExercise: Record<string, Array<{
+        set_number: number;
+        actual_reps: number | null;
+        weight_kg: number | null;
+        rpe: number | null;
+        confidence_rating: number | null;
+        pain_flag: boolean | null;
+      }>> = {};
 
       if (programId) {
         const { data: prevSessions } = await supabase
@@ -115,31 +123,88 @@ export function useWorkoutSessions() {
           const prevIds = prevSessions.map(s => s.id);
           const { data: prevLogs } = await supabase
             .from('exercise_logs')
-            .select('exercise_name, set_number, actual_reps, weight_kg')
+            .select('exercise_name, set_number, actual_reps, weight_kg, rpe, confidence_rating, pain_flag')
             .in('session_id', prevIds)
             .eq('completed', true)
             .order('created_at', { ascending: false });
 
           if (prevLogs) {
-            // Group by exercise name, keeping the most recent logs only
             for (const log of prevLogs) {
               if (!previousLogsByExercise[log.exercise_name]) {
                 previousLogsByExercise[log.exercise_name] = [];
               }
-              // Only keep one entry per set_number (most recent first due to order)
               const existing = previousLogsByExercise[log.exercise_name];
               if (!existing.find(e => e.set_number === log.set_number)) {
                 existing.push({
                   set_number: log.set_number,
                   actual_reps: log.actual_reps,
                   weight_kg: log.weight_kg,
+                  rpe: log.rpe,
+                  confidence_rating: log.confidence_rating,
+                  pain_flag: log.pain_flag,
                 });
               }
             }
           }
         }
       }
-      
+
+      // 2. Apply local progressive overload rules
+      const UPPER_BODY_EQUIPMENT = ['barbell', 'dumbbell', 'cable', 'machine', 'bands'];
+      const LOWER_COMPOUND_KEYWORDS = ['squat', 'deadlift', 'leg press', 'lunge', 'hip thrust', 'rdl', 'romanian'];
+
+      function applyLocalProgression(
+        exerciseName: string,
+        equipment: string,
+        prevSet: { actual_reps: number | null; weight_kg: number | null; rpe: number | null; confidence_rating: number | null; pain_flag: boolean | null } | undefined,
+        templateReps: string | null
+      ): { targetReps: string | null; targetWeight: number | null } {
+        if (!prevSet || prevSet.weight_kg === null) {
+          return { targetReps: templateReps, targetWeight: null };
+        }
+
+        const prevWeight = prevSet.weight_kg;
+        const prevReps = prevSet.actual_reps;
+        const avgRpe = prevSet.rpe ?? 7;
+        const confidence = prevSet.confidence_rating ?? 2;
+        const hasPain = prevSet.pain_flag === true;
+
+        // Pain flag → deload 5%
+        if (hasPain) {
+          return {
+            targetReps: prevReps ? String(prevReps) : templateReps,
+            targetWeight: Math.round((prevWeight * 0.95) * 2) / 2, // round to 0.5kg
+          };
+        }
+
+        // Low confidence (value 3 = bad) → maintain
+        if (confidence >= 3) {
+          return {
+            targetReps: prevReps ? String(prevReps) : templateReps,
+            targetWeight: prevWeight,
+          };
+        }
+
+        // High RPE (8+) → maintain weight
+        if (avgRpe >= 8) {
+          return {
+            targetReps: prevReps ? String(prevReps) : templateReps,
+            targetWeight: prevWeight,
+          };
+        }
+
+        // Good performance (RPE < 8, no pain, good confidence) → progress
+        const isLowerCompound = LOWER_COMPOUND_KEYWORDS.some(kw =>
+          exerciseName.toLowerCase().includes(kw)
+        );
+        const increment = isLowerCompound ? 5 : 2.5;
+
+        return {
+          targetReps: prevReps ? String(prevReps) : templateReps,
+          targetWeight: prevWeight + increment,
+        };
+      }
+
       // Create the session
       const { data: session, error: sessionError } = await supabase
         .from('workout_sessions')
@@ -156,7 +221,7 @@ export function useWorkoutSessions() {
       
       if (sessionError) throw sessionError;
       
-      // Create exercise logs for each set, pre-filling from previous results
+      // Create exercise logs with progressive overload pre-fills
       const exerciseLogs = exercises.flatMap((exercise) => {
         const numSets = typeof exercise.sets === 'number' ? exercise.sets : parseInt(String(exercise.sets)) || 3;
         const prevLogs = previousLogsByExercise[exercise.name] || [];
@@ -164,6 +229,12 @@ export function useWorkoutSessions() {
         return Array.from({ length: numSets }, (_, i) => {
           const setNum = i + 1;
           const prevSet = prevLogs.find(l => l.set_number === setNum) || prevLogs[0];
+          const { targetReps, targetWeight } = applyLocalProgression(
+            exercise.name,
+            exercise.equipment,
+            prevSet,
+            exercise.reps || null
+          );
 
           return {
             session_id: session.id,
@@ -171,8 +242,8 @@ export function useWorkoutSessions() {
             exercise_name: exercise.name,
             equipment: exercise.equipment,
             set_number: setNum,
-            target_reps: prevSet?.actual_reps ? String(prevSet.actual_reps) : (exercise.reps || null),
-            weight_kg: prevSet?.weight_kg ?? null,
+            target_reps: targetReps,
+            weight_kg: targetWeight,
             completed: false,
           };
         });
@@ -194,6 +265,62 @@ export function useWorkoutSessions() {
         .single();
 
       if (fullSessionError) throw fullSessionError;
+
+      // 3. Background AI refinement — fire-and-forget, updates logs async
+      if (programId && Object.keys(previousLogsByExercise).length > 0) {
+        const recentLogs = Object.entries(previousLogsByExercise).flatMap(([name, logs]) =>
+          logs.map(l => ({
+            exerciseName: name,
+            setNumber: l.set_number,
+            actualReps: l.actual_reps,
+            weightKg: l.weight_kg,
+            rpe: l.rpe,
+            confidenceRating: l.confidence_rating,
+            painFlag: l.pain_flag,
+            completed: true,
+          }))
+        );
+
+        const upcomingExercises = exercises.map(ex => ({
+          name: ex.name,
+          equipment: ex.equipment,
+          sets: ex.sets,
+          reps: ex.reps,
+        }));
+
+        // Fire AI suggestion in background — don't await or block session start
+        supabase.functions.invoke('suggest-power-progression', {
+          body: { completedSessions: recentLogs, upcomingExercises },
+        }).then(async ({ data: aiData }) => {
+          if (aiData?.suggestions && Array.isArray(aiData.suggestions) && aiData.suggestions.length > 0) {
+            const logs = fullSession.exercise_logs as ExerciseLog[];
+            for (const suggestion of aiData.suggestions) {
+              const matchingLogs = logs.filter(l => l.exercise_name === suggestion.exerciseName);
+              if (matchingLogs.length === 0) continue;
+
+              const sugWeight = parseFloat(suggestion.suggestedWeight);
+              const sugReps = suggestion.suggestedReps?.replace(/[^0-9]/g, '');
+
+              if (!isNaN(sugWeight) || sugReps) {
+                const updates: Record<string, unknown> = {};
+                if (!isNaN(sugWeight)) updates.weight_kg = sugWeight;
+                if (sugReps) updates.target_reps = sugReps;
+
+                await supabase
+                  .from('exercise_logs')
+                  .update(updates)
+                  .eq('session_id', session.id)
+                  .eq('exercise_name', suggestion.exerciseName);
+              }
+            }
+            // Silently invalidate so UI picks up refined targets
+            queryClient.invalidateQueries({ queryKey: ['active-session'] });
+          }
+        }).catch(err => {
+          console.error('Background AI progression refinement failed:', err);
+        });
+      }
+
       return fullSession as WorkoutSession;
     },
     onSuccess: (data) => {
