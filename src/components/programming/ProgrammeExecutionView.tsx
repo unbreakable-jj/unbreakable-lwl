@@ -44,6 +44,37 @@ import {
 } from 'lucide-react';
 import { CardioTrackerModal } from '@/components/tracker/CardioTrackerModal';
 
+// Helper to detect if a session is cardio-type based on exercises or session name
+const CARDIO_SESSION_KEYWORDS = ['run', 'walk', 'cycle', 'swim', 'row', 'cardio', 'jog', 'sprint', 'interval run', 'tempo run', 'easy run', 'long run', 'recovery run', 'steady state'];
+const CARDIO_EQUIPMENT = ['running', 'cardio'];
+
+function isCardioSession(planner: SessionPlanner): boolean {
+  const sessionTypeLower = planner.session_type.toLowerCase();
+  if (CARDIO_SESSION_KEYWORDS.some(kw => sessionTypeLower.includes(kw))) return true;
+  // If ALL exercises are cardio equipment
+  if (planner.planned_exercises.length > 0 && planner.planned_exercises.every(ex => CARDIO_EQUIPMENT.includes(ex.equipment))) return true;
+  return false;
+}
+
+function getCardioActivity(planner: SessionPlanner): 'walk' | 'run' | 'cycle' | 'row' | 'swim' {
+  const st = planner.session_type.toLowerCase();
+  if (st.includes('walk')) return 'walk';
+  if (st.includes('cycle') || st.includes('bike') || st.includes('cycling')) return 'cycle';
+  if (st.includes('row')) return 'row';
+  if (st.includes('swim')) return 'swim';
+  return 'run'; // default cardio = run
+}
+
+function getCardioIcon(activity: string) {
+  switch (activity) {
+    case 'walk': return <Footprints className="w-7 h-7" />;
+    case 'cycle': return <Bike className="w-7 h-7" />;
+    case 'row': return <Waves className="w-7 h-7" />;
+    case 'swim': return <Droplets className="w-7 h-7" />;
+    default: return <Footprints className="w-7 h-7" />;
+  }
+}
+
 interface ProgrammeExecutionViewProps {
   program: TrainingProgram;
   onClose: () => void;
