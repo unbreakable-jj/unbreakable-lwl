@@ -175,62 +175,15 @@ export function ProgramDisplay({ program, onReset, savedProgramId, forUserId, on
         </Card>
       )}
 
-      {/* Week Navigation - Cardio Style */}
-      <div className="flex items-center justify-between">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handlePrevWeek}
-          disabled={selectedWeek === 1}
-          className="font-display tracking-wide"
-        >
-          <ChevronLeft className="w-4 h-4 mr-1" />
-          PREV
-        </Button>
-        
-        <div className="flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-primary" />
-          <span className="font-display text-xl tracking-wide">
-            WEEK {selectedWeek}
-          </span>
-          {currentPhase && (
-            <Badge variant="outline" className="ml-2">
-              {currentPhase.name}
-            </Badge>
-          )}
-        </div>
-        
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleNextWeek}
-          disabled={selectedWeek === 12}
-          className="font-display tracking-wide"
-        >
-          NEXT
-          <ChevronRight className="w-4 h-4 ml-1" />
-        </Button>
-      </div>
-
-      {/* Daily Workouts - Cardio Style with Collapsed Sessions */}
-      <motion.div
-        key={selectedWeek}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
-        className="space-y-4"
-      >
-        {templateDays.map((day, idx) => (
-          <DayCard
-            key={idx}
-            day={day}
-            onStart={() => handleStartWorkout(day)}
-            onEdit={onEditDay ? () => onEditDay(day, selectedWeek) : undefined}
-            isStarting={startSession.isPending}
-            isLoggedIn={!!user}
-          />
-        ))}
-      </motion.div>
+      {/* Block Info */}
+      <Card className="bg-card border-border">
+        <CardContent className="p-4">
+          <p className="text-sm text-muted-foreground text-center">
+            <Sparkles className="w-4 h-4 inline mr-1 text-primary" />
+            Each 4-week block is built by your AI coach based on your results and goals.
+          </p>
+        </CardContent>
+      </Card>
 
       {/* Tips - Cardio Style */}
       <div className="grid md:grid-cols-2 gap-6">
