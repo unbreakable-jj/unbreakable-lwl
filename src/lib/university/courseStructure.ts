@@ -1,8 +1,10 @@
 import type { Level } from './types';
 import { level2Unit1 } from './level2/unit1';
 import { level2Unit2 } from './level2/unit2';
+import { level2Unit3 } from './level2/unit3';
 import { level2Unit1Assessment } from './level2/assessments';
 import { level2Unit2Assessment } from './level2/unit2-assessments';
+import { level2Unit3Assessment } from './level2/unit3-assessments';
 
 export const PASS_MARK_PERCENT = 80;
 
@@ -15,12 +17,7 @@ export const courseData: Level[] = [
     units: [
       level2Unit1,
       level2Unit2,
-      {
-        number: 3,
-        title: 'Introduction to Exercise',
-        description: 'Training types, warm-up and cool-down protocols, rep ranges, recovery, and exercise selection.',
-        chapters: [],
-      },
+      level2Unit3,
       {
         number: 4,
         title: 'Building Your Foundation',
@@ -28,7 +25,7 @@ export const courseData: Level[] = [
         chapters: [],
       },
     ],
-    assessments: [level2Unit1Assessment, level2Unit2Assessment],
+    assessments: [level2Unit1Assessment, level2Unit2Assessment, level2Unit3Assessment],
     finalAssessment: {
       unitNumber: 0,
       title: 'Level 2 Final Assessment',
