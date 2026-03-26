@@ -1,0 +1,56 @@
+export interface ContentSection {
+  heading?: string;
+  paragraphs?: string[];
+  bullets?: string[];
+  imagePlaceholder?: string;
+}
+
+export interface PracticalTask {
+  title: string;
+  instructions: string;
+  reflectionQuestions: string[];
+}
+
+export interface Chapter {
+  number: number;
+  title: string;
+  learningOutcome: string;
+  assessmentCriteria: string[];
+  content: ContentSection[];
+  unbreakableInsight: string;
+  coachNote: string;
+  practicalTask: PracticalTask;
+}
+
+export interface AssessmentQuestion {
+  type: 'multiple_choice' | 'scenario';
+  question: string;
+  scenario?: string;
+  options: string[];
+  correctAnswer: number; // index
+  explanation: string;
+}
+
+export interface UnitAssessment {
+  unitNumber: number;
+  title: string;
+  questions: AssessmentQuestion[];
+  passMarkPercent: number;
+}
+
+export interface Unit {
+  number: number;
+  title: string;
+  description: string;
+  chapters: Chapter[];
+}
+
+export interface Level {
+  level: number;
+  title: string;
+  subtitle: string;
+  description: string;
+  units: Unit[];
+  assessments: UnitAssessment[];
+  finalAssessment: UnitAssessment;
+}
