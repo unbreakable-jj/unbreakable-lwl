@@ -2,6 +2,7 @@ import type { Unit } from '../types';
 import ch1AnatomicalPlanes from '@/assets/university/ch1-anatomical-planes.png';
 import ch2JointTypes from '@/assets/university/ch2-joint-types.png';
 import ch3MuscleGroups from '@/assets/university/ch3-muscle-groups.png';
+import ch4Cardiovascular from '@/assets/university/ch4-cardiovascular.png';
 import ch5EnergySystems from '@/assets/university/ch5-energy-systems.png';
 
 export const level2Unit1: Unit = {
@@ -226,6 +227,8 @@ export const level2Unit1: Unit = {
             'The heart is a muscular pump with four chambers. The right side pumps deoxygenated blood to the lungs. The left side pumps oxygenated blood to the rest of the body.',
             'Your resting heart rate is a reliable indicator of cardiovascular fitness. Trained individuals typically have lower resting heart rates because their hearts pump more blood per beat (higher stroke volume).',
           ],
+          imageUrl: ch4Cardiovascular,
+          imageAlt: 'Heart diagram with acute responses and chronic adaptations of the cardiovascular system',
         },
         {
           heading: 'Acute Responses to Exercise',
