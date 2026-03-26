@@ -1,14 +1,8 @@
 import { useState } from 'react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Trash2, MessageSquareOff, MessageSquare, Pencil, BookImage } from 'lucide-react';
+import { MoreHorizontal, Trash2, MessageSquareOff, MessageSquare, Pencil, BookImage, X } from 'lucide-react';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface PostMenuProps {
   isOwner: boolean;
@@ -30,82 +24,110 @@ export function PostMenu({
   itemType = 'post',
 }: PostMenuProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   if (!isOwner) return null;
 
   const getEditLabel = () => {
     switch (itemType) {
-      case 'run':
-        return 'Edit Run';
-      case 'workout':
-        return 'Edit Workout';
-      default:
-        return 'Edit Post';
+      case 'run': return 'Edit Run';
+      case 'workout': return 'Edit Workout';
+      default: return 'Edit Post';
     }
   };
 
   const getDeleteLabel = () => {
     switch (itemType) {
-      case 'run':
-        return 'Delete Run';
-      case 'workout':
-        return 'Delete Workout';
-      default:
-        return 'Delete Post';
+      case 'run': return 'Delete Run';
+      case 'workout': return 'Delete Workout';
+      default: return 'Delete Post';
     }
   };
 
   const getDeleteDescription = () => {
     switch (itemType) {
-      case 'run':
-        return 'Are you sure you want to delete this run? All kudos and comments will also be removed. This action cannot be undone.';
-      case 'workout':
-        return 'Are you sure you want to delete this workout? All kudos and comments will also be removed. This action cannot be undone.';
-      default:
-        return 'Are you sure you want to delete this post? All likes and comments will also be removed. This action cannot be undone.';
+      case 'run': return 'Are you sure you want to delete this run? All kudos and comments will also be removed.';
+      case 'workout': return 'Are you sure you want to delete this workout? All kudos and comments will also be removed.';
+      default: return 'Are you sure you want to delete this post? All likes and comments will also be removed.';
     }
   };
 
+  const menuItems = [
+    { icon: Pencil, label: getEditLabel(), action: () => { onEdit(); setShowMenu(false); } },
+    { icon: BookImage, label: 'Share to Story', action: () => { onShareToStory(); setShowMenu(false); } },
+    {
+      icon: commentsEnabled ? MessageSquareOff : MessageSquare,
+      label: commentsEnabled ? 'Disable Comments' : 'Enable Comments',
+      action: () => { onToggleComments(); setShowMenu(false); },
+    },
+    {
+      icon: Trash2,
+      label: getDeleteLabel(),
+      action: () => { setShowDeleteModal(true); setShowMenu(false); },
+      destructive: true,
+    },
+  ];
+
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-            <MoreHorizontal className="w-4 h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="bg-popover border-border z-50">
-          <DropdownMenuItem onClick={onEdit}>
-            <Pencil className="w-4 h-4 mr-2" />
-            {getEditLabel()}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={onShareToStory}>
-            <BookImage className="w-4 h-4 mr-2" />
-            Share to Story
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={onToggleComments}>
-            {commentsEnabled ? (
-              <>
-                <MessageSquareOff className="w-4 h-4 mr-2" />
-                Disable Comments
-              </>
-            ) : (
-              <>
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Enable Comments
-              </>
-            )}
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => setShowDeleteModal(true)}
-            className="text-destructive focus:text-destructive"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            {getDeleteLabel()}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-8 w-8 p-0"
+        onClick={() => setShowMenu(true)}
+      >
+        <MoreHorizontal className="w-4 h-4" />
+      </Button>
+
+      {/* Instagram-style bottom sheet menu */}
+      <AnimatePresence>
+        {showMenu && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-[70]"
+              onClick={() => setShowMenu(false)}
+            />
+            {/* Sheet */}
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="fixed bottom-0 left-0 right-0 z-[71] bg-card rounded-t-2xl pb-[env(safe-area-inset-bottom,16px)]"
+            >
+              <div className="flex justify-center pt-3 pb-1">
+                <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+              </div>
+              <div className="px-4 pb-4 space-y-1">
+                {menuItems.map((item, idx) => (
+                  <button
+                    key={idx}
+                    className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left transition-colors active:bg-muted/50 ${
+                      item.destructive ? 'text-destructive' : 'text-foreground'
+                    }`}
+                    onClick={item.action}
+                  >
+                    <item.icon className="w-5 h-5 shrink-0" />
+                    <span className="font-display tracking-wide text-sm">{item.label}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="px-4 pb-2">
+                <button
+                  className="w-full py-3 rounded-xl bg-muted/50 text-muted-foreground font-display tracking-wide text-sm"
+                  onClick={() => setShowMenu(false)}
+                >
+                  CANCEL
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <DeleteConfirmModal
         isOpen={showDeleteModal}
