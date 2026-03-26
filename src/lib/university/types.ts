@@ -3,6 +3,8 @@ export interface ContentSection {
   paragraphs?: string[];
   bullets?: string[];
   imagePlaceholder?: string;
+  imageUrl?: string;
+  imageAlt?: string;
 }
 
 export interface PracticalTask {
