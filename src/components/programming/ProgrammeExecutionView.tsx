@@ -654,6 +654,13 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Cardio Tracker Modal for cardio sessions */}
+      <CardioTrackerModal
+        isOpen={showCardioTracker}
+        onClose={handleCardioTrackerClose}
+        initialActivity={cardioActivity}
+      />
     </div>
   );
 }
