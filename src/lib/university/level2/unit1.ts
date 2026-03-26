@@ -36,7 +36,8 @@ export const level2Unit1: Unit = {
             'Frontal Plane — divides the body into front and back. Movements go side to side. Examples: lateral raises, side lunges, star jumps.',
             'Transverse Plane — divides the body into top and bottom. Movements involve rotation. Examples: cable woodchops, Russian twists, throwing a punch.',
           ],
-          imagePlaceholder: 'Diagram showing the three anatomical planes on a human figure with example exercises labelled for each plane',
+          imageUrl: ch1AnatomicalPlanes,
+          imageAlt: 'Diagram showing the three anatomical planes on a human figure with example exercises labelled for each plane',
         },
         {
           heading: 'Directional Terms',
@@ -106,7 +107,8 @@ export const level2Unit1: Unit = {
             'Pivot joints — allow rotation around a single axis. Example: the neck turning side to side',
             'Gliding joints — allow sliding movements. Example: wrist movements during pressing',
           ],
-          imagePlaceholder: 'Labelled diagram showing hinge, ball-and-socket, pivot, and gliding joints with their gym exercise equivalents',
+          imageUrl: ch2JointTypes,
+          imageAlt: 'Labelled diagram showing hinge, ball-and-socket, pivot, and gliding joints with their gym exercise equivalents',
         },
         {
           heading: 'Joint Health and Training',
@@ -169,7 +171,8 @@ export const level2Unit1: Unit = {
             'Core (Rectus Abdominis, Obliques, Transverse Abdominis, Erector Spinae) — stabilises the trunk. Planks, anti-rotation work.',
             'Legs — Quadriceps (front of thigh, knee extension), Hamstrings (back of thigh, knee flexion and hip extension), Glutes (hip extension, the strongest muscle group), Calves (ankle plantar flexion).',
           ],
-          imagePlaceholder: 'Labelled diagram of major muscle groups from front and rear view of the human body',
+          imageUrl: ch3MuscleGroups,
+          imageAlt: 'Labelled diagram of major muscle groups from front and rear view of the human body',
         },
         {
           heading: 'Agonist and Antagonist Pairs',
@@ -286,7 +289,8 @@ export const level2Unit1: Unit = {
             'Anaerobic Glycolysis — short-duration energy, lasts 30 seconds to 2 minutes. Breaks down glucose without oxygen. Produces lactic acid as a by-product. Used for high-rep sets, 400m sprints, circuit training.',
             'Aerobic System — long-duration energy, used for anything lasting more than 2-3 minutes. Uses oxygen to break down carbohydrates and fats. Used for steady-state cardio, long walks, extended training sessions.',
           ],
-          imagePlaceholder: 'Chart showing the three energy systems with duration on the x-axis and contribution percentage on the y-axis, with example activities marked',
+          imageUrl: ch5EnergySystems,
+          imageAlt: 'Chart showing the three energy systems with duration on the x-axis and contribution percentage on the y-axis, with example activities marked',
         },
         {
           heading: 'How They Work Together',
