@@ -25,7 +25,7 @@ export const courseData: Level[] = [
         chapters: [],
       },
     ],
-    assessments: [level2Unit1Assessment, level2Unit2Assessment],
+    assessments: [level2Unit1Assessment, level2Unit2Assessment, level2Unit3Assessment],
     finalAssessment: {
       unitNumber: 0,
       title: 'Level 2 Final Assessment',
