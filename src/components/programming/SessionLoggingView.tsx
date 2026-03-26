@@ -19,7 +19,7 @@ import {
   ChevronUp,
   Lightbulb,
   BookOpen,
-  AlertTriangle,
+  
   Plus,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
