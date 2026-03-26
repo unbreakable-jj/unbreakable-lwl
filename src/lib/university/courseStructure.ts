@@ -1,8 +1,10 @@
 import type { Level } from './types';
 import { level2Unit1 } from './level2/unit1';
 import { level2Unit2 } from './level2/unit2';
+import { level2Unit3 } from './level2/unit3';
 import { level2Unit1Assessment } from './level2/assessments';
 import { level2Unit2Assessment } from './level2/unit2-assessments';
+import { level2Unit3Assessment } from './level2/unit3-assessments';
 
 export const PASS_MARK_PERCENT = 80;
 
