@@ -84,7 +84,7 @@ const ACTIVITY_CONFIG = {
   },
 };
 
-export function CardioTrackerModal({ isOpen, onClose, initialActivity }: CardioTrackerModalProps) {
+export function CardioTrackerModal({ isOpen, onClose, initialActivity, onSessionSaved }: CardioTrackerModalProps) {
   const { createRun } = useRuns();
   const { checkAndUpdatePRs } = usePersonalRecords();
   const { checkAndAwardMedals } = useMedals();
