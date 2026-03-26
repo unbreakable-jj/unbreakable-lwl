@@ -457,13 +457,19 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
           ((p.week_number === nextSession.week_number && p.day_number === nextSession.day_number - 1) ||
            (p.week_number === nextSession.week_number - 1 && nextSession.day_number === 1))
         );
+        const isCardio = isCardioSession(nextSession);
+        const cardioAct = isCardio ? getCardioActivity(nextSession) : null;
 
         return (
         <Card className={`p-6 border-2 ${prevDayCompleted ? 'border-foreground bg-foreground/5' : 'border-primary bg-card'}`}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className={`w-14 h-14 rounded-full flex items-center justify-center shrink-0 ${prevDayCompleted ? 'bg-foreground/20' : 'bg-primary/20'}`}>
-                <Dumbbell className={`w-7 h-7 ${prevDayCompleted ? 'text-foreground' : 'text-primary'}`} />
+                {isCardio ? (
+                  <span className={prevDayCompleted ? 'text-foreground' : 'text-primary'}>{getCardioIcon(cardioAct!)}</span>
+                ) : (
+                  <Dumbbell className={`w-7 h-7 ${prevDayCompleted ? 'text-foreground' : 'text-primary'}`} />
+                )}
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
