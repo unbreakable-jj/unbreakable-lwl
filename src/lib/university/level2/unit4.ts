@@ -1,13 +1,13 @@
 import type { Unit } from '../types';
 
-import u4ch1Img from '@/assets/university/u4-ch1-smart-goals.jpg';
-import u4ch2Img from '@/assets/university/u4-ch2-training-splits.jpg';
-import u4ch3Img from '@/assets/university/u4-ch3-periodisation.jpg';
-import u4ch4Img from '@/assets/university/u4-ch4-session-structure.jpg';
-import u4ch5Img from '@/assets/university/u4-ch5-progress-tracking.jpg';
-import u4ch6Img from '@/assets/university/u4-ch6-sleep-recovery.jpg';
-import u4ch7Img from '@/assets/university/u4-ch7-habit-loop.jpg';
-import u4ch8Img from '@/assets/university/u4-ch8-programme-template.jpg';
+import u4ch1Img from '@/assets/university/u4-ch1-smart-goals.png';
+import u4ch2Img from '@/assets/university/u4-ch2-training-splits.png';
+import u4ch3Img from '@/assets/university/u4-ch3-periodisation.png';
+import u4ch4Img from '@/assets/university/u4-ch4-session-structure.png';
+import u4ch5Img from '@/assets/university/u4-ch5-progress-tracking.png';
+import u4ch6Img from '@/assets/university/u4-ch6-sleep-recovery.png';
+import u4ch7Img from '@/assets/university/u4-ch7-habit-loop.png';
+import u4ch8Img from '@/assets/university/u4-ch8-programme-template.png';
 
 export const level2Unit4: Unit = {
   number: 4,
