@@ -1,12 +1,12 @@
 import type { Unit } from '../types';
-import u3ch1Img from '@/assets/university/u3-ch1-training-types.jpg';
-import u3ch2Img from '@/assets/university/u3-ch2-ramp-protocol.jpg';
-import u3ch3Img from '@/assets/university/u3-ch3-rep-ranges.jpg';
-import u3ch4Img from '@/assets/university/u3-ch4-heart-rate-zones.jpg';
-import u3ch5Img from '@/assets/university/u3-ch5-flexibility.jpg';
-import u3ch6Img from '@/assets/university/u3-ch6-movement-patterns.jpg';
-import u3ch7Img from '@/assets/university/u3-ch7-supercompensation.jpg';
-import u3ch8Img from '@/assets/university/u3-ch8-special-populations.jpg';
+import u3ch1Img from '@/assets/university/u3-ch1-training-types.png';
+import u3ch2Img from '@/assets/university/u3-ch2-ramp-protocol.png';
+import u3ch3Img from '@/assets/university/u3-ch3-rep-ranges.png';
+import u3ch4Img from '@/assets/university/u3-ch4-heart-rate-zones.png';
+import u3ch5Img from '@/assets/university/u3-ch5-flexibility.png';
+import u3ch6Img from '@/assets/university/u3-ch6-movement-patterns.png';
+import u3ch7Img from '@/assets/university/u3-ch7-supercompensation.png';
+import u3ch8Img from '@/assets/university/u3-ch8-special-populations.png';
 
 export const level2Unit3: Unit = {
   number: 3,
