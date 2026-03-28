@@ -195,7 +195,6 @@ export function SessionLoggingView({
   }, [localInputs, onUpdateLog]);
 
   const handleSetComplete = useCallback((log: ExerciseLog, completed: boolean) => {
-    // Also persist current input values when completing
     const localValue = localInputs[log.id];
     const updates: Parameters<typeof onUpdateLog>[1] = { completed };
     
@@ -212,10 +211,16 @@ export function SessionLoggingView({
     onUpdateLog(log.id, updates);
     
     if (completed) {
-      // Pass exercise type based on equipment for rest timer presets
       const exerciseType = ['barbell', 'dumbbell'].includes(log.equipment) ? 'strength' : 'bodyweight';
       setTimerExerciseType(exerciseType);
+      setTimerMinimized(false); // Auto-expand on set complete
       onStartRest(exerciseType);
+
+      // Auto-minimize after 5 seconds
+      if (minimizeTimerRef.current) clearTimeout(minimizeTimerRef.current);
+      minimizeTimerRef.current = setTimeout(() => {
+        setTimerMinimized(true);
+      }, 5000);
     }
   }, [localInputs, onUpdateLog, onStartRest]);
 
