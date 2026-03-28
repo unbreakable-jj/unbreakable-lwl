@@ -143,7 +143,25 @@ export const nutritionCourseData: Level[] = [
   },
 ];
 
-export const mindsetCourseData: Level[] = [];
+const mindsetL2ChapterQuizzes: ChapterQuiz[] = [
+  ...mindsetL2Unit1ChapterQuizzes,
+  ...mindsetL2Unit2ChapterQuizzes,
+  ...mindsetL2Unit3ChapterQuizzes,
+  ...mindsetL2Unit4ChapterQuizzes,
+];
+
+export const mindsetCourseData: Level[] = [
+  {
+    level: 2,
+    title: 'Level 2 Certificate',
+    subtitle: 'Foundation Mindset',
+    description: 'Master the foundations of mental resilience, breathing science, focus, habit formation, and daily practices that build unshakeable mental strength.',
+    units: [mindsetL2Unit1, mindsetL2Unit2, mindsetL2Unit3, mindsetL2Unit4],
+    assessments: [mindsetL2Unit1Assessment, mindsetL2Unit2Assessment, mindsetL2Unit3Assessment, mindsetL2Unit4Assessment],
+    finalAssessment: mindsetL2FinalAssessment,
+    chapterQuizzes: mindsetL2ChapterQuizzes,
+  },
+];
 
 export const allCourses: Record<string, Level[]> = {
   gym: courseData,
