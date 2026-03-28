@@ -47,6 +47,14 @@ export interface Unit {
   chapters: Chapter[];
 }
 
+export interface ChapterQuiz {
+  unitNumber: number;
+  chapterNumber: number;
+  questionBank: AssessmentQuestion[];
+  pickCount: number;
+  passMarkPercent: number;
+}
+
 export interface Level {
   level: number;
   title: string;
@@ -55,4 +63,5 @@ export interface Level {
   units: Unit[];
   assessments: UnitAssessment[];
   finalAssessment: UnitAssessment;
+  chapterQuizzes: ChapterQuiz[];
 }
