@@ -13,7 +13,7 @@ import { AdminControlPanel } from '@/components/university/AdminControlPanel';
 import type { CourseType } from '@/lib/university/types';
 
 const courseTabs: { key: CourseType; label: string; icon: React.ReactNode; description: string }[] = [
-  { key: 'gym', label: 'Gym', icon: <Dumbbell className="w-4 h-4" />, description: 'Applied Fitness & Exercise Science' },
+  { key: 'gym', label: 'Power', icon: <Dumbbell className="w-4 h-4" />, description: 'Applied Fitness & Exercise Science' },
   { key: 'nutrition', label: 'Nutrition', icon: <Apple className="w-4 h-4" />, description: 'Healthy Eating & Nutritional Science' },
   { key: 'mindset', label: 'Mindset', icon: <Brain className="w-4 h-4" />, description: 'Mental Performance & Wellbeing' },
 ];
@@ -49,6 +49,7 @@ export default function University() {
             </h1>
             <p className="text-muted-foreground text-sm md:text-base max-w-xl mx-auto leading-relaxed">
               Level 2 &amp; Level 3 Certificates in Applied Fitness, Nutrition &amp; Mindset.
+              Certified standard — not an officially accredited NVQ qualification.
               Master the science. Apply the knowledge. Live without limits.
             </p>
             <p className="text-primary font-display text-lg tracking-wider neon-glow-subtle">
