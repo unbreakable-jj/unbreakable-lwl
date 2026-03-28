@@ -56,6 +56,8 @@ export interface ChapterQuiz {
   passMarkPercent: number;
 }
 
+export type CourseType = 'gym' | 'nutrition' | 'mindset';
+
 export interface Level {
   level: number;
   title: string;
@@ -65,4 +67,11 @@ export interface Level {
   assessments: UnitAssessment[];
   finalAssessment: UnitAssessment;
   chapterQuizzes: ChapterQuiz[];
+}
+
+export interface CourseDefinition {
+  courseType: CourseType;
+  label: string;
+  description: string;
+  levels: Level[];
 }

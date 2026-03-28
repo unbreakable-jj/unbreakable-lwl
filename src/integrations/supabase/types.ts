@@ -2355,6 +2355,7 @@ export type Database = {
         Row: {
           answers: Json
           attempted_at: string
+          course_type: string
           id: string
           is_final: boolean
           level: number
@@ -2367,6 +2368,7 @@ export type Database = {
         Insert: {
           answers?: Json
           attempted_at?: string
+          course_type?: string
           id?: string
           is_final?: boolean
           level: number
@@ -2379,6 +2381,7 @@ export type Database = {
         Update: {
           answers?: Json
           attempted_at?: string
+          course_type?: string
           id?: string
           is_final?: boolean
           level?: number
@@ -2395,6 +2398,7 @@ export type Database = {
           answers: Json
           attempted_at: string
           chapter_number: number
+          course_type: string
           id: string
           level: number
           passed: boolean
@@ -2407,6 +2411,7 @@ export type Database = {
           answers?: Json
           attempted_at?: string
           chapter_number: number
+          course_type?: string
           id?: string
           level: number
           passed?: boolean
@@ -2419,6 +2424,7 @@ export type Database = {
           answers?: Json
           attempted_at?: string
           chapter_number?: number
+          course_type?: string
           id?: string
           level?: number
           passed?: boolean
@@ -2433,6 +2439,7 @@ export type Database = {
         Row: {
           chapter_number: number
           completed_at: string
+          course_type: string
           id: string
           level: number
           unit_number: number
@@ -2441,6 +2448,7 @@ export type Database = {
         Insert: {
           chapter_number: number
           completed_at?: string
+          course_type?: string
           id?: string
           level: number
           unit_number: number
@@ -2449,6 +2457,7 @@ export type Database = {
         Update: {
           chapter_number?: number
           completed_at?: string
+          course_type?: string
           id?: string
           level?: number
           unit_number?: number
