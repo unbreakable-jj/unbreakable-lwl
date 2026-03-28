@@ -12,7 +12,7 @@ import { useUniversityProgress } from '@/hooks/useUniversityProgress';
 
 export default function University() {
   const navigate = useNavigate();
-  const { getLevelCompletedChapters, isLoading } = useUniversityProgress();
+  const { getLevelCompletedChapters, hasPassedAssessment, isLoading } = useUniversityProgress();
 
   return (
     <div className="min-h-screen bg-background">
