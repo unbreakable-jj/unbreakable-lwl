@@ -67,6 +67,19 @@ import {
   mindsetL2Unit3ChapterQuizzes, mindsetL2Unit4ChapterQuizzes,
 } from './mindset-l2/assessments';
 
+// Mindset Level 3 imports
+import { mindsetL3Unit1 } from './mindset-l3/unit1';
+import { mindsetL3Unit2 } from './mindset-l3/unit2';
+import { mindsetL3Unit3 } from './mindset-l3/unit3';
+import { mindsetL3Unit4 } from './mindset-l3/unit4';
+import {
+  mindsetL3Unit1Assessment, mindsetL3Unit2Assessment,
+  mindsetL3Unit3Assessment, mindsetL3Unit4Assessment,
+  mindsetL3FinalAssessment,
+  mindsetL3Unit1ChapterQuizzes, mindsetL3Unit2ChapterQuizzes,
+  mindsetL3Unit3ChapterQuizzes, mindsetL3Unit4ChapterQuizzes,
+} from './mindset-l3/assessments';
+
 export const PASS_MARK_PERCENT = 80;
 
 const level2ChapterQuizzes: ChapterQuiz[] = [
@@ -150,6 +163,13 @@ const mindsetL2ChapterQuizzes: ChapterQuiz[] = [
   ...mindsetL2Unit4ChapterQuizzes,
 ];
 
+const mindsetL3ChapterQuizzes: ChapterQuiz[] = [
+  ...mindsetL3Unit1ChapterQuizzes,
+  ...mindsetL3Unit2ChapterQuizzes,
+  ...mindsetL3Unit3ChapterQuizzes,
+  ...mindsetL3Unit4ChapterQuizzes,
+];
+
 export const mindsetCourseData: Level[] = [
   {
     level: 2,
@@ -160,6 +180,16 @@ export const mindsetCourseData: Level[] = [
     assessments: [mindsetL2Unit1Assessment, mindsetL2Unit2Assessment, mindsetL2Unit3Assessment, mindsetL2Unit4Assessment],
     finalAssessment: mindsetL2FinalAssessment,
     chapterQuizzes: mindsetL2ChapterQuizzes,
+  },
+  {
+    level: 3,
+    title: 'Level 3 Certificate',
+    subtitle: 'Advanced Mindset',
+    description: 'Master advanced stress physiology, emotional regulation, exposure science, cognitive performance, motivation theory, and build a lifelong resilience system.',
+    units: [mindsetL3Unit1, mindsetL3Unit2, mindsetL3Unit3, mindsetL3Unit4],
+    assessments: [mindsetL3Unit1Assessment, mindsetL3Unit2Assessment, mindsetL3Unit3Assessment, mindsetL3Unit4Assessment],
+    finalAssessment: mindsetL3FinalAssessment,
+    chapterQuizzes: mindsetL3ChapterQuizzes,
   },
 ];
 
