@@ -437,8 +437,10 @@ export function StoryEditor({ onPublish, onClose, preFill }: StoryEditorProps) {
       const firstImage = uploadedMedia.find(m => m.type === 'image');
       const firstVideo = uploadedMedia.find(m => m.type === 'video');
 
-      // Flatten all slides' overlays for storage
-      const allOverlays = Object.values(overlaysBySlide).flat();
+      // Tag each overlay with its slide index for per-slide rendering in viewer
+      const allOverlays = Object.entries(overlaysBySlide).flatMap(([idx, ovs]) =>
+        ovs.map(o => ({ ...o, slideIndex: Number(idx) }))
+      );
 
       await onPublish({
         content: null,
