@@ -1,0 +1,322 @@
+import type { Unit } from '../types';
+
+export const nutritionL3Unit3: Unit = {
+  number: 3,
+  title: 'Sports Nutrition & Performance Fuelling',
+  description: 'Apply advanced nutritional strategies to optimise training performance, recovery, and body composition — covering everything from fuelling endurance to cutting weight safely.',
+  chapters: [
+    {
+      number: 1,
+      title: 'Fuelling Resistance Training',
+      learningOutcome: 'Understand the specific nutritional demands of resistance training and how to optimise your diet for strength, hypertrophy, and recovery.',
+      assessmentCriteria: [
+        'Describe the macronutrient requirements for resistance-trained individuals',
+        'Explain the role of carbohydrates in supporting high-volume resistance training',
+        'Discuss practical meal timing strategies around resistance training sessions',
+      ],
+      content: [
+        {
+          heading: 'Macronutrient Targets for Resistance Training',
+          paragraphs: [
+            'Resistance training places unique nutritional demands on your body. Unlike endurance exercise, which primarily taxes the aerobic energy system, resistance training relies heavily on the phosphocreatine and glycolytic systems — meaning carbohydrates and stored creatine phosphate are the primary fuels during your working sets.',
+            'General macronutrient guidelines for resistance-trained individuals aim to provide enough protein for muscle repair and growth, enough carbohydrate to fuel training performance, and enough fat to support hormonal health — all within an appropriate caloric framework for your goal.',
+          ],
+          imagePlaceholder: 'Table showing recommended macronutrient ranges for resistance training — protein 1.6-2.2g/kg, carbohydrate 3-7g/kg depending on volume, fat 0.7-1.5g/kg — with example calculations for a 75kg individual',
+          bullets: [
+            'Protein — 1.6 to 2.2 grams per kilogram body weight daily. Higher end during caloric deficit to preserve muscle',
+            'Carbohydrate — 3 to 7 grams per kilogram depending on training volume and intensity',
+            'Fat — 0.7 to 1.5 grams per kilogram. Do not drop below 0.7g/kg to protect hormonal function',
+            'These are ranges, not fixed targets — individual variation, preferences, and response matter',
+          ],
+        },
+        {
+          heading: 'Carbohydrates and Training Performance',
+          paragraphs: [
+            'Muscle glycogen is the primary fuel source during resistance training. A typical high-volume training session (20–25 working sets) depletes approximately 25–40% of muscle glycogen stores. If you begin a session with suboptimal glycogen levels, your performance — particularly in the second half of the session — will suffer.',
+            'This is why very low-carbohydrate diets often lead to reduced training performance, even if body weight decreases. The weight loss may be partly muscle and partly water (glycogen binds water at a ratio of approximately 3g water per 1g glycogen).',
+          ],
+        },
+        {
+          heading: 'Practical Meal Timing',
+          paragraphs: [
+            'A pre-training meal 2–3 hours before training should contain approximately 25–40g protein and 40–80g carbohydrates from easily digestible sources. If you cannot eat a full meal, a smaller snack (banana, rice cakes with honey, or a protein bar) 30–60 minutes before training provides a workable alternative.',
+            'Post-training, aim for a protein-rich meal within 1–2 hours. If your next training session is more than 24 hours away, urgent refuelling is unnecessary — your normal meal pattern will replenish glycogen stores. If you train daily or twice daily, post-training carbohydrate intake becomes more critical.',
+          ],
+        },
+      ],
+      unbreakableInsight: 'You cannot out-eat a bad programme, and you cannot out-train a bad diet. Nutrition and training are partners — neglecting either limits the other.',
+      coachNote: 'Track your training performance (reps, weight, perceived effort) alongside your nutrition for two weeks. Patterns emerge quickly — you will see which eating strategies correlate with your best sessions.',
+      practicalTask: {
+        title: 'Training Day Nutrition Plan',
+        instructions: 'Create a full training day nutrition plan based on the macronutrient ranges for your body weight and training volume. Include specific foods, portions, and timing around your training session.',
+        reflectionQuestions: [
+          'Does your current eating pattern align with these recommendations?',
+          'Where is the biggest gap between your current intake and the guidelines?',
+          'How might your performance change with optimised pre-training nutrition?',
+        ],
+      },
+    },
+    {
+      number: 2,
+      title: 'Fuelling Endurance Performance',
+      learningOutcome: 'Understand the nutritional strategies specific to endurance training and competition, including carbohydrate loading, intra-event fuelling, and recovery.',
+      assessmentCriteria: [
+        'Explain the principles and protocols for carbohydrate loading',
+        'Describe intra-event fuelling strategies for activities lasting over 60 minutes',
+        'Discuss the importance of sodium and electrolyte management during endurance exercise',
+      ],
+      content: [
+        {
+          heading: 'Carbohydrate Loading',
+          paragraphs: [
+            'Carbohydrate loading is a strategy used to maximise muscle glycogen stores before prolonged endurance events. The modern protocol involves increasing carbohydrate intake to 8–12 grams per kilogram of body weight for 36–48 hours before the event, while tapering training volume.',
+            'The older "depletion-loading" protocol (depleting glycogen through exhaustive exercise, then loading) has been largely abandoned. It is unnecessary, unpleasant, and the modern simplified approach achieves comparable glycogen levels with far less discomfort and risk.',
+          ],
+          imagePlaceholder: 'Timeline showing a modern carbohydrate loading protocol — normal intake 7 days before, taper training 3 days before, increase carbohydrate to 8-12g/kg 48 hours before event, with example foods',
+        },
+        {
+          heading: 'During-Event Fuelling',
+          paragraphs: [
+            'For events lasting over 60–90 minutes, consuming carbohydrates during activity maintains blood glucose levels and delays glycogen depletion. Current recommendations suggest 30–60 grams of carbohydrate per hour for events lasting 1–2.5 hours, increasing to up to 90 grams per hour for events exceeding 2.5 hours.',
+            'Achieving 90g/hour requires using multiple transportable carbohydrates (typically a 2:1 glucose-to-fructose ratio) to utilise different intestinal absorption pathways. This must be practised in training — the gut can be trained to tolerate higher carbohydrate intake, but attempting it for the first time on race day risks gastrointestinal distress.',
+          ],
+          bullets: [
+            'Events under 60 minutes — Water only (mouth rinsing with carbohydrate may provide a small benefit)',
+            'Events 1–2.5 hours — 30–60g carbohydrate per hour from gels, drinks, or whole foods',
+            'Events over 2.5 hours — Up to 90g per hour using glucose-fructose combinations',
+            'Practise your fuelling strategy in training — never try something new on race day',
+          ],
+        },
+        {
+          heading: 'Electrolytes and Hydration',
+          paragraphs: [
+            'During prolonged exercise, you lose sodium, potassium, and other electrolytes through sweat. Sodium is the primary electrolyte of concern — losses can range from 200mg to over 2,000mg per hour depending on sweat rate, genetics, and environmental conditions.',
+            'Hyponatraemia (dangerously low blood sodium) is a real risk during long endurance events and is usually caused by over-drinking plain water without replacing sodium. This is why electrolyte drinks and sodium supplementation are recommended for events lasting over 2 hours, particularly in hot conditions.',
+          ],
+        },
+      ],
+      unbreakableInsight: 'More people have ruined their race by experimenting with nutrition on the day than by under-training. Practise your fuelling strategy in training just as seriously as you practise your running or cycling.',
+      coachNote: 'Start training your gut with intra-session carbohydrates during your long runs or rides at least 6–8 weeks before your target event. Gradually increase the amount as your gut tolerance improves.',
+      practicalTask: {
+        title: 'Event Fuelling Plan',
+        instructions: 'Choose an endurance event (real or hypothetical) lasting over 90 minutes. Create a complete fuelling plan covering pre-event meals, carbohydrate loading, intra-event fuelling, and post-event recovery nutrition.',
+        reflectionQuestions: [
+          'How would your plan differ for a cool day versus a hot day?',
+          'What are the risks of under-fuelling versus over-fuelling during the event?',
+          'How would you practise this strategy during training?',
+        ],
+      },
+    },
+    {
+      number: 3,
+      title: 'Nutrition for Fat Loss',
+      learningOutcome: 'Understand evidence-based strategies for achieving and maintaining fat loss through nutritional manipulation, without compromising health or performance.',
+      assessmentCriteria: [
+        'Calculate an appropriate caloric deficit for sustainable fat loss',
+        'Explain the role of protein in preserving lean mass during a deficit',
+        'Discuss the psychological and physiological challenges of sustained fat loss phases',
+      ],
+      content: [
+        {
+          heading: 'Setting an Appropriate Deficit',
+          paragraphs: [
+            'Fat loss requires a sustained caloric deficit — consuming fewer calories than you expend. However, the size of the deficit matters enormously. Too aggressive (more than 500–700 calories below maintenance) and you risk muscle loss, hormonal disruption, performance decline, and psychological burnout. Too modest (less than 200 calories) and progress is so slow that adherence wavers.',
+            'A deficit of 300–500 calories below maintenance is appropriate for most people. This typically produces fat loss of 0.25–0.5kg per week in non-obese individuals. Overweight individuals can tolerate larger deficits initially, but the same principles apply as body fat decreases.',
+          ],
+          imagePlaceholder: 'Chart showing the relationship between deficit size, rate of fat loss, and risk of muscle loss — with an optimal zone highlighted at 300-500 calorie deficit for most individuals',
+        },
+        {
+          heading: 'Protein — Your Most Important Macronutrient During Fat Loss',
+          paragraphs: [
+            'During a caloric deficit, your body is in an energy-deprived state and will catabolise tissue for fuel. Without adequate protein and resistance training stimulus, a significant proportion of weight lost will be muscle — which reduces your metabolic rate and leaves you looking "skinny fat" rather than lean.',
+            'Protein intake during a deficit should increase to 2.0–2.4 grams per kilogram of body weight — higher than during maintenance or surplus phases. This higher intake helps preserve muscle mass, increases satiety (protein is the most filling macronutrient), and has a higher thermic effect (burning more calories during digestion).',
+          ],
+          bullets: [
+            'Maintenance or surplus — 1.6–2.0g protein per kg body weight',
+            'Fat loss phase — 2.0–2.4g protein per kg body weight',
+            'Very lean or aggressive dieting — Up to 2.7–3.0g/kg may be beneficial',
+            'Higher protein intake does not cause kidney damage in healthy individuals',
+          ],
+        },
+        {
+          heading: 'Managing Hunger and Adherence',
+          paragraphs: [
+            'The biggest predictor of successful fat loss is adherence — the ability to maintain the deficit consistently over weeks and months. Strategies that improve adherence include prioritising high-volume, low-calorie-density foods (vegetables, fruits, lean proteins), maintaining adequate fibre intake (25–35g daily), staying well-hydrated, and ensuring adequate sleep.',
+            'Flexible dieting approaches — where no foods are entirely off-limits but total intake is managed — consistently outperform rigid, restrictive diets for long-term adherence. The "best diet" is one you can actually follow consistently.',
+          ],
+        },
+        {
+          heading: 'When to Stop Dieting',
+          paragraphs: [
+            'Fat loss phases should not be indefinite. After 8–16 weeks in a deficit, a planned transition to maintenance calories (reverse dieting) is important for hormonal recovery, psychological health, and metabolic restoration. The goal is to spend the majority of your year at or near maintenance, with focused fat loss phases as relatively brief interventions.',
+            'Signs that you should end a fat loss phase include persistent fatigue, loss of menstrual cycle (amenorrhoea), significant strength loss, extreme hunger that disrupts daily life, poor sleep quality, and declining mental health.',
+          ],
+        },
+      ],
+      unbreakableInsight: 'The goal of fat loss is not to lose weight as quickly as possible — it is to lose fat while keeping as much muscle as possible. Speed kills results. Patience builds physiques.',
+      coachNote: 'If you have been dieting for more than 12 weeks without a break, take a planned 2-week period at maintenance calories. You will not lose progress — you will restore the hormonal and psychological resources needed to continue effectively.',
+      practicalTask: {
+        title: 'Fat Loss Phase Design',
+        instructions: 'Calculate your estimated maintenance calories using a TDEE calculator. Then design a 12-week fat loss plan including your target deficit, macronutrient breakdown, a diet break schedule, and criteria for when to end the phase.',
+        reflectionQuestions: [
+          'Is your planned deficit sustainable for 8–12 weeks?',
+          'How will you ensure your protein intake stays high enough to preserve muscle?',
+          'What non-scale indicators will you use to assess progress?',
+        ],
+      },
+    },
+    {
+      number: 4,
+      title: 'Nutrition for Muscle Gain',
+      learningOutcome: 'Understand the nutritional requirements for maximising lean muscle gain while minimising unnecessary fat accumulation.',
+      assessmentCriteria: [
+        'Explain the caloric surplus required for optimal muscle gain',
+        'Describe the concept of a "lean bulk" versus a traditional bulk',
+        'Discuss the diminishing returns of larger surpluses on muscle growth rate',
+      ],
+      content: [
+        {
+          heading: 'The Caloric Surplus for Muscle Growth',
+          paragraphs: [
+            'Building muscle requires a caloric surplus — providing your body with more energy than it expends. However, the relationship between surplus size and muscle growth is not linear. A modest surplus of 200–400 calories above maintenance provides sufficient energy for muscle growth in most trained individuals.',
+            'Larger surpluses (500+ calories) do not proportionally increase muscle growth rate — they primarily increase fat accumulation. The rate of muscle growth is limited by biological factors (protein synthesis capacity, hormonal environment, training stimulus) regardless of how much food you consume.',
+          ],
+          imagePlaceholder: 'Graph showing the relationship between caloric surplus size and muscle gain versus fat gain — demonstrating that beyond a moderate surplus, additional calories produce diminishing muscle gain and increasing fat gain',
+        },
+        {
+          heading: 'Lean Bulk vs Traditional Bulk',
+          paragraphs: [
+            'A "lean bulk" targets a modest surplus (200–400 calories) and aims for weight gain of 0.25–0.5% of body weight per week. This approach minimises fat gain, reduces the length and severity of any subsequent cutting phase, and keeps you looking presentable year-round.',
+            'A traditional "dirty bulk" with unrestricted eating may seem appealing — and it works in the sense that muscle is gained — but the excessive fat gain requires a longer, harder diet to remove. For natural lifters, the lean bulk approach is almost always superior for long-term body composition.',
+          ],
+          bullets: [
+            'Beginners — Can gain approximately 0.5–1% body weight per month (higher proportion as muscle)',
+            'Intermediate — Approximately 0.25–0.5% body weight per month',
+            'Advanced — Approximately 0.1–0.25% body weight per month (very slow muscle growth rate)',
+            'The more trained you are, the smaller the surplus needed and the slower the rate of gain',
+          ],
+        },
+        {
+          heading: 'Practical Implementation',
+          paragraphs: [
+            'Set your surplus at approximately 200–400 calories above maintenance. Prioritise protein at 1.6–2.2g per kilogram. Fill remaining calories with carbohydrates (which support training performance and glycogen replenishment) and adequate fat (at least 0.7g per kilogram for hormonal health).',
+            'Monitor weight gain weekly — if gaining faster than 0.5% body weight per week, reduce the surplus slightly. If weight is stable or declining, increase by 100–200 calories. This requires consistent tracking and patience, but produces the best long-term results.',
+          ],
+        },
+      ],
+      unbreakableInsight: 'You cannot force-feed your way to more muscle. Your body has a maximum rate of muscle protein synthesis — excess calories beyond that limit are stored as fat, full stop. Eat enough to grow, not enough to bloat.',
+      coachNote: 'Track your waist measurement alongside body weight during a gaining phase. If your waist is increasing significantly faster than your weight, your surplus is too large.',
+      practicalTask: {
+        title: 'Lean Bulk Nutrition Plan',
+        instructions: 'Design a one-week nutrition plan for a muscle gain phase. Calculate your maintenance calories, add a 200–400 calorie surplus, and plan your macronutrient distribution across 4–5 daily meals.',
+        reflectionQuestions: [
+          'How did you distribute your carbohydrate intake around training?',
+          'What rate of weight gain would be appropriate for your training experience level?',
+          'How would you know when to adjust your surplus up or down?',
+        ],
+      },
+    },
+    {
+      number: 5,
+      title: 'Hydration Science',
+      learningOutcome: 'Understand the science of hydration, including fluid balance, electrolytes, and practical strategies for optimal hydration in different contexts.',
+      assessmentCriteria: [
+        'Explain the physiological mechanisms of fluid balance and thirst',
+        'Describe the effects of dehydration on performance and health',
+        'Discuss practical hydration strategies for training and daily life',
+      ],
+      content: [
+        {
+          heading: 'Fluid Balance and Regulation',
+          paragraphs: [
+            'Your body is approximately 60% water by weight, and maintaining fluid balance is critical for virtually every physiological process — from temperature regulation to nutrient transport, joint lubrication, and cognitive function. Fluid balance is regulated primarily through thirst (which triggers drinking) and anti-diuretic hormone (ADH), which controls how much water your kidneys retain.',
+            'For most healthy individuals in normal conditions, drinking to thirst is a reliable hydration strategy. The commonly cited "eight glasses a day" has no robust scientific basis — fluid needs vary enormously based on body size, activity level, climate, and diet (many foods, particularly fruits and vegetables, contribute significant water).',
+          ],
+          imagePlaceholder: 'Diagram of human fluid balance — showing inputs (drinking, food moisture, metabolic water) and outputs (urine, sweat, respiration, faeces) with approximate daily volumes',
+        },
+        {
+          heading: 'Dehydration and Performance',
+          paragraphs: [
+            'Dehydration of 2% or more of body weight consistently impairs both physical and cognitive performance. For a 70kg individual, this represents a fluid loss of just 1.4 litres — easily achievable during an intense training session, particularly in warm environments.',
+            'Effects of dehydration include increased heart rate, reduced blood volume, impaired thermoregulation, decreased strength and power output, reduced endurance capacity, and impaired concentration and decision-making.',
+          ],
+          bullets: [
+            '1% dehydration — Thirst is triggered. Minimal performance impact for most activities',
+            '2% dehydration — Measurable decline in endurance performance and cognitive function',
+            '3–4% dehydration — Significant performance impairment, headache, increased heart rate',
+            '5%+ dehydration — Dangerous. Risk of heat illness, collapse, and organ damage',
+          ],
+        },
+        {
+          heading: 'Practical Hydration Strategies',
+          paragraphs: [
+            'Monitor your hydration status using urine colour — pale straw indicates good hydration, dark yellow suggests you need to drink more. First-morning urine is typically more concentrated, so assess mid-morning or afternoon urine for a more accurate picture.',
+            'Pre-hydrate before training by drinking 400–600ml of water in the 2–3 hours before exercise. During training, drink to thirst — approximately 150–250ml every 15–20 minutes for most activities. After training, replace approximately 150% of any weight lost during the session (if you lost 1kg, drink 1.5 litres over the following hours).',
+          ],
+        },
+      ],
+      unbreakableInsight: 'You do not need to force-drink water all day. Your thirst mechanism works. Drink when you are thirsty, drink around training, and stop overthinking it — unless you are training for over 90 minutes in the heat.',
+      coachNote: 'Carry a water bottle and sip throughout the day. If you arrive at training and your urine was dark at your last visit to the toilet, you are already behind on hydration.',
+      practicalTask: {
+        title: 'Hydration Assessment',
+        instructions: 'Track your fluid intake and urine colour for three consecutive days, including at least one training day. Note any symptoms of dehydration you may have been overlooking.',
+        reflectionQuestions: [
+          'Was your urine consistently pale straw throughout the day?',
+          'How much did your fluid intake differ between training and rest days?',
+          'Were you drinking enough before and during training?',
+        ],
+      },
+    },
+    {
+      number: 6,
+      title: 'Body Composition Assessment',
+      learningOutcome: 'Understand the methods, limitations, and practical applications of body composition assessment for tracking progress and informing nutritional decisions.',
+      assessmentCriteria: [
+        'Compare the accuracy, accessibility, and limitations of common body composition methods',
+        'Explain why body weight alone is an unreliable measure of progress',
+        'Describe how to use body composition data to inform nutritional adjustments',
+      ],
+      content: [
+        {
+          heading: 'Why Body Weight Is Misleading',
+          paragraphs: [
+            'Body weight is the simplest metric to track but one of the most misleading. Daily weight fluctuations of 1–3kg are normal and result from changes in water retention, glycogen stores, gut contents, and hormonal cycles — none of which reflect actual changes in fat or muscle mass.',
+            'A person can lose fat, gain muscle, and improve their health dramatically while their weight barely changes — or even increases. Conversely, rapid weight loss from crash dieting often reflects water and muscle loss rather than meaningful fat reduction.',
+          ],
+          imagePlaceholder: 'Graph showing daily body weight fluctuations over 4 weeks versus the actual fat loss trend line — demonstrating how daily weight obscures the real progress trend',
+        },
+        {
+          heading: 'Methods of Body Composition Assessment',
+          paragraphs: [
+            'Several methods exist for estimating body composition, each with different levels of accuracy, cost, and accessibility.',
+          ],
+          bullets: [
+            'DEXA scan — Considered the practical gold standard. Uses low-dose X-rays to differentiate bone, lean mass, and fat mass. Accurate to approximately 1–2% body fat. Cost: approximately £50–150 per scan',
+            'Bioelectrical impedance (BIA) — Uses a small electrical current to estimate body composition. Found in home scales and gym devices. Accuracy is highly variable — affected by hydration, food intake, and skin temperature. Best used for tracking trends, not absolute values',
+            'Skinfold callipers — Measure subcutaneous fat thickness at specific sites. Accuracy depends entirely on the skill of the person taking measurements. Consistent technique from the same practitioner provides useful trend data',
+            'Waist circumference — Simple, free, and surprisingly informative. Strongly correlates with visceral fat and metabolic health risk. Men above 94cm and women above 80cm are at increased risk',
+            'Progress photos — Perhaps the most practical tool. Taken monthly under consistent conditions (same lighting, time, clothing), they reveal changes that numbers often miss',
+          ],
+        },
+        {
+          heading: 'Using Body Composition Data',
+          paragraphs: [
+            'No single measurement tells the full story. The most effective approach combines multiple metrics: weekly average weight (not daily weight), monthly waist circumference, monthly progress photos, and if accessible, periodic DEXA or skinfold measurements.',
+            'Use this data to inform nutritional adjustments. If weight is stable but waist is decreasing and photos show visible improvement, you are likely recomposing (gaining muscle while losing fat) — even though the scale suggests "no progress." If weight is increasing and waist is also increasing, your surplus is likely too large.',
+          ],
+        },
+      ],
+      unbreakableInsight: 'The scale measures your relationship with gravity, not your progress. If you are chasing a number on the scale rather than how you look, feel, and perform, you are optimising for the wrong thing.',
+      coachNote: 'Take progress photos on the first of every month — same time, same lighting, same clothing. After three months, the visual changes will tell you more than any scale ever could.',
+      practicalTask: {
+        title: 'Multi-Metric Progress Tracking Setup',
+        instructions: 'Set up a comprehensive progress tracking system using at least three different metrics. Take baseline measurements and plan your reassessment schedule.',
+        reflectionQuestions: [
+          'Which metric do you currently rely on most heavily? Is it the most informative?',
+          'How might tracking multiple metrics change your response to daily weight fluctuations?',
+          'What would you do if your weight increased but your waist measurement decreased?',
+        ],
+      },
+    },
+  ],
+};
