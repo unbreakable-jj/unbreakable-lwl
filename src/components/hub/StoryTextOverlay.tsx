@@ -27,6 +27,7 @@ export interface TextOverlayData {
   borderColor?: string;
   borderWidth?: number;
   fontFamily?: string;
+  slideIndex?: number;
 }
 
 interface StoryTextOverlayProps {
