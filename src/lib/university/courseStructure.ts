@@ -1,4 +1,4 @@
-import type { Level, ChapterQuiz } from './types';
+import type { Level, ChapterQuiz, CourseDefinition } from './types';
 import { level2Unit1 } from './level2/unit1';
 import { level2Unit2 } from './level2/unit2';
 import { level2Unit3 } from './level2/unit3';
@@ -27,6 +27,19 @@ import { level3Unit1ChapterQuizzes } from './level3/unit1-chapter-quizzes';
 import { level3Unit2ChapterQuizzes } from './level3/unit2-chapter-quizzes';
 import { level3Unit3ChapterQuizzes } from './level3/unit3-chapter-quizzes';
 import { level3Unit4ChapterQuizzes } from './level3/unit4-chapter-quizzes';
+
+// Nutrition Level 2 imports
+import { nutritionL2Unit1 } from './nutrition-l2/unit1';
+import { nutritionL2Unit2 } from './nutrition-l2/unit2';
+import { nutritionL2Unit3 } from './nutrition-l2/unit3';
+import { nutritionL2Unit4 } from './nutrition-l2/unit4';
+import {
+  nutritionL2Unit1Assessment, nutritionL2Unit2Assessment,
+  nutritionL2Unit3Assessment, nutritionL2Unit4Assessment,
+  nutritionL2FinalAssessment,
+  nutritionL2Unit1ChapterQuizzes, nutritionL2Unit2ChapterQuizzes,
+  nutritionL2Unit3ChapterQuizzes, nutritionL2Unit4ChapterQuizzes,
+} from './nutrition-l2/assessments';
 
 export const PASS_MARK_PERCENT = 80;
 
