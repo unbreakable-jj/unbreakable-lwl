@@ -4,6 +4,7 @@ export const level2FinalAssessment: UnitAssessment = {
   unitNumber: 0,
   title: 'Level 2 Final Assessment',
   passMarkPercent: 80,
+  pickCount: 80,
   questions: [
     // ═══════════════════════════════════════════════════════════════
     //  UNIT 1 — UNDERSTANDING THE BODY (Q1–Q20)
@@ -869,6 +870,471 @@ export const level2FinalAssessment: UnitAssessment = {
       ],
       correctAnswer: 1,
       explanation: 'This combines every key principle from the course: full-body training for frequency, compound movements for efficiency, appropriate rep range for hypertrophy, progressive overload for continued adaptation, RAMP warm-up for injury prevention, cool-down for recovery, and logging for accountability. This is the complete foundation.',
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    //  ADDITIONAL BANK QUESTIONS — UNIT 1 (Q81–Q90)
+    // ═══════════════════════════════════════════════════════════════
+
+    {
+      type: 'multiple_choice',
+      question: 'Which plane of movement does a lateral lunge primarily occur in?',
+      options: ['Sagittal plane', 'Frontal plane', 'Transverse plane', 'Longitudinal plane'],
+      correctAnswer: 1,
+      explanation: 'A lateral lunge involves side-to-side movement — abduction and adduction at the hip — which occurs in the frontal (coronal) plane.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What type of joint is the knee?',
+      options: ['Ball-and-socket', 'Pivot', 'Hinge', 'Gliding'],
+      correctAnswer: 2,
+      explanation: 'The knee is a hinge joint, primarily allowing flexion and extension in the sagittal plane. It permits a small amount of rotation when flexed, but its primary movement is hinge-like.',
+    },
+    {
+      type: 'scenario',
+      question: 'Which muscle role is the triceps playing here?',
+      scenario: 'During a bench press, your triceps extend the elbow to lock out the barbell. The pectoralis major is the primary mover.',
+      options: ['Agonist', 'Antagonist', 'Synergist', 'Fixator'],
+      correctAnswer: 2,
+      explanation: 'The triceps act as a synergist during the bench press — they assist the primary mover (pectoralis major) by extending the elbow during the pressing motion.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is cardiac output?',
+      options: [
+        'The amount of blood the heart pumps per beat',
+        'The total volume of blood pumped by the heart per minute (heart rate × stroke volume)',
+        'The resting heart rate',
+        'The maximum heart rate during exercise',
+      ],
+      correctAnswer: 1,
+      explanation: 'Cardiac output = heart rate × stroke volume. It represents the total volume of blood pumped per minute and increases significantly during exercise to meet the working muscles\' oxygen demands.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is the role of haemoglobin in exercise?',
+      options: [
+        'It breaks down lactic acid',
+        'It carries oxygen from the lungs to working muscles',
+        'It stores glycogen in the muscles',
+        'It regulates body temperature',
+      ],
+      correctAnswer: 1,
+      explanation: 'Haemoglobin is the iron-containing protein in red blood cells that binds to oxygen in the lungs and transports it to working muscles. Iron deficiency reduces haemoglobin and impairs exercise performance.',
+    },
+    {
+      type: 'scenario',
+      question: 'What is happening physiologically?',
+      scenario: 'During a set of heavy back squats, you hold your breath at the bottom of the rep to brace your core, then exhale forcefully as you stand up.',
+      options: [
+        'You are hyperventilating',
+        'You are performing the Valsalva manoeuvre to increase intra-abdominal pressure and stabilise the spine',
+        'You are having a panic attack',
+        'You are using incorrect breathing — you should always breathe normally',
+      ],
+      correctAnswer: 1,
+      explanation: 'The Valsalva manoeuvre involves holding the breath against a closed glottis to increase intra-abdominal pressure, providing spinal stabilisation during heavy lifts. It is a deliberate technique, not a breathing error.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'Which muscle fibre type has the highest fatigue resistance?',
+      options: ['Type IIx', 'Type IIa', 'Type I', 'All fibre types fatigue equally'],
+      correctAnswer: 2,
+      explanation: 'Type I (slow-twitch) fibres are the most fatigue-resistant due to their high mitochondrial density and reliance on aerobic metabolism. They are recruited for sustained, low-intensity activities.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is the difference between a tendon and a ligament?',
+      options: [
+        'They are the same structure',
+        'A tendon connects muscle to bone; a ligament connects bone to bone',
+        'A tendon connects bone to bone; a ligament connects muscle to bone',
+        'Tendons are only found in the legs',
+      ],
+      correctAnswer: 1,
+      explanation: 'Tendons attach muscle to bone, transmitting force during contraction. Ligaments connect bone to bone, providing joint stability. Both are made of connective tissue but serve different structural roles.',
+    },
+    {
+      type: 'scenario',
+      question: 'Which energy system is predominantly fuelling this activity?',
+      scenario: 'You go for a comfortable 40-minute jog at a pace where you can hold a conversation throughout.',
+      options: ['ATP-PC system', 'Anaerobic glycolysis', 'Aerobic system', 'All three equally'],
+      correctAnswer: 2,
+      explanation: 'A sustained, low-to-moderate intensity effort lasting well beyond 3 minutes is fuelled predominantly by the aerobic system, using oxygen to metabolise fats and carbohydrates for ATP production.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is "DOMS" and when does it typically peak?',
+      options: [
+        'Delayed Onset Muscle Soreness — peaks immediately after exercise',
+        'Delayed Onset Muscle Soreness — typically peaks 24–72 hours after unaccustomed or eccentric-heavy exercise',
+        'Direct Overload Muscle Strain — occurs during exercise',
+        'Daily Optimal Muscle Stimulation — a training method',
+      ],
+      correctAnswer: 1,
+      explanation: 'DOMS is the muscle soreness experienced after unaccustomed or eccentric-heavy exercise. It typically peaks 24–72 hours post-exercise and is caused by microstructural damage to muscle fibres during the recovery and adaptation process.',
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    //  ADDITIONAL BANK QUESTIONS — UNIT 2 (Q91–Q100)
+    // ═══════════════════════════════════════════════════════════════
+
+    {
+      type: 'multiple_choice',
+      question: 'What are the three macronutrients?',
+      options: ['Vitamins, minerals, water', 'Protein, carbohydrates, fat', 'Iron, calcium, zinc', 'Fibre, sodium, potassium'],
+      correctAnswer: 1,
+      explanation: 'The three macronutrients — protein, carbohydrates, and fat — provide the body with energy (calories) and serve essential structural and functional roles. Vitamins and minerals are micronutrients.',
+    },
+    {
+      type: 'scenario',
+      question: 'What adjustment should you make first?',
+      scenario: 'You have been in a calorie deficit for 16 weeks. Initial fat loss was steady, but the last 4 weeks you have seen no change on the scale or in measurements. You feel tired and your training has suffered.',
+      options: [
+        'Cut calories further to break through the plateau',
+        'Consider a diet break or reverse dieting period — 2 weeks at maintenance calories to restore metabolic rate, leptin, and training performance before resuming the deficit',
+        'Start doing 2 hours of cardio daily',
+        'Switch to a liquid-only diet',
+      ],
+      correctAnswer: 1,
+      explanation: 'After 16 weeks of sustained deficit, metabolic adaptation is likely. A diet break (2 weeks at estimated maintenance) helps restore metabolic rate, hormone levels, and psychological well-being before resuming the deficit.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'Which vitamin is fat-soluble?',
+      options: ['Vitamin C', 'Vitamin B12', 'Vitamin D', 'Folate'],
+      correctAnswer: 2,
+      explanation: 'Vitamins A, D, E, and K are fat-soluble — they require dietary fat for absorption and are stored in the body. Vitamins C and B-complex are water-soluble and need regular replenishment.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is the thermic effect of food (TEF)?',
+      options: [
+        'The calories burned during cooking',
+        'The energy the body uses to digest, absorb, and process nutrients from food',
+        'The heat generated during exercise',
+        'The number of calories in a food before cooking',
+      ],
+      correctAnswer: 1,
+      explanation: 'TEF accounts for roughly 10% of total daily energy expenditure. Protein has the highest thermic effect (~20–30%), followed by carbohydrates (~5–10%), and fat (~0–3%). This is one reason high-protein diets can support fat loss.',
+    },
+    {
+      type: 'scenario',
+      question: 'Is this claim accurate?',
+      scenario: 'A friend tells you that eating carbohydrates after 6pm will automatically be stored as fat because your metabolism "shuts down" at night.',
+      options: [
+        'Yes — carbs after 6pm always become fat',
+        'No — total daily intake determines body composition, not meal timing. Metabolism does not shut down at night; it simply slows slightly during sleep.',
+        'Partially true — only complex carbs are stored as fat after 6pm',
+        'True for women but not for men',
+      ],
+      correctAnswer: 1,
+      explanation: 'This is a persistent myth. Your body does not have a "cut-off" time after which all carbohydrates are stored as fat. Total daily calorie balance determines fat gain or loss. Metabolism remains active during sleep (BMR continues).',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'How many essential amino acids are there?',
+      options: ['4', '9', '15', '20'],
+      correctAnswer: 1,
+      explanation: 'There are 9 essential amino acids that the body cannot produce and must obtain from food: histidine, isoleucine, leucine, lysine, methionine, phenylalanine, threonine, tryptophan, and valine.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is the primary role of dietary fibre?',
+      options: [
+        'To provide calories for energy',
+        'To support digestive health, regulate blood sugar, and promote satiety',
+        'To build muscle tissue',
+        'To replace the need for water',
+      ],
+      correctAnswer: 1,
+      explanation: 'Dietary fibre supports gut health, promotes satiety (helping control appetite), regulates blood sugar by slowing carbohydrate absorption, and feeds beneficial gut bacteria. A daily intake of 25–30g is recommended.',
+    },
+    {
+      type: 'scenario',
+      question: 'What is the best strategy?',
+      scenario: 'You are training for a half marathon in 8 weeks. Your current diet is high in protein (2.5g/kg) but very low in carbohydrates (1g/kg). You are struggling with energy during long runs.',
+      options: [
+        'Reduce protein and add more fat for energy',
+        'Increase carbohydrate intake to 3–5g/kg to fuel endurance training while maintaining adequate protein at 1.6–2.0g/kg',
+        'Take more caffeine before runs',
+        'Run slower to conserve energy',
+      ],
+      correctAnswer: 1,
+      explanation: 'Endurance training requires adequate glycogen stores, which come from carbohydrates. At 1g/kg, carb intake is insufficient for half-marathon training. Increasing to 3–5g/kg ensures fuel availability for long runs while maintaining protein for recovery.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What does "TDEE" stand for?',
+      options: [
+        'Total Daily Exercise Expenditure',
+        'Total Daily Energy Expenditure',
+        'Typical Dietary Energy Estimate',
+        'Total Dietary Essential Elements',
+      ],
+      correctAnswer: 1,
+      explanation: 'TDEE is Total Daily Energy Expenditure — the total number of calories you burn in a day, comprising BMR + TEF + NEAT + exercise activity. It is the baseline for calculating calorie targets for any goal.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is the recommended daily water intake for an active individual?',
+      options: [
+        'Exactly 8 glasses regardless of activity',
+        'Approximately 35–45ml per kg of bodyweight, increasing with exercise intensity and environmental heat',
+        '500ml per day is sufficient',
+        'Only drink when thirsty — the body always signals accurately',
+      ],
+      correctAnswer: 1,
+      explanation: 'A practical guideline is 35–45ml per kg of bodyweight as a baseline, with additional intake during and after exercise (400–800ml per hour of training). Thirst is not always a reliable indicator, especially during intense exercise.',
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    //  ADDITIONAL BANK QUESTIONS — UNIT 3 (Q101–Q110)
+    // ═══════════════════════════════════════════════════════════════
+
+    {
+      type: 'multiple_choice',
+      question: 'What does the "P" in the RAMP warm-up stand for?',
+      options: ['Prepare', 'Potentiate', 'Perform', 'Prevent'],
+      correctAnswer: 1,
+      explanation: 'P stands for Potentiate — this phase primes the neuromuscular system for the session by ramping up to working intensity with progressively heavier warm-up sets or sport-specific movements.',
+    },
+    {
+      type: 'scenario',
+      question: 'What is the most likely cause?',
+      scenario: 'You perform a personal best deadlift, but immediately after the lift your vision darkens momentarily and you feel dizzy for a few seconds before recovering.',
+      options: [
+        'You have a serious heart condition',
+        'Rapid blood pressure changes from the Valsalva manoeuvre and sudden exertion caused a brief drop in cerebral blood pressure (orthostatic-type response)',
+        'You are severely dehydrated',
+        'Your blood sugar has crashed',
+      ],
+      correctAnswer: 1,
+      explanation: 'Brief dizziness or visual darkening after a maximal lift is commonly caused by rapid blood pressure fluctuations — high intrathoracic pressure during the Valsalva followed by sudden release. It is typically harmless but worth monitoring if recurrent.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is the recommended rep range for developing maximal strength?',
+      options: ['1–5 reps at 85–100% 1RM', '8–12 reps at 65–75% 1RM', '15–20 reps at 50–60% 1RM', '30+ reps at very light load'],
+      correctAnswer: 0,
+      explanation: 'Maximal strength is best developed with heavy loads (85–100% 1RM) for low reps (1–5), with longer rest periods (3–5 minutes). This rep range maximises neural adaptations and motor unit recruitment.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is the primary benefit of static stretching after training?',
+      options: [
+        'It builds muscle',
+        'It promotes flexibility, aids venous return, and helps transition the body from a training state to a recovery state',
+        'It prevents all injuries',
+        'It increases strength immediately',
+      ],
+      correctAnswer: 1,
+      explanation: 'Post-training static stretching promotes flexibility, assists in returning heart rate and blood pressure to resting levels, aids venous return, and helps shift the nervous system towards parasympathetic (recovery) dominance.',
+    },
+    {
+      type: 'scenario',
+      question: 'What adaptation has occurred?',
+      scenario: 'After 12 weeks of consistent resistance training, you can lift significantly more weight, but your muscles have not visibly grown much. You are a beginner.',
+      options: [
+        'The programme is not working',
+        'Early strength gains in beginners are primarily neural — improved motor unit recruitment, firing rate, and coordination — rather than muscular hypertrophy',
+        'You are losing muscle while gaining strength',
+        'You need more protein supplements',
+      ],
+      correctAnswer: 1,
+      explanation: 'Beginner strength gains (first 8–12 weeks) are predominantly neural: the nervous system learns to recruit more motor units, fire them more rapidly, and coordinate movement more efficiently. Visible muscle growth (hypertrophy) typically becomes noticeable after 6–12 weeks.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is the FITT principle?',
+      options: [
+        'A type of training programme',
+        'Frequency, Intensity, Time, and Type — the four variables used to structure any exercise programme',
+        'A stretching technique',
+        'A nutrition framework',
+      ],
+      correctAnswer: 1,
+      explanation: 'FITT provides a framework for programming: Frequency (how often), Intensity (how hard), Time (how long), and Type (what kind of exercise). Adjusting these variables allows for progressive overload and programme individualisation.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is a compound exercise?',
+      options: [
+        'An exercise that targets one muscle at one joint',
+        'An exercise that involves movement at two or more joints and recruits multiple muscle groups',
+        'Any exercise using a barbell',
+        'An exercise performed in a circuit',
+      ],
+      correctAnswer: 1,
+      explanation: 'Compound exercises involve multiple joints and muscle groups simultaneously (e.g., squat, deadlift, bench press, pull-up). They are more efficient, burn more calories, and better mimic real-world movement patterns than isolation exercises.',
+    },
+    {
+      type: 'scenario',
+      question: 'What is the best approach?',
+      scenario: 'You want to improve both your cardiovascular fitness and muscular strength. You have heard that doing cardio and weights in the same session can interfere with strength gains.',
+      options: [
+        'Never combine cardio and resistance training',
+        'Prioritise the goal that matters most — do it first in the session. For most people, moderate cardio does not significantly impair strength gains when programmed appropriately.',
+        'Only do cardio — strength training is unnecessary for cardiovascular health',
+        'Do 2 hours of cardio before every weights session',
+      ],
+      correctAnswer: 1,
+      explanation: 'The "interference effect" is real but often overstated for recreational trainees. Performing the priority modality first (e.g., weights before cardio if strength is the goal) and keeping cardio volume moderate minimises any interference.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is the specificity principle?',
+      options: [
+        'All training produces the same results',
+        'Training adaptations are specific to the type of stimulus applied — you get what you train for',
+        'You must train every muscle in every session',
+        'Specificity only applies to professional athletes',
+      ],
+      correctAnswer: 1,
+      explanation: 'The specificity principle (SAID: Specific Adaptation to Imposed Demands) means your body adapts specifically to the type of training you do. Heavy lifting improves strength; endurance training improves aerobic capacity. Training must match your goals.',
+    },
+    {
+      type: 'scenario',
+      question: 'What should you do?',
+      scenario: 'You feel a sharp pain in your shoulder during an overhead press. The pain is localised to one point and increases with continued pressing.',
+      options: [
+        'Push through the pain — it will go away',
+        'Stop the exercise immediately, apply ice if needed, and seek professional assessment if the pain persists. Acute, sharp, localised pain during exercise is a warning signal.',
+        'Switch to a heavier weight to "work through" the discomfort',
+        'Take painkillers and continue the session',
+      ],
+      correctAnswer: 1,
+      explanation: 'Sharp, localised pain during exercise indicates potential tissue damage (muscle, tendon, or joint). The correct response is to stop immediately, reduce inflammation, and seek assessment. Training through acute pain risks worsening the injury significantly.',
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    //  ADDITIONAL BANK QUESTIONS — UNIT 4 (Q111–Q120)
+    // ═══════════════════════════════════════════════════════════════
+
+    {
+      type: 'multiple_choice',
+      question: 'What is the purpose of a training log?',
+      options: [
+        'To show off on social media',
+        'To objectively track sets, reps, weight, and RPE — enabling progressive overload and identifying trends',
+        'To plan meals',
+        'To count how many days you have trained',
+      ],
+      correctAnswer: 1,
+      explanation: 'A training log provides objective data for decision-making: it shows whether progressive overload is occurring, identifies patterns (e.g., performance dips indicating recovery issues), and ensures accountability.',
+    },
+    {
+      type: 'scenario',
+      question: 'What is the most likely issue and solution?',
+      scenario: 'You have been following a programme for 4 weeks but have not increased any weights. You train consistently but admit you do not push hard — you always stop your sets with 3–4 reps "left in the tank."',
+      options: [
+        'You need a completely different programme',
+        'You are not training close enough to failure — progressive overload requires sets within 1–3 RIR (reps in reserve) for most training goals. Increase effort on working sets.',
+        'You should train to absolute failure every set',
+        'You need more rest days',
+      ],
+      correctAnswer: 1,
+      explanation: 'Stopping sets too far from failure means insufficient stimulus for adaptation. Most hypertrophy and strength work requires sets within 1–3 RIR. This provides enough mechanical tension to drive progress while managing fatigue.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is "sleep hygiene"?',
+      options: [
+        'How clean your bedroom is',
+        'The habits and environmental factors that promote consistent, quality sleep — such as regular sleep times, cool room temperature, and limiting screen use before bed',
+        'A type of sleep disorder',
+        'How many hours you sleep',
+      ],
+      correctAnswer: 1,
+      explanation: 'Sleep hygiene encompasses the behaviours and environmental conditions that support quality sleep: consistent bed/wake times, dark and cool room, limiting blue light exposure, avoiding caffeine late in the day, and creating a pre-sleep routine.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is the difference between a mesocycle and a microcycle?',
+      options: [
+        'They are the same thing',
+        'A mesocycle is a training block of 4–6 weeks; a microcycle is typically one week within that block',
+        'A microcycle is longer than a mesocycle',
+        'These terms only apply to elite athletes',
+      ],
+      correctAnswer: 1,
+      explanation: 'A mesocycle (4–6 weeks) contains multiple microcycles (typically 1 week each). This structure allows for planned progression within mesocycles and strategic variation between them.',
+    },
+    {
+      type: 'scenario',
+      question: 'Which goal is SMART?',
+      scenario: 'You are setting training goals for the next 8 weeks. Consider these options carefully.',
+      options: [
+        '"I want to get stronger"',
+        '"I will increase my barbell back squat from 60 kg × 5 to 70 kg × 5 within 8 weeks by squatting twice per week with progressive overload"',
+        '"I will be the strongest person in my gym"',
+        '"I will try to exercise more"',
+      ],
+      correctAnswer: 1,
+      explanation: 'This goal is Specific (back squat improvement), Measurable (60→70 kg × 5), Achievable (realistic in 8 weeks), Relevant (directly addresses strength), and Time-bound (8-week deadline with a clear plan).',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is the primary benefit of training with a partner or coach?',
+      options: [
+        'They can lift the weight for you',
+        'Accountability, safety (spotting), feedback on technique, and motivation',
+        'It makes the gym more social',
+        'Partners are only useful for advanced lifters',
+      ],
+      correctAnswer: 1,
+      explanation: 'A training partner provides accountability (showing up), safety during heavy lifts, objective feedback on technique, and motivation during difficult sets. These factors collectively improve training consistency and quality.',
+    },
+    {
+      type: 'scenario',
+      question: 'What should you prioritise?',
+      scenario: 'You have a stressful week at work: sleeping poorly, eating irregularly, and feeling mentally drained. You have three training sessions planned.',
+      options: [
+        'Complete all three sessions at full intensity regardless',
+        'Reduce training intensity or volume — perhaps 2 lighter sessions focused on movement quality rather than heavy lifting, prioritising sleep and nutrition recovery',
+        'Skip all training until stress passes completely',
+        'Add extra sessions to "burn off" the stress',
+      ],
+      correctAnswer: 1,
+      explanation: 'Training is a physical stressor. When life stress is high and recovery is compromised, maintaining some training (reduced volume/intensity) preserves the habit while avoiding further stress accumulation. Recovery must match or exceed total stress load.',
+    },
+    {
+      type: 'multiple_choice',
+      question: 'What is the "minimum effective dose" in training?',
+      options: [
+        'The maximum amount of training you can tolerate',
+        'The smallest amount of training stimulus needed to produce an adaptation',
+        'A pharmaceutical concept with no application to exercise',
+        'One set of one exercise per week',
+      ],
+      correctAnswer: 1,
+      explanation: 'The minimum effective dose is the smallest training stimulus that still drives adaptation. For beginners, this can be surprisingly low. Starting at the minimum effective dose allows room to increase volume as you progress — a key programming strategy.',
+    },
+    {
+      type: 'scenario',
+      question: 'What is the most appropriate response?',
+      scenario: 'A friend says: "I cannot start training because I cannot afford a gym membership, supplements, or special equipment."',
+      options: [
+        'They are correct — training requires expensive equipment and supplements',
+        'Effective training can start with bodyweight exercises at home, progressive overload using household items, and zero supplements. The barrier is perceived, not real.',
+        'They should wait until they can afford a full gym setup',
+        'Only gym training is effective',
+      ],
+      correctAnswer: 1,
+      explanation: 'The foundations of training — progressive overload, movement patterns, consistency — require no equipment or supplements. Bodyweight exercises (press-ups, squats, lunges, rows using a table) can build significant strength and fitness. Removing perceived barriers is essential for starting.',
+    },
+    {
+      type: 'scenario',
+      question: 'What does this scenario demonstrate about the course material?',
+      scenario: 'You have completed this entire course. You understand anatomy, nutrition, exercise principles, and programme design. But you have not yet started training.',
+      options: [
+        'You are now fully prepared and should wait for the perfect moment',
+        'Knowledge without action is meaningless. The purpose of this course is to give you the understanding to start confidently and train intelligently — not to replace the act of training itself. Start today.',
+        'You need another course before beginning',
+        'Reading about training is equivalent to doing it',
+      ],
+      correctAnswer: 1,
+      explanation: 'The ultimate lesson: education provides the foundation, but action creates the results. Every concept in this course — progressive overload, nutrition fundamentals, recovery, goal-setting — only works when applied. Start simple, stay consistent, and build from there. That is the Unbreakable way.',
     },
   ],
 };

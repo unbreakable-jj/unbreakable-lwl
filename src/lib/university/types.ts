@@ -38,6 +38,7 @@ export interface UnitAssessment {
   title: string;
   questions: AssessmentQuestion[];
   passMarkPercent: number;
+  pickCount?: number; // if set, randomly pick this many from questions bank
 }
 
 export interface Unit {
