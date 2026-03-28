@@ -1,106 +1,101 @@
 
 
-## Plan: Build Full Level 3 Course — Advanced Application
+## Plan: University Admin/Dev Control Panel
 
-### Structure (UK Level 3 Equivalent)
+### Approach
 
-8 chapters per unit across all 4 units = **32 chapters** total. This aligns with UK NVQ Level 3 depth expectations (Active IQ / NCFE standard).
+Create a client-side admin context that the existing `useUserRole` hook feeds into. When a user has `dev` or `coach` role, they get access to an admin control panel overlay on all University pages. All controls are local state — no database changes needed.
 
-### Unit & Chapter Breakdown
+### New Files
 
-**Unit 1 — Advanced Nutrition (8 chapters)**
-1. Macro Periodisation — adjusting macros across training phases
-2. Nutrient Timing — pre/intra/post-workout nutrition windows
-3. Evidence-Based Supplementation — what works, what doesn't, what's marketing
-4. Body Composition — understanding body fat, lean mass, recomposition
-5. Metabolic Adaptation — adaptive thermogenesis, diet breaks, reverse dieting
-6. Calorie Cycling — refeed days, high/low days, when to use them
-7. Digestion & Gut Health — fibre, microbiome, food intolerances
-8. Nutrition for Specific Goals — cutting, bulking, maintenance, endurance fuelling
+**1. `src/hooks/useUniversityAdmin.tsx`** — React context + provider
 
-**Unit 2 — Muscle Growth Principles (8 chapters)**
-1. Hypertrophy Science — mechanical tension, metabolic stress, muscle damage
-2. Progressive Overload in Practice — load, volume, density, range of motion
-3. Training Volume & Intensity — MRV, MEV, MAV, managing fatigue
-4. Muscle Fibre Types — Type I vs Type II, training implications
-5. Time Under Tension & Tempo — eccentric, concentric, isometric emphasis
-6. Deloading & Recovery Weeks — when, why, and how to programme them
-7. Mind-Muscle Connection — internal vs external cueing, research findings
-8. Advanced Rep Schemes — drop sets, rest-pause, cluster sets, myo-reps
+Manages 3 boolean toggles (persisted to localStorage):
+- `adminMode` — master toggle (only available to dev/coach roles)
+- `unlockAll` — bypasses all progression gating
+- `showAnswers` — highlights correct answers in quizzes/assessments
 
-**Unit 3 — Programme Design (8 chapters)**
-1. Periodisation Models — linear, undulating, block, conjugate
-2. Exercise Selection & Order — compound vs isolation, sequencing logic
-3. Training Splits — push/pull/legs, upper/lower, full body, bro splits
-4. Auto-Regulation — RPE, RIR, adjusting on the fly
-5. Weak Point Training — identifying and addressing lagging muscle groups
-6. Peaking & Tapering — preparing for a test, event, or peak performance
-7. Programming for Different Training Ages — beginner, intermediate, advanced
-8. Putting It All Together — building a full 12-week programme from scratch
+Derived state:
+- `isStudentPreview` — when adminMode is ON but user clicks "Preview as Student", all overrides are temporarily disabled
 
-**Unit 4 — Behaviour & Lifestyle (8 chapters)**
-1. Adherence Psychology — why people quit and how to build consistency
-2. Habit Formation — cue-routine-reward, habit stacking, environment design
-3. Stress & the Nervous System — cortisol, sympathetic vs parasympathetic, HRV
-4. Sleep Optimisation — sleep hygiene, circadian rhythm, impact on performance
-5. Managing Training Around Life — work, travel, illness, motivation dips
-6. Self-Talk & Mental Frameworks — identity-based habits, growth mindset
-7. Social Influence & Accountability — gym partners, communities, comparison traps
-8. Long-Term Sustainability — avoiding burnout, periodising life, the 80/20 rule
+Exposes:
+- `resetProgress()` — calls delete on `university_progress`, `university_assessments`, `university_chapter_quizzes` for the current user, then invalidates queries
 
-### Per Chapter Structure (identical to Level 2)
-- Learning Outcome
-- Assessment Criteria (3 items)
-- Content sections with headings, paragraphs, bullets
-- `imagePlaceholder` for each chapter (to be replaced with generated images later)
-- Unbreakable Insight (blunt truth)
-- Coach's Note (practical guidance)
-- Practical Task with reflection questions
+**2. `src/components/university/AdminControlPanel.tsx`** — Floating control bar
 
-### Chapter Quizzes
-- 10-question bank per chapter, pick 5, 80% pass mark
-- Same gating logic as Level 2 (must pass to unlock next chapter)
-- 320 quiz questions total (32 chapters × 10)
+Compact bar pinned to top of University pages (below nav), only rendered when user has dev/coach role. Contains:
+- Admin Mode toggle (Switch)
+- Unlock All toggle (Switch, disabled when admin mode off)
+- Show Answers toggle (Switch, disabled when admin mode off)
+- Preview as Student button (toggles student preview)
+- Reset Progress button (with confirmation dialog)
 
-### Final Exam
-- 120-question bank, pick 80, 80% pass mark
-- Same retry/randomisation logic as Level 2
-
-### Level Gating
-- Level 3 locked until Level 2 final exam is passed
-- UI shows lock icon and "Complete Level 2 to unlock" message
-
-### Files to Create (12 new files)
-
-| File | Content |
-|------|---------|
-| `src/lib/university/level3/unit1.ts` | 8 chapters, full content |
-| `src/lib/university/level3/unit2.ts` | 8 chapters, full content |
-| `src/lib/university/level3/unit3.ts` | 8 chapters, full content |
-| `src/lib/university/level3/unit4.ts` | 8 chapters, full content |
-| `src/lib/university/level3/unit1-chapter-quizzes.ts` | 80 questions |
-| `src/lib/university/level3/unit2-chapter-quizzes.ts` | 80 questions |
-| `src/lib/university/level3/unit3-chapter-quizzes.ts` | 80 questions |
-| `src/lib/university/level3/unit4-chapter-quizzes.ts` | 80 questions |
-| `src/lib/university/level3/assessments.ts` | Unit 1 optional revision |
-| `src/lib/university/level3/unit2-assessments.ts` | Unit 2 optional revision |
-| `src/lib/university/level3/unit3-assessments.ts` | Unit 3 optional revision |
-| `src/lib/university/level3/unit4-assessments.ts` | Unit 4 optional revision |
-| `src/lib/university/level3/final-assessment.ts` | 120-question bank |
+Styling: dark card with `border-primary/20`, consistent with existing University UI. Collapsible to a small icon when not needed.
 
 ### Files to Edit
 
-| File | Change |
-|------|--------|
-| `src/lib/university/courseStructure.ts` | Import all Level 3 files, wire into `courseData`, add gating logic |
-| `src/pages/UniversityLevel.tsx` | Add Level 3 lock check (must pass Level 2 final) |
+**3. `src/hooks/useUniversityProgress.tsx`**
+- Import `useUniversityAdmin` context
+- Wrap gating functions (`hasPassedChapterQuiz`, `hasPassedAssessment`, `isChapterComplete`, `allChapterQuizzesPassed`) to return `true` when `unlockAll` is active
+- Add `resetAllProgress()` mutation that deletes all 3 tables' rows for current user
 
-### Voice & Quality
-- All content in personal learner voice ("you/your")
-- British English throughout
-- No PT/instructor framing
-- Image placeholders describe the diagram needed for later generation
+**4. `src/pages/UniversityLevel.tsx`**
+- Import admin context; skip level lock check when `unlockAll` is true
+- Render `AdminControlPanel` when user has dev/coach role
 
-### Delivery
-Unit by unit — content first, then quizzes, then assessments, then final exam. Each unit fully polished before moving to the next.
+**5. `src/pages/University.tsx`**
+- Render `AdminControlPanel`
+
+**6. `src/pages/UniversityChapter.tsx`**
+- Skip chapter gating when `unlockAll` is true
+
+**7. `src/pages/UniversityChapterQuiz.tsx`**
+- When `showAnswers` is true, highlight correct answer option with green border after each question is answered (or all at once)
+
+**8. `src/pages/UniversityAssessment.tsx`**
+- Same `showAnswers` logic for assessment/final exam
+
+**9. `src/App.tsx`**
+- Wrap University routes in `UniversityAdminProvider`
+
+### How Gating Override Works
+
+```text
+useUniversityProgress
+  ├── hasPassedChapterQuiz(level, unit, ch)
+  │     └── if (adminContext.unlockAll) return true
+  │     └── else → normal DB check
+  ├── hasPassedAssessment(level, unit)
+  │     └── same override
+  └── allChapterQuizzesPassed(...)
+        └── same override
+```
+
+### Reset Progress Flow
+
+1. User clicks "Reset Progress"
+2. Confirmation dialog appears (using existing `DeleteConfirmModal`)
+3. On confirm: deletes all rows from `university_progress`, `university_assessments`, and `university_chapter_quizzes` for current user
+4. Invalidates all university query keys
+5. Toast: "Course progress reset"
+
+### Security
+
+- Admin panel only renders when `useUserRole()` returns `isDev` or `isCoach`
+- No new RLS policies needed — users can already delete their own rows
+- Controls are purely client-side overrides; no server-side admin bypass
+
+### Files Summary
+
+| # | File | Action |
+|---|------|--------|
+| 1 | `src/hooks/useUniversityAdmin.tsx` | Create — context + provider |
+| 2 | `src/components/university/AdminControlPanel.tsx` | Create — floating control bar |
+| 3 | `src/hooks/useUniversityProgress.tsx` | Edit — add unlock overrides + reset |
+| 4 | `src/pages/UniversityLevel.tsx` | Edit — skip lock, render panel |
+| 5 | `src/pages/University.tsx` | Edit — render panel |
+| 6 | `src/pages/UniversityChapter.tsx` | Edit — skip gating |
+| 7 | `src/pages/UniversityChapterQuiz.tsx` | Edit — show answers |
+| 8 | `src/pages/UniversityAssessment.tsx` | Edit — show answers |
+| 9 | `src/App.tsx` | Edit — wrap with provider |
 
