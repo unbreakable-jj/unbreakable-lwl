@@ -1,47 +1,116 @@
 
 
-## Plan: Navigation Relabelling + Session Logging UX Fix
+## Plan: Chapter Mini-Quizzes with Strict Gating + Final Exam
 
-### 1. Rename "HOME" tab to "TIMELINE"
+### Structure
 
-**Files affected:**
-- `src/components/hub/SocialHeader.tsx` — change `HOME` label to `TIMELINE`
-- `src/components/PageNavigation.tsx` — change `{ path: '/', label: 'HOME' }` to `TIMELINE`
-- `src/components/NavigationDrawer.tsx` — change the `HOME` link text to `TIMELINE`
-- `src/components/tracker/TrackerHeader.tsx` — change `Feed` label to `Timeline` (same concept)
+- **29 chapters** across 4 units (Unit 1: 5 chapters, Units 2-4: 8 chapters each)
+- Each chapter gets a **10-question bank** — system randomly picks 5 per attempt
+- **80% pass mark** (4/5 correct) to unlock the next chapter
+- Failed? Retry immediately with a fresh random draw from the same 10-question pool
+- **Existing unit assessments** kept as **optional revision** (relabelled, not required for progression)
+- **Final 80-question exam** unlocks only when all 29 chapter quizzes are passed
 
-### 2. Rename "UNBREAKABLE PROGRAMMING" to "UNBREAKABLE HOME"
+### Content: 290 New Questions
 
-**File affected:**
-- `src/components/NavigationDrawer.tsx` line 144 — change collapsible trigger label from `UNBREAKABLE PROGRAMMING` to `UNBREAKABLE HOME`
+| Unit | Chapters | Questions |
+|------|----------|-----------|
+| 1 — Understanding the Body | 5 | 50 |
+| 2 — Principles of Nutrition | 8 | 80 |
+| 3 — Introduction to Exercise | 8 | 80 |
+| 4 — Building Your Foundation | 8 | 80 |
+| **Total** | **29** | **290** |
 
-### 3. Fix Session Logging Scroll + Rest Timer UX
+Each question follows the existing `AssessmentQuestion` type (multiple choice or scenario-based, 4 options, explanation). All written in personal learner voice ("you/your").
 
-**Problem:** The `SessionLoggingView` has nested scrolling (outer `FullScreenToolView` + inner `h-[calc(100vh-180px)] overflow-y-auto`), the `CompactRestTimer` is a sticky card at the bottom that overlaps content and interferes with scrolling/input interactions. It's always fully expanded even when not in use.
+### Database
 
-**Solution — Collapsible Rest Timer:**
+New table: `university_chapter_quizzes`
+- `id`, `user_id`, `level`, `unit_number`, `chapter_number`, `score`, `total`, `passed`, `answers` (jsonb), `attempted_at`
+- RLS: users can insert/select their own rows
 
-In `SessionLoggingView.tsx`:
-- Remove the nested scroll container — let the `FullScreenToolView` handle the single scroll
-- Make the rest timer collapsible: when idle (not running), show only a minimal pill/bar (timer icon + time + tap to expand). When running or tapped, expand to full controls
-- Add a `minimized` state that defaults to `true`. Timer auto-expands when started (set completion triggers it), auto-minimizes 3 seconds after completion
-- Reduce z-index and use `pointer-events-none` on the timer overlay when minimized so it doesn't block scroll or dropdowns
+### Type Changes
 
-In `CompactRestTimer.tsx`:
-- Add a `minimized` prop and `onToggleMinimize` callback
-- When minimized: render a single-line bar showing the timer icon, countdown, and a chevron-up tap target (~40px tall)
-- When expanded: show current full UI
-- Remove the presets row when space is tight (move to expanded-only)
+**`src/lib/university/types.ts`** — add `ChapterQuiz` interface:
+```
+interface ChapterQuiz {
+  unitNumber: number;
+  chapterNumber: number;
+  questionBank: AssessmentQuestion[]; // 10 questions
+  pickCount: number; // 5
+  passMarkPercent: number; // 80
+}
+```
 
-**Result:** Single scroll context, rest timer stays accessible but out of the way, no more scroll/dropdown interference.
+Add `chapterQuizzes: ChapterQuiz[]` to `Level` interface.
 
-### Files Changed (5 total)
+### New Data Files (4 files)
 
-| File | Change |
-|------|--------|
-| `SocialHeader.tsx` | HOME → TIMELINE |
-| `PageNavigation.tsx` | HOME → TIMELINE |
-| `NavigationDrawer.tsx` | HOME → TIMELINE, UNBREAKABLE PROGRAMMING → UNBREAKABLE HOME |
-| `SessionLoggingView.tsx` | Remove nested scroll, add timer minimize state |
-| `CompactRestTimer.tsx` | Add minimized/expanded modes |
+- `src/lib/university/level2/unit1-chapter-quizzes.ts` — 50 questions
+- `src/lib/university/level2/unit2-chapter-quizzes.ts` — 80 questions
+- `src/lib/university/level2/unit3-chapter-quizzes.ts` — 80 questions
+- `src/lib/university/level2/unit4-chapter-quizzes.ts` — 80 questions
+
+### UI Changes
+
+**`src/pages/UniversityChapter.tsx`**
+- After "Mark as Complete", if chapter quiz exists and not yet passed, navigate to quiz instead of next chapter
+- "Next Chapter" button locked with lock icon if quiz not passed
+- Add quiz status indicator on the chapter page
+
+**`src/components/university/ChapterQuizView.tsx`** (new component)
+- Reuses `AssessmentQuiz` in mini-quiz mode (5 questions, compact layout)
+- Shows "Retry with new questions" button on failure (re-randomises from bank)
+- On pass: auto-navigates to next chapter or back to unit view
+
+**`src/pages/UniversityChapterQuiz.tsx`** (new page)
+- Route: `/university/level-:level/unit-:unit/chapter-:chapter/quiz`
+- Pulls 5 random questions from the chapter's 10-question bank
+- Submits results to `university_chapter_quizzes` table
+
+**`src/pages/UniversityLevel.tsx`**
+- Chapter list: show lock icon on chapters where previous chapter quiz not passed
+- Disable navigation to locked chapters
+- Unit assessment relabelled to "Optional Revision"
+- Final exam button: only enabled when all 29 chapter quizzes passed
+
+**`src/hooks/useUniversityProgress.tsx`**
+- Add `chapterQuizzes` query from new table
+- Add `hasPassedChapterQuiz(level, unit, chapter)` helper
+- Add `submitChapterQuiz` mutation
+
+**`src/lib/university/courseStructure.ts`**
+- Import and wire all 4 chapter quiz files
+- Add `getChapterQuiz(level, unit, chapter)` helper
+- Add quiz data to level structure
+
+**`src/App.tsx`**
+- Add route for `/university/level-:level/unit-:unit/chapter-:chapter/quiz`
+
+### Gating Logic
+
+```text
+Chapter 1 → read freely → complete → take quiz → pass (4/5) → Chapter 2 unlocks
+Chapter 2 → read freely → complete → take quiz → pass → Chapter 3 unlocks
+...
+All 29 quizzes passed → Final Exam unlocks
+```
+
+- Chapter 1 of each unit is always accessible (no prior quiz needed)
+- Unit boundaries: Unit 2 Ch1 unlocks after Unit 1's final chapter quiz is passed
+
+### Execution Order
+
+1. Database migration (new table + RLS)
+2. Type updates
+3. Quiz data files (unit by unit — largest deliverable)
+4. Hook updates
+5. New quiz page + component
+6. Chapter page gating logic
+7. Level page UI updates
+8. Route registration
+
+### Delivery
+
+This is a large content task (290 questions). I will deliver unit by unit, ensuring quality and consistency before moving to the next.
 
