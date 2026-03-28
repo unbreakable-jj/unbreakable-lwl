@@ -1,4 +1,12 @@
 import type { Unit } from '../types';
+import l3u4ch1Img from '@/assets/university/l3-u4-ch1-adherence.png';
+import l3u4ch2Img from '@/assets/university/l3-u4-ch2-habit-loop.png';
+import l3u4ch3Img from '@/assets/university/l3-u4-ch3-nervous-system.png';
+import l3u4ch4Img from '@/assets/university/l3-u4-ch4-sleep-stages.png';
+import l3u4ch5Img from '@/assets/university/l3-u4-ch5-stress-response.png';
+import l3u4ch6Img from '@/assets/university/l3-u4-ch6-social-support.png';
+import l3u4ch7Img from '@/assets/university/l3-u4-ch7-self-talk.png';
+import l3u4ch8Img from '@/assets/university/l3-u4-ch8-long-term-planning.png';
 
 export const level3Unit4: Unit = {
   number: 4,
@@ -35,7 +43,8 @@ export const level3Unit4: Unit = {
             'Consistency beats perfection every time. A person who trains three times per week for a year will achieve far more than someone who trains six times per week for six weeks and then burns out.',
             'The key shift is moving from a performance mindset ("I need to train perfectly") to a consistency mindset ("I need to keep showing up"). This means accepting that some sessions will be average, some meals will be imperfect, and progress will not be linear.',
           ],
-          imagePlaceholder: 'Graph comparing "perfect but unsustainable" adherence (high start, sharp drop-off) vs "imperfect but consistent" adherence (moderate, sustained line) over 12 months',
+          imageUrl: l3u4ch1Img,
+          imageAlt: 'Graph comparing perfect but unsustainable adherence vs imperfect but consistent adherence over 12 months',
         },
         {
           heading: 'Strategies for Long-Term Adherence',
@@ -91,7 +100,8 @@ export const level3Unit4: Unit = {
             'Routine — The behaviour itself. Going to the gym, preparing a meal, drinking water.',
             'Reward — The positive outcome that reinforces the loop. This could be the post-workout endorphin rush, the satisfaction of ticking a box, or a tangible reward you set for yourself.',
           ],
-          imagePlaceholder: 'Circular diagram showing the habit loop — Cue triggers Routine which produces Reward which reinforces the Cue — with fitness-specific examples at each stage',
+          imageUrl: l3u4ch2Img,
+          imageAlt: 'Circular diagram showing the habit loop — Cue triggers Routine which produces Reward which reinforces the Cue',
         },
         {
           heading: 'Habit Stacking',
@@ -162,7 +172,8 @@ export const level3Unit4: Unit = {
             'Suppressed immune function — Making you more susceptible to illness',
             'Reduced motivation — Chronic stress depletes the psychological resources needed for consistent training',
           ],
-          imagePlaceholder: 'Balance scale diagram showing sympathetic (fight or flight) vs parasympathetic (rest and digest) nervous system with factors that tip each direction',
+          imageUrl: l3u4ch3Img,
+          imageAlt: 'Balance scale diagram showing sympathetic vs parasympathetic nervous system with factors that tip each direction',
         },
         {
           heading: 'Heart Rate Variability (HRV)',
@@ -225,7 +236,8 @@ export const level3Unit4: Unit = {
             'Cortisol — Poor sleep elevates morning cortisol, promoting catabolism and fat storage.',
             'Leptin and ghrelin — Sleep deprivation decreases leptin (satiety) and increases ghrelin (hunger), making appetite control significantly harder.',
           ],
-          imagePlaceholder: 'Diagram showing the relationship between sleep stages (light, deep, REM) and hormonal release patterns across a typical 8-hour sleep cycle',
+          imageUrl: l3u4ch4Img,
+          imageAlt: 'Diagram showing sleep stages and hormonal release patterns across a typical 8-hour sleep cycle',
         },
         {
           heading: 'Sleep Hygiene Fundamentals',
@@ -288,7 +300,8 @@ export const level3Unit4: Unit = {
             'Muscle mass can be preserved with approximately one-third of your normal training volume, provided intensity is maintained',
             'Cardiovascular fitness declines more slowly than most people expect — moderate activity prevents significant loss for several weeks',
           ],
-          imagePlaceholder: 'Comparison diagram showing full programme vs minimum effective dose (MED) for maintenance during disrupted periods, with volume and frequency reductions illustrated',
+          imageUrl: l3u4ch5Img,
+          imageAlt: 'Stress response pathway showing the HPA axis from stressor through hypothalamus, pituitary, adrenal glands, and cortisol release with negative feedback loop',
         },
         {
           heading: 'Training During Travel',
@@ -356,7 +369,8 @@ export const level3Unit4: Unit = {
             'Identity-based: "I am someone who trains consistently" — This is an ongoing identity that drives behaviour indefinitely.',
             'Every action you take is a vote for the type of person you want to become. Each training session reinforces the identity of "someone who trains."',
           ],
-          imagePlaceholder: 'Concentric circles diagram showing identity at the core, then processes, then outcomes — illustrating that lasting change starts from the inside out',
+          imageUrl: l3u4ch6Img,
+          imageAlt: 'Social support and accountability diagram showing training partner, online community, coach/mentor, and family connections',
         },
         {
           heading: 'Self-Talk in Training',
@@ -418,7 +432,8 @@ export const level3Unit4: Unit = {
             'Safety — A spotter allows you to train closer to failure on heavy compounds',
             'Social enjoyment — Training becomes more enjoyable, which improves adherence',
           ],
-          imagePlaceholder: 'Diagram showing the benefits of training communities — accountability, shared motivation, knowledge sharing, social connection — radiating from a central "community" node',
+          imageUrl: l3u4ch7Img,
+          imageAlt: 'Self-talk reframing model showing negative self-talk transformed into positive reframes with the cue-thought-reframe-action process',
         },
         {
           heading: 'The Comparison Trap',
@@ -487,7 +502,8 @@ export const level3Unit4: Unit = {
             'High-motivation phases — Capitalise on enthusiasm with progressive training blocks and ambitious goals',
             'Recovery phases — Deliberately pull back after intense training blocks or life events',
           ],
-          imagePlaceholder: 'Timeline showing a multi-year training journey with varying intensity levels alongside major life events — work promotions, family changes, holidays, injuries — demonstrating adaptive periodisation',
+          imageUrl: l3u4ch8Img,
+          imageAlt: 'Long-term planning framework showing a 12-month timeline with foundation, development, peak, and recovery phases with quarterly assessment checkpoints',
         },
         {
           heading: 'The 80/20 Rule',

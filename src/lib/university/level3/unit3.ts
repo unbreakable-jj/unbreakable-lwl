@@ -1,4 +1,12 @@
 import type { Unit } from '../types';
+import l3u3ch1Img from '@/assets/university/l3-u3-ch1-periodisation-models.png';
+import l3u3ch2Img from '@/assets/university/l3-u3-ch2-exercise-selection.png';
+import l3u3ch3Img from '@/assets/university/l3-u3-ch3-training-splits.png';
+import l3u3ch4Img from '@/assets/university/l3-u3-ch4-rpe-scale.png';
+import l3u3ch5Img from '@/assets/university/l3-u3-ch5-weak-points.png';
+import l3u3ch6Img from '@/assets/university/l3-u3-ch6-tapering.png';
+import l3u3ch7Img from '@/assets/university/l3-u3-ch7-progression-curves.png';
+import l3u3ch8Img from '@/assets/university/l3-u3-ch8-programme-layout.png';
 
 export const level3Unit3: Unit = {
   number: 3,
@@ -41,7 +49,8 @@ export const level3Unit3: Unit = {
             'Advantages — Trains multiple qualities concurrently. Greater variety reduces boredom. Research shows it can produce similar or superior results to linear periodisation for intermediate trainees.',
             'Limitations — More complex to programme. Requires careful management of fatigue across sessions.',
           ],
-          imagePlaceholder: 'Comparison chart showing linear periodisation (gradual shift from high volume to high intensity) vs DUP (varied stimulus within each week) across a 12-week cycle',
+          imageUrl: l3u3ch1Img,
+          imageAlt: 'Comparison chart showing linear periodisation vs daily undulating periodisation across a 12-week cycle',
         },
         {
           heading: 'Block Periodisation',
@@ -112,7 +121,8 @@ export const level3Unit3: Unit = {
             'Equipment availability — The best exercise is one you can actually perform consistently with the equipment available',
             'Skill level — Complex movements (Olympic lifts, single-leg work) require technical proficiency before they are effective',
           ],
-          imagePlaceholder: 'Decision flowchart for exercise selection showing goal alignment, anatomy check, stimulus-to-fatigue ratio assessment, equipment check, and skill level evaluation',
+          imageUrl: l3u3ch2Img,
+          imageAlt: 'Decision flowchart for exercise selection showing goal alignment, anatomy check, stimulus-to-fatigue ratio assessment, equipment check, and skill level evaluation',
         },
         {
           heading: 'Exercise Sequencing Principles',
@@ -182,7 +192,8 @@ export const level3Unit3: Unit = {
             'Advantages — Good balance of frequency (2×/week per muscle) and volume. Manageable session lengths. Suitable for intermediates.',
             'Limitations — Lower body days can be demanding with squats, deadlifts, and accessories in one session. May need variation between the two upper and two lower sessions.',
           ],
-          imagePlaceholder: 'Weekly schedule comparison showing full body (3 days), upper/lower (4 days), PPL (6 days), and body part split (5 days) with muscle group frequency indicated',
+          imageUrl: l3u3ch3Img,
+          imageAlt: 'Weekly schedule comparison showing full body, upper/lower, PPL, and body part split with muscle group frequency indicated',
         },
         {
           heading: 'Push/Pull/Legs (PPL)',
@@ -252,7 +263,8 @@ export const level3Unit3: Unit = {
             'RPE 9 — Could have done 1 more rep. Very challenging.',
             'RPE 10 — Maximum effort. Could not have done another rep (true failure).',
           ],
-          imagePlaceholder: 'RPE scale visual from 6 to 10 showing reps in reserve for each level with colour coding from green (easy) to red (maximum effort)',
+          imageUrl: l3u3ch4Img,
+          imageAlt: 'RPE scale visual from 6 to 10 showing reps in reserve for each level with colour coding from green to red',
         },
         {
           heading: 'RIR — Reps in Reserve',
@@ -315,7 +327,8 @@ export const level3Unit3: Unit = {
             'Sticking points — Where you fail in a lift often indicates the weakest link. Failing at the bottom of a squat suggests quad or glute weakness; failing at lockout suggests hip extension.',
             'Movement quality — Poor form during specific exercises may indicate weakness in stabilising muscles.',
           ],
-          imagePlaceholder: 'Body map diagram highlighting common weak points — rear delts, hamstrings, glutes, upper back — with arrows showing typical imbalance patterns',
+          imageUrl: l3u3ch5Img,
+          imageAlt: 'Body map diagram highlighting common weak points — rear delts, hamstrings, glutes, upper back — with typical imbalance patterns',
         },
         {
           heading: 'Strategies for Addressing Weak Points',
@@ -389,7 +402,8 @@ export const level3Unit3: Unit = {
             'Maintain training frequency. Reducing sessions disrupts rhythm and can impair readiness.',
             'Prioritise sleep, nutrition, and stress management during the taper.',
           ],
-          imagePlaceholder: 'Graph showing the fitness-fatigue model during a taper — fitness line remains high while fatigue drops sharply, with performance line rising to peak',
+          imageUrl: l3u3ch6Img,
+          imageAlt: 'Graph showing the fitness-fatigue model during a taper — fitness remains high while fatigue drops sharply and performance peaks',
         },
         {
           heading: 'Types of Taper',
@@ -456,7 +470,8 @@ export const level3Unit3: Unit = {
             'Complexity — Minimal. Master basic movement patterns. No need for advanced techniques.',
             'Key focus — Learning technique, building consistency, establishing the training habit.',
           ],
-          imagePlaceholder: 'Progression curve diagram showing beginner (rapid linear gains), intermediate (slower undulating progress), and advanced (very slow, periodised progress) training ages',
+          imageUrl: l3u3ch7Img,
+          imageAlt: 'Progression curve diagram showing beginner, intermediate, and advanced training ages with diminishing rate of progress',
         },
         {
           heading: 'Intermediate (1–3 Years of Consistent Training)',
@@ -539,7 +554,8 @@ export const level3Unit3: Unit = {
             'Week 9 (Deload): Volume reduced by 50%, load maintained, RPE 6–7',
             'Weeks 10–12 (Peak block): High volume with heavy emphasis, RPE 8–9, testing PRs in week 12',
           ],
-          imagePlaceholder: 'Gantt chart style diagram showing a 12-week programme layout with accumulation, intensification, deload, and peak blocks clearly labelled',
+          imageUrl: l3u3ch8Img,
+          imageAlt: 'Gantt chart style diagram showing a 12-week programme layout with accumulation, intensification, deload, and peak blocks',
         },
         {
           heading: 'Exercise Selection for the Example',

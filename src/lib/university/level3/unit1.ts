@@ -1,4 +1,12 @@
 import type { Unit } from '../types';
+import l3u1ch1Img from '@/assets/university/l3-u1-ch1-macro-periodisation.png';
+import l3u1ch2Img from '@/assets/university/l3-u1-ch2-nutrient-timing.png';
+import l3u1ch3Img from '@/assets/university/l3-u1-ch3-supplement-pyramid.png';
+import l3u1ch4Img from '@/assets/university/l3-u1-ch4-body-composition.png';
+import l3u1ch5Img from '@/assets/university/l3-u1-ch5-metabolic-adaptation.png';
+import l3u1ch6Img from '@/assets/university/l3-u1-ch6-calorie-cycling.png';
+import l3u1ch7Img from '@/assets/university/l3-u1-ch7-digestive-system.png';
+import l3u1ch8Img from '@/assets/university/l3-u1-ch8-phase-targets.png';
 
 export const level3Unit1: Unit = {
   number: 1,
@@ -39,7 +47,8 @@ export const level3Unit1: Unit = {
             'Even within a single mesocycle, your macros can be fine-tuned. During a high-volume accumulation block, carbohydrate needs are elevated because glycogen turnover is greater. During a deload week, total intake can drop slightly because training stress is reduced.',
             'The key principle is responsiveness. You are not locked into a rigid plan — you are adjusting based on training demand, recovery quality, and how your body is responding.',
           ],
-          imagePlaceholder: 'Diagram showing macro split changes across bulking, cutting, and maintenance phases with protein, carbs, and fat bars adjusting per phase',
+          imageUrl: l3u1ch1Img,
+          imageAlt: 'Diagram showing macro split changes across bulking, cutting, and maintenance phases with protein, carbs, and fat bars adjusting per phase',
         },
         {
           heading: 'Practical Application',
@@ -96,7 +105,8 @@ export const level3Unit1: Unit = {
             'For most gym-based sessions lasting under 90 minutes, intra-workout nutrition is unnecessary if you ate beforehand. Water is sufficient.',
             'For endurance sessions, high-volume training days, or sessions exceeding 90 minutes, intra-workout carbohydrates (30–60 g/hour) can maintain performance. This is where sports drinks, gels, or simple carbohydrate sources have genuine value.',
           ],
-          imagePlaceholder: 'Timeline diagram showing pre-workout, intra-workout, and post-workout nutrition windows with recommended macronutrient focus for each',
+          imageUrl: l3u1ch2Img,
+          imageAlt: 'Timeline diagram showing pre-workout, intra-workout, and post-workout nutrition windows with recommended macronutrient focus for each',
         },
         {
           heading: 'Post-Workout Nutrition',
@@ -157,7 +167,8 @@ export const level3Unit1: Unit = {
             'Omega-3 fatty acids — Anti-inflammatory properties that may support recovery. Dose: 2–3 g EPA/DHA daily.',
             'Ashwagandha — Some evidence for reducing cortisol and improving recovery. Research is growing but not yet conclusive.',
           ],
-          imagePlaceholder: 'Tiered supplement pyramid showing Tier 1 (strong evidence) at the base, Tier 2 (moderate) in the middle, and Tier 3 (weak/no evidence) at the top',
+          imageUrl: l3u1ch3Img,
+          imageAlt: 'Tiered supplement pyramid showing Tier 1 (strong evidence) at the base, Tier 2 (moderate) in the middle, and Tier 3 (weak/no evidence) at the top',
         },
         {
           heading: 'Red Flags in Supplement Marketing',
@@ -213,7 +224,8 @@ export const level3Unit1: Unit = {
             'Skinfold callipers — Measures subcutaneous fat at specific sites. Accuracy depends heavily on the skill of the person taking the measurements. Consistent technique matters more than the individual reading.',
             'Visual assessment and progress photos — Subjective but practical. Taking photos under consistent conditions (same lighting, time of day, clothing) provides useful visual feedback over weeks and months.',
           ],
-          imagePlaceholder: 'Comparison diagram showing different body composition measurement methods — DEXA, BIA, skinfold callipers — with accuracy and accessibility ratings',
+          imageUrl: l3u1ch4Img,
+          imageAlt: 'Comparison diagram showing different body composition measurement methods — DEXA, BIA, skinfold callipers — with accuracy and accessibility ratings',
         },
         {
           heading: 'Body Recomposition',
@@ -270,7 +282,8 @@ export const level3Unit1: Unit = {
             'Hormonal changes — Leptin (the satiety hormone) drops, ghrelin (the hunger hormone) rises, and thyroid output may decrease. You feel hungrier and your body burns less.',
             'Increased metabolic efficiency — Your muscles become more efficient at producing work with less energy, which sounds positive but means you burn fewer calories during exercise.',
           ],
-          imagePlaceholder: 'Flow diagram showing the cycle of caloric deficit leading to hormonal changes, reduced NEAT, lower RMR, and increased hunger — the metabolic adaptation loop',
+          imageUrl: l3u1ch5Img,
+          imageAlt: 'Flow diagram showing the metabolic adaptation loop — caloric deficit leading to hormonal changes, reduced NEAT, lower RMR, and increased hunger',
         },
         {
           heading: 'Diet Breaks and Refeeds',
@@ -327,7 +340,8 @@ export const level3Unit1: Unit = {
             'Weekend cycling — Lower intake during the structured work week, slightly higher on weekends to accommodate social eating. Pragmatic and sustainable for many people.',
             '5:2 approach — Five days at a moderate deficit, two days at maintenance. Simple to implement and effective for adherence.',
           ],
-          imagePlaceholder: 'Weekly calendar view showing calorie cycling with training days highlighted in higher calories and rest days in lower calories, with weekly total remaining consistent',
+          imageUrl: l3u1ch6Img,
+          imageAlt: 'Weekly calendar view showing calorie cycling with training days at higher calories and rest days at lower calories, with weekly total remaining consistent',
         },
         {
           heading: 'Matching Calories to Training',
@@ -384,7 +398,8 @@ export const level3Unit1: Unit = {
             'Small intestine — The primary site of nutrient absorption. Enzymes from the pancreas and bile from the liver complete digestion. Nutrients are absorbed through the intestinal wall into the bloodstream.',
             'Large intestine — Absorbs water and electrolytes. Home to the majority of gut bacteria, which ferment undigested fibre and produce short-chain fatty acids.',
           ],
-          imagePlaceholder: 'Anatomical diagram of the digestive system highlighting each stage — mouth, stomach, small intestine, large intestine — with key functions labelled',
+          imageUrl: l3u1ch7Img,
+          imageAlt: 'Anatomical diagram of the digestive system highlighting each stage — mouth, stomach, small intestine, large intestine — with key functions labelled',
         },
         {
           heading: 'The Gut Microbiome',
@@ -449,7 +464,8 @@ export const level3Unit1: Unit = {
             'Carbohydrate focus: Carbs fuel training and support recovery. A bulk is the time to prioritise carbohydrate intake.',
             'Monitoring: Track body weight weekly and assess rate of gain. If weight is increasing faster than 0.5–1.0% per month (for intermediates/advanced), the surplus is likely too large.',
           ],
-          imagePlaceholder: 'Side-by-side comparison table showing recommended calorie surplus/deficit, protein, carbs, and fat targets for cutting vs bulking vs maintenance phases',
+          imageUrl: l3u1ch8Img,
+          imageAlt: 'Side-by-side comparison table showing recommended calorie surplus/deficit, protein, carbs, and fat targets for cutting vs bulking vs maintenance phases',
         },
         {
           heading: 'Endurance Fuelling',
