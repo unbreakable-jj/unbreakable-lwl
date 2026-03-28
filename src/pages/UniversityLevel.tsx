@@ -8,6 +8,7 @@ import { CourseProgressBar } from '@/components/university/CourseProgressBar';
 import { ChevronLeft, ChevronRight, BookOpen, ClipboardCheck, Lock, CheckCircle, Trophy } from 'lucide-react';
 import { getLevelData } from '@/lib/university/courseStructure';
 import { useUniversityProgress } from '@/hooks/useUniversityProgress';
+import { AdminControlPanel } from '@/components/university/AdminControlPanel';
 
 export default function UniversityLevel() {
   const { level } = useParams();
@@ -236,6 +237,7 @@ export default function UniversityLevel() {
         </div>
       </main>
 
+      <AdminControlPanel />
       <UnifiedFooter className="mt-auto" />
     </div>
   );

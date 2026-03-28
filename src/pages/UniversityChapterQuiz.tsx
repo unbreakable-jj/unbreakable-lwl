@@ -10,6 +10,8 @@ import { Label } from '@/components/ui/label';
 import { ChevronLeft, CheckCircle, XCircle, RotateCcw, Lock } from 'lucide-react';
 import { getChapterData, getUnitData, getChapterQuiz } from '@/lib/university/courseStructure';
 import { useUniversityProgress } from '@/hooks/useUniversityProgress';
+import { useUniversityAdmin } from '@/hooks/useUniversityAdmin';
+import { AdminControlPanel } from '@/components/university/AdminControlPanel';
 import { toast } from 'sonner';
 import type { AssessmentQuestion } from '@/lib/university/types';
 
@@ -29,6 +31,7 @@ export default function UniversityChapterQuiz() {
   const chapterData = getChapterData(levelNum, unitNum, chapterNum);
   const unitData = getUnitData(levelNum, unitNum);
   const { submitChapterQuiz, hasPassedChapterQuiz } = useUniversityProgress();
+  const { effectiveShowAnswers } = useUniversityAdmin();
   const alreadyPassed = hasPassedChapterQuiz(levelNum, unitNum, chapterNum);
 
   const [seed, setSeed] = useState(0);
@@ -213,14 +216,20 @@ export default function UniversityChapterQuiz() {
                 onValueChange={handleSelect}
                 className="space-y-3"
               >
-                {question.options.map((opt, i) => (
-                  <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-primary/10 hover:border-primary/30 transition-colors">
-                    <RadioGroupItem value={i.toString()} id={`q${currentQ}-o${i}`} className="mt-0.5" />
-                    <Label htmlFor={`q${currentQ}-o${i}`} className="text-sm text-foreground cursor-pointer leading-relaxed">
-                      {opt}
-                    </Label>
-                  </div>
-                ))}
+                {question.options.map((opt, i) => {
+                  const isCorrectAnswer = effectiveShowAnswers && i === question.correctAnswer;
+                  return (
+                    <div key={i} className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${
+                      isCorrectAnswer ? 'border-green-500/50 bg-green-500/10' : 'border-primary/10 hover:border-primary/30'
+                    }`}>
+                      <RadioGroupItem value={i.toString()} id={`q${currentQ}-o${i}`} className="mt-0.5" />
+                      <Label htmlFor={`q${currentQ}-o${i}`} className="text-sm text-foreground cursor-pointer leading-relaxed">
+                        {opt}
+                        {isCorrectAnswer && <span className="ml-2 text-green-500 text-xs">✓ correct</span>}
+                      </Label>
+                    </div>
+                  );
+                })}
               </RadioGroup>
             </Card>
           </motion.div>
@@ -274,6 +283,7 @@ export default function UniversityChapterQuiz() {
           </div>
         </div>
       </main>
+      <AdminControlPanel />
       <UnifiedFooter className="mt-auto" />
     </div>
   );

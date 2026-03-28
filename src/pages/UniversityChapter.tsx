@@ -7,6 +7,7 @@ import { ChapterContent } from '@/components/university/ChapterContent';
 import { ChevronLeft, ChevronRight, CheckCircle, ClipboardCheck, Lock } from 'lucide-react';
 import { getChapterData, getUnitData, getChapterQuiz } from '@/lib/university/courseStructure';
 import { useUniversityProgress } from '@/hooks/useUniversityProgress';
+import { AdminControlPanel } from '@/components/university/AdminControlPanel';
 import { toast } from 'sonner';
 
 export default function UniversityChapter() {
@@ -164,6 +165,7 @@ export default function UniversityChapter() {
         </div>
       </main>
 
+      <AdminControlPanel />
       <UnifiedFooter className="mt-auto" />
     </div>
   );

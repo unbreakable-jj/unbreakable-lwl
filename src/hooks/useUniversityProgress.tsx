@@ -1,10 +1,12 @@
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useUniversityAdmin } from './useUniversityAdmin';
 
 export function useUniversityProgress() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { effectiveUnlockAll } = useUniversityAdmin();
 
   const { data: progress = [], isLoading } = useQuery({
     queryKey: ['university-progress', user?.id],
@@ -118,6 +120,7 @@ export function useUniversityProgress() {
   });
 
   const isChapterComplete = (level: number, unitNumber: number, chapterNumber: number) => {
+    if (effectiveUnlockAll) return true;
     return progress.some(
       (p: any) => p.level === level && p.unit_number === unitNumber && p.chapter_number === chapterNumber
     );
@@ -142,12 +145,14 @@ export function useUniversityProgress() {
   };
 
   const hasPassedAssessment = (level: number, unitNumber: number) => {
+    if (effectiveUnlockAll) return true;
     return assessments.some(
       (a: any) => a.level === level && a.unit_number === unitNumber && a.passed
     );
   };
 
   const hasPassedChapterQuiz = (level: number, unitNumber: number, chapterNumber: number) => {
+    if (effectiveUnlockAll) return true;
     return chapterQuizResults.some(
       (q: any) => q.level === level && q.unit_number === unitNumber && q.chapter_number === chapterNumber && q.passed
     );

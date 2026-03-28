@@ -9,6 +9,7 @@ import { CourseProgressBar } from '@/components/university/CourseProgressBar';
 import { GraduationCap, Lock, ChevronRight, Flame } from 'lucide-react';
 import { courseData, getTotalChapters } from '@/lib/university/courseStructure';
 import { useUniversityProgress } from '@/hooks/useUniversityProgress';
+import { AdminControlPanel } from '@/components/university/AdminControlPanel';
 
 export default function University() {
   const navigate = useNavigate();
@@ -124,6 +125,7 @@ export default function University() {
         </p>
       </main>
 
+      <AdminControlPanel />
       <UnifiedFooter className="mt-auto" />
     </div>
   );
