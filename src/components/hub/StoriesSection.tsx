@@ -542,10 +542,25 @@ export function StoriesSection() {
                 );
               })()}
 
-              {/* Text overlays */}
-              {getStoryOverlays(currentStory).map(overlay => (
-                <StoryTextOverlay key={overlay.id} overlay={overlay} />
-              ))}
+              {/* Text overlays — filtered to current slide */}
+              {(() => {
+                const allOverlays = getStoryOverlays(currentStory);
+                const mediaArr = (currentStory as any).media_items as Array<{ type: string; url: string }> | undefined;
+                const hasMultiMedia = mediaArr && mediaArr.length > 0;
+                
+                // If overlays have slideIndex, filter to current slide
+                // If no slideIndex (legacy), show all on slide 0 only or always
+                const slideOverlays = hasMultiMedia
+                  ? allOverlays.filter(o => {
+                      if ((o as any).slideIndex !== undefined) return (o as any).slideIndex === activeMediaSlide;
+                      return activeMediaSlide === 0; // legacy overlays show on first slide
+                    })
+                  : allOverlays;
+                
+                return slideOverlays.map(overlay => (
+                  <StoryTextOverlay key={overlay.id} overlay={overlay} />
+                ));
+              })()}
 
               {/* Legacy text */}
               {currentStory.content && getStoryOverlays(currentStory).length === 0 && (
