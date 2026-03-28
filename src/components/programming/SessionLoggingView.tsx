@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { FullScreenToolView } from './FullScreenToolView';
 import { CompactRestTimer } from './CompactRestTimer';
 import { ExerciseCoachingPanel } from './ExerciseCoachingPanel';
