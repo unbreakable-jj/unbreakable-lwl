@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { UniversityAdminProvider } from "@/hooks/useUniversityAdmin";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SubscribedRoute } from "@/components/SubscribedRoute";
 import Index from "./pages/Index";
@@ -48,6 +49,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
+      <UniversityAdminProvider>
       <TooltipProvider>
         <div className="brick-texture min-h-screen">
           <Toaster />
@@ -187,6 +189,7 @@ const App = () => (
           </BrowserRouter>
         </div>
       </TooltipProvider>
+      </UniversityAdminProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
