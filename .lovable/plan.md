@@ -1,42 +1,47 @@
 
 
-## Plan: Full Text Polish Pass — Unit by Unit
+## Plan: Navigation Relabelling + Session Logging UX Fix
 
-Systematic sweep of all 8 content + assessment files for spelling, punctuation, grammar, stray PT/instructor language, and consistency. No image changes in this pass.
+### 1. Rename "HOME" tab to "TIMELINE"
 
-### Scope
+**Files affected:**
+- `src/components/hub/SocialHeader.tsx` — change `HOME` label to `TIMELINE`
+- `src/components/PageNavigation.tsx` — change `{ path: '/', label: 'HOME' }` to `TIMELINE`
+- `src/components/NavigationDrawer.tsx` — change the `HOME` link text to `TIMELINE`
+- `src/components/tracker/TrackerHeader.tsx` — change `Feed` label to `Timeline` (same concept)
 
-**8 files, processed in order:**
+### 2. Rename "UNBREAKABLE PROGRAMMING" to "UNBREAKABLE HOME"
 
-| # | File | Focus |
-|---|------|-------|
-| 1 | `unit1.ts` | Spelling, punctuation, grammar, voice consistency |
-| 2 | `unit2.ts` | Same + check for any missed PT language |
-| 3 | `unit3.ts` | Fix confirmed "client" reference (line 218) + full sweep |
-| 4 | `unit4.ts` | Full sweep — check "trainee" references are contextually appropriate |
-| 5 | `assessments.ts` (Unit 1) | All 30 questions — spelling, answer accuracy, explanation clarity |
-| 6 | `unit2-assessments.ts` | 42 questions — same checks |
-| 7 | `unit3-assessments.ts` | 48 questions — same checks |
-| 8 | `unit4-assessments.ts` | 48 questions — same checks |
-| 9 | `final-assessment.ts` | 80 questions — same checks |
+**File affected:**
+- `src/components/NavigationDrawer.tsx` line 144 — change collapsible trigger label from `UNBREAKABLE PROGRAMMING` to `UNBREAKABLE HOME`
 
-### What Gets Fixed
+### 3. Fix Session Logging Scroll + Rest Timer UX
 
-- **Voice**: Any remaining "client", "trainer", "PT" references → personal learner voice
-- **Spelling/Grammar**: UK English throughout (e.g., "programme" not "program", "organise" not "organize")
-- **Punctuation**: Consistent em dashes, bullet formatting, apostrophes
-- **Content accuracy**: Assessment answers checked against chapter content
-- **Consistency**: Terminology aligned across all units (same terms for same concepts)
-- **"trainee" usage**: Context-dependent — kept where it means "person training" (i.e. the learner), replaced where it implies a coach-trainee relationship
+**Problem:** The `SessionLoggingView` has nested scrolling (outer `FullScreenToolView` + inner `h-[calc(100vh-180px)] overflow-y-auto`), the `CompactRestTimer` is a sticky card at the bottom that overlaps content and interferes with scrolling/input interactions. It's always fully expanded even when not in use.
 
-### What Stays the Same
+**Solution — Collapsible Rest Timer:**
 
-- All chapter structures, topics, and learning outcomes
-- All images (no regeneration this pass)
-- Question counts and pass marks
-- Component code — no UI changes
+In `SessionLoggingView.tsx`:
+- Remove the nested scroll container — let the `FullScreenToolView` handle the single scroll
+- Make the rest timer collapsible: when idle (not running), show only a minimal pill/bar (timer icon + time + tap to expand). When running or tapped, expand to full controls
+- Add a `minimized` state that defaults to `true`. Timer auto-expands when started (set completion triggers it), auto-minimizes 3 seconds after completion
+- Reduce z-index and use `pointer-events-none` on the timer overlay when minimized so it doesn't block scroll or dropdowns
 
-### Execution
+In `CompactRestTimer.tsx`:
+- Add a `minimized` prop and `onToggleMinimize` callback
+- When minimized: render a single-line bar showing the timer icon, countdown, and a chevron-up tap target (~40px tall)
+- When expanded: show current full UI
+- Remove the presets row when space is tight (move to expanded-only)
 
-Each file edited individually with all corrections applied in a single pass per file. Total: 9 file edits.
+**Result:** Single scroll context, rest timer stays accessible but out of the way, no more scroll/dropdown interference.
+
+### Files Changed (5 total)
+
+| File | Change |
+|------|--------|
+| `SocialHeader.tsx` | HOME → TIMELINE |
+| `PageNavigation.tsx` | HOME → TIMELINE |
+| `NavigationDrawer.tsx` | HOME → TIMELINE, UNBREAKABLE PROGRAMMING → UNBREAKABLE HOME |
+| `SessionLoggingView.tsx` | Remove nested scroll, add timer minimize state |
+| `CompactRestTimer.tsx` | Add minimized/expanded modes |
 
