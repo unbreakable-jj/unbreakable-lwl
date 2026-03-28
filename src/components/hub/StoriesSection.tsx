@@ -421,21 +421,23 @@ export function StoriesSection() {
                         </div>
                       )}
 
-                      {/* Swipe areas for multi-media */}
-                      {mediaArr.length > 1 && (
-                        <>
-                          <button
-                            className="absolute left-0 top-1/4 bottom-1/4 w-16 z-10"
-                            data-story-controls
-                            onClick={(e) => { e.stopPropagation(); setActiveMediaSlide(prev => Math.max(0, prev - 1)); }}
-                          />
-                          <button
-                            className="absolute right-0 top-1/4 bottom-1/4 w-16 z-10"
-                            data-story-controls
-                            onClick={(e) => { e.stopPropagation(); setActiveMediaSlide(prev => Math.min(mediaArr.length - 1, prev + 1)); }}
-                          />
-                        </>
-                      )}
+                       {/* Swipe nav arrows for multi-media — positioned as visible buttons */}
+                       {mediaArr.length > 1 && (
+                         <div className="absolute bottom-24 left-0 right-0 z-20 flex items-center justify-between px-3" data-story-controls>
+                           <button
+                             className={`w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white transition-opacity ${activeMediaSlide === 0 ? 'opacity-0 pointer-events-none' : 'opacity-80'}`}
+                             onClick={(e) => { e.stopPropagation(); setActiveMediaSlide(prev => Math.max(0, prev - 1)); }}
+                           >
+                             ‹
+                           </button>
+                           <button
+                             className={`w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white transition-opacity ${activeMediaSlide === mediaArr.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-80'}`}
+                             onClick={(e) => { e.stopPropagation(); setActiveMediaSlide(prev => Math.min(mediaArr.length - 1, prev + 1)); }}
+                           >
+                             ›
+                           </button>
+                         </div>
+                       )}
 
                       {currentSlide.type === 'video' ? (
                         <video
