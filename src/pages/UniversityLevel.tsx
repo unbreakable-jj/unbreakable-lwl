@@ -31,6 +31,26 @@ export default function UniversityLevel() {
     );
   }
 
+  // Level 3 requires Level 2 final exam to be passed
+  const isLevelLocked = levelNum === 3 && !hasPassedAssessment(2, 0);
+  if (isLevelLocked) {
+    return (
+      <div className="min-h-screen bg-background">
+        <MainNavigation />
+        <div className="pt-24 pb-6 container mx-auto px-4 max-w-2xl text-center">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/university')} className="mb-3 -ml-2 text-muted-foreground">
+            <ChevronLeft className="w-4 h-4 mr-1" /> University
+          </Button>
+          <Lock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+          <h1 className="font-display text-2xl tracking-wider text-foreground mb-2">LEVEL 3 LOCKED</h1>
+          <p className="text-muted-foreground text-sm">Pass the Level 2 Final Assessment to unlock Level 3.</p>
+          <Button className="mt-6" onClick={() => navigate('/university/level-2')}>Go to Level 2</Button>
+        </div>
+        <UnifiedFooter className="mt-auto" />
+      </div>
+    );
+  }
+
   // Build chapter info for gating check
   const unitChapterCounts = levelData.units
     .filter(u => u.chapters.length > 0)
