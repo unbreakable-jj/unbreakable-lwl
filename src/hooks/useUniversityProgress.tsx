@@ -52,7 +52,7 @@ export function useUniversityProgress() {
   });
 
   const completeChapter = useMutation({
-    mutationFn: async ({ level, unitNumber, chapterNumber }: { level: number; unitNumber: number; chapterNumber: number }) => {
+    mutationFn: async ({ level, unitNumber, chapterNumber, courseType = 'gym' }: { level: number; unitNumber: number; chapterNumber: number; courseType?: string }) => {
       if (!user) throw new Error('Not authenticated');
       const { error } = await supabase
         .from('university_progress')
@@ -61,7 +61,8 @@ export function useUniversityProgress() {
           level,
           unit_number: unitNumber,
           chapter_number: chapterNumber,
-        }, { onConflict: 'user_id,level,unit_number,chapter_number' });
+          course_type: courseType,
+        }, { onConflict: 'user_id,level,unit_number,chapter_number,course_type' });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -70,9 +71,9 @@ export function useUniversityProgress() {
   });
 
   const submitAssessment = useMutation({
-    mutationFn: async ({ level, unitNumber, isFinal, score, total, passed, answers }: {
+    mutationFn: async ({ level, unitNumber, isFinal, score, total, passed, answers, courseType = 'gym' }: {
       level: number; unitNumber: number; isFinal: boolean;
-      score: number; total: number; passed: boolean; answers: number[];
+      score: number; total: number; passed: boolean; answers: number[]; courseType?: string;
     }) => {
       if (!user) throw new Error('Not authenticated');
       const { error } = await supabase
@@ -86,6 +87,7 @@ export function useUniversityProgress() {
           total,
           passed,
           answers: answers as any,
+          course_type: courseType,
         });
       if (error) throw error;
     },
@@ -95,9 +97,9 @@ export function useUniversityProgress() {
   });
 
   const submitChapterQuiz = useMutation({
-    mutationFn: async ({ level, unitNumber, chapterNumber, score, total, passed, answers }: {
+    mutationFn: async ({ level, unitNumber, chapterNumber, score, total, passed, answers, courseType = 'gym' }: {
       level: number; unitNumber: number; chapterNumber: number;
-      score: number; total: number; passed: boolean; answers: number[];
+      score: number; total: number; passed: boolean; answers: number[]; courseType?: string;
     }) => {
       if (!user) throw new Error('Not authenticated');
       const { error } = await supabase
@@ -111,6 +113,7 @@ export function useUniversityProgress() {
           total,
           passed,
           answers: answers as any,
+          course_type: courseType,
         } as any);
       if (error) throw error;
     },
@@ -119,57 +122,57 @@ export function useUniversityProgress() {
     },
   });
 
-  const isChapterComplete = (level: number, unitNumber: number, chapterNumber: number) => {
+  const isChapterComplete = (level: number, unitNumber: number, chapterNumber: number, courseType: string = 'gym') => {
     if (effectiveUnlockAll) return true;
     return progress.some(
-      (p: any) => p.level === level && p.unit_number === unitNumber && p.chapter_number === chapterNumber
+      (p: any) => p.level === level && p.unit_number === unitNumber && p.chapter_number === chapterNumber && (p.course_type || 'gym') === courseType
     );
   };
 
-  const getUnitCompletedChapters = (level: number, unitNumber: number) => {
+  const getUnitCompletedChapters = (level: number, unitNumber: number, courseType: string = 'gym') => {
     return progress.filter(
-      (p: any) => p.level === level && p.unit_number === unitNumber
+      (p: any) => p.level === level && p.unit_number === unitNumber && (p.course_type || 'gym') === courseType
     ).length;
   };
 
-  const getLevelCompletedChapters = (level: number) => {
-    return progress.filter((p: any) => p.level === level).length;
+  const getLevelCompletedChapters = (level: number, courseType: string = 'gym') => {
+    return progress.filter((p: any) => p.level === level && (p.course_type || 'gym') === courseType).length;
   };
 
-  const getBestAssessment = (level: number, unitNumber: number) => {
+  const getBestAssessment = (level: number, unitNumber: number, courseType: string = 'gym') => {
     const attempts = assessments.filter(
-      (a: any) => a.level === level && a.unit_number === unitNumber
+      (a: any) => a.level === level && a.unit_number === unitNumber && (a.course_type || 'gym') === courseType
     );
     if (attempts.length === 0) return null;
     return attempts.reduce((best: any, curr: any) => curr.score > best.score ? curr : best, attempts[0]);
   };
 
-  const hasPassedAssessment = (level: number, unitNumber: number) => {
+  const hasPassedAssessment = (level: number, unitNumber: number, courseType: string = 'gym') => {
     if (effectiveUnlockAll) return true;
     return assessments.some(
-      (a: any) => a.level === level && a.unit_number === unitNumber && a.passed
+      (a: any) => a.level === level && a.unit_number === unitNumber && a.passed && (a.course_type || 'gym') === courseType
     );
   };
 
-  const hasPassedChapterQuiz = (level: number, unitNumber: number, chapterNumber: number) => {
+  const hasPassedChapterQuiz = (level: number, unitNumber: number, chapterNumber: number, courseType: string = 'gym') => {
     if (effectiveUnlockAll) return true;
     return chapterQuizResults.some(
-      (q: any) => q.level === level && q.unit_number === unitNumber && q.chapter_number === chapterNumber && q.passed
+      (q: any) => q.level === level && q.unit_number === unitNumber && q.chapter_number === chapterNumber && q.passed && (q.course_type || 'gym') === courseType
     );
   };
 
-  const getChapterQuizBest = (level: number, unitNumber: number, chapterNumber: number) => {
+  const getChapterQuizBest = (level: number, unitNumber: number, chapterNumber: number, courseType: string = 'gym') => {
     const attempts = chapterQuizResults.filter(
-      (q: any) => q.level === level && q.unit_number === unitNumber && q.chapter_number === chapterNumber
+      (q: any) => q.level === level && q.unit_number === unitNumber && q.chapter_number === chapterNumber && (q.course_type || 'gym') === courseType
     );
     if (attempts.length === 0) return null;
     return attempts.reduce((best: any, curr: any) => curr.score > best.score ? curr : best, attempts[0]);
   };
 
-  const allChapterQuizzesPassed = (level: number, totalChaptersPerUnit: { unitNumber: number; chapters: number }[]) => {
+  const allChapterQuizzesPassed = (level: number, totalChaptersPerUnit: { unitNumber: number; chapters: number }[], courseType: string = 'gym') => {
     return totalChaptersPerUnit.every(({ unitNumber, chapters }) =>
       Array.from({ length: chapters }, (_, i) => i + 1).every(ch =>
-        hasPassedChapterQuiz(level, unitNumber, ch)
+        hasPassedChapterQuiz(level, unitNumber, ch, courseType)
       )
     );
   };
