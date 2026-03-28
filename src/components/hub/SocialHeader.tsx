@@ -68,7 +68,7 @@ export function SocialHeader({
                 }`}
               >
                 <Home className="w-4 h-4" />
-                HOME
+                TIMELINE
               </button>
               <button
                 onClick={() => {

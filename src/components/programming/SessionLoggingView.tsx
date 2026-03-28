@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { FullScreenToolView } from './FullScreenToolView';
 import { CompactRestTimer } from './CompactRestTimer';
 import { ExerciseCoachingPanel } from './ExerciseCoachingPanel';
@@ -125,8 +125,10 @@ export function SessionLoggingView({
     groupedExercises[0]?.[0] || null
   );
   const [showTipsFor, setShowTipsFor] = useState<string | null>(null);
-  const [showTimer, setShowTimer] = useState(true); // Always visible so user can manually start
+  const [showTimer, setShowTimer] = useState(true);
+  const [timerMinimized, setTimerMinimized] = useState(true);
   const [timerExerciseType, setTimerExerciseType] = useState<string>('strength');
+  const minimizeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // Local input state to prevent re-renders during typing
   const [localInputs, setLocalInputs] = useState<LocalInputState>(() => {
@@ -193,7 +195,6 @@ export function SessionLoggingView({
   }, [localInputs, onUpdateLog]);
 
   const handleSetComplete = useCallback((log: ExerciseLog, completed: boolean) => {
-    // Also persist current input values when completing
     const localValue = localInputs[log.id];
     const updates: Parameters<typeof onUpdateLog>[1] = { completed };
     
@@ -210,10 +211,16 @@ export function SessionLoggingView({
     onUpdateLog(log.id, updates);
     
     if (completed) {
-      // Pass exercise type based on equipment for rest timer presets
       const exerciseType = ['barbell', 'dumbbell'].includes(log.equipment) ? 'strength' : 'bodyweight';
       setTimerExerciseType(exerciseType);
+      setTimerMinimized(false); // Auto-expand on set complete
       onStartRest(exerciseType);
+
+      // Auto-minimize after 5 seconds
+      if (minimizeTimerRef.current) clearTimeout(minimizeTimerRef.current);
+      minimizeTimerRef.current = setTimeout(() => {
+        setTimerMinimized(true);
+      }, 5000);
     }
   }, [localInputs, onUpdateLog, onStartRest]);
 
@@ -232,8 +239,7 @@ export function SessionLoggingView({
       icon={<ClipboardList className="w-5 h-5" />}
       onClose={onClose}
     >
-      <div className="h-[calc(100vh-180px)] overflow-y-auto" style={{ touchAction: 'pan-y', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}>
-        <div className={`space-y-4 max-w-2xl mx-auto pb-8 ${showTimer ? 'pb-24' : ''}`}>
+      <div className="space-y-4 max-w-2xl mx-auto pb-28">
           {/* Progress Bar */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
@@ -502,13 +508,17 @@ export function SessionLoggingView({
             );
           })}
         </div>
-      </div>
 
-      {/* Fixed Compact Rest Timer - Always visible for manual use */}
-      <div className="sticky bottom-0 left-0 right-0 z-10">
+      {/* Fixed Compact Rest Timer */}
+      <div className="sticky bottom-0 left-0 right-0 z-10 p-2">
         <CompactRestTimer
           exerciseType={timerExerciseType as 'strength' | 'hypertrophy'}
           onComplete={() => {}}
+          minimized={timerMinimized}
+          onToggleMinimize={() => {
+            setTimerMinimized((prev) => !prev);
+            if (minimizeTimerRef.current) clearTimeout(minimizeTimerRef.current);
+          }}
         />
       </div>
     </FullScreenToolView>
