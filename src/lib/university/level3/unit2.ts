@@ -1,4 +1,12 @@
 import type { Unit } from '../types';
+import l3u2ch1Img from '@/assets/university/l3-u2-ch1-hypertrophy-mechanisms.png';
+import l3u2ch2Img from '@/assets/university/l3-u2-ch2-progressive-overload.png';
+import l3u2ch3Img from '@/assets/university/l3-u2-ch3-volume-landmarks.png';
+import l3u2ch4Img from '@/assets/university/l3-u2-ch4-fibre-types.png';
+import l3u2ch5Img from '@/assets/university/l3-u2-ch5-tempo.png';
+import l3u2ch6Img from '@/assets/university/l3-u2-ch6-mesocycle.png';
+import l3u2ch7Img from '@/assets/university/l3-u2-ch7-mind-muscle.png';
+import l3u2ch8Img from '@/assets/university/l3-u2-ch8-rest-pause.png';
 
 export const level3Unit2: Unit = {
   number: 2,
@@ -41,7 +49,8 @@ export const level3Unit2: Unit = {
             'Metabolic stress refers to the accumulation of metabolic by-products (lactate, hydrogen ions, inorganic phosphate) within the muscle during sustained contractions. This is the "burn" you feel during higher-rep sets.',
             'While metabolic stress was once thought to be a primary driver of growth, recent evidence suggests it plays a supporting role rather than being essential. However, training methods that create metabolic stress (higher reps, shorter rest periods, techniques like drop sets) can contribute to hypertrophy, particularly in combination with adequate mechanical tension.',
           ],
-          imagePlaceholder: 'Diagram showing the three mechanisms of hypertrophy — mechanical tension, metabolic stress, and muscle damage — with mechanical tension highlighted as the primary driver',
+          imageUrl: l3u2ch1Img,
+          imageAlt: 'Diagram showing the three mechanisms of hypertrophy — mechanical tension, metabolic stress, and muscle damage — with mechanical tension highlighted as the primary driver',
         },
         {
           heading: 'Muscle Damage',
@@ -100,7 +109,8 @@ export const level3Unit2: Unit = {
             'Exercise complexity — Progressing from a machine variation to a free-weight variation of the same movement pattern adds stability demands.',
             'Frequency — Training a muscle group more often per week increases the total weekly stimulus.',
           ],
-          imagePlaceholder: 'Pyramid diagram showing methods of progressive overload ranked by priority — load at the base, then volume, density, ROM, tempo, complexity, and frequency',
+          imageUrl: l3u2ch2Img,
+          imageAlt: 'Pyramid diagram showing methods of progressive overload ranked by priority — load at the base, then volume, density, ROM, tempo, complexity, and frequency',
         },
         {
           heading: 'Matching the Method to the Situation',
@@ -157,7 +167,8 @@ export const level3Unit2: Unit = {
             'MAV (Maximum Adaptive Volume) — The volume range where most growth occurs. Typically 12–20 sets per muscle group per week, depending on training experience.',
             'MRV (Maximum Recoverable Volume) — The most sets you can perform while still recovering. Exceeding this leads to overtraining. Individual and varies with sleep, nutrition, stress, and training age.',
           ],
-          imagePlaceholder: 'Horizontal bar chart showing volume landmarks from MV through MEV, MAV, to MRV with the "productive training zone" highlighted between MEV and MRV',
+          imageUrl: l3u2ch3Img,
+          imageAlt: 'Horizontal bar chart showing volume landmarks from MV through MEV, MAV, to MRV with the productive training zone highlighted between MEV and MRV',
         },
         {
           heading: 'Volume Progression Within a Mesocycle',
@@ -213,7 +224,8 @@ export const level3Unit2: Unit = {
             'Fibre type distribution varies between individuals and between muscle groups within the same person. This is largely genetically determined, though training can cause some conversion between Type IIa and IIx fibres.',
             'Muscles with a higher proportion of slow-twitch fibres (such as the soleus in the calf) tend to respond better to higher rep ranges and higher training volumes. Muscles with more fast-twitch fibres (such as the hamstrings and triceps) often respond well to heavier loads and explosive training.',
           ],
-          imagePlaceholder: 'Comparison diagram of Type I vs Type IIa vs Type IIx muscle fibres showing relative size, endurance capacity, force production, and optimal rep ranges for each',
+          imageUrl: l3u2ch4Img,
+          imageAlt: 'Comparison diagram of Type I vs Type IIa vs Type IIx muscle fibres showing relative size, endurance capacity, force production, and optimal rep ranges for each',
         },
         {
           heading: 'Practical Training Implications',
@@ -273,7 +285,8 @@ export const level3Unit2: Unit = {
             'Eccentric-focused training is particularly effective for strengthening tendons and developing muscle at longer lengths',
             'Excessive eccentric emphasis can cause significant delayed-onset muscle soreness (DOMS) — introduce gradually',
           ],
-          imagePlaceholder: 'Illustration of a bicep curl showing the four tempo phases — eccentric (lowering), pause at bottom, concentric (lifting), pause at top — with timing labels',
+          imageUrl: l3u2ch5Img,
+          imageAlt: 'Illustration of a bicep curl showing the four tempo phases — eccentric (lowering), pause at bottom, concentric (lifting), pause at top — with timing labels',
         },
         {
           heading: 'The Concentric Phase',
@@ -337,7 +350,8 @@ export const level3Unit2: Unit = {
             'Frequency deload — Reduce training days while maintaining per-session volume. Best when general life stress or sleep debt is the primary issue.',
             'Active recovery — Replace structured training with light movement, mobility work, and recreational activity. Best after particularly demanding blocks or competition.',
           ],
-          imagePlaceholder: 'Timeline diagram showing a 5-week mesocycle with progressive volume ramp in weeks 1–4 and a deload in week 5 with reduced volume',
+          imageUrl: l3u2ch6Img,
+          imageAlt: 'Timeline diagram showing a 5-week mesocycle with progressive volume ramp in weeks 1–4 and a deload in week 5 with reduced volume',
         },
         {
           heading: 'When to Deload',
@@ -395,7 +409,8 @@ export const level3Unit2: Unit = {
             'Internal focus — Directing attention to the working muscle. "Squeeze your bicep at the top." Research shows this can increase muscle activation, particularly at lighter loads (below ~60% 1RM).',
             'External focus — Directing attention to the movement outcome or the environment. "Drive your feet through the floor." Research shows this improves performance in strength and power tasks.',
           ],
-          imagePlaceholder: 'Split comparison diagram showing internal focus (attention on the muscle, isolation exercises) vs external focus (attention on the movement, compound exercises) with example cues',
+          imageUrl: l3u2ch7Img,
+          imageAlt: 'Split comparison diagram showing internal focus (attention on the muscle, isolation exercises) vs external focus (attention on the movement, compound exercises) with example cues',
         },
         {
           heading: 'What the Research Shows',
@@ -458,7 +473,8 @@ export const level3Unit2: Unit = {
             'Rest-pause involves performing a set to near failure, resting 10–20 seconds, then continuing with the same weight for additional reps. This allows you to accumulate more reps at a given load than a single straight set would permit.',
             'Rest-pause is particularly effective for hypertrophy because it keeps the load high (maintaining mechanical tension) while extending the set. It works well on both compound and isolation exercises.',
           ],
-          imagePlaceholder: 'Step-by-step diagram showing rest-pause set execution: initial set to near failure, 10–20 second rest, additional reps, optional second rest-pause',
+          imageUrl: l3u2ch8Img,
+          imageAlt: 'Step-by-step diagram showing rest-pause set execution — initial set to near failure, 10–20 second rest, additional reps, optional second rest-pause',
         },
         {
           heading: 'Cluster Sets',
