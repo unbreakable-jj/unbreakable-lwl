@@ -4,6 +4,7 @@ export const level2FinalAssessment: UnitAssessment = {
   unitNumber: 0,
   title: 'Level 2 Final Assessment',
   passMarkPercent: 80,
+  pickCount: 80,
   questions: [
     // ═══════════════════════════════════════════════════════════════
     //  UNIT 1 — UNDERSTANDING THE BODY (Q1–Q20)
