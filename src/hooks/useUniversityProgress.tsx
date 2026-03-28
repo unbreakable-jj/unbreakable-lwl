@@ -35,6 +35,20 @@ export function useUniversityProgress() {
     enabled: !!user,
   });
 
+  const { data: chapterQuizResults = [] } = useQuery({
+    queryKey: ['university-chapter-quizzes', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from('university_chapter_quizzes' as any)
+        .select('*')
+        .eq('user_id', user.id);
+      if (error) throw error;
+      return data as any[];
+    },
+    enabled: !!user,
+  });
+
   const completeChapter = useMutation({
     mutationFn: async ({ level, unitNumber, chapterNumber }: { level: number; unitNumber: number; chapterNumber: number }) => {
       if (!user) throw new Error('Not authenticated');
@@ -78,6 +92,31 @@ export function useUniversityProgress() {
     },
   });
 
+  const submitChapterQuiz = useMutation({
+    mutationFn: async ({ level, unitNumber, chapterNumber, score, total, passed, answers }: {
+      level: number; unitNumber: number; chapterNumber: number;
+      score: number; total: number; passed: boolean; answers: number[];
+    }) => {
+      if (!user) throw new Error('Not authenticated');
+      const { error } = await supabase
+        .from('university_chapter_quizzes' as any)
+        .insert({
+          user_id: user.id,
+          level,
+          unit_number: unitNumber,
+          chapter_number: chapterNumber,
+          score,
+          total,
+          passed,
+          answers: answers as any,
+        } as any);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['university-chapter-quizzes'] });
+    },
+  });
+
   const isChapterComplete = (level: number, unitNumber: number, chapterNumber: number) => {
     return progress.some(
       (p: any) => p.level === level && p.unit_number === unitNumber && p.chapter_number === chapterNumber
@@ -108,16 +147,43 @@ export function useUniversityProgress() {
     );
   };
 
+  const hasPassedChapterQuiz = (level: number, unitNumber: number, chapterNumber: number) => {
+    return chapterQuizResults.some(
+      (q: any) => q.level === level && q.unit_number === unitNumber && q.chapter_number === chapterNumber && q.passed
+    );
+  };
+
+  const getChapterQuizBest = (level: number, unitNumber: number, chapterNumber: number) => {
+    const attempts = chapterQuizResults.filter(
+      (q: any) => q.level === level && q.unit_number === unitNumber && q.chapter_number === chapterNumber
+    );
+    if (attempts.length === 0) return null;
+    return attempts.reduce((best: any, curr: any) => curr.score > best.score ? curr : best, attempts[0]);
+  };
+
+  const allChapterQuizzesPassed = (level: number, totalChaptersPerUnit: { unitNumber: number; chapters: number }[]) => {
+    return totalChaptersPerUnit.every(({ unitNumber, chapters }) =>
+      Array.from({ length: chapters }, (_, i) => i + 1).every(ch =>
+        hasPassedChapterQuiz(level, unitNumber, ch)
+      )
+    );
+  };
+
   return {
     progress,
     assessments,
+    chapterQuizResults,
     isLoading,
     completeChapter,
     submitAssessment,
+    submitChapterQuiz,
     isChapterComplete,
     getUnitCompletedChapters,
     getLevelCompletedChapters,
     getBestAssessment,
     hasPassedAssessment,
+    hasPassedChapterQuiz,
+    getChapterQuizBest,
+    allChapterQuizzesPassed,
   };
 }

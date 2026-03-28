@@ -4,8 +4,8 @@ import { MainNavigation } from '@/components/MainNavigation';
 import { UnifiedFooter } from '@/components/UnifiedFooter';
 import { Button } from '@/components/ui/button';
 import { ChapterContent } from '@/components/university/ChapterContent';
-import { ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
-import { getChapterData, getUnitData } from '@/lib/university/courseStructure';
+import { ChevronLeft, ChevronRight, CheckCircle, ClipboardCheck, Lock } from 'lucide-react';
+import { getChapterData, getUnitData, getChapterQuiz } from '@/lib/university/courseStructure';
 import { useUniversityProgress } from '@/hooks/useUniversityProgress';
 import { toast } from 'sonner';
 
@@ -18,8 +18,10 @@ export default function UniversityChapter() {
 
   const chapterData = getChapterData(levelNum, unitNum, chapterNum);
   const unitData = getUnitData(levelNum, unitNum);
-  const { isChapterComplete, completeChapter } = useUniversityProgress();
+  const { isChapterComplete, completeChapter, hasPassedChapterQuiz } = useUniversityProgress();
   const isComplete = isChapterComplete(levelNum, unitNum, chapterNum);
+  const quizPassed = hasPassedChapterQuiz(levelNum, unitNum, chapterNum);
+  const quiz = getChapterQuiz(levelNum, unitNum, chapterNum);
 
   if (!chapterData || !unitData) {
     return (
@@ -33,13 +35,19 @@ export default function UniversityChapter() {
   const hasNext = chapterNum < totalChapters;
   const hasPrev = chapterNum > 1;
 
+  // Can only navigate to next chapter if this chapter's quiz is passed
+  const canGoNext = hasNext && quizPassed;
+
   const handleComplete = () => {
     completeChapter.mutate(
       { level: levelNum, unitNumber: unitNum, chapterNumber: chapterNum },
       {
         onSuccess: () => {
           toast.success('Chapter completed!');
-          if (hasNext) {
+          // If quiz exists and not passed, navigate to quiz
+          if (quiz && !quizPassed) {
+            navigate(`/university/level-${levelNum}/unit-${unitNum}/chapter-${chapterNum}/quiz`);
+          } else if (hasNext) {
             navigate(`/university/level-${levelNum}/unit-${unitNum}/chapter-${chapterNum + 1}`);
           }
         },
@@ -61,6 +69,7 @@ export default function UniversityChapter() {
               LEVEL {levelNum} — UNIT {unitNum} — CHAPTER {chapterNum}
             </p>
             {isComplete && <CheckCircle className="w-4 h-4 text-green-500" />}
+            {quizPassed && <span className="text-xs text-green-500 font-display tracking-wider">QUIZ PASSED</span>}
           </div>
           <h1 className="font-display text-2xl tracking-wider text-foreground mt-1">{chapterData.title}</h1>
         </div>
@@ -78,6 +87,7 @@ export default function UniversityChapter() {
 
           {/* Bottom nav */}
           <div className="mt-10 pt-6 border-t border-primary/10 space-y-4">
+            {/* Mark complete + go to quiz */}
             {!isComplete && (
               <Button
                 onClick={handleComplete}
@@ -85,7 +95,30 @@ export default function UniversityChapter() {
                 disabled={completeChapter.isPending}
               >
                 <CheckCircle className="w-4 h-4" />
-                Mark as Complete {hasNext ? '& Continue' : ''}
+                {quiz ? 'Complete & Take Quiz' : (hasNext ? 'Mark as Complete & Continue' : 'Mark as Complete')}
+              </Button>
+            )}
+
+            {/* Quiz button if chapter is complete but quiz not passed */}
+            {isComplete && quiz && !quizPassed && (
+              <Button
+                onClick={() => navigate(`/university/level-${levelNum}/unit-${unitNum}/chapter-${chapterNum}/quiz`)}
+                className="w-full gap-2"
+              >
+                <ClipboardCheck className="w-4 h-4" />
+                Take Chapter Quiz
+              </Button>
+            )}
+
+            {/* Retake quiz if already passed */}
+            {isComplete && quiz && quizPassed && (
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/university/level-${levelNum}/unit-${unitNum}/chapter-${chapterNum}/quiz`)}
+                className="w-full gap-2 text-green-500 border-green-500/30"
+              >
+                <CheckCircle className="w-4 h-4" />
+                Quiz Passed — Retake for Practice
               </Button>
             )}
 
@@ -99,7 +132,7 @@ export default function UniversityChapter() {
                   <ChevronLeft className="w-4 h-4 mr-1" /> Previous
                 </Button>
               )}
-              {hasNext && isComplete && (
+              {hasNext && canGoNext && (
                 <Button
                   variant="outline"
                   onClick={() => navigate(`/university/level-${levelNum}/unit-${unitNum}/chapter-${chapterNum + 1}`)}
@@ -108,7 +141,16 @@ export default function UniversityChapter() {
                   Next <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               )}
-              {!hasNext && isComplete && (
+              {hasNext && !canGoNext && isComplete && (
+                <Button
+                  variant="outline"
+                  disabled
+                  className="flex-1 gap-2"
+                >
+                  <Lock className="w-4 h-4" /> Pass Quiz to Unlock Next
+                </Button>
+              )}
+              {!hasNext && isComplete && quizPassed && (
                 <Button
                   variant="outline"
                   onClick={() => navigate(`/university/level-${levelNum}`)}

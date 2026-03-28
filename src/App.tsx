@@ -22,6 +22,7 @@ import University from "./pages/University";
 import UniversityLevel from "./pages/UniversityLevel";
 import UniversityChapter from "./pages/UniversityChapter";
 import UniversityAssessment from "./pages/UniversityAssessment";
+import UniversityChapterQuiz from "./pages/UniversityChapterQuiz";
 
 // New modular sub-pages
 import Profile from "./pages/Profile";
@@ -154,6 +155,9 @@ const App = () => (
               } />
               <Route path="/university/:level/:unit/:chapter" element={
                 <SubscribedRoute><UniversityChapter /></SubscribedRoute>
+              } />
+              <Route path="/university/:level/:unit/:chapter/quiz" element={
+                <SubscribedRoute><UniversityChapterQuiz /></SubscribedRoute>
               } />
               <Route path="/university/:level/:unit/assessment" element={
                 <SubscribedRoute><UniversityAssessment /></SubscribedRoute>

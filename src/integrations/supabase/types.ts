@@ -2390,6 +2390,45 @@ export type Database = {
         }
         Relationships: []
       }
+      university_chapter_quizzes: {
+        Row: {
+          answers: Json
+          attempted_at: string
+          chapter_number: number
+          id: string
+          level: number
+          passed: boolean
+          score: number
+          total: number
+          unit_number: number
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          attempted_at?: string
+          chapter_number: number
+          id?: string
+          level: number
+          passed?: boolean
+          score: number
+          total: number
+          unit_number: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          attempted_at?: string
+          chapter_number?: number
+          id?: string
+          level?: number
+          passed?: boolean
+          score?: number
+          total?: number
+          unit_number?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       university_progress: {
         Row: {
           chapter_number: number
