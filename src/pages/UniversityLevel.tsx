@@ -5,7 +5,7 @@ import { UnifiedFooter } from '@/components/UnifiedFooter';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CourseProgressBar } from '@/components/university/CourseProgressBar';
-import { ChevronLeft, ChevronRight, BookOpen, ClipboardCheck, Lock, CheckCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, ClipboardCheck, Lock, CheckCircle, Trophy } from 'lucide-react';
 import { getLevelData } from '@/lib/university/courseStructure';
 import { useUniversityProgress } from '@/hooks/useUniversityProgress';
 
@@ -19,6 +19,8 @@ export default function UniversityLevel() {
     isChapterComplete,
     hasPassedAssessment,
     getBestAssessment,
+    hasPassedChapterQuiz,
+    allChapterQuizzesPassed,
   } = useUniversityProgress();
 
   if (!levelData) {
@@ -28,6 +30,37 @@ export default function UniversityLevel() {
       </div>
     );
   }
+
+  // Build chapter info for gating check
+  const unitChapterCounts = levelData.units
+    .filter(u => u.chapters.length > 0)
+    .map(u => ({ unitNumber: u.number, chapters: u.chapters.length }));
+  const allQuizzesPassed = allChapterQuizzesPassed(levelNum, unitChapterCounts);
+
+  // Check if a chapter is accessible (Chapter 1 of each unit has special rules)
+  const isChapterAccessible = (unitNumber: number, chapterNumber: number): boolean => {
+    // Chapter 1 of Unit 1 is always accessible
+    if (unitNumber === 1 && chapterNumber === 1) return true;
+    
+    // Chapter 1 of other units: requires previous unit's last chapter quiz to be passed
+    if (chapterNumber === 1) {
+      const prevUnit = levelData.units.find(u => u.number === unitNumber - 1);
+      if (!prevUnit || prevUnit.chapters.length === 0) return true;
+      return hasPassedChapterQuiz(levelNum, unitNumber - 1, prevUnit.chapters.length);
+    }
+
+    // Other chapters: requires previous chapter's quiz to be passed
+    return hasPassedChapterQuiz(levelNum, unitNumber, chapterNumber - 1);
+  };
+
+  // Count passed quizzes for a unit
+  const getUnitQuizzesPassed = (unitNumber: number, totalChapters: number): number => {
+    let count = 0;
+    for (let i = 1; i <= totalChapters; i++) {
+      if (hasPassedChapterQuiz(levelNum, unitNumber, i)) count++;
+    }
+    return count;
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -50,7 +83,8 @@ export default function UniversityLevel() {
           {levelData.units.map((unit) => {
             const hasChapters = unit.chapters.length > 0;
             const completedCount = getUnitCompletedChapters(levelNum, unit.number);
-            const allComplete = hasChapters && completedCount >= unit.chapters.length;
+            const quizzesPassed = hasChapters ? getUnitQuizzesPassed(unit.number, unit.chapters.length) : 0;
+            const allUnitQuizzesPassed = hasChapters && quizzesPassed >= unit.chapters.length;
             const assessment = getLevelData(levelNum)?.assessments.find(a => a.unitNumber === unit.number);
             const passed = hasPassedAssessment(levelNum, unit.number);
             const best = getBestAssessment(levelNum, unit.number);
@@ -71,7 +105,7 @@ export default function UniversityLevel() {
                       <h2 className="font-display text-base tracking-wider text-foreground">{unit.title}</h2>
                       <p className="text-xs text-muted-foreground">{unit.chapters.length} Chapters</p>
                     </div>
-                    {passed && <CheckCircle className="w-5 h-5 text-green-500" />}
+                    {allUnitQuizzesPassed && <CheckCircle className="w-5 h-5 text-green-500" />}
                   </div>
 
                   <p className="text-sm text-muted-foreground leading-relaxed mb-4">{unit.description}</p>
@@ -79,64 +113,64 @@ export default function UniversityLevel() {
                   {hasChapters && (
                     <>
                       <CourseProgressBar
-                        label="Chapters"
-                        completed={completedCount}
+                        label="Quizzes Passed"
+                        completed={quizzesPassed}
                         total={unit.chapters.length}
                       />
 
                       <div className="mt-4 space-y-2">
                         {unit.chapters.map((ch) => {
                           const done = isChapterComplete(levelNum, unit.number, ch.number);
+                          const qPassed = hasPassedChapterQuiz(levelNum, unit.number, ch.number);
+                          const accessible = isChapterAccessible(unit.number, ch.number);
                           return (
                             <button
                               key={ch.number}
-                              onClick={() => navigate(`/university/level-${levelNum}/unit-${unit.number}/chapter-${ch.number}`)}
-                              className="w-full flex items-center gap-3 p-3 rounded-lg border border-primary/10 hover:border-primary/30 transition-colors text-left"
+                              onClick={() => accessible ? navigate(`/university/level-${levelNum}/unit-${unit.number}/chapter-${ch.number}`) : undefined}
+                              disabled={!accessible}
+                              className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-left ${
+                                accessible
+                                  ? 'border-primary/10 hover:border-primary/30 cursor-pointer'
+                                  : 'border-muted/20 opacity-50 cursor-not-allowed'
+                              }`}
                             >
                               <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0 ${
-                                done ? 'bg-green-500/20 text-green-500' : 'bg-muted text-muted-foreground'
+                                qPassed ? 'bg-green-500/20 text-green-500' : done ? 'bg-primary/20 text-primary' : !accessible ? 'bg-muted text-muted-foreground' : 'bg-muted text-muted-foreground'
                               }`}>
-                                {done ? '✓' : ch.number}
+                                {!accessible ? <Lock className="w-3 h-3" /> : qPassed ? '✓' : ch.number}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm text-foreground truncate">{ch.title}</p>
+                                {qPassed && <p className="text-xs text-green-500">Quiz passed</p>}
+                                {done && !qPassed && accessible && <p className="text-xs text-primary">Quiz pending</p>}
                               </div>
-                              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                              {accessible && <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />}
                             </button>
                           );
                         })}
                       </div>
 
-                      {/* Unit Assessment */}
+                      {/* Unit Assessment — Optional Revision */}
                       {assessment && assessment.questions.length > 0 && (
                         <div className="mt-4 pt-4 border-t border-primary/10">
                           <button
-                            onClick={() => allComplete ? navigate(`/university/level-${levelNum}/unit-${unit.number}/assessment`) : undefined}
-                            disabled={!allComplete}
-                            className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-left ${
-                              allComplete
-                                ? 'border-primary/20 hover:border-primary/40 cursor-pointer'
-                                : 'border-muted/20 opacity-50 cursor-not-allowed'
-                            }`}
+                            onClick={() => navigate(`/university/level-${levelNum}/unit-${unit.number}/assessment`)}
+                            className="w-full flex items-center gap-3 p-3 rounded-lg border border-primary/10 hover:border-primary/20 cursor-pointer transition-colors text-left"
                           >
-                            {!allComplete ? (
-                              <Lock className="w-5 h-5 text-muted-foreground shrink-0" />
-                            ) : passed ? (
+                            {passed ? (
                               <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
                             ) : (
-                              <ClipboardCheck className="w-5 h-5 text-primary shrink-0" />
+                              <BookOpen className="w-5 h-5 text-muted-foreground shrink-0" />
                             )}
                             <div className="flex-1">
-                              <p className="text-sm font-medium text-foreground">Unit Assessment</p>
+                              <p className="text-sm font-medium text-foreground">Optional Revision — Unit Assessment</p>
                               <p className="text-xs text-muted-foreground">
-                                {!allComplete
-                                  ? 'Complete all chapters to unlock'
-                                  : best
+                                {best
                                   ? `Best: ${best.score}/${best.total} (${Math.round((best.score / best.total) * 100)}%)`
-                                  : `${assessment.questions.length} questions — ${assessment.passMarkPercent}% to pass`}
+                                  : `${assessment.questions.length} questions — practice only`}
                               </p>
                             </div>
-                            {allComplete && <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />}
+                            <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                           </button>
                         </div>
                       )}
@@ -150,6 +184,35 @@ export default function UniversityLevel() {
               </motion.div>
             );
           })}
+
+          {/* Final Assessment */}
+          {levelData.finalAssessment && levelData.finalAssessment.questions.length > 0 && (
+            <Card className={`p-5 border-2 ${allQuizzesPassed ? 'border-primary/40' : 'border-muted/20'}`}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <Trophy className="w-4 h-4 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h2 className="font-display text-base tracking-wider text-foreground">Final Assessment</h2>
+                  <p className="text-xs text-muted-foreground">
+                    {allQuizzesPassed
+                      ? `${levelData.finalAssessment.questions.length} questions — ${levelData.finalAssessment.passMarkPercent}% to pass`
+                      : 'Pass all chapter quizzes to unlock'}
+                  </p>
+                </div>
+                {!allQuizzesPassed && <Lock className="w-5 h-5 text-muted-foreground" />}
+                {allQuizzesPassed && hasPassedAssessment(levelNum, 0) && <CheckCircle className="w-5 h-5 text-green-500" />}
+              </div>
+              <Button
+                onClick={() => navigate(`/university/level-${levelNum}/unit-0/assessment`)}
+                disabled={!allQuizzesPassed}
+                className="w-full mt-2"
+                variant={allQuizzesPassed ? 'default' : 'outline'}
+              >
+                {allQuizzesPassed ? 'Start Final Assessment' : 'Complete All Chapter Quizzes First'}
+              </Button>
+            </Card>
+          )}
         </div>
       </main>
 

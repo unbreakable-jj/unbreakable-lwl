@@ -1,4 +1,4 @@
-import type { Level } from './types';
+import type { Level, ChapterQuiz } from './types';
 import { level2Unit1 } from './level2/unit1';
 import { level2Unit2 } from './level2/unit2';
 import { level2Unit3 } from './level2/unit3';
@@ -8,8 +8,19 @@ import { level2Unit2Assessment } from './level2/unit2-assessments';
 import { level2Unit3Assessment } from './level2/unit3-assessments';
 import { level2Unit4Assessment } from './level2/unit4-assessments';
 import { level2FinalAssessment } from './level2/final-assessment';
+import { unit1ChapterQuizzes } from './level2/unit1-chapter-quizzes';
+import { unit2ChapterQuizzes } from './level2/unit2-chapter-quizzes';
+import { unit3ChapterQuizzes } from './level2/unit3-chapter-quizzes';
+import { unit4ChapterQuizzes } from './level2/unit4-chapter-quizzes';
 
 export const PASS_MARK_PERCENT = 80;
+
+const level2ChapterQuizzes: ChapterQuiz[] = [
+  ...unit1ChapterQuizzes,
+  ...unit2ChapterQuizzes,
+  ...unit3ChapterQuizzes,
+  ...unit4ChapterQuizzes,
+];
 
 export const courseData: Level[] = [
   {
@@ -25,6 +36,7 @@ export const courseData: Level[] = [
     ],
     assessments: [level2Unit1Assessment, level2Unit2Assessment, level2Unit3Assessment, level2Unit4Assessment],
     finalAssessment: level2FinalAssessment,
+    chapterQuizzes: level2ChapterQuizzes,
   },
   {
     level: 3,
@@ -64,6 +76,7 @@ export const courseData: Level[] = [
       passMarkPercent: 80,
       questions: [],
     },
+    chapterQuizzes: [],
   },
 ];
 
@@ -85,6 +98,13 @@ export function getAssessment(level: number, unitNumber: number) {
   const levelData = getLevelData(level);
   if (unitNumber === 0) return levelData?.finalAssessment;
   return levelData?.assessments.find(a => a.unitNumber === unitNumber);
+}
+
+export function getChapterQuiz(level: number, unitNumber: number, chapterNumber: number): ChapterQuiz | undefined {
+  const levelData = getLevelData(level);
+  return levelData?.chapterQuizzes.find(
+    q => q.unitNumber === unitNumber && q.chapterNumber === chapterNumber
+  );
 }
 
 export function getTotalChapters(level: number): number {
