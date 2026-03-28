@@ -77,6 +77,13 @@ const nutritionL2ChapterQuizzes: ChapterQuiz[] = [
   ...nutritionL2Unit4ChapterQuizzes,
 ];
 
+const nutritionL3ChapterQuizzes: ChapterQuiz[] = [
+  ...nutritionL3Unit1ChapterQuizzes,
+  ...nutritionL3Unit2ChapterQuizzes,
+  ...nutritionL3Unit3ChapterQuizzes,
+  ...nutritionL3Unit4ChapterQuizzes,
+];
+
 export const courseData: Level[] = [
   {
     level: 2,
@@ -110,6 +117,16 @@ export const nutritionCourseData: Level[] = [
     assessments: [nutritionL2Unit1Assessment, nutritionL2Unit2Assessment, nutritionL2Unit3Assessment, nutritionL2Unit4Assessment],
     finalAssessment: nutritionL2FinalAssessment,
     chapterQuizzes: nutritionL2ChapterQuizzes,
+  },
+  {
+    level: 3,
+    title: 'Level 3 Certificate',
+    subtitle: 'Advanced Nutrition',
+    description: 'Master advanced macronutrient science, evidence-based supplementation, sports nutrition strategies, and the psychology of sustainable behaviour change.',
+    units: [nutritionL3Unit1, nutritionL3Unit2, nutritionL3Unit3, nutritionL3Unit4],
+    assessments: [nutritionL3Unit1Assessment, nutritionL3Unit2Assessment, nutritionL3Unit3Assessment, nutritionL3Unit4Assessment],
+    finalAssessment: nutritionL3FinalAssessment,
+    chapterQuizzes: nutritionL3ChapterQuizzes,
   },
 ];
 
