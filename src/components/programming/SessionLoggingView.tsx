@@ -508,13 +508,17 @@ export function SessionLoggingView({
             );
           })}
         </div>
-      </div>
 
-      {/* Fixed Compact Rest Timer - Always visible for manual use */}
-      <div className="sticky bottom-0 left-0 right-0 z-10">
+      {/* Fixed Compact Rest Timer */}
+      <div className="sticky bottom-0 left-0 right-0 z-10 p-2">
         <CompactRestTimer
           exerciseType={timerExerciseType as 'strength' | 'hypertrophy'}
           onComplete={() => {}}
+          minimized={timerMinimized}
+          onToggleMinimize={() => {
+            setTimerMinimized((prev) => !prev);
+            if (minimizeTimerRef.current) clearTimeout(minimizeTimerRef.current);
+          }}
         />
       </div>
     </FullScreenToolView>
