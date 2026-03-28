@@ -54,6 +54,19 @@ import {
   nutritionL3Unit3ChapterQuizzes, nutritionL3Unit4ChapterQuizzes,
 } from './nutrition-l3/assessments';
 
+// Mindset Level 2 imports
+import { mindsetL2Unit1 } from './mindset-l2/unit1';
+import { mindsetL2Unit2 } from './mindset-l2/unit2';
+import { mindsetL2Unit3 } from './mindset-l2/unit3';
+import { mindsetL2Unit4 } from './mindset-l2/unit4';
+import {
+  mindsetL2Unit1Assessment, mindsetL2Unit2Assessment,
+  mindsetL2Unit3Assessment, mindsetL2Unit4Assessment,
+  mindsetL2FinalAssessment,
+  mindsetL2Unit1ChapterQuizzes, mindsetL2Unit2ChapterQuizzes,
+  mindsetL2Unit3ChapterQuizzes, mindsetL2Unit4ChapterQuizzes,
+} from './mindset-l2/assessments';
+
 export const PASS_MARK_PERCENT = 80;
 
 const level2ChapterQuizzes: ChapterQuiz[] = [
@@ -130,7 +143,25 @@ export const nutritionCourseData: Level[] = [
   },
 ];
 
-export const mindsetCourseData: Level[] = [];
+const mindsetL2ChapterQuizzes: ChapterQuiz[] = [
+  ...mindsetL2Unit1ChapterQuizzes,
+  ...mindsetL2Unit2ChapterQuizzes,
+  ...mindsetL2Unit3ChapterQuizzes,
+  ...mindsetL2Unit4ChapterQuizzes,
+];
+
+export const mindsetCourseData: Level[] = [
+  {
+    level: 2,
+    title: 'Level 2 Certificate',
+    subtitle: 'Foundation Mindset',
+    description: 'Master the foundations of mental resilience, breathing science, focus, habit formation, and daily practices that build unshakeable mental strength.',
+    units: [mindsetL2Unit1, mindsetL2Unit2, mindsetL2Unit3, mindsetL2Unit4],
+    assessments: [mindsetL2Unit1Assessment, mindsetL2Unit2Assessment, mindsetL2Unit3Assessment, mindsetL2Unit4Assessment],
+    finalAssessment: mindsetL2FinalAssessment,
+    chapterQuizzes: mindsetL2ChapterQuizzes,
+  },
+];
 
 export const allCourses: Record<string, Level[]> = {
   gym: courseData,
