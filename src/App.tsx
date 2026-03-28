@@ -152,17 +152,21 @@ const App = () => (
               <Route path="/university" element={
                 <SubscribedRoute><University /></SubscribedRoute>
               } />
-              <Route path="/university/:level" element={
+              <Route path="/university/:courseType/level-:level" element={
                 <SubscribedRoute><UniversityLevel /></SubscribedRoute>
               } />
-              <Route path="/university/:level/:unit/:chapter" element={
+              <Route path="/university/:courseType/level-:level/unit-:unit/chapter-:chapter" element={
                 <SubscribedRoute><UniversityChapter /></SubscribedRoute>
               } />
-              <Route path="/university/:level/:unit/:chapter/quiz" element={
+              <Route path="/university/:courseType/level-:level/unit-:unit/chapter-:chapter/quiz" element={
                 <SubscribedRoute><UniversityChapterQuiz /></SubscribedRoute>
               } />
-              <Route path="/university/:level/:unit/assessment" element={
+              <Route path="/university/:courseType/level-:level/unit-:unit/assessment" element={
                 <SubscribedRoute><UniversityAssessment /></SubscribedRoute>
+              } />
+              {/* Legacy routes without courseType — redirect to gym */}
+              <Route path="/university/level-:level" element={
+                <SubscribedRoute><UniversityLevel /></SubscribedRoute>
               } />
               
               {/* Habits */}
