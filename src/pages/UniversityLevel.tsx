@@ -5,16 +5,17 @@ import { UnifiedFooter } from '@/components/UnifiedFooter';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CourseProgressBar } from '@/components/university/CourseProgressBar';
-import { ChevronLeft, ChevronRight, BookOpen, ClipboardCheck, Lock, CheckCircle, Trophy } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, Lock, CheckCircle, Trophy } from 'lucide-react';
 import { getLevelData } from '@/lib/university/courseStructure';
 import { useUniversityProgress } from '@/hooks/useUniversityProgress';
 import { AdminControlPanel } from '@/components/university/AdminControlPanel';
 
 export default function UniversityLevel() {
-  const { level } = useParams();
+  const { courseType, level } = useParams();
   const navigate = useNavigate();
+  const ct = courseType || 'gym';
   const levelNum = parseInt(level?.replace('level-', '') || '2');
-  const levelData = getLevelData(levelNum);
+  const levelData = getLevelData(levelNum, ct);
   const {
     getUnitCompletedChapters,
     isChapterComplete,
@@ -32,53 +33,44 @@ export default function UniversityLevel() {
     );
   }
 
-  // Level 3 requires Level 2 final exam to be passed
-  const isLevelLocked = levelNum === 3 && !hasPassedAssessment(2, 0);
+  const isLevelLocked = levelNum === 3 && !hasPassedAssessment(2, 0, ct);
   if (isLevelLocked) {
     return (
       <div className="min-h-screen bg-background">
         <MainNavigation />
         <div className="pt-24 pb-6 container mx-auto px-4 max-w-2xl text-center">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/university')} className="mb-3 -ml-2 text-muted-foreground">
+          <Button variant="ghost" size="sm" onClick={() => navigate(`/university?course=${ct}`)} className="mb-3 -ml-2 text-muted-foreground">
             <ChevronLeft className="w-4 h-4 mr-1" /> University
           </Button>
           <Lock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <h1 className="font-display text-2xl tracking-wider text-foreground mb-2">LEVEL 3 LOCKED</h1>
           <p className="text-muted-foreground text-sm">Pass the Level 2 Final Assessment to unlock Level 3.</p>
-          <Button className="mt-6" onClick={() => navigate('/university/level-2')}>Go to Level 2</Button>
+          <Button className="mt-6" onClick={() => navigate(`/university/${ct}/level-2`)}>Go to Level 2</Button>
         </div>
         <UnifiedFooter className="mt-auto" />
       </div>
     );
   }
 
-  // Build chapter info for gating check
   const unitChapterCounts = levelData.units
     .filter(u => u.chapters.length > 0)
     .map(u => ({ unitNumber: u.number, chapters: u.chapters.length }));
-  const allQuizzesPassed = allChapterQuizzesPassed(levelNum, unitChapterCounts);
+  const allQuizzesPassed = allChapterQuizzesPassed(levelNum, unitChapterCounts, ct);
 
-  // Check if a chapter is accessible (Chapter 1 of each unit has special rules)
   const isChapterAccessible = (unitNumber: number, chapterNumber: number): boolean => {
-    // Chapter 1 of Unit 1 is always accessible
     if (unitNumber === 1 && chapterNumber === 1) return true;
-    
-    // Chapter 1 of other units: requires previous unit's last chapter quiz to be passed
     if (chapterNumber === 1) {
       const prevUnit = levelData.units.find(u => u.number === unitNumber - 1);
       if (!prevUnit || prevUnit.chapters.length === 0) return true;
-      return hasPassedChapterQuiz(levelNum, unitNumber - 1, prevUnit.chapters.length);
+      return hasPassedChapterQuiz(levelNum, unitNumber - 1, prevUnit.chapters.length, ct);
     }
-
-    // Other chapters: requires previous chapter's quiz to be passed
-    return hasPassedChapterQuiz(levelNum, unitNumber, chapterNumber - 1);
+    return hasPassedChapterQuiz(levelNum, unitNumber, chapterNumber - 1, ct);
   };
 
-  // Count passed quizzes for a unit
   const getUnitQuizzesPassed = (unitNumber: number, totalChapters: number): number => {
     let count = 0;
     for (let i = 1; i <= totalChapters; i++) {
-      if (hasPassedChapterQuiz(levelNum, unitNumber, i)) count++;
+      if (hasPassedChapterQuiz(levelNum, unitNumber, i, ct)) count++;
     }
     return count;
   };
@@ -89,7 +81,7 @@ export default function UniversityLevel() {
 
       <div className="pt-24 pb-6 border-b border-primary/20">
         <div className="container mx-auto px-4 max-w-2xl">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/university')} className="mb-3 -ml-2 text-muted-foreground">
+          <Button variant="ghost" size="sm" onClick={() => navigate(`/university?course=${ct}`)} className="mb-3 -ml-2 text-muted-foreground">
             <ChevronLeft className="w-4 h-4 mr-1" /> University
           </Button>
           <h1 className="font-display text-3xl tracking-wider leading-none">
@@ -103,12 +95,12 @@ export default function UniversityLevel() {
         <div className="max-w-2xl mx-auto space-y-4">
           {levelData.units.map((unit) => {
             const hasChapters = unit.chapters.length > 0;
-            const completedCount = getUnitCompletedChapters(levelNum, unit.number);
+            const completedCount = getUnitCompletedChapters(levelNum, unit.number, ct);
             const quizzesPassed = hasChapters ? getUnitQuizzesPassed(unit.number, unit.chapters.length) : 0;
             const allUnitQuizzesPassed = hasChapters && quizzesPassed >= unit.chapters.length;
-            const assessment = getLevelData(levelNum)?.assessments.find(a => a.unitNumber === unit.number);
-            const passed = hasPassedAssessment(levelNum, unit.number);
-            const best = getBestAssessment(levelNum, unit.number);
+            const assessment = getLevelData(levelNum, ct)?.assessments.find(a => a.unitNumber === unit.number);
+            const passed = hasPassedAssessment(levelNum, unit.number, ct);
+            const best = getBestAssessment(levelNum, unit.number, ct);
 
             return (
               <motion.div
@@ -141,13 +133,13 @@ export default function UniversityLevel() {
 
                       <div className="mt-4 space-y-2">
                         {unit.chapters.map((ch) => {
-                          const done = isChapterComplete(levelNum, unit.number, ch.number);
-                          const qPassed = hasPassedChapterQuiz(levelNum, unit.number, ch.number);
+                          const done = isChapterComplete(levelNum, unit.number, ch.number, ct);
+                          const qPassed = hasPassedChapterQuiz(levelNum, unit.number, ch.number, ct);
                           const accessible = isChapterAccessible(unit.number, ch.number);
                           return (
                             <button
                               key={ch.number}
-                              onClick={() => accessible ? navigate(`/university/level-${levelNum}/unit-${unit.number}/chapter-${ch.number}`) : undefined}
+                              onClick={() => accessible ? navigate(`/university/${ct}/level-${levelNum}/unit-${unit.number}/chapter-${ch.number}`) : undefined}
                               disabled={!accessible}
                               className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-left ${
                                 accessible
@@ -171,11 +163,10 @@ export default function UniversityLevel() {
                         })}
                       </div>
 
-                      {/* Unit Assessment — Optional Revision */}
                       {assessment && assessment.questions.length > 0 && (
                         <div className="mt-4 pt-4 border-t border-primary/10">
                           <button
-                            onClick={() => navigate(`/university/level-${levelNum}/unit-${unit.number}/assessment`)}
+                            onClick={() => navigate(`/university/${ct}/level-${levelNum}/unit-${unit.number}/assessment`)}
                             className="w-full flex items-center gap-3 p-3 rounded-lg border border-primary/10 hover:border-primary/20 cursor-pointer transition-colors text-left"
                           >
                             {passed ? (
@@ -206,7 +197,6 @@ export default function UniversityLevel() {
             );
           })}
 
-          {/* Final Assessment */}
           {levelData.finalAssessment && levelData.finalAssessment.questions.length > 0 && (
             <Card className={`p-5 border-2 ${allQuizzesPassed ? 'border-primary/40' : 'border-muted/20'}`}>
               <div className="flex items-center gap-3 mb-3">
@@ -222,10 +212,10 @@ export default function UniversityLevel() {
                   </p>
                 </div>
                 {!allQuizzesPassed && <Lock className="w-5 h-5 text-muted-foreground" />}
-                {allQuizzesPassed && hasPassedAssessment(levelNum, 0) && <CheckCircle className="w-5 h-5 text-green-500" />}
+                {allQuizzesPassed && hasPassedAssessment(levelNum, 0, ct) && <CheckCircle className="w-5 h-5 text-green-500" />}
               </div>
               <Button
-                onClick={() => navigate(`/university/level-${levelNum}/unit-0/assessment`)}
+                onClick={() => navigate(`/university/${ct}/level-${levelNum}/unit-0/assessment`)}
                 disabled={!allQuizzesPassed}
                 className="w-full mt-2"
                 variant={allQuizzesPassed ? 'default' : 'outline'}
