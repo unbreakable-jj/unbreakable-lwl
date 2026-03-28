@@ -41,6 +41,19 @@ import {
   nutritionL2Unit3ChapterQuizzes, nutritionL2Unit4ChapterQuizzes,
 } from './nutrition-l2/assessments';
 
+// Nutrition Level 3 imports
+import { nutritionL3Unit1 } from './nutrition-l3/unit1';
+import { nutritionL3Unit2 } from './nutrition-l3/unit2';
+import { nutritionL3Unit3 } from './nutrition-l3/unit3';
+import { nutritionL3Unit4 } from './nutrition-l3/unit4';
+import {
+  nutritionL3Unit1Assessment, nutritionL3Unit2Assessment,
+  nutritionL3Unit3Assessment, nutritionL3Unit4Assessment,
+  nutritionL3FinalAssessment,
+  nutritionL3Unit1ChapterQuizzes, nutritionL3Unit2ChapterQuizzes,
+  nutritionL3Unit3ChapterQuizzes, nutritionL3Unit4ChapterQuizzes,
+} from './nutrition-l3/assessments';
+
 export const PASS_MARK_PERCENT = 80;
 
 const level2ChapterQuizzes: ChapterQuiz[] = [
