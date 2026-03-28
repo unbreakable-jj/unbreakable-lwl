@@ -12,7 +12,7 @@ import { useUniversityProgress } from '@/hooks/useUniversityProgress';
 
 export default function University() {
   const navigate = useNavigate();
-  const { getLevelCompletedChapters, isLoading } = useUniversityProgress();
+  const { getLevelCompletedChapters, hasPassedAssessment, isLoading } = useUniversityProgress();
 
   return (
     <div className="min-h-screen bg-background">
@@ -49,7 +49,7 @@ export default function University() {
             const totalChapters = getTotalChapters(level.level);
             const completedChapters = getLevelCompletedChapters(level.level);
             const hasContent = level.units.some(u => u.chapters.length > 0);
-            const isLocked = level.level === 3; // Lock L3 until L2 done (simplified for now)
+            const isLocked = level.level === 3 && !hasPassedAssessment(2, 0);
 
             return (
               <motion.div

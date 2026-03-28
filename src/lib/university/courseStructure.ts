@@ -13,6 +13,21 @@ import { unit2ChapterQuizzes } from './level2/unit2-chapter-quizzes';
 import { unit3ChapterQuizzes } from './level2/unit3-chapter-quizzes';
 import { unit4ChapterQuizzes } from './level2/unit4-chapter-quizzes';
 
+// Level 3 imports
+import { level3Unit1 } from './level3/unit1';
+import { level3Unit2 } from './level3/unit2';
+import { level3Unit3 } from './level3/unit3';
+import { level3Unit4 } from './level3/unit4';
+import { level3Unit1Assessment } from './level3/assessments';
+import { level3Unit2Assessment } from './level3/unit2-assessments';
+import { level3Unit3Assessment } from './level3/unit3-assessments';
+import { level3Unit4Assessment } from './level3/unit4-assessments';
+import { level3FinalAssessment } from './level3/final-assessment';
+import { level3Unit1ChapterQuizzes } from './level3/unit1-chapter-quizzes';
+import { level3Unit2ChapterQuizzes } from './level3/unit2-chapter-quizzes';
+import { level3Unit3ChapterQuizzes } from './level3/unit3-chapter-quizzes';
+import { level3Unit4ChapterQuizzes } from './level3/unit4-chapter-quizzes';
+
 export const PASS_MARK_PERCENT = 80;
 
 const level2ChapterQuizzes: ChapterQuiz[] = [
@@ -20,6 +35,13 @@ const level2ChapterQuizzes: ChapterQuiz[] = [
   ...unit2ChapterQuizzes,
   ...unit3ChapterQuizzes,
   ...unit4ChapterQuizzes,
+];
+
+const level3ChapterQuizzes: ChapterQuiz[] = [
+  ...level3Unit1ChapterQuizzes,
+  ...level3Unit2ChapterQuizzes,
+  ...level3Unit3ChapterQuizzes,
+  ...level3Unit4ChapterQuizzes,
 ];
 
 export const courseData: Level[] = [
@@ -44,39 +66,14 @@ export const courseData: Level[] = [
     subtitle: 'Advanced Application',
     description: 'Take your knowledge further with advanced nutrition strategies, hypertrophy science, periodised programme design, and the psychology of long-term adherence.',
     units: [
-      {
-        number: 1,
-        title: 'Advanced Nutrition',
-        description: 'Macro periodisation, nutrient timing, evidence-based supplementation, body composition, and metabolic adaptation.',
-        chapters: [],
-      },
-      {
-        number: 2,
-        title: 'Muscle Growth Principles',
-        description: 'Hypertrophy science, progressive overload, volume and intensity management, deloading, and fibre types.',
-        chapters: [],
-      },
-      {
-        number: 3,
-        title: 'Programme Design',
-        description: 'Periodisation models, exercise order, auto-regulation, weak point training, and peaking strategies.',
-        chapters: [],
-      },
-      {
-        number: 4,
-        title: 'Behaviour & Lifestyle',
-        description: 'Adherence psychology, habit formation, stress management, sleep optimisation, and long-term sustainability.',
-        chapters: [],
-      },
+      level3Unit1,
+      level3Unit2,
+      level3Unit3,
+      level3Unit4,
     ],
-    assessments: [],
-    finalAssessment: {
-      unitNumber: 0,
-      title: 'Level 3 Final Assessment',
-      passMarkPercent: 80,
-      questions: [],
-    },
-    chapterQuizzes: [],
+    assessments: [level3Unit1Assessment, level3Unit2Assessment, level3Unit3Assessment, level3Unit4Assessment],
+    finalAssessment: level3FinalAssessment,
+    chapterQuizzes: level3ChapterQuizzes,
   },
 ];
 
