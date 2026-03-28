@@ -10,13 +10,17 @@ import {
   Minus,
   Volume2,
   VolumeX,
-  Vibrate
+  Vibrate,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react';
 
 interface CompactRestTimerProps {
   exerciseType?: 'strength' | 'hypertrophy' | 'endurance' | 'compound' | 'isolation' | 'bodyweight';
   onComplete?: () => void;
   onDismiss?: () => void;
+  minimized?: boolean;
+  onToggleMinimize?: () => void;
 }
 
 const REST_PRESETS: Record<string, number> = {
@@ -30,7 +34,7 @@ const REST_PRESETS: Record<string, number> = {
 
 const QUICK_PRESETS = [60, 90, 120, 180];
 
-export function CompactRestTimer({ exerciseType = 'strength', onComplete }: CompactRestTimerProps) {
+export function CompactRestTimer({ exerciseType = 'strength', onComplete, minimized = true, onToggleMinimize }: CompactRestTimerProps) {
   const defaultTime = REST_PRESETS[exerciseType] || 120;
   const [timeLeft, setTimeLeft] = useState(defaultTime);
   const [isRunning, setIsRunning] = useState(false);
@@ -61,7 +65,7 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
       oscillator.connect(gainNode);
       gainNode.connect(ctx.destination);
       
-      oscillator.frequency.value = 880; // A5 note - classic timer beep
+      oscillator.frequency.value = 880;
       oscillator.type = 'sine';
       
       gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
@@ -74,7 +78,6 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
     }
   }, []);
 
-  // Play 3 beeps in sequence
   const playBeepSequence = useCallback(() => {
     if (!beepEnabled) return;
     playBeepSound();
@@ -82,14 +85,12 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
     setTimeout(() => playBeepSound(), 800);
   }, [beepEnabled, playBeepSound]);
 
-  // Cleanup
   useEffect(() => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, []);
 
-  // Timer logic - use a single stable interval
   useEffect(() => {
     if (!isRunning) {
       if (intervalRef.current) {
@@ -99,7 +100,6 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
       return;
     }
 
-    // Clear any existing interval before starting new one
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
@@ -122,7 +122,6 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
     };
   }, [isRunning]);
 
-  // Handle timer completion effects (beep/vibrate) separately to avoid interval deps issues
   useEffect(() => {
     if (timeLeft === 0 && !isRunning) {
       if (beepEnabled) playBeepSequence();
@@ -164,14 +163,55 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
   const isWarning = timeLeft <= 10 && timeLeft > 0;
   const isComplete = timeLeft === 0;
 
+  // MINIMIZED VIEW — slim pill bar
+  if (minimized) {
+    return (
+      <button
+        onClick={onToggleMinimize}
+        className={`w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-lg border-2 transition-all ${
+          isRunning
+            ? 'border-primary bg-primary/10'
+            : isComplete
+              ? 'border-green-500 bg-green-500/10'
+              : 'border-border bg-card'
+        }`}
+      >
+        <div className="flex items-center gap-2">
+          <Timer className={`w-4 h-4 ${isRunning ? 'text-primary' : isComplete ? 'text-green-500' : 'text-muted-foreground'}`} />
+          <span className={`font-display text-lg ${
+            isComplete ? 'text-green-500' :
+            isWarning ? 'text-primary' :
+            isRunning ? 'text-foreground' :
+            'text-muted-foreground'
+          }`}>
+            {isComplete ? 'GO!' : formatTime(timeLeft)}
+          </span>
+          {isRunning && (
+            <span className="text-xs text-muted-foreground">resting...</span>
+          )}
+        </div>
+        <ChevronUp className="w-4 h-4 text-muted-foreground" />
+      </button>
+    );
+  }
+
+  // EXPANDED VIEW — full controls
   return (
     <Card className={`border-2 transition-all ${
       isComplete ? 'border-green-500 bg-green-500/10' :
       isWarning ? 'border-primary bg-primary/10' :
       'border-primary/50 bg-background/95'
     }`}>
-      {/* Progress bar at top */}
-      <div className="h-1 bg-muted/20 rounded-t-lg overflow-hidden">
+      {/* Minimize handle */}
+      <button
+        onClick={onToggleMinimize}
+        className="w-full flex items-center justify-center py-1.5 text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ChevronDown className="w-4 h-4" />
+      </button>
+
+      {/* Progress bar */}
+      <div className="h-1 bg-muted/20 overflow-hidden">
         <div 
           className={`h-full transition-all duration-1000 ${
             isComplete ? 'bg-green-500' : 'bg-primary'
@@ -180,14 +220,14 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
         />
       </div>
 
-      <div className="p-4">
+      <div className="p-3">
         <div className="flex items-center justify-between gap-2">
           {/* Timer Display with +/- buttons */}
           <div className="flex items-center gap-2">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+            <div className={`w-9 h-9 rounded-full flex items-center justify-center ${
               isComplete ? 'bg-green-500/20' : 'bg-primary/20'
             }`}>
-              <Timer className={`w-5 h-5 ${isComplete ? 'text-green-500' : 'text-primary'}`} />
+              <Timer className={`w-4 h-4 ${isComplete ? 'text-green-500' : 'text-primary'}`} />
             </div>
             
             <Button
@@ -220,7 +260,6 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
 
           {/* Controls */}
           <div className="flex items-center gap-1">
-            {/* Beep Toggle */}
             <Button
               variant="ghost"
               size="icon"
@@ -231,7 +270,6 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
               {beepEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             </Button>
             
-            {/* Vibrate Toggle */}
             <Button
               variant="ghost"
               size="icon"
@@ -272,7 +310,7 @@ export function CompactRestTimer({ exerciseType = 'strength', onComplete }: Comp
         </div>
 
         {/* Presets Row */}
-        <div className="flex items-center justify-center gap-1 mt-3">
+        <div className="flex items-center justify-center gap-1 mt-2">
           {QUICK_PRESETS.map((preset) => (
             <Button
               key={preset}

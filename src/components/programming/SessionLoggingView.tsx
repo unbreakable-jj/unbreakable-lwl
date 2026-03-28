@@ -125,8 +125,10 @@ export function SessionLoggingView({
     groupedExercises[0]?.[0] || null
   );
   const [showTipsFor, setShowTipsFor] = useState<string | null>(null);
-  const [showTimer, setShowTimer] = useState(true); // Always visible so user can manually start
+  const [showTimer, setShowTimer] = useState(true);
+  const [timerMinimized, setTimerMinimized] = useState(true);
   const [timerExerciseType, setTimerExerciseType] = useState<string>('strength');
+  const minimizeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // Local input state to prevent re-renders during typing
   const [localInputs, setLocalInputs] = useState<LocalInputState>(() => {

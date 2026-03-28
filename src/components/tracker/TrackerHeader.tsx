@@ -66,7 +66,7 @@ export function TrackerHeader({ onRecordRun, activeTab, onTabChange }: TrackerHe
                   }`}
                 >
                   <Home className="w-4 h-4" />
-                  Feed
+                  Timeline
                 </button>
                 <button
                   onClick={() => onTabChange('stats')}

@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { useCallback } from 'react';
 
 const NAV_FLOW = [
-  { path: '/', label: 'HOME' },
+  { path: '/', label: 'TIMELINE' },
   { path: '/calculators', label: 'CALCULATORS' },
   { path: '/programming', label: 'POWER' },
   { path: '/tracker', label: 'MOVEMENT' },
