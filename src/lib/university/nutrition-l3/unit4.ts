@@ -1,4 +1,10 @@
 import type { Unit } from '../types';
+import ch1EatingPsychology from '@/assets/university/nutl3-u4-ch1-eating-psychology.png';
+import ch2BehaviourChange from '@/assets/university/nutl3-u4-ch2-behaviour-change.png';
+import ch3CoachingSkills from '@/assets/university/nutl3-u4-ch3-coaching-skills.png';
+import ch4NutritionPeriodisation from '@/assets/university/nutl3-u4-ch4-nutrition-periodisation.png';
+import ch5EvidenceBased from '@/assets/university/nutl3-u4-ch5-evidence-based.png';
+import ch6CompleteStrategy from '@/assets/university/nutl3-u4-ch6-complete-strategy.png';
 
 export const nutritionL3Unit4: Unit = {
   number: 4,
@@ -21,7 +27,8 @@ export const nutritionL3Unit4: Unit = {
             'Hunger is a physiological signal — your body genuinely needs energy. Appetite is the desire to eat, which can be triggered by sight, smell, time of day, social context, or emotion, regardless of actual energy needs. Cravings are intense, specific desires for particular foods, often linked to restriction, habit, or emotional state.',
             'Understanding these distinctions is the first step toward making conscious food choices rather than reactive ones. Most people who struggle with "willpower" are actually struggling with unrecognised emotional eating or environmental triggers — not a lack of discipline.',
           ],
-          imagePlaceholder: 'Diagram distinguishing physiological hunger (gradual onset, open to many foods, satisfied by eating) from emotional eating (sudden onset, specific food desired, eating does not resolve the underlying emotion)',
+          imageUrl: ch1EatingPsychology,
+          imageAlt: 'Physiological vs emotional hunger diagram',
         },
         {
           heading: 'Environmental Influences on Eating',
@@ -72,7 +79,8 @@ export const nutritionL3Unit4: Unit = {
             'The Transtheoretical Model (Prochaska and DiClemente) describes behaviour change as a process through five stages: Precontemplation (not considering change), Contemplation (thinking about change), Preparation (planning change), Action (actively changing), and Maintenance (sustaining the change).',
             'Understanding where you are in this process helps you apply the right strategies. Someone in contemplation needs education and motivation — not a detailed meal plan. Someone in the action stage needs practical tools, accountability, and strategies for overcoming obstacles.',
           ],
-          imagePlaceholder: 'Circular diagram of the Transtheoretical Model showing the five stages of change — Precontemplation, Contemplation, Preparation, Action, Maintenance — with relapse as a normal part of the cycle',
+          imageUrl: ch2BehaviourChange,
+          imageAlt: 'Transtheoretical Model stages diagram',
           bullets: [
             'Precontemplation — "I do not need to change my diet." Strategy: Raise awareness of consequences without judgement',
             'Contemplation — "I know I should eat better, but..." Strategy: Explore pros and cons, build motivation',
@@ -124,7 +132,8 @@ export const nutritionL3Unit4: Unit = {
             'Disordered eating exists on a spectrum. At one end is a healthy, flexible relationship with food. At the other are clinically diagnosed eating disorders (anorexia nervosa, bulimia nervosa, binge eating disorder). In between lies a wide range of problematic eating behaviours that may not meet clinical diagnostic criteria but still significantly impair physical and mental health.',
             'The fitness and bodybuilding communities have normalised many behaviours that sit on this spectrum — obsessive macro tracking, extreme food restriction, categorising foods as "clean" or "dirty," guilt around eating, and excessive compensatory exercise. Just because a behaviour is common in these communities does not make it healthy.',
           ],
-          imagePlaceholder: 'Spectrum diagram showing the range from healthy eating (flexible, enjoyable, nourishing) through disordered eating (rigid rules, guilt, preoccupation) to clinical eating disorders (anorexia, bulimia, BED), with warning signs at each stage',
+          imageUrl: ch3CoachingSkills,
+          imageAlt: 'Healthy eating to disordered eating spectrum',
         },
         {
           heading: 'Warning Signs',
@@ -174,7 +183,8 @@ export const nutritionL3Unit4: Unit = {
             'Motivational interviewing (MI) is a counselling approach developed by Miller and Rollnick that helps people explore and resolve ambivalence about change. Rather than telling someone what to do (which often provokes resistance), MI guides them toward their own reasons for change.',
             'The approach is built on the understanding that people are more likely to commit to change when they articulate their own motivations rather than being lectured. This is as true for your own internal dialogue about nutrition as it is when supporting others.',
           ],
-          imagePlaceholder: 'Diagram showing the four principles of motivational interviewing — Express Empathy, Develop Discrepancy, Roll with Resistance, Support Self-Efficacy — with example phrases for each',
+          imageUrl: ch4NutritionPeriodisation,
+          imageAlt: 'Motivational interviewing principles diagram',
         },
         {
           heading: 'The Four Principles',
@@ -221,7 +231,8 @@ export const nutritionL3Unit4: Unit = {
             'All the nutritional knowledge in the world is worthless if you cannot translate it into actual meals on your plate. This chapter bridges the gap between understanding what to eat and actually doing it — consistently, affordably, and without spending your entire Sunday in the kitchen.',
             'Effective meal planning is not about creating elaborate recipes for every meal. It is about having a reliable system that ensures you have the right foods available when you need them, with enough flexibility to accommodate real life.',
           ],
-          imagePlaceholder: 'Flowchart showing a practical weekly meal planning system — from goal setting (macros/calories) to shopping list creation, batch cooking day, daily assembly, and end-of-week review',
+          imageUrl: ch5EvidenceBased,
+          imageAlt: 'Weekly meal planning system flowchart',
         },
         {
           heading: 'The Batch Cooking System',
@@ -278,7 +289,8 @@ export const nutritionL3Unit4: Unit = {
             'In the UK, the title "dietitian" is legally protected — only those registered with the Health and Care Professions Council (HCPC) can use it. Dietitians complete a minimum three-year degree programme and are qualified to provide medical nutrition therapy, including managing clinical conditions.',
             'The title "nutritionist" is not legally protected in the same way, though the Association for Nutrition (AfN) maintains a voluntary register. "Nutrition coach," "nutrition advisor," and similar titles have no regulatory protection — anyone can use them regardless of qualifications.',
           ],
-          imagePlaceholder: 'Comparison table showing UK nutrition professional titles — Registered Dietitian (HCPC regulated, clinical scope), Registered Nutritionist (AfN voluntary register), and unregulated titles — with scope of practice for each',
+          imageUrl: ch6CompleteStrategy,
+          imageAlt: 'UK nutrition professional titles comparison',
           bullets: [
             'Registered Dietitian (RD) — HCPC regulated, can provide medical nutrition therapy, work in NHS and clinical settings',
             'Registered Nutritionist (RNutr/ANutr) — AfN registered, can provide public health and community nutrition advice',

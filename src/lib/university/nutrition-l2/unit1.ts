@@ -1,4 +1,12 @@
 import type { Unit } from '../types';
+import ch1EatwellGuide from '@/assets/university/nutl2-u1-ch1-eatwell-guide.png';
+import ch2Macronutrients from '@/assets/university/nutl2-u1-ch2-macronutrients.png';
+import ch3VitaminsMinerals from '@/assets/university/nutl2-u1-ch3-vitamins-minerals.png';
+import ch4FibreTypes from '@/assets/university/nutl2-u1-ch4-fibre-types.png';
+import ch5WaterFunctions from '@/assets/university/nutl2-u1-ch5-water-functions.png';
+import ch6NutrientDensity from '@/assets/university/nutl2-u1-ch6-nutrient-density.png';
+import ch7PortionSizes from '@/assets/university/nutl2-u1-ch7-portion-sizes.png';
+import ch8BalancedDay from '@/assets/university/nutl2-u1-ch8-balanced-day.png';
 
 export const nutritionL2Unit1: Unit = {
   number: 1,
@@ -21,7 +29,8 @@ export const nutritionL2Unit1: Unit = {
             'The Eatwell Guide is a visual representation of the UK government\'s recommendations for a balanced diet. It divides food into five groups and shows the approximate proportions in which you should aim to eat them over the course of a day or week.',
             'It was designed for the general population aged 2 and above, and provides a useful starting framework — though it has limitations when applied to people with specific performance or body composition goals.',
           ],
-          imagePlaceholder: 'Diagram of the UK Eatwell Guide showing the five food groups in their recommended proportions — fruit and vegetables, starchy carbohydrates, protein, dairy, and oils/spreads',
+          imageUrl: ch1EatwellGuide,
+          imageAlt: 'UK Eatwell Guide diagram',
         },
         {
           heading: 'The Five Food Groups',
@@ -75,7 +84,8 @@ export const nutritionL2Unit1: Unit = {
             'Macronutrients are the nutrients your body needs in large quantities to provide energy and support essential functions. There are three: protein, carbohydrates, and fats. Each plays a distinct role and provides a specific amount of energy per gram.',
             'Protein provides 4 calories per gram. Carbohydrates provide 4 calories per gram. Fat provides 9 calories per gram. Alcohol, while not a macronutrient, provides 7 calories per gram with no nutritional benefit.',
           ],
-          imagePlaceholder: 'Diagram showing the three macronutrients with their caloric values per gram — protein (4 kcal), carbohydrates (4 kcal), and fat (9 kcal)',
+          imageUrl: ch2Macronutrients,
+          imageAlt: 'Macronutrient comparison diagram',
         },
         {
           heading: 'Protein',
@@ -146,7 +156,8 @@ export const nutritionL2Unit1: Unit = {
             'Micronutrients are vitamins and minerals that your body needs in small amounts for proper functioning. Unlike macronutrients, they do not provide calories — but they are essential for energy production, immune function, bone health, and hundreds of biochemical processes.',
             'Deficiencies in micronutrients can impair performance, recovery, mood, and long-term health — even if your calorie and macro intake is perfect.',
           ],
-          imagePlaceholder: 'Chart showing key vitamins and minerals grouped by function — energy production, immune support, bone health, and muscle function',
+          imageUrl: ch3VitaminsMinerals,
+          imageAlt: 'Vitamins and minerals chart',
         },
         {
           heading: 'Vitamins',
@@ -219,7 +230,8 @@ export const nutritionL2Unit1: Unit = {
             'Dietary fibre is a type of carbohydrate that your body cannot digest. Unlike other carbohydrates that are broken down into glucose, fibre passes through the digestive system largely intact — but it plays crucial roles in gut health, blood sugar regulation, and satiety.',
             'The recommended daily intake for adults in the UK is 30 grams per day. Most people consume around 18 grams — well below the target.',
           ],
-          imagePlaceholder: 'Diagram showing the difference between soluble fibre (dissolves in water, forms gel) and insoluble fibre (adds bulk, aids transit) with food examples for each',
+          imageUrl: ch4FibreTypes,
+          imageAlt: 'Soluble and insoluble fibre diagram',
         },
         {
           heading: 'Types of Fibre',
@@ -281,7 +293,8 @@ export const nutritionL2Unit1: Unit = {
             'Water makes up approximately 60% of adult body weight and is involved in virtually every physiological process — from temperature regulation and nutrient transport to joint lubrication and waste removal.',
             'Even mild dehydration (1–2% body weight loss) can impair cognitive function, mood, exercise performance, and recovery. Chronic under-hydration is associated with kidney stones, urinary tract infections, and reduced metabolic efficiency.',
           ],
-          imagePlaceholder: 'Diagram showing the functions of water in the body — temperature regulation, nutrient transport, joint lubrication, waste removal, and cellular function',
+          imageUrl: ch5WaterFunctions,
+          imageAlt: 'Water functions in the body diagram',
         },
         {
           heading: 'How Much Water Do You Need?',
@@ -347,7 +360,8 @@ export const nutritionL2Unit1: Unit = {
             'Nutrient density refers to the amount of beneficial nutrients a food provides relative to its calorie content. Foods high in vitamins, minerals, protein, and fibre relative to their calories are considered nutrient-dense. Foods high in calories but low in beneficial nutrients are considered calorie-dense but nutrient-poor.',
             'Understanding nutrient density helps you make better food choices without needing to obsessively track every meal. Prioritising nutrient-dense foods naturally supports health, performance, and body composition.',
           ],
-          imagePlaceholder: 'Comparison chart showing nutrient-dense foods (vegetables, lean proteins, whole grains) versus calorie-dense nutrient-poor foods (sugary drinks, crisps, sweets)',
+          imageUrl: ch6NutrientDensity,
+          imageAlt: 'Nutrient density comparison chart',
         },
         {
           heading: 'Protein-Rich Foods',
@@ -414,7 +428,8 @@ export const nutritionL2Unit1: Unit = {
             'A serving size is a standardised measurement used on food labels. A portion size is how much you actually eat. These are often different — and the gap between them is where many people unknowingly over-consume calories.',
             'Over the past few decades, average portion sizes have increased significantly. Restaurant meals, ready meals, and even dinner plates have grown — leading to a distorted sense of what a "normal" amount of food looks like.',
           ],
-          imagePlaceholder: 'Side-by-side comparison showing how portion sizes have increased over 30 years for common foods — bagels, pasta servings, and soft drinks',
+          imageUrl: ch7PortionSizes,
+          imageAlt: 'Portion size comparison over time',
         },
         {
           heading: 'Hand-Based Portion Estimation',
@@ -478,7 +493,8 @@ export const nutritionL2Unit1: Unit = {
             'A well-structured meal provides energy, satisfies appetite, and delivers the nutrients your body needs. Rather than following complicated rules, the goal is to build habits that make balanced eating your default — not something that requires constant effort.',
             'Most people benefit from three main meals per day, with the option of one to two snacks depending on activity level and hunger patterns. Consistency in meal timing helps regulate appetite, blood sugar, and energy levels.',
           ],
-          imagePlaceholder: 'Example day of balanced meals showing breakfast, lunch, dinner, and snacks with macro breakdowns for each',
+          imageUrl: ch8BalancedDay,
+          imageAlt: 'Balanced daily meals with macro breakdowns',
         },
         {
           heading: 'The Four-Component Meal',

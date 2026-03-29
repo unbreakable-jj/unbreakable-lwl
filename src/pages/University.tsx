@@ -14,7 +14,7 @@ import type { CourseType } from '@/lib/university/types';
 
 const courseTabs: { key: CourseType; label: string; icon: React.ReactNode; description: string }[] = [
   { key: 'gym', label: 'Power', icon: <Dumbbell className="w-4 h-4" />, description: 'Applied Fitness & Exercise Science' },
-  { key: 'nutrition', label: 'Nutrition', icon: <Apple className="w-4 h-4" />, description: 'Healthy Eating & Nutritional Science' },
+  { key: 'nutrition', label: 'Fuel', icon: <Apple className="w-4 h-4" />, description: 'Healthy Eating & Nutritional Science' },
   { key: 'mindset', label: 'Mindset', icon: <Brain className="w-4 h-4" />, description: 'Mental Performance & Wellbeing' },
 ];
 
