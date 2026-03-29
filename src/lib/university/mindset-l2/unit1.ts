@@ -1,4 +1,10 @@
 import type { Unit } from '../types';
+import ch1MentalResilience from '@/assets/university/mindl2-u1-ch1-mental-resilience.png';
+import ch2StressResponse from '@/assets/university/mindl2-u1-ch2-stress-response.png';
+import ch3AutonomicNervous from '@/assets/university/mindl2-u1-ch3-autonomic-nervous.png';
+import ch4GrowthMindset from '@/assets/university/mindl2-u1-ch4-growth-mindset.png';
+import ch5GoalSetting from '@/assets/university/mindl2-u1-ch5-goal-setting.png';
+import ch6SleepRecovery from '@/assets/university/mindl2-u1-ch6-sleep-recovery.png';
 
 export const mindsetL2Unit1: Unit = {
   number: 1,
@@ -21,7 +27,8 @@ export const mindsetL2Unit1: Unit = {
             'Mental resilience is not about ignoring pain, suppressing emotions, or pretending everything is fine. It is the ability to adapt to stress, recover from setbacks, and maintain forward progress despite difficulty. Resilient people still feel fear, frustration, and doubt — they simply have better systems for processing these experiences and continuing to function.',
             'The misconception that resilience means "never breaking" causes immense harm. It discourages people from seeking help and frames normal emotional responses as weakness. True resilience includes knowing when to rest, when to ask for support, and when to adjust your approach.',
           ],
-          imagePlaceholder: 'Diagram showing the three pillars of mental resilience — Adaptability (adjusting to change), Emotional Regulation (managing responses), and Recovery (bouncing back from setbacks)',
+          imageUrl: ch1MentalResilience,
+          imageAlt: 'Diagram showing the three pillars of mental resilience: adaptability, emotional regulation, and recovery',
         },
         {
           heading: 'The Components of Resilience',
@@ -68,7 +75,8 @@ export const mindsetL2Unit1: Unit = {
             'When your brain perceives a threat — real or imagined — it activates the sympathetic nervous system, triggering the fight-or-flight response. This cascade of physiological changes evolved to help you survive immediate physical danger: increased heart rate, rapid breathing, heightened alertness, blood diverted to muscles, and non-essential functions (digestion, immune response) temporarily suppressed.',
             'The problem is that your brain cannot distinguish between a genuine threat (a car swerving toward you) and a perceived threat (an angry email from your boss). Both trigger the same physiological cascade. In the modern world, you rarely face physical danger — but your stress response fires constantly.',
           ],
-          imagePlaceholder: 'Diagram of the stress response pathway — showing the amygdala detecting threat, hypothalamus activating the sympathetic nervous system, adrenal glands releasing adrenaline and cortisol, and the resulting physiological effects',
+          imageUrl: ch2StressResponse,
+          imageAlt: 'Stress response pathway showing threat detection, hypothalamus activation, adrenal hormone release, and physiological effects',
         },
         {
           heading: 'Acute vs Chronic Stress',
@@ -117,7 +125,8 @@ export const mindsetL2Unit1: Unit = {
             'Your autonomic nervous system (ANS) operates two complementary branches. The sympathetic nervous system (SNS) is your accelerator — it activates the fight-or-flight response, increases heart rate, and mobilises energy. The parasympathetic nervous system (PNS) is your brake — it promotes rest, digestion, recovery, and calm.',
             'Optimal functioning requires balance between these two systems. Most people in modern life are chronically sympathetically dominant — their accelerator is always pressed. Learning to activate the parasympathetic brake is one of the most powerful resilience skills you can develop.',
           ],
-          imagePlaceholder: 'Balance diagram showing the sympathetic (fight-or-flight: increased heart rate, alertness, energy mobilisation) and parasympathetic (rest-and-digest: decreased heart rate, digestion, recovery) nervous systems in equilibrium',
+          imageUrl: ch3AutonomicNervous,
+          imageAlt: 'Balanced sympathetic and parasympathetic nervous system diagram showing activation versus recovery states',
         },
         {
           heading: 'The Vagus Nerve — Your Recovery Highway',
@@ -168,7 +177,8 @@ export const mindsetL2Unit1: Unit = {
             'Psychologist Carol Dweck\'s research identifies two fundamental beliefs people hold about their abilities. A fixed mindset assumes that intelligence, talent, and ability are largely innate and unchangeable — you either "have it" or you do not. A growth mindset believes that abilities are developed through effort, learning, and persistence.',
             'These mindsets profoundly influence how you respond to challenges, failure, and feedback. Fixed mindset individuals avoid challenges (to protect their self-image), give up easily when things get hard, and view effort as a sign of inadequacy. Growth mindset individuals embrace challenges, persist through difficulty, and view effort as the path to mastery.',
           ],
-          imagePlaceholder: 'Comparison diagram of Fixed Mindset (avoids challenges, gives up easily, sees effort as pointless, ignores criticism) vs Growth Mindset (embraces challenges, persists through setbacks, sees effort as path to mastery, learns from criticism)',
+          imageUrl: ch4GrowthMindset,
+          imageAlt: 'Fixed mindset versus growth mindset comparison chart showing contrasting behaviours and beliefs',
         },
         {
           heading: 'Mindset in Practice',
@@ -218,7 +228,8 @@ export const mindsetL2Unit1: Unit = {
             'Most people set outcome goals — "I want to lose 10kg," "I want to run a marathon," "I want to bench press 100kg." These are valid destinations, but they have a critical weakness: you do not have complete control over them. Injuries, life events, and genetics all influence outcomes regardless of your effort.',
             'Performance goals are partially within your control — "I want to improve my 5K time by 30 seconds." Process goals are entirely within your control — "I will train four times this week," "I will meal prep every Sunday," "I will practise breathing exercises for five minutes daily." Process goals drive the behaviours that lead to performance improvements, which in turn lead to outcomes.',
           ],
-          imagePlaceholder: 'Goal hierarchy pyramid showing three levels — Process Goals at the base (daily actions, fully controllable), Performance Goals in the middle (measurable improvements), and Outcome Goals at the top (desired results)',
+          imageUrl: ch5GoalSetting,
+          imageAlt: 'Goal hierarchy pyramid showing process goals, performance goals, and outcome goals',
         },
         {
           heading: 'Why Process Goals Sustain Motivation',
@@ -263,7 +274,8 @@ export const mindsetL2Unit1: Unit = {
             'Sleep is the single most powerful recovery tool available to you — and it is free. During sleep, your body repairs tissue, consolidates memories, processes emotions, regulates hormones, and clears metabolic waste from the brain. No supplement, recovery technique, or training protocol can compensate for consistently poor sleep.',
             'Despite this, sleep is the first thing most people sacrifice when life gets busy. This is backwards. Cutting sleep to "get more done" reduces cognitive function, emotional regulation, physical performance, and immune function — making everything you do during your waking hours less effective.',
           ],
-          imagePlaceholder: 'Diagram showing the sleep cycle stages — Light Sleep (N1/N2), Deep Sleep (N3 — physical recovery, growth hormone), and REM Sleep (emotional processing, memory consolidation) — cycling through 4-6 times per night',
+          imageUrl: ch6SleepRecovery,
+          imageAlt: 'Sleep cycle diagram showing light sleep, deep sleep, REM sleep, and repeated overnight cycles',
         },
         {
           heading: 'Sleep Architecture',
