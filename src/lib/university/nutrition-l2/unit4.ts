@@ -1,4 +1,12 @@
 import type { Unit } from '../types';
+import ch1SmartGoals from '@/assets/university/nutl2-u4-ch1-smart-goals.png';
+import ch2UnderstandingCalories from '@/assets/university/nutl2-u4-ch2-understanding-calories.png';
+import ch3MacroTracking from '@/assets/university/nutl2-u4-ch3-macro-tracking.png';
+import ch4MealPlanning from '@/assets/university/nutl2-u4-ch4-meal-planning.png';
+import ch5EatingOut from '@/assets/university/nutl2-u4-ch5-eating-out.png';
+import ch6DietMyths from '@/assets/university/nutl2-u4-ch6-diet-myths.png';
+import ch7SustainableHabits from '@/assets/university/nutl2-u4-ch7-sustainable-habits.png';
+import ch8PersonalPlan from '@/assets/university/nutl2-u4-ch8-personal-plan.png';
 
 export const nutritionL2Unit4: Unit = {
   number: 4,
@@ -20,7 +28,8 @@ export const nutritionL2Unit4: Unit = {
           paragraphs: [
             'SMART goals provide structure and clarity to your nutrition objectives. Without clear goals, improvement is vague, unmeasurable, and difficult to sustain. The SMART framework turns "I want to eat better" into an actionable plan.',
           ],
-          imagePlaceholder: 'SMART goal framework diagram showing Specific, Measurable, Achievable, Relevant, and Time-bound with a nutrition example for each component',
+          imageUrl: ch1SmartGoals,
+          imageAlt: 'SMART goal framework diagram',
           bullets: [
             'Specific — "Eat 30 grams of protein at breakfast" rather than "eat more protein"',
             'Measurable — You can objectively verify whether you achieved it',
@@ -71,7 +80,8 @@ export const nutritionL2Unit4: Unit = {
             'Energy balance is the relationship between the calories you consume (energy in) and the calories you burn (energy out). This fundamental principle determines whether you gain, lose, or maintain body weight over time.',
             'A caloric surplus (eating more than you burn) leads to weight gain. A caloric deficit (eating less than you burn) leads to weight loss. Maintenance occurs when intake matches expenditure.',
           ],
-          imagePlaceholder: 'Balance scale diagram showing energy in (food and drink) vs energy out (BMR, NEAT, TEF, exercise) with surplus, deficit, and maintenance states',
+          imageUrl: ch2UnderstandingCalories,
+          imageAlt: 'Energy balance diagram',
         },
         {
           heading: 'Components of Energy Expenditure',
@@ -117,7 +127,8 @@ export const nutritionL2Unit4: Unit = {
             'Macro tracking involves recording the grams of protein, carbohydrates, and fat you consume each day. It provides a detailed picture of your nutritional intake and helps ensure you are eating in line with your goals.',
             'Tracking is a skill — not a lifestyle. Most people benefit from periods of tracking to build awareness, learn portion sizes, and understand their eating patterns. It does not need to be permanent.',
           ],
-          imagePlaceholder: 'Screenshot-style diagram of a macro tracking interface showing daily targets for protein, carbs, fat, and calories with progress bars',
+          imageUrl: ch3MacroTracking,
+          imageAlt: 'Macro tracking interface diagram',
         },
         {
           heading: 'Methods and Tools',
@@ -175,7 +186,8 @@ export const nutritionL2Unit4: Unit = {
             'Meal planning is the bridge between nutritional knowledge and daily practice. Without a plan, even the most knowledgeable person defaults to convenience — and convenience rarely aligns with health goals.',
             'Planning reduces decision fatigue, saves money, minimises food waste, and ensures consistent nutrient intake. It does not mean eating the same thing every day — it means having a framework that makes healthy eating the default.',
           ],
-          imagePlaceholder: 'Benefits diagram showing meal planning at the centre with arrows to time savings, cost savings, reduced food waste, consistent nutrition, and less stress',
+          imageUrl: ch4MealPlanning,
+          imageAlt: 'Meal planning benefits diagram',
         },
         {
           heading: 'Building a Weekly Plan',
@@ -223,7 +235,8 @@ export const nutritionL2Unit4: Unit = {
             'Restaurant and takeaway meals are typically higher in calories, fat, sugar, and salt than home-cooked equivalents. Portions are larger, cooking methods use more fat, and sauces add hidden calories. However, eating out is a normal part of social life and does not need to derail your nutrition.',
             'The goal is not to avoid eating out — it is to make better choices when you do.',
           ],
-          imagePlaceholder: 'Comparison showing a typical restaurant meal (burger, chips, side, drink) calorie breakdown vs a mindful restaurant choice, highlighting the difference',
+          imageUrl: ch5EatingOut,
+          imageAlt: 'Restaurant meal calorie comparison',
         },
         {
           heading: 'Strategies for Smarter Choices',
@@ -276,7 +289,8 @@ export const nutritionL2Unit4: Unit = {
             'Nutrition is surrounded by misinformation — from social media influencers, tabloid headlines, and well-meaning but uninformed advice. Myths persist because they offer simple answers to complex questions and because the nutrition industry profits from confusion.',
             'Critical thinking is your best defence. Always ask: "What is the evidence?" and "Who benefits from this claim?"',
           ],
-          imagePlaceholder: 'Myth vs fact comparison layout showing common nutrition myths on one side with evidence-based corrections on the other',
+          imageUrl: ch6DietMyths,
+          imageAlt: 'Nutrition myths vs facts comparison',
         },
         {
           heading: 'Common Myths Debunked',
@@ -330,7 +344,8 @@ export const nutritionL2Unit4: Unit = {
             'Every habit follows a three-part loop: Cue (the trigger), Routine (the behaviour), and Reward (the positive outcome that reinforces the loop). Understanding this loop allows you to design new healthy habits and disrupt unhealthy ones.',
             'For nutrition, the cue might be a time of day, an emotion, or a visual trigger. The routine is what you eat. The reward is the satisfaction, energy, or comfort the food provides.',
           ],
-          imagePlaceholder: 'Circular habit loop diagram showing Cue → Routine → Reward with a nutrition-specific example at each stage',
+          imageUrl: ch7SustainableHabits,
+          imageAlt: 'Habit loop diagram',
         },
         {
           heading: 'Habit Stacking',
@@ -383,7 +398,8 @@ export const nutritionL2Unit4: Unit = {
           paragraphs: [
             'This chapter brings together everything you have learned across Units 1–4. The goal is to create a personal nutrition framework that is practical, sustainable, and aligned with your goals. Not a rigid diet plan — a flexible system you can adapt as your life changes.',
           ],
-          imagePlaceholder: 'Pyramid diagram showing the nutrition hierarchy — calories at the base, then macronutrients, then food quality, then meal timing, then supplements at the top',
+          imageUrl: ch8PersonalPlan,
+          imageAlt: 'Nutrition hierarchy pyramid',
         },
         {
           heading: 'The Nutrition Hierarchy',

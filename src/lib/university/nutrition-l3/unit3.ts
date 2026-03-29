@@ -1,4 +1,10 @@
 import type { Unit } from '../types';
+import ch1ResistanceFuelling from '@/assets/university/nutl3-u3-ch1-resistance-fuelling.png';
+import ch2EnduranceFuelling from '@/assets/university/nutl3-u3-ch2-endurance-fuelling.png';
+import ch3FatLossNutrition from '@/assets/university/nutl3-u3-ch3-fat-loss-nutrition.png';
+import ch4MuscleGainNutrition from '@/assets/university/nutl3-u3-ch4-muscle-gain-nutrition.png';
+import ch5HydrationScience from '@/assets/university/nutl3-u3-ch5-hydration-science.png';
+import ch6BodyComposition from '@/assets/university/nutl3-u3-ch6-body-composition.png';
 
 export const nutritionL3Unit3: Unit = {
   number: 3,
@@ -21,7 +27,8 @@ export const nutritionL3Unit3: Unit = {
             'Resistance training places unique nutritional demands on your body. Unlike endurance exercise, which primarily taxes the aerobic energy system, resistance training relies heavily on the phosphocreatine and glycolytic systems — meaning carbohydrates and stored creatine phosphate are the primary fuels during your working sets.',
             'General macronutrient guidelines for resistance-trained individuals aim to provide enough protein for muscle repair and growth, enough carbohydrate to fuel training performance, and enough fat to support hormonal health — all within an appropriate caloric framework for your goal.',
           ],
-          imagePlaceholder: 'Table showing recommended macronutrient ranges for resistance training — protein 1.6-2.2g/kg, carbohydrate 3-7g/kg depending on volume, fat 0.7-1.5g/kg — with example calculations for a 75kg individual',
+          imageUrl: ch1ResistanceFuelling,
+          imageAlt: 'Resistance training macronutrient recommendations',
           bullets: [
             'Protein — 1.6 to 2.2 grams per kilogram body weight daily. Higher end during caloric deficit to preserve muscle',
             'Carbohydrate — 3 to 7 grams per kilogram depending on training volume and intensity',
@@ -72,7 +79,8 @@ export const nutritionL3Unit3: Unit = {
             'Carbohydrate loading is a strategy used to maximise muscle glycogen stores before prolonged endurance events. The modern protocol involves increasing carbohydrate intake to 8–12 grams per kilogram of body weight for 36–48 hours before the event, while tapering training volume.',
             'The older "depletion-loading" protocol (depleting glycogen through exhaustive exercise, then loading) has been largely abandoned. It is unnecessary, unpleasant, and the modern simplified approach achieves comparable glycogen levels with far less discomfort and risk.',
           ],
-          imagePlaceholder: 'Timeline showing a modern carbohydrate loading protocol — normal intake 7 days before, taper training 3 days before, increase carbohydrate to 8-12g/kg 48 hours before event, with example foods',
+          imageUrl: ch2EnduranceFuelling,
+          imageAlt: 'Carbohydrate loading protocol timeline',
         },
         {
           heading: 'During-Event Fuelling',
@@ -123,7 +131,8 @@ export const nutritionL3Unit3: Unit = {
             'Fat loss requires a sustained caloric deficit — consuming fewer calories than you expend. However, the size of the deficit matters enormously. Too aggressive (more than 500–700 calories below maintenance) and you risk muscle loss, hormonal disruption, performance decline, and psychological burnout. Too modest (less than 200 calories) and progress is so slow that adherence wavers.',
             'A deficit of 300–500 calories below maintenance is appropriate for most people. This typically produces fat loss of 0.25–0.5kg per week in non-obese individuals. Overweight individuals can tolerate larger deficits initially, but the same principles apply as body fat decreases.',
           ],
-          imagePlaceholder: 'Chart showing the relationship between deficit size, rate of fat loss, and risk of muscle loss — with an optimal zone highlighted at 300-500 calorie deficit for most individuals',
+          imageUrl: ch3FatLossNutrition,
+          imageAlt: 'Deficit size vs muscle loss risk chart',
         },
         {
           heading: 'Protein — Your Most Important Macronutrient During Fat Loss',
@@ -181,7 +190,8 @@ export const nutritionL3Unit3: Unit = {
             'Building muscle requires a caloric surplus — providing your body with more energy than it expends. However, the relationship between surplus size and muscle growth is not linear. A modest surplus of 200–400 calories above maintenance provides sufficient energy for muscle growth in most trained individuals.',
             'Larger surpluses (500+ calories) do not proportionally increase muscle growth rate — they primarily increase fat accumulation. The rate of muscle growth is limited by biological factors (protein synthesis capacity, hormonal environment, training stimulus) regardless of how much food you consume.',
           ],
-          imagePlaceholder: 'Graph showing the relationship between caloric surplus size and muscle gain versus fat gain — demonstrating that beyond a moderate surplus, additional calories produce diminishing muscle gain and increasing fat gain',
+          imageUrl: ch4MuscleGainNutrition,
+          imageAlt: 'Surplus size vs muscle/fat gain graph',
         },
         {
           heading: 'Lean Bulk vs Traditional Bulk',
@@ -232,7 +242,8 @@ export const nutritionL3Unit3: Unit = {
             'Your body is approximately 60% water by weight, and maintaining fluid balance is critical for virtually every physiological process — from temperature regulation to nutrient transport, joint lubrication, and cognitive function. Fluid balance is regulated primarily through thirst (which triggers drinking) and anti-diuretic hormone (ADH), which controls how much water your kidneys retain.',
             'For most healthy individuals in normal conditions, drinking to thirst is a reliable hydration strategy. The commonly cited "eight glasses a day" has no robust scientific basis — fluid needs vary enormously based on body size, activity level, climate, and diet (many foods, particularly fruits and vegetables, contribute significant water).',
           ],
-          imagePlaceholder: 'Diagram of human fluid balance — showing inputs (drinking, food moisture, metabolic water) and outputs (urine, sweat, respiration, faeces) with approximate daily volumes',
+          imageUrl: ch5HydrationScience,
+          imageAlt: 'Human fluid balance diagram',
         },
         {
           heading: 'Dehydration and Performance',
@@ -283,7 +294,8 @@ export const nutritionL3Unit3: Unit = {
             'Body weight is the simplest metric to track but one of the most misleading. Daily weight fluctuations of 1–3kg are normal and result from changes in water retention, glycogen stores, gut contents, and hormonal cycles — none of which reflect actual changes in fat or muscle mass.',
             'A person can lose fat, gain muscle, and improve their health dramatically while their weight barely changes — or even increases. Conversely, rapid weight loss from crash dieting often reflects water and muscle loss rather than meaningful fat reduction.',
           ],
-          imagePlaceholder: 'Graph showing daily body weight fluctuations over 4 weeks versus the actual fat loss trend line — demonstrating how daily weight obscures the real progress trend',
+          imageUrl: ch6BodyComposition,
+          imageAlt: 'Daily weight fluctuations vs trend line graph',
         },
         {
           heading: 'Methods of Body Composition Assessment',

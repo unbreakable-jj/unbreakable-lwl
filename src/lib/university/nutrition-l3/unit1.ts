@@ -1,4 +1,10 @@
 import type { Unit } from '../types';
+import ch1CarbMetabolism from '@/assets/university/nutl3-u1-ch1-carb-metabolism.png';
+import ch2ProteinSynthesis from '@/assets/university/nutl3-u1-ch2-protein-synthesis.png';
+import ch3DietaryFats from '@/assets/university/nutl3-u1-ch3-dietary-fats.png';
+import ch4MetabolicAdaptation from '@/assets/university/nutl3-u1-ch4-metabolic-adaptation.png';
+import ch5NutrientTiming from '@/assets/university/nutl3-u1-ch5-nutrient-timing.png';
+import ch6AlcoholEffects from '@/assets/university/nutl3-u1-ch6-alcohol-effects.png';
 
 export const nutritionL3Unit1: Unit = {
   number: 1,
@@ -21,7 +27,8 @@ export const nutritionL3Unit1: Unit = {
             'When you eat carbohydrates, your body breaks them down into glucose — the primary fuel for your brain and muscles. But the journey from a bowl of porridge to usable energy involves several metabolic steps, each with practical implications for your performance and body composition.',
             'Understanding these pathways helps you make informed decisions about carbohydrate timing, quantity, and type — rather than following generic advice.',
           ],
-          imagePlaceholder: 'Flowchart showing carbohydrate digestion from mouth to muscle — including stages of glucose absorption, glycogen storage, and ATP production via glycolysis',
+          imageUrl: ch1CarbMetabolism,
+          imageAlt: 'Carbohydrate digestion and ATP production flowchart',
         },
         {
           heading: 'Glycolysis — The First Step',
@@ -78,7 +85,8 @@ export const nutritionL3Unit1: Unit = {
             'Your muscles are in a constant state of remodelling. Old or damaged proteins are broken down (muscle protein breakdown — MPB) while new proteins are built (muscle protein synthesis — MPS). Your net muscle protein balance — the difference between MPS and MPB — determines whether you gain, maintain, or lose muscle tissue over time.',
             'Resistance training stimulates MPS for 24–72 hours after a session. Consuming adequate dietary protein provides the amino acid building blocks needed to maximise this elevated MPS response.',
           ],
-          imagePlaceholder: 'Diagram showing the muscle protein turnover cycle — MPS and MPB in balance, with arrows showing how training and protein intake shift the balance toward net gain',
+          imageUrl: ch2ProteinSynthesis,
+          imageAlt: 'Muscle protein synthesis and breakdown diagram',
         },
         {
           heading: 'The Leucine Threshold',
@@ -136,7 +144,8 @@ export const nutritionL3Unit1: Unit = {
             'At Level 2, you learned that fats provide energy, insulation, and help absorb fat-soluble vitamins. At Level 3, we go deeper — dietary fat plays critical roles in hormone production, cell membrane structure, brain function, and inflammatory regulation.',
             'Cholesterol, which is synthesised from dietary fat, is the precursor to steroid hormones including testosterone, oestrogen, and cortisol. Chronically low fat intake can suppress hormone production, particularly testosterone, which affects both men and women — impacting energy, mood, recovery, and body composition.',
           ],
-          imagePlaceholder: 'Diagram showing the role of dietary fat in the body — hormone synthesis pathway from cholesterol to testosterone and oestrogen, cell membrane phospholipid bilayer, and fat-soluble vitamin absorption',
+          imageUrl: ch3DietaryFats,
+          imageAlt: 'Dietary fat roles in the body diagram',
         },
         {
           heading: 'Omega-3 vs Omega-6 — The Inflammatory Balance',
@@ -193,7 +202,8 @@ export const nutritionL3Unit1: Unit = {
           paragraphs: [
             'At Level 2, you learned that energy balance determines weight change. At Level 3, you need to understand the components of your total daily energy expenditure (TDEE) — and why they are not fixed values.',
           ],
-          imagePlaceholder: 'Stacked bar chart showing the four components of TDEE — BMR (largest), NEAT, TEF, and EAT — with typical percentage ranges for each',
+          imageUrl: ch4MetabolicAdaptation,
+          imageAlt: 'TDEE components breakdown chart',
           bullets: [
             'Basal Metabolic Rate (BMR) — The energy your body uses at complete rest to maintain vital functions. Accounts for approximately 60–70% of TDEE',
             'Non-Exercise Activity Thermogenesis (NEAT) — Energy expended through daily movement that is not deliberate exercise — fidgeting, walking, standing, housework. Accounts for approximately 15–30% and varies enormously between individuals',
@@ -257,7 +267,8 @@ export const nutritionL3Unit1: Unit = {
             'What you eat before training directly affects performance — but the optimal approach depends on the type, intensity, and duration of the session, as well as how recently you last ate.',
             'For most resistance training sessions lasting 60–90 minutes, a balanced meal containing 25–40g protein and 40–80g carbohydrates consumed 2–3 hours beforehand provides adequate fuel. If training within 60 minutes of eating, opt for a smaller, easily digested snack — a banana with a protein shake, for example.',
           ],
-          imagePlaceholder: 'Timeline showing optimal nutrient timing — pre-training meal 2-3 hours before, optional intra-training carbs, and post-training nutrition within 1-2 hours after, with recommended macronutrient amounts at each stage',
+          imageUrl: ch5NutrientTiming,
+          imageAlt: 'Nutrient timing around training diagram',
         },
         {
           heading: 'Intra-Training Nutrition',
@@ -315,7 +326,8 @@ export const nutritionL3Unit1: Unit = {
             'Alcohol (ethanol) provides 7 calories per gram — almost as energy-dense as fat (9 calories per gram) and nearly double that of carbohydrates or protein (4 calories per gram). However, it is often called an "empty calorie" source because it provides no essential nutrients, vitamins, or minerals.',
             'Your body treats alcohol as a toxin and prioritises its metabolism above all other macronutrients. When you drink, fat oxidation (fat burning) is suppressed until the alcohol is fully processed. This does not mean alcohol directly causes fat gain, but it makes it very easy to over-consume calories and stall fat loss.',
           ],
-          imagePlaceholder: 'Comparison chart showing calories per gram of alcohol (7), fat (9), carbohydrate (4), and protein (4), with common drink examples and their total calorie content',
+          imageUrl: ch6AlcoholEffects,
+          imageAlt: 'Alcohol calorie comparison chart',
         },
         {
           heading: 'Effects on Recovery and Performance',

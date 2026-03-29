@@ -1,4 +1,12 @@
 import type { Unit } from '../types';
+import ch1FourCs from '@/assets/university/nutl2-u3-ch1-four-cs.png';
+import ch2TemperatureZones from '@/assets/university/nutl2-u3-ch2-temperature-zones.png';
+import ch3CrossContamination from '@/assets/university/nutl2-u3-ch3-cross-contamination.png';
+import ch4FoodLabels from '@/assets/university/nutl2-u3-ch4-food-labels.png';
+import ch5BudgetShopping from '@/assets/university/nutl2-u3-ch5-budget-shopping.png';
+import ch6BatchCooking from '@/assets/university/nutl2-u3-ch6-batch-cooking.png';
+import ch7MealPrep from '@/assets/university/nutl2-u3-ch7-meal-prep.png';
+import ch8KitchenSafety from '@/assets/university/nutl2-u3-ch8-kitchen-safety.png';
 
 export const nutritionL2Unit3: Unit = {
   number: 3,
@@ -20,7 +28,8 @@ export const nutritionL2Unit3: Unit = {
           paragraphs: [
             'Food hygiene is about preventing foodborne illness through safe handling, preparation, and storage of food. The UK Food Standards Agency promotes four key principles — the "Four Cs" — as the foundation of safe food practice.',
           ],
-          imagePlaceholder: 'Diagram showing the four Cs of food hygiene — Cleaning, Cooking, Chilling, and Cross-contamination prevention — with icons for each',
+          imageUrl: ch1FourCs,
+          imageAlt: 'Four Cs of food hygiene diagram',
           bullets: [
             'Cleaning — Wash hands, utensils, and surfaces regularly. Always wash hands before handling food and after handling raw meat',
             'Cooking — Ensure food is cooked thoroughly to kill harmful bacteria. Use a food thermometer when possible',
@@ -72,7 +81,8 @@ export const nutritionL2Unit3: Unit = {
           paragraphs: [
             'Bacteria multiply most rapidly between 8°C and 63°C — this is known as the "danger zone." Food should spend as little time as possible in this range. Below 5°C, bacterial growth slows significantly. Above 75°C, most harmful bacteria are killed.',
           ],
-          imagePlaceholder: 'Temperature scale diagram showing frozen (-18°C), fridge (0-5°C), danger zone (8-63°C), cooking temperature (75°C+), with bacterial growth rates at each zone',
+          imageUrl: ch2TemperatureZones,
+          imageAlt: 'Food temperature danger zones diagram',
           bullets: [
             'Fridge — 0–5°C (slows bacterial growth)',
             'Freezer — -18°C or below (stops bacterial growth but does not kill bacteria)',
@@ -127,7 +137,8 @@ export const nutritionL2Unit3: Unit = {
             'Cross-contamination occurs when harmful bacteria are transferred from one food or surface to another. This is one of the most common causes of foodborne illness and is entirely preventable with proper practices.',
             'The most dangerous form is the transfer of bacteria from raw food (especially meat, poultry, and fish) to ready-to-eat food (salads, bread, cooked food). This can happen through direct contact, via hands, or through shared utensils and surfaces.',
           ],
-          imagePlaceholder: 'Flow diagram showing cross-contamination pathways — raw meat to chopping board to salad, raw chicken to hands to bread — with prevention measures at each step',
+          imageUrl: ch3CrossContamination,
+          imageAlt: 'Cross-contamination pathways diagram',
         },
         {
           heading: 'High-Risk Situations',
@@ -179,7 +190,8 @@ export const nutritionL2Unit3: Unit = {
           paragraphs: [
             'UK food law requires pre-packaged foods to display specific information to help consumers make informed choices. Understanding this information is a fundamental nutrition skill.',
           ],
-          imagePlaceholder: 'Annotated food label showing all mandatory elements — product name, ingredients list, nutrition table, allergens, use-by date, storage instructions, and net weight',
+          imageUrl: ch4FoodLabels,
+          imageAlt: 'Annotated food label diagram',
           bullets: [
             'Product name and description',
             'Ingredients list — Listed in descending order by weight. The first ingredient is the most abundant',
@@ -242,7 +254,8 @@ export const nutritionL2Unit3: Unit = {
           paragraphs: [
             'One of the most common barriers to healthy eating is the perception that it costs more. While some nutrient-dense foods are expensive, many are among the cheapest items in the supermarket. The key is knowing which foods offer the best nutritional value per pound.',
           ],
-          imagePlaceholder: 'Price comparison chart showing cost per gram of protein for common foods — eggs, tinned tuna, lentils, chicken thighs, milk, whey protein — ranked from cheapest to most expensive',
+          imageUrl: ch5BudgetShopping,
+          imageAlt: 'Cost per gram of protein comparison',
         },
         {
           heading: 'Budget-Friendly Nutrient-Dense Foods',
@@ -300,7 +313,8 @@ export const nutritionL2Unit3: Unit = {
             'Meal preparation is the practice of cooking and portioning meals in advance — typically for 3–5 days. It removes the daily decision of "what should I eat?" and replaces it with a ready-made healthy option.',
             'The biggest benefit is consistency. When healthy food is ready and accessible, you eat it. When it isn\'t, you reach for convenience options that are often higher in calories and lower in nutrients.',
           ],
-          imagePlaceholder: 'Workflow diagram showing a batch cooking session — shopping, preparation, cooking, portioning, storage — with time estimates for each stage',
+          imageUrl: ch6BatchCooking,
+          imageAlt: 'Batch cooking workflow diagram',
         },
         {
           heading: 'Batch Cooking Fundamentals',
@@ -358,7 +372,8 @@ export const nutritionL2Unit3: Unit = {
           paragraphs: [
             'Successful meal prep starts with a plan. Before you cook, decide what you will eat for the week, write a shopping list, and organise your kitchen. This preparation saves time, money, and stress.',
           ],
-          imagePlaceholder: 'Weekly meal planning template showing breakfast, lunch, dinner, and snack slots for 7 days with a shopping list column',
+          imageUrl: ch7MealPrep,
+          imageAlt: 'Weekly meal planning template',
           bullets: [
             'Review your schedule for the week — which days are busiest?',
             'Choose recipes that share ingredients to reduce waste and cost',
@@ -418,7 +433,8 @@ export const nutritionL2Unit3: Unit = {
           paragraphs: [
             'The kitchen is one of the most common locations for domestic accidents. Understanding potential hazards and how to prevent them is an essential life skill — whether you are cooking for yourself or for others.',
           ],
-          imagePlaceholder: 'Kitchen safety diagram showing common hazards — burns, cuts, slips, electrical hazards, fire — with prevention symbols for each',
+          imageUrl: ch8KitchenSafety,
+          imageAlt: 'Kitchen safety hazards diagram',
           bullets: [
             'Burns and scalds — The most common kitchen injury. Use oven gloves, turn pan handles inward, and be cautious with steam',
             'Cuts — Caused by knives, broken glass, and tin lids. Keep knives sharp (dull knives slip more) and use a stable chopping board',

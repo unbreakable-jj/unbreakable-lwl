@@ -1,4 +1,12 @@
 import type { Unit } from '../types';
+import ch1GrowthStages from '@/assets/university/nutl2-u2-ch1-growth-stages.png';
+import ch2AgeingMetabolism from '@/assets/university/nutl2-u2-ch2-ageing-metabolism.png';
+import ch3PregnancyNutrition from '@/assets/university/nutl2-u2-ch3-pregnancy-nutrition.png';
+import ch4DietaryPatterns from '@/assets/university/nutl2-u2-ch4-dietary-patterns.png';
+import ch5CulturalDiets from '@/assets/university/nutl2-u2-ch5-cultural-diets.png';
+import ch6AllergyIntolerance from '@/assets/university/nutl2-u2-ch6-allergy-intolerance.png';
+import ch7CaloricNeeds from '@/assets/university/nutl2-u2-ch7-caloric-needs.png';
+import ch8BloodSugar from '@/assets/university/nutl2-u2-ch8-blood-sugar.png';
 
 export const nutritionL2Unit2: Unit = {
   number: 2,
@@ -21,7 +29,8 @@ export const nutritionL2Unit2: Unit = {
             'Children and adolescents have proportionally higher energy and nutrient needs relative to their body weight compared to adults. This is because they are not only maintaining existing tissues but actively building new ones — bones, muscles, organs, and neural pathways.',
             'During puberty, growth accelerates significantly. Boys typically need more calories than girls due to greater increases in lean mass. Both sexes require adequate protein, calcium, iron, and zinc to support this growth.',
           ],
-          imagePlaceholder: 'Growth chart showing increased caloric and nutrient needs during childhood, adolescence, and puberty with key nutrients highlighted at each stage',
+          imageUrl: ch1GrowthStages,
+          imageAlt: 'Growth and nutrient needs across life stages',
         },
         {
           heading: 'Key Nutrients for Young People',
@@ -69,7 +78,8 @@ export const nutritionL2Unit2: Unit = {
             'As you age, basal metabolic rate gradually decreases — primarily due to loss of lean muscle mass (sarcopenia). This means calorie needs reduce, but nutrient needs remain the same or increase. The result is that older adults must eat more nutrient-dense foods per calorie consumed.',
             'Physical activity becomes even more important with age, both for maintaining muscle mass and for supporting appetite, bone density, and mental health.',
           ],
-          imagePlaceholder: 'Graph showing the decline in basal metabolic rate and lean mass with age alongside maintained or increased micronutrient needs',
+          imageUrl: ch2AgeingMetabolism,
+          imageAlt: 'Metabolic changes with ageing diagram',
         },
         {
           heading: 'Critical Nutrients for Older Adults',
@@ -121,7 +131,8 @@ export const nutritionL2Unit2: Unit = {
             'Pregnancy increases nutritional demands, but not as dramatically as many people believe. In the first trimester, no additional calories are needed. In the second trimester, approximately 340 extra calories per day are recommended, rising to about 450 in the third trimester.',
             'The focus should be on nutrient quality rather than quantity. Several micronutrients become critical for the health of both the mother and developing baby.',
           ],
-          imagePlaceholder: 'Trimester-by-trimester breakdown showing caloric needs, key nutrient requirements, and foods to prioritise during each stage of pregnancy',
+          imageUrl: ch3PregnancyNutrition,
+          imageAlt: 'Trimester nutrition requirements',
         },
         {
           heading: 'Key Nutrients During Pregnancy',
@@ -180,7 +191,8 @@ export const nutritionL2Unit2: Unit = {
             'Vegetarian diets exclude meat and fish but may include dairy (lacto-vegetarian), eggs (ovo-vegetarian), or both (lacto-ovo-vegetarian). Vegan diets exclude all animal products, including dairy, eggs, and honey.',
             'A well-planned vegetarian or vegan diet can meet all nutritional needs. However, certain nutrients require more attention because they are naturally found in higher concentrations in animal foods.',
           ],
-          imagePlaceholder: 'Spectrum diagram showing different dietary patterns from omnivore through flexitarian, pescatarian, vegetarian, to vegan with key nutrient considerations for each',
+          imageUrl: ch4DietaryPatterns,
+          imageAlt: 'Dietary pattern spectrum diagram',
         },
         {
           heading: 'Nutrients Requiring Attention',
@@ -235,7 +247,8 @@ export const nutritionL2Unit2: Unit = {
             'Food is deeply connected to cultural identity, religious practice, and social belonging. Understanding dietary traditions is essential for respecting individual choices while ensuring nutritional needs are met.',
             'Many cultural diets are inherently balanced and nutrient-rich. The Mediterranean diet, traditional Japanese diet, and Indian vegetarian cuisine are all examples of culturally-rooted eating patterns associated with excellent health outcomes.',
           ],
-          imagePlaceholder: 'World map highlighting major cultural dietary traditions — Mediterranean, South Asian, East Asian, Middle Eastern, African, Caribbean — with characteristic food patterns noted',
+          imageUrl: ch5CulturalDiets,
+          imageAlt: 'World cultural dietary traditions map',
         },
         {
           heading: 'Religious Dietary Practices',
@@ -289,7 +302,8 @@ export const nutritionL2Unit2: Unit = {
             'A food allergy is an immune system reaction that can be severe or life-threatening (anaphylaxis). Even tiny amounts of the allergen can trigger a response. Symptoms include swelling, hives, breathing difficulties, and in severe cases, anaphylactic shock.',
             'A food intolerance does not involve the immune system in the same way. Symptoms are usually digestive (bloating, cramping, diarrhoea) and are dose-dependent — small amounts may be tolerated. Lactose intolerance and non-coeliac gluten sensitivity are common examples.',
           ],
-          imagePlaceholder: 'Comparison diagram showing food allergy (immune response, potentially life-threatening, any amount) vs food intolerance (digestive response, dose-dependent, not life-threatening)',
+          imageUrl: ch6AllergyIntolerance,
+          imageAlt: 'Food allergy vs intolerance comparison',
         },
         {
           heading: 'The 14 Major Allergens (UK Law)',
@@ -354,7 +368,8 @@ export const nutritionL2Unit2: Unit = {
             'The most obvious difference between active and sedentary individuals is total energy expenditure. A sedentary adult might burn 1,800–2,200 calories per day, while a highly active person might burn 3,000–5,000+ depending on the type, duration, and intensity of training.',
             'Under-fuelling is a significant risk for active individuals. Relative Energy Deficiency in Sport (RED-S) can impair performance, bone health, immune function, hormonal balance, and mental health.',
           ],
-          imagePlaceholder: 'Bar chart comparing daily caloric needs of sedentary, moderately active, and highly active individuals across different body weights',
+          imageUrl: ch7CaloricNeeds,
+          imageAlt: 'Daily caloric needs comparison chart',
         },
         {
           heading: 'Macronutrient Differences',
@@ -405,7 +420,8 @@ export const nutritionL2Unit2: Unit = {
             'Type 2 diabetes is characterised by insulin resistance — the body produces insulin but cells do not respond to it effectively, leading to elevated blood sugar levels. Nutritional management is a cornerstone of treatment.',
             'Key dietary strategies include reducing refined carbohydrates and added sugars, increasing fibre intake, managing portion sizes, and achieving or maintaining a healthy body weight. Consistent meal timing helps prevent blood sugar spikes and crashes.',
           ],
-          imagePlaceholder: 'Diagram showing how blood sugar response differs between a high-fibre balanced meal and a refined carbohydrate meal over a 4-hour period',
+          imageUrl: ch8BloodSugar,
+          imageAlt: 'Blood sugar response comparison diagram',
         },
         {
           heading: 'Cardiovascular Health',

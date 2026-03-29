@@ -1,4 +1,10 @@
 import type { Unit } from '../types';
+import ch1FatSolubleVitamins from '@/assets/university/nutl3-u2-ch1-fat-soluble-vitamins.png';
+import ch2WaterSolubleVitamins from '@/assets/university/nutl3-u2-ch2-water-soluble-vitamins.png';
+import ch3Supplementation from '@/assets/university/nutl3-u2-ch3-supplementation.png';
+import ch4SpecialPopulations from '@/assets/university/nutl3-u2-ch4-special-populations.png';
+import ch5RestrictedDiets from '@/assets/university/nutl3-u2-ch5-restricted-diets.png';
+import ch6ClinicalAwareness from '@/assets/university/nutl3-u2-ch6-clinical-awareness.png';
 
 export const nutritionL3Unit2: Unit = {
   number: 2,
@@ -21,7 +27,8 @@ export const nutritionL3Unit2: Unit = {
             'Fat-soluble vitamins (A, D, E, and K) are absorbed alongside dietary fat and stored in your liver and adipose tissue. Unlike water-soluble vitamins, which are excreted in urine when consumed in excess, fat-soluble vitamins accumulate — making both deficiency and toxicity possible.',
             'This storage capacity means you do not need to consume them every single day, but chronic under-consumption or over-supplementation can cause significant problems over time.',
           ],
-          imagePlaceholder: 'Comparison table of fat-soluble vitamins A, D, E, and K — showing key functions, best food sources, UK RNI values, deficiency symptoms, and toxicity risks',
+          imageUrl: ch1FatSolubleVitamins,
+          imageAlt: 'Fat-soluble vitamins A, D, E, K comparison table',
         },
         {
           heading: 'Vitamin D — The UK Deficiency Crisis',
@@ -73,7 +80,8 @@ export const nutritionL3Unit2: Unit = {
             'The B vitamin group (B1, B2, B3, B5, B6, B7, B9, B12) plays essential roles in energy metabolism — they act as coenzymes in the pathways that convert carbohydrates, fats, and proteins into usable ATP. This does not mean supplementing B vitamins gives you "more energy" — it means deficiency impairs your ability to utilise the energy from food.',
             'B12 is of particular concern for vegans and vegetarians, as it is found almost exclusively in animal products. Deficiency develops slowly (the liver stores several years\' worth) but causes irreversible nerve damage if left untreated. All vegans should supplement B12 — this is non-negotiable.',
           ],
-          imagePlaceholder: 'Diagram showing the eight B vitamins and their specific roles in energy metabolism pathways — including which step of carbohydrate, fat, and protein metabolism each supports',
+          imageUrl: ch2WaterSolubleVitamins,
+          imageAlt: 'B vitamins and energy metabolism pathways',
         },
         {
           heading: 'Iron — More Than Just Anaemia',
@@ -123,7 +131,8 @@ export const nutritionL3Unit2: Unit = {
           paragraphs: [
             'The sports supplement industry generates billions of pounds annually, yet the vast majority of products have little or no evidence supporting their claims. Understanding the evidence hierarchy helps you avoid wasting money and focus on the few supplements that genuinely work.',
           ],
-          imagePlaceholder: 'Pyramid diagram showing supplement tiers — Tier 1 (strong evidence): creatine, caffeine, protein, vitamin D — Tier 2 (moderate evidence): beta-alanine, omega-3 — Tier 3 (limited/no evidence): BCAAs, glutamine, fat burners, testosterone boosters',
+          imageUrl: ch3Supplementation,
+          imageAlt: 'Supplement evidence tiers pyramid',
           bullets: [
             'Tier 1 — Strong evidence: Creatine monohydrate, caffeine, protein supplements (when dietary intake is insufficient), vitamin D (when deficient)',
             'Tier 2 — Moderate evidence: Beta-alanine (for high-intensity endurance), omega-3 fish oil (for inflammation and cardiovascular health), sodium bicarbonate (for repeated sprint performance)',
@@ -186,7 +195,8 @@ export const nutritionL3Unit2: Unit = {
             'Pregnancy increases energy requirements by approximately 200 additional calories per day during the third trimester only — the common advice to "eat for two" is a myth that contributes to excessive gestational weight gain. However, while calorie needs increase modestly, micronutrient requirements increase significantly.',
             'Folic acid supplementation (400 micrograms daily) is recommended from the point of trying to conceive until 12 weeks of pregnancy, as it dramatically reduces the risk of neural tube defects. Vitamin D supplementation (10 micrograms daily) is recommended throughout pregnancy and breastfeeding.',
           ],
-          imagePlaceholder: 'Infographic showing key nutritional requirements during pregnancy — folic acid timing, vitamin D, iron, calcium, omega-3, and foods to avoid, with UK NHS recommendations',
+          imageUrl: ch4SpecialPopulations,
+          imageAlt: 'Pregnancy nutritional requirements infographic',
         },
         {
           heading: 'Foods to Avoid During Pregnancy',
@@ -244,7 +254,8 @@ export const nutritionL3Unit2: Unit = {
           paragraphs: [
             'Well-planned vegetarian and vegan diets can meet all nutritional requirements. However, "well-planned" is the operative phrase. Several nutrients require deliberate attention when animal products are reduced or eliminated entirely.',
           ],
-          imagePlaceholder: 'Table showing nutrients of concern in vegan diets — vitamin B12, iron, zinc, omega-3, calcium, iodine, vitamin D — with plant-based sources and supplementation recommendations',
+          imageUrl: ch5RestrictedDiets,
+          imageAlt: 'Vegan nutrients of concern table',
           bullets: [
             'Vitamin B12 — No reliable plant source exists. All vegans must supplement (at least 10 micrograms daily or 2,000 micrograms weekly)',
             'Iron — Plant-based non-haem iron is less bioavailable. Combine with vitamin C sources and avoid tea/coffee at meals',
@@ -302,7 +313,8 @@ export const nutritionL3Unit2: Unit = {
             'Understanding clinical nutrition awareness does not make you a clinical practitioner. In the UK, only registered dietitians (regulated by the HCPC) are qualified to provide medical nutrition therapy. Nutritional therapists, coaches, and personal trainers can provide general healthy eating guidance but must refer clients with medical conditions to appropriate healthcare professionals.',
             'Recognising the boundaries of your competence is a professional responsibility. Providing dietary advice for conditions such as diabetes, kidney disease, eating disorders, or severe food allergies without appropriate qualifications could cause harm and may have legal implications.',
           ],
-          imagePlaceholder: 'Scope of practice diagram showing the boundary between general nutrition advice (fitness professionals) and medical nutrition therapy (registered dietitians and doctors), with examples of when to refer',
+          imageUrl: ch6ClinicalAwareness,
+          imageAlt: 'Nutrition scope of practice diagram',
         },
         {
           heading: 'Type 2 Diabetes — Nutritional Considerations',
