@@ -1,4 +1,9 @@
 import type { Unit } from '../types';
+import ch1MorningRoutine from '@/assets/university/mindl2-u4-ch1-morning-routine.png';
+import ch2StressInoculation from '@/assets/university/mindl2-u4-ch2-stress-inoculation.png';
+import ch3Mindfulness from '@/assets/university/mindl2-u4-ch3-mindfulness.png';
+import ch4ResilienceProtocol from '@/assets/university/mindl2-u4-ch4-resilience-protocol.png';
+
 
 export const mindsetL2Unit4: Unit = {
   number: 4,
@@ -21,7 +26,8 @@ export const mindsetL2Unit4: Unit = {
             'How you start your day sets the neurological and psychological tone for everything that follows. A morning spent scrolling social media, checking emails, and reacting to other people\'s priorities puts you in reactive mode from the start. A morning spent with intentional practices puts you in proactive mode — focused, calm, and directed.',
             'This does not require waking at 4am or performing elaborate two-hour rituals. A simple, consistent 15–30 minute routine that includes movement, breathwork, and reflection is sufficient to create a meaningful shift in your daily experience.',
           ],
-          imagePlaceholder: 'Example morning routine timeline — Wake (no phone), 5 min breathwork, 5 min journaling, 10 min movement (stretch/walk), hydrate, then begin the day — showing a 20-minute total',
+          imageUrl: ch1MorningRoutine,
+          imageAlt: 'Morning routine timeline with breathwork, journaling, movement, and hydration',
         },
         {
           heading: 'Core Components',
@@ -69,7 +75,8 @@ export const mindsetL2Unit4: Unit = {
             'Stress inoculation training (SIT), developed by Donald Meichenbaum, is based on a simple principle: controlled exposure to manageable stress builds resilience to larger stressors. Just as a vaccine exposes your immune system to a weakened pathogen to build immunity, stress inoculation exposes your nervous system to controlled challenges to build mental toughness.',
             'The key word is "controlled." Uncontrolled, overwhelming stress causes trauma. Controlled, progressive stress — where you choose the challenge and have tools to manage it — builds capacity.',
           ],
-          imagePlaceholder: 'Three-phase diagram of Stress Inoculation Training — Phase 1: Education (understanding stress), Phase 2: Skill Acquisition (learning coping tools), Phase 3: Application (controlled exposure with progressive difficulty)',
+          imageUrl: ch2StressInoculation,
+          imageAlt: 'Stress inoculation training phases diagram',
         },
         {
           heading: 'The Three Phases',
@@ -115,7 +122,8 @@ export const mindsetL2Unit4: Unit = {
             'Mindfulness is paying attention to the present moment, on purpose, without judgement. It is not about clearing your mind, achieving a state of bliss, or sitting cross-legged for hours. It is simply the practice of noticing what is happening right now — your thoughts, sensations, emotions, and surroundings — without trying to change them.',
             'The reason mindfulness works is that most mental suffering comes from ruminating about the past (regret, guilt) or worrying about the future (anxiety, fear). When you bring your attention to the present moment, you interrupt these patterns and give your nervous system a break from the chronic stress they generate.',
           ],
-          imagePlaceholder: 'Timeline showing where attention typically dwells — Past (rumination, regret) and Future (worry, anxiety) — with the present moment as a calm anchor point between them',
+          imageUrl: ch3Mindfulness,
+          imageAlt: 'Mindfulness timeline showing past rumination, present awareness, and future worry',
         },
         {
           heading: 'The Evidence',
@@ -163,7 +171,8 @@ export const mindsetL2Unit4: Unit = {
             'Throughout this course, you have learned the science behind resilience, breathwork, cold exposure, focus, habit formation, emotional regulation, visualisation, and mindfulness. The final step is assembling these tools into a personalised daily practice that works for your life, your schedule, and your specific goals.',
             'The key principle is sustainability. A protocol that takes 15 minutes and you do every day is infinitely more powerful than a 90-minute protocol you abandon after a week. Start with the minimum effective dose and build from there.',
           ],
-          imagePlaceholder: 'Template for a personal resilience protocol — showing morning block (breathwork + journaling, 10 min), training block (visualisation pre-session, 3 min), evening block (reflection + gratitude, 5 min), with weekly additions (cold exposure, stress inoculation challenge)',
+          imageUrl: ch4ResilienceProtocol,
+          imageAlt: 'Personal resilience protocol template with morning, training, and evening blocks',
         },
         {
           heading: 'Building Your Protocol',
