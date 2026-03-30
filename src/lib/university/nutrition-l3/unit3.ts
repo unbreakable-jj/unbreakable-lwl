@@ -279,6 +279,8 @@ export const nutritionL3Unit3: Unit = {
             'Dehydration of 2% or more of body weight consistently impairs both physical and cognitive performance. For a 70kg individual, this represents a fluid loss of just 1.4 litres — easily achievable during an intense training session, particularly in warm environments.',
             'Effects of dehydration include increased heart rate, reduced blood volume, impaired thermoregulation, decreased strength and power output, reduced endurance capacity, and impaired concentration and decision-making.',
           ],
+          imageUrl: ch5DehydrationScale,
+          imageAlt: 'Dehydration severity scale: 1% to 5%+ body weight loss',
           bullets: [
             '1% dehydration — Thirst is triggered. Minimal performance impact for most activities',
             '2% dehydration — Measurable decline in endurance performance and cognitive function',
@@ -292,6 +294,8 @@ export const nutritionL3Unit3: Unit = {
             'Monitor your hydration status using urine colour — pale straw indicates good hydration, dark yellow suggests you need to drink more. First-morning urine is typically more concentrated, so assess mid-morning or afternoon urine for a more accurate picture.',
             'Pre-hydrate before training by drinking 400–600ml of water in the 2–3 hours before exercise. During training, drink to thirst — approximately 150–250ml every 15–20 minutes for most activities. After training, replace approximately 150% of any weight lost during the session (if you lost 1kg, drink 1.5 litres over the following hours).',
           ],
+          imageUrl: ch5HydrationStrategy,
+          imageAlt: 'Hydration protocol: before, during, and after training',
         },
       ],
       unbreakableInsight: 'You do not need to force-drink water all day. Your thirst mechanism works. Drink when you are thirsty, drink around training, and stop overthinking it — unless you are training for over 90 minutes in the heat.',
