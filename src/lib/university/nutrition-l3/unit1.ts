@@ -175,6 +175,8 @@ export const nutritionL3Unit1: Unit = {
           imageUrl: ch3OmegaBalance,
           imageAlt: 'Omega-6 to Omega-3 ratio comparison: Western diet vs ideal',
         },
+        {
+          heading: 'Trans Fats and Industrial Processing',
           paragraphs: [
             'Trans fats are unsaturated fats that have been chemically altered through partial hydrogenation — a process that extends shelf life but creates a molecular structure your body struggles to process. They raise LDL cholesterol, lower HDL cholesterol, and increase cardiovascular disease risk.',
             'While naturally occurring trans fats exist in small amounts in dairy and meat (and appear to be harmless in those quantities), industrial trans fats found in some margarines, baked goods, and fried foods should be minimised or eliminated entirely.',
