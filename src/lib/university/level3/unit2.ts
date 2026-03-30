@@ -524,6 +524,9 @@ export const level3Unit2: Unit = {
           ],
           imageUrl: l3u2ch8DropSets,
           imageAlt: 'Flow diagram showing drop set execution with initial set at 100kg to near failure, then 20% weight reductions through two consecutive drops to failure',
+        },
+        {
+          heading: 'Rest-Pause Sets',
           paragraphs: [
             'Rest-pause involves performing a set to near failure, resting 10–20 seconds, then continuing with the same weight for additional reps. This allows you to accumulate more reps at a given load than a single straight set would permit.',
             'Rest-pause is particularly effective for hypertrophy because it keeps the load high (maintaining mechanical tension) while extending the set. It works well on both compound and isolation exercises.',
