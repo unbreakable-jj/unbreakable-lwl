@@ -54,6 +54,9 @@ export const level3Unit1: Unit = {
             'Cutting (caloric deficit) — Protein increases to preserve lean mass (2.0–2.4 g/kg). Carbohydrates are reduced but kept high enough to fuel training. Fat is kept at minimum healthy levels (0.7–1.0 g/kg).',
             'Maintenance (energy balance) — A balanced approach. Protein at 1.6–2.0 g/kg, carbohydrates and fats distributed according to preference and activity level.',
           ],
+          imageUrl: l3u1ch1PhasesImg,
+          imageAlt: 'The three core nutrition phases — bulking, cutting, and maintenance — with macro ranges for each',
+          ],
         },
         {
           heading: 'Adjusting Within a Training Block',
@@ -70,6 +73,8 @@ export const level3Unit1: Unit = {
             'Start by establishing your maintenance calories and macros. From there, apply small adjustments (200–500 kcal) when transitioning between phases. Avoid dramatic overnight changes — gradual transitions give your body time to adapt and reduce the risk of metabolic slowdown or excessive fat gain.',
             'Track your intake for the first two to three weeks of any new phase to ensure you are hitting your targets. After that, many people can transition to intuitive adjustments based on hunger, energy, and performance feedback.',
           ],
+          imageUrl: l3u1ch1PracticalImg,
+          imageAlt: 'Phase transition flowchart showing 5 steps from establishing maintenance to assessing and fine-tuning',
         },
       ],
       unbreakableInsight: 'Eating the same thing every day regardless of your training is like wearing the same shoes for running, lifting, and swimming. It technically works — but you will never perform at your best.',
@@ -111,6 +116,9 @@ export const level3Unit1: Unit = {
             'Protein before training increases amino acid availability during the session, which may support muscle protein synthesis',
             'Fat slows digestion — keep fat moderate-to-low in the meal closest to training to avoid stomach discomfort',
             'Hydration is non-negotiable — even mild dehydration impairs strength and concentration',
+          ],
+          imageUrl: l3u1ch2PreImg,
+          imageAlt: 'Nutrient timing around training — before, during, and after with recommended macronutrient focus',
           ],
         },
         {
