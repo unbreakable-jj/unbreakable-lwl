@@ -1,12 +1,28 @@
 import type { Unit } from '../types';
 import l3u4ch1Img from '@/assets/university/l3-u4-ch1-adherence.png';
+import l3u4ch1WhyQuit from '@/assets/university/l3-u4-ch1-why-people-quit.png';
+import l3u4ch1Strategies from '@/assets/university/l3-u4-ch1-adherence-strategies.png';
 import l3u4ch2Img from '@/assets/university/l3-u4-ch2-habit-loop.png';
+import l3u4ch2Stacking from '@/assets/university/l3-u4-ch2-habit-stacking.png';
+import l3u4ch2Timeline from '@/assets/university/l3-u4-ch2-habit-timeline.png';
 import l3u4ch3Img from '@/assets/university/l3-u4-ch3-nervous-system.png';
+import l3u4ch3Ans from '@/assets/university/l3-u4-ch3-ans-branches.png';
+import l3u4ch3Hrv from '@/assets/university/l3-u4-ch3-hrv.png';
 import l3u4ch4Img from '@/assets/university/l3-u4-ch4-sleep-stages.png';
+import l3u4ch4Deprivation from '@/assets/university/l3-u4-ch4-sleep-deprivation.png';
+import l3u4ch4Hygiene from '@/assets/university/l3-u4-ch4-sleep-hygiene.png';
 import l3u4ch5Img from '@/assets/university/l3-u4-ch5-stress-response.png';
+import l3u4ch5Travel from '@/assets/university/l3-u4-ch5-travel-training.png';
+import l3u4ch5Motivation from '@/assets/university/l3-u4-ch5-motivation-dips.png';
 import l3u4ch6Img from '@/assets/university/l3-u4-ch6-social-support.png';
+import l3u4ch6Mindset from '@/assets/university/l3-u4-ch6-mindset-comparison.png';
+import l3u4ch6SelfTalk from '@/assets/university/l3-u4-ch6-self-talk.png';
 import l3u4ch7Img from '@/assets/university/l3-u4-ch7-self-talk.png';
+import l3u4ch7Social from '@/assets/university/l3-u4-ch7-social-environment.png';
+import l3u4ch7Comparison from '@/assets/university/l3-u4-ch7-comparison-trap.png';
 import l3u4ch8Img from '@/assets/university/l3-u4-ch8-long-term-planning.png';
+import l3u4ch8EightyTwenty from '@/assets/university/l3-u4-ch8-eighty-twenty.png';
+import l3u4ch8Burnout from '@/assets/university/l3-u4-ch8-burnout.png';
 
 export const level3Unit4: Unit = {
   number: 4,
