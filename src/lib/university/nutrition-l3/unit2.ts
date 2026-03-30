@@ -54,6 +54,8 @@ export const nutritionL3Unit2: Unit = {
             'Groups at higher risk — people with darker skin, those who cover most of their skin, people who spend little time outdoors, and older adults',
             'Food sources are limited — oily fish, egg yolks, fortified cereals and spreads provide small amounts',
           ],
+          imageUrl: ch1VitaminD,
+          imageAlt: 'UK vitamin D deficiency: October to March UVB gap',
         },
         {
           heading: 'Vitamins A, E, and K',
