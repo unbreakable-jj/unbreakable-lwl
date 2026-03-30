@@ -37,7 +37,7 @@ export function SessionNotesView({
   const videoInputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
 
-  const MAX_IMAGES = 3;
+  const MAX_MEDIA = 5;
 
   const handleSave = () => {
     onSave(notes, visibility, media.length > 0 ? media : undefined);
@@ -47,12 +47,8 @@ export function SessionNotesView({
   const handleFileUpload = async (file: File, type: 'image' | 'video') => {
     if (!user) { toast.error('Please sign in'); return; }
     
-    // Enforce limits: max 3 images or 1 video
-    if (type === 'video' && media.some(m => m.type === 'video')) {
-      toast.error('Maximum 1 video per session'); return;
-    }
-    if (type === 'image' && media.filter(m => m.type === 'image').length >= MAX_IMAGES) {
-      toast.error(`Maximum ${MAX_IMAGES} images per session`); return;
+    if (media.length >= MAX_MEDIA) {
+      toast.error(`Maximum ${MAX_MEDIA} attachments per session`); return;
     }
 
     const maxSize = type === 'video' ? 500 * 1024 * 1024 : 10 * 1024 * 1024;
@@ -136,7 +132,7 @@ export function SessionNotesView({
         {/* Media Upload */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-foreground">
-            Attach Photos / Video
+            Attach up to 5 photos or videos
           </label>
 
           {/* Hidden inputs */}
@@ -168,15 +164,15 @@ export function SessionNotesView({
 
           {/* Upload buttons */}
           <div className="flex gap-2">
-            {!isUploading && media.filter(m => m.type === 'image').length < MAX_IMAGES && (
-              <Button variant="outline" size="sm" onClick={() => imageInputRef.current?.click()} className="gap-1 text-xs">
-                <Image className="w-4 h-4" /> Add Photo
-              </Button>
-            )}
-            {!isUploading && !media.some(m => m.type === 'video') && (
-              <Button variant="outline" size="sm" onClick={() => videoInputRef.current?.click()} className="gap-1 text-xs">
-                <Video className="w-4 h-4" /> Add Video
-              </Button>
+            {!isUploading && media.length < MAX_MEDIA && (
+              <>
+                <Button variant="outline" size="sm" onClick={() => imageInputRef.current?.click()} className="gap-1 text-xs">
+                  <Image className="w-4 h-4" /> Add Photo
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => videoInputRef.current?.click()} className="gap-1 text-xs">
+                  <Video className="w-4 h-4" /> Add Video
+                </Button>
+              </>
             )}
             {isUploading && (
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
