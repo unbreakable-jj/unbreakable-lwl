@@ -7,6 +7,12 @@ import l3u2ch5Img from '@/assets/university/l3-u2-ch5-tempo.png';
 import l3u2ch6Img from '@/assets/university/l3-u2-ch6-mesocycle.png';
 import l3u2ch7Img from '@/assets/university/l3-u2-ch7-mind-muscle.png';
 import l3u2ch8Img from '@/assets/university/l3-u2-ch8-rest-pause.png';
+import l3u2ch1ThreeDrivers from '@/assets/university/l3-u2-ch1-three-drivers.png';
+import l3u2ch1MechanicalTension from '@/assets/university/l3-u2-ch1-mechanical-tension.png';
+import l3u2ch1MuscleDamage from '@/assets/university/l3-u2-ch1-muscle-damage.png';
+import l3u2ch2OverloadVariables from '@/assets/university/l3-u2-ch2-overload-variables.png';
+import l3u2ch2DoubleProgression from '@/assets/university/l3-u2-ch2-double-progression.png';
+import l3u2ch3VolumeIntensityBalance from '@/assets/university/l3-u2-ch3-volume-intensity-balance.png';
 
 export const level3Unit2: Unit = {
   number: 2,
@@ -29,6 +35,8 @@ export const level3Unit2: Unit = {
             'Muscle hypertrophy — the increase in muscle fibre size — is driven by three primary mechanisms. Understanding these allows you to design training that maximises growth rather than simply "working hard" without direction.',
             'While all three contribute to hypertrophy, current evidence suggests they are not equally important. Knowing which to prioritise, and when, is what separates intelligent training from simply going through the motions.',
           ],
+          imageUrl: l3u2ch1ThreeDrivers,
+          imageAlt: 'Technical diagram comparing the three drivers of muscle growth with mechanical tension shown as the primary pillar and metabolic stress and muscle damage as supporting factors',
         },
         {
           heading: 'Mechanical Tension',
@@ -42,6 +50,8 @@ export const level3Unit2: Unit = {
             'Controlled tempos increase time under tension without requiring heavier loads',
             'Mechanical tension is maximised when a muscle is both stretched and contracting forcefully',
           ],
+          imageUrl: l3u2ch1MechanicalTension,
+          imageAlt: 'Technical diagram showing a muscle fibre under load and the mechanotransduction pathway from mechanical force to protein synthesis and muscle growth',
         },
         {
           heading: 'Metabolic Stress',
@@ -58,6 +68,8 @@ export const level3Unit2: Unit = {
             'Exercise-induced muscle damage occurs when muscle fibres are subjected to unfamiliar or excessive stress, particularly during the eccentric (lowering) phase of a movement. This damage triggers an inflammatory repair process that contributes to muscle remodelling.',
             'However, muscle damage is not a reliable indicator of growth. Excessive soreness impairs recovery and training frequency without providing proportional hypertrophy benefits. The goal is controlled stimulus, not destruction.',
           ],
+          imageUrl: l3u2ch1MuscleDamage,
+          imageAlt: 'Technical diagram showing eccentric load leading to micro-damage, repair, and remodelling as a controlled recovery process',
         },
         {
           heading: 'Putting It Together',
@@ -94,6 +106,8 @@ export const level3Unit2: Unit = {
             'Progressive overload is the most important principle in resistance training. Without it, your body has no reason to adapt. But adding weight to the bar every session is not the only way — nor is it always the best way — to create progressive overload.',
             'As you advance, weight increases become smaller and less frequent. Understanding alternative overload methods allows you to continue progressing when adding load is no longer practical.',
           ],
+          imageUrl: l3u2ch2OverloadVariables,
+          imageAlt: 'Technical diagram showing progressive overload as a central concept with load, volume, density, range of motion, tempo, complexity, and frequency as separate progression variables',
         },
         {
           heading: 'Methods of Progressive Overload',
@@ -125,6 +139,8 @@ export const level3Unit2: Unit = {
             'Double progression is one of the most practical overload methods for intermediate trainees. You work within a rep range (e.g., 8–12 reps). Once you hit the top of the range on all sets, you increase the weight and start back at the bottom of the range.',
             'For example: if your target is 3 × 8–12 on bench press and you achieve 3 × 12 at 80 kg, your next session would be 3 × 8 at 82.5 kg. This provides a clear, repeatable framework for long-term progress.',
           ],
+          imageUrl: l3u2ch2DoubleProgression,
+          imageAlt: 'Four-session technical diagram showing double progression where reps increase within an 8 to 12 range until the top range is hit, then load increases and reps reset',
         },
       ],
       unbreakableInsight: 'If you are not tracking your training, you are not progressively overloading — you are just exercising. There is a difference, and the results reflect it.',
@@ -155,6 +171,8 @@ export const level3Unit2: Unit = {
             'Training volume refers to the total amount of work performed — typically measured as sets per muscle group per week. Training intensity refers to how hard each set is relative to your capacity, often expressed as a percentage of one-rep max (1RM) or using RPE/RIR scales.',
             'Both variables must be managed carefully. Too little volume and you under-stimulate growth. Too much volume and you accumulate fatigue faster than you can recover, leading to stalled progress or regression.',
           ],
+          imageUrl: l3u2ch3VolumeIntensityBalance,
+          imageAlt: 'Technical diagram showing the balance between training volume and intensity with stimulus and fatigue in the center of a productive hypertrophy zone',
         },
         {
           heading: 'Volume Landmarks',
