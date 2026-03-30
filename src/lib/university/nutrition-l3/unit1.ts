@@ -302,6 +302,8 @@ export const nutritionL3Unit1: Unit = {
             'For sessions lasting under 60 minutes at moderate intensity, intra-training nutrition is unnecessary — water alone is sufficient. However, for sessions exceeding 90 minutes, high-intensity interval work, or multiple daily sessions, consuming fast-digesting carbohydrates (30–60g per hour) can maintain performance.',
             'Endurance athletes and those performing very high-volume training may benefit from intra-training carbohydrate drinks or gels. For the average gym-goer performing a standard resistance training session, this is not needed.',
           ],
+          imageUrl: ch5IntraTraining,
+          imageAlt: 'Intra-training nutrition decision tree by session length',
         },
         {
           heading: 'Post-Training Nutrition',
