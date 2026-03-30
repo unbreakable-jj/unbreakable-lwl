@@ -54,6 +54,8 @@ export const nutritionL3Unit3: Unit = {
             'Muscle glycogen is the primary fuel source during resistance training. A typical high-volume training session (20–25 working sets) depletes approximately 25–40% of muscle glycogen stores. If you begin a session with suboptimal glycogen levels, your performance — particularly in the second half of the session — will suffer.',
             'This is why very low-carbohydrate diets often lead to reduced training performance, even if body weight decreases. The weight loss may be partly muscle and partly water (glycogen binds water at a ratio of approximately 3g water per 1g glycogen).',
           ],
+          imageUrl: ch1CarbPerformance,
+          imageAlt: 'Glycogen depletion: 25-40% per resistance training session',
         },
         {
           heading: 'Practical Meal Timing',
@@ -61,6 +63,8 @@ export const nutritionL3Unit3: Unit = {
             'A pre-training meal 2–3 hours before training should contain approximately 25–40g protein and 40–80g carbohydrates from easily digestible sources. If you cannot eat a full meal, a smaller snack (banana, rice cakes with honey, or a protein bar) 30–60 minutes before training provides a workable alternative.',
             'Post-training, aim for a protein-rich meal within 1–2 hours. If your next training session is more than 24 hours away, urgent refuelling is unnecessary — your normal meal pattern will replenish glycogen stores. If you train daily or twice daily, post-training carbohydrate intake becomes more critical.',
           ],
+          imageUrl: ch1MealTiming,
+          imageAlt: 'Pre and post training meal timing around sessions',
         },
       ],
       unbreakableInsight: 'You cannot out-eat a bad programme, and you cannot out-train a bad diet. Nutrition and training are partners — neglecting either limits the other.',
@@ -100,6 +104,8 @@ export const nutritionL3Unit3: Unit = {
             'For events lasting over 60–90 minutes, consuming carbohydrates during activity maintains blood glucose levels and delays glycogen depletion. Current recommendations suggest 30–60 grams of carbohydrate per hour for events lasting 1–2.5 hours, increasing to up to 90 grams per hour for events exceeding 2.5 hours.',
             'Achieving 90g/hour requires using multiple transportable carbohydrates (typically a 2:1 glucose-to-fructose ratio) to utilise different intestinal absorption pathways. This must be practised in training — the gut can be trained to tolerate higher carbohydrate intake, but attempting it for the first time on race day risks gastrointestinal distress.',
           ],
+          imageUrl: ch2IntraFuelling,
+          imageAlt: 'Intra-event fuelling rates: glucose only vs glucose plus fructose',
           bullets: [
             'Events under 60 minutes — Water only (mouth rinsing with carbohydrate may provide a small benefit)',
             'Events 1–2.5 hours — 30–60g carbohydrate per hour from gels, drinks, or whole foods',
@@ -113,6 +119,8 @@ export const nutritionL3Unit3: Unit = {
             'During prolonged exercise, you lose sodium, potassium, and other electrolytes through sweat. Sodium is the primary electrolyte of concern — losses can range from 200mg to over 2,000mg per hour depending on sweat rate, genetics, and environmental conditions.',
             'Hyponatraemia (dangerously low blood sodium) is a real risk during long endurance events and is usually caused by over-drinking plain water without replacing sodium. This is why electrolyte drinks and sodium supplementation are recommended for events lasting over 2 hours, particularly in hot conditions.',
           ],
+          imageUrl: ch2Electrolytes,
+          imageAlt: 'Electrolyte losses in sweat: sodium and potassium ranges',
         },
       ],
       unbreakableInsight: 'More people have ruined their race by experimenting with nutrition on the day than by under-training. Practise your fuelling strategy in training just as seriously as you practise your running or cycling.',
@@ -152,6 +160,8 @@ export const nutritionL3Unit3: Unit = {
             'During a caloric deficit, your body is in an energy-deprived state and will catabolise tissue for fuel. Without adequate protein and resistance training stimulus, a significant proportion of weight lost will be muscle — which reduces your metabolic rate and leaves you looking "skinny fat" rather than lean.',
             'Protein intake during a deficit should increase to 2.0–2.4 grams per kilogram of body weight — higher than during maintenance or surplus phases. This higher intake helps preserve muscle mass, increases satiety (protein is the most filling macronutrient), and has a higher thermic effect (burning more calories during digestion).',
           ],
+          imageUrl: ch3DeficitRange,
+          imageAlt: 'Calorie deficit sweet spot: 300-500 kcal optimal range',
           bullets: [
             'Maintenance or surplus — 1.6–2.0g protein per kg body weight',
             'Fat loss phase — 2.0–2.4g protein per kg body weight',
@@ -165,6 +175,8 @@ export const nutritionL3Unit3: Unit = {
             'The biggest predictor of successful fat loss is adherence — the ability to maintain the deficit consistently over weeks and months. Strategies that improve adherence include prioritising high-volume, low-calorie-density foods (vegetables, fruits, lean proteins), maintaining adequate fibre intake (25–35g daily), staying well-hydrated, and ensuring adequate sleep.',
             'Flexible dieting approaches — where no foods are entirely off-limits but total intake is managed — consistently outperform rigid, restrictive diets for long-term adherence. The "best diet" is one you can actually follow consistently.',
           ],
+          imageUrl: ch3HungerManagement,
+          imageAlt: 'Hunger management: volume eating, fibre, and hydration strategies',
         },
         {
           heading: 'When to Stop Dieting',
