@@ -13,6 +13,22 @@ import l3u2ch1MuscleDamage from '@/assets/university/l3-u2-ch1-muscle-damage.png
 import l3u2ch2OverloadVariables from '@/assets/university/l3-u2-ch2-overload-variables.png';
 import l3u2ch2DoubleProgression from '@/assets/university/l3-u2-ch2-double-progression.png';
 import l3u2ch3VolumeIntensityBalance from '@/assets/university/l3-u2-ch3-volume-intensity-balance.png';
+import l3u2ch3VolumeRamp from '@/assets/university/l3-u2-ch3-volume-ramp.png';
+import l3u2ch4FibreComparison from '@/assets/university/l3-u2-ch4-fibre-comparison.png';
+import l3u2ch4RepRangeZones from '@/assets/university/l3-u2-ch4-rep-range-zones.png';
+import l3u2ch5TempoNotation from '@/assets/university/l3-u2-ch5-tempo-notation.png';
+import l3u2ch5IsometricPauses from '@/assets/university/l3-u2-ch5-isometric-pauses.png';
+import l3u2ch6FitnessFatigue from '@/assets/university/l3-u2-ch6-fitness-fatigue.png';
+import l3u2ch6DeloadStrategies from '@/assets/university/l3-u2-ch6-deload-strategies.png';
+import l3u2ch7NeuralFocus from '@/assets/university/l3-u2-ch7-neural-focus.png';
+import l3u2ch3IndividualVariation from '@/assets/university/l3-u2-ch3-individual-variation.png';
+import l3u2ch5ConcentricPhase from '@/assets/university/l3-u2-ch5-concentric-phase.png';
+import l3u2ch6DeloadMyths from '@/assets/university/l3-u2-ch6-deload-myths.png';
+import l3u2ch7MmcConcept from '@/assets/university/l3-u2-ch7-mmc-concept.png';
+import l3u2ch7PracticalCues from '@/assets/university/l3-u2-ch7-practical-cues.png';
+import l3u2ch8DropSets from '@/assets/university/l3-u2-ch8-drop-sets.png';
+import l3u2ch8ClusterSets from '@/assets/university/l3-u2-ch8-cluster-sets.png';
+import l3u2ch8MyoReps from '@/assets/university/l3-u2-ch8-myo-reps.png';
 
 export const level3Unit2: Unit = {
   number: 2,
@@ -194,6 +210,8 @@ export const level3Unit2: Unit = {
             'Rather than performing the same volume every week, a more effective approach is to ramp volume across a mesocycle. Start near MEV in week one, gradually increase toward MAV or MRV over 4–6 weeks, then deload to allow recovery.',
             'This approach — often called a volume-ramp mesocycle — allows you to accumulate a growth stimulus while managing fatigue. Each week pushes slightly beyond what you did previously, creating progressive overload through volume.',
           ],
+          imageUrl: l3u2ch3VolumeRamp,
+          imageAlt: 'Technical diagram showing a volume-ramp mesocycle with weekly set counts increasing from MEV toward MRV over 4 weeks followed by a deload',
         },
         {
           heading: 'Individual Variation',
@@ -201,6 +219,8 @@ export const level3Unit2: Unit = {
             'Volume needs vary significantly between individuals and between muscle groups. Some people grow well on 12 sets per week for chest; others need 20. Some muscle groups (calves, side delts) often benefit from higher volume, while others (back, hamstrings) may respond well to moderate volume with higher intensity.',
             'The only way to determine your individual landmarks is through systematic experimentation and honest self-assessment. Track your performance, recovery, and progress over multiple mesocycles to refine your approach.',
           ],
+          imageUrl: l3u2ch3IndividualVariation,
+          imageAlt: 'Bell curve diagram showing individual variation in optimal weekly training volume with low, average, and high responders needing different set counts',
         },
       ],
       unbreakableInsight: 'More is not always better. The person who finds their MAV and stays within it will outgrow the person who hammers every muscle group with 30 sets per week and wonders why they feel broken.',
@@ -235,6 +255,8 @@ export const level3Unit2: Unit = {
             'Type IIa (fast-twitch oxidative) — Moderate endurance, high force production. Can function aerobically and anaerobically. Respond well to moderate rep ranges (8–15).',
             'Type IIx (fast-twitch glycolytic) — Low endurance, highest force production, fatigue quickly. Dominant in explosive movements. Greatest hypertrophy potential. Respond best to heavy loads and lower rep ranges (3–8).',
           ],
+          imageUrl: l3u2ch4FibreComparison,
+          imageAlt: 'Technical comparison chart of Type I, Type IIa, and Type IIx muscle fibres showing size, contraction speed, fatigue resistance, and force production characteristics',
         },
         {
           heading: 'Fibre Type Distribution',
@@ -255,6 +277,8 @@ export const level3Unit2: Unit = {
             'Moderate work (8–12 reps) — The "hypertrophy range" that provides a balance of mechanical tension and metabolic stress. Effective for both fibre types.',
             'Higher rep work (15–25 reps) — Targets Type I fibres and creates metabolic stress. Effective for isolation exercises and muscle groups with higher slow-twitch composition.',
           ],
+          imageUrl: l3u2ch4RepRangeZones,
+          imageAlt: 'Technical diagram showing optimal rep range zones for each fibre type with heavy 3-6 reps for Type IIx, moderate 8-12 for Type IIa, and higher 15-25 for Type I',
         },
         {
           heading: 'The Practical Takeaway',
@@ -291,6 +315,8 @@ export const level3Unit2: Unit = {
             'Tempo prescribes the speed of each phase of a repetition using a four-digit notation: eccentric – pause at bottom – concentric – pause at top. For example, a tempo of 3-1-1-0 means a 3-second lowering phase, a 1-second pause at the stretched position, a 1-second lifting phase, and no pause at the top.',
             'Controlling tempo adds a layer of precision to your training. Rather than simply moving a weight from A to B, you are controlling how the muscle experiences the load throughout the entire repetition.',
           ],
+          imageUrl: l3u2ch5TempoNotation,
+          imageAlt: 'Technical diagram showing the four-digit tempo notation system with each digit mapped to eccentric, pause at bottom, concentric, and pause at top phases',
         },
         {
           heading: 'The Eccentric Phase',
@@ -312,6 +338,8 @@ export const level3Unit2: Unit = {
             'The concentric (lifting) phase is where the muscle shortens to move the load. For hypertrophy, the concentric phase should generally be performed with controlled intent — not explosively fast, but with purposeful force.',
             'There is evidence that explosive concentric phases can be beneficial for strength and power development, but for hypertrophy-focused training, a controlled 1–2 second concentric is typically more effective.',
           ],
+          imageUrl: l3u2ch5ConcentricPhase,
+          imageAlt: 'Side-by-side comparison of explosive versus controlled concentric phase strategies showing speed, load, and best use cases for each approach',
         },
         {
           heading: 'Isometric Pauses',
@@ -319,6 +347,8 @@ export const level3Unit2: Unit = {
             'Pauses at the stretched or contracted position of a movement increase the time spent under peak tension. A 1–2 second pause at the bottom of a bench press or squat eliminates the stretch reflex, forcing the muscle to generate force from a dead stop.',
             'Pauses at the contracted position (e.g., squeezing at the top of a cable fly) enhance the mind-muscle connection and can increase metabolic stress. Both types of pause have value and can be rotated across training phases.',
           ],
+          imageUrl: l3u2ch5IsometricPauses,
+          imageAlt: 'Technical diagram comparing pauses at the stretched position versus the contracted position showing different physiological effects and use cases',
         },
         {
           heading: 'When to Use Tempo Training',
@@ -356,6 +386,8 @@ export const level3Unit2: Unit = {
             'Training creates a stimulus; recovery is where adaptation happens. Without planned recovery periods, fatigue accumulates beyond your ability to recover from it, leading to performance plateaus, increased injury risk, and eventually regression.',
             'A deload is a planned reduction in training stress — typically lasting one week — that allows accumulated fatigue to dissipate while maintaining the training habit and movement patterns.',
           ],
+          imageUrl: l3u2ch6FitnessFatigue,
+          imageAlt: 'Technical diagram of the fitness-fatigue model showing how preparedness peaks during a deload week as accumulated fatigue dissipates',
         },
         {
           heading: 'Types of Deload',
@@ -387,6 +419,8 @@ export const level3Unit2: Unit = {
             'Many people treat deload weeks as a complete break from training. This is rarely optimal — complete rest for a week often makes you feel worse when you return, not better. The goal is reduced stress, not zero stress.',
             'Others resist deloading because they fear losing progress. In reality, no meaningful muscle or strength is lost in one week of reduced training. Fatigue dissipation often reveals hidden progress that was masked by accumulated tiredness.',
           ],
+          imageUrl: l3u2ch6DeloadMyths,
+          imageAlt: 'Three-row myth versus truth comparison debunking common deload misconceptions about complete rest, losing gains, and deloads being only for beginners',
         },
       ],
       unbreakableInsight: 'The best trainees do not fear deloads — they plan them. Taking your foot off the accelerator for a week is not weakness; it is the strategy that prevents the engine from breaking.',
@@ -417,6 +451,8 @@ export const level3Unit2: Unit = {
             'The mind-muscle connection refers to the practice of deliberately focusing your attention on the target muscle during an exercise, rather than simply moving the weight from point A to point B. In research terms, this is called an "internal focus of attention."',
             'This concept has been dismissed by some as unscientific, but research over the past decade has provided growing evidence that attentional focus can meaningfully affect muscle activation and, potentially, hypertrophy outcomes.',
           ],
+          imageUrl: l3u2ch7MmcConcept,
+          imageAlt: 'Anatomical diagram showing the neural pathway from brain to bicep muscle during a curl with callouts for deliberate focus, motor unit recruitment, and enhanced activation',
         },
         {
           heading: 'Internal vs External Focus',
@@ -443,6 +479,8 @@ export const level3Unit2: Unit = {
             'Use internal focus (mind-muscle connection) for isolation exercises and lighter compound accessories. Think about the target muscle contracting and stretching throughout the movement. Use external focus for heavy compound lifts where performance and technique are the priority.',
             'The mind-muscle connection is a skill that improves with practice. If you cannot feel a muscle working, start with lighter loads and slower tempos until you develop the awareness.',
           ],
+          imageUrl: l3u2ch7PracticalCues,
+          imageAlt: 'Two-column reference chart showing internal cueing strategies for isolation exercises and external cueing strategies for compound exercises with specific examples',
         },
       ],
       unbreakableInsight: 'You cannot grow a muscle you cannot feel. If your bicep curls feel like forearm exercises, the weight is too heavy or your focus is in the wrong place.',
@@ -484,6 +522,8 @@ export const level3Unit2: Unit = {
             'Typically 1–2 drops per set is sufficient; more than 3 drops produces diminishing returns',
             'Use sparingly — 1–2 drop sets per session for a given muscle group is usually adequate',
           ],
+          imageUrl: l3u2ch8DropSets,
+          imageAlt: 'Flow diagram showing drop set execution with initial set at 100kg to near failure, then 20% weight reductions through two consecutive drops to failure',
         },
         {
           heading: 'Rest-Pause Sets',
@@ -500,6 +540,8 @@ export const level3Unit2: Unit = {
             'Cluster sets break a traditional set into smaller segments with brief intra-set rest periods (15–30 seconds). For example, instead of performing 6 continuous reps at a heavy load, you might perform 2 reps, rest 20 seconds, 2 reps, rest 20 seconds, 2 reps.',
             'This approach allows you to maintain higher quality reps at heavier loads by managing fatigue within the set. It is particularly useful for strength-hypertrophy work in the 4–6 rep range.',
           ],
+          imageUrl: l3u2ch8ClusterSets,
+          imageAlt: 'Flow diagram showing cluster set structure with 2 reps, 20 second rest repeated three times compared to traditional continuous set execution',
         },
         {
           heading: 'Myo-Reps',
@@ -507,6 +549,8 @@ export const level3Unit2: Unit = {
             'Myo-reps (developed by Borge Fagerli) are an efficient rest-pause variant. You perform an activation set of 12–20 reps to near failure, then perform mini-sets of 3–5 reps with 10–15 seconds rest until you can no longer match the target reps.',
             'Myo-reps are exceptionally time-efficient. A single myo-rep set can provide the hypertrophy stimulus of multiple straight sets in a fraction of the time. They are ideal for accessory work and for trainees with limited time.',
           ],
+          imageUrl: l3u2ch8MyoReps,
+          imageAlt: 'Step-by-step flow diagram showing myo-rep execution with activation set of 15 reps followed by mini-sets of 3-5 reps with 10-15 second rests',
         },
         {
           heading: 'Programming Considerations',
