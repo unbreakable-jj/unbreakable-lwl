@@ -1,12 +1,20 @@
 import type { Unit } from '../types';
 import ch1GrowthStages from '@/assets/university/nutl2-u2-ch1-growth-stages.png';
+import ch1YouthNutrients from '@/assets/university/nutl2-u2-ch1-youth-nutrients.png';
 import ch2AgeingMetabolism from '@/assets/university/nutl2-u2-ch2-ageing-metabolism.png';
+import ch2ElderlyNutrients from '@/assets/university/nutl2-u2-ch2-elderly-nutrients.png';
 import ch3PregnancyNutrition from '@/assets/university/nutl2-u2-ch3-pregnancy-nutrition.png';
+import ch3PregnancyAvoid from '@/assets/university/nutl2-u2-ch3-pregnancy-avoid.png';
 import ch4DietaryPatterns from '@/assets/university/nutl2-u2-ch4-dietary-patterns.png';
+import ch4ProteinCombining from '@/assets/university/nutl2-u2-ch4-protein-combining.png';
 import ch5CulturalDiets from '@/assets/university/nutl2-u2-ch5-cultural-diets.png';
+import ch5ReligiousDiets from '@/assets/university/nutl2-u2-ch5-religious-diets.png';
 import ch6AllergyIntolerance from '@/assets/university/nutl2-u2-ch6-allergy-intolerance.png';
+import ch6Allergens14 from '@/assets/university/nutl2-u2-ch6-14-allergens.png';
 import ch7CaloricNeeds from '@/assets/university/nutl2-u2-ch7-caloric-needs.png';
+import ch7ActivityMacros from '@/assets/university/nutl2-u2-ch7-activity-macros.png';
 import ch8BloodSugar from '@/assets/university/nutl2-u2-ch8-blood-sugar.png';
+import ch8CardioNutrition from '@/assets/university/nutl2-u2-ch8-cardio-nutrition.png';
 
 export const nutritionL2Unit2: Unit = {
   number: 2,
