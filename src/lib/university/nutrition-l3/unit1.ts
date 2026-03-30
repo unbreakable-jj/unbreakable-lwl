@@ -1,10 +1,22 @@
 import type { Unit } from '../types';
 import ch1CarbMetabolism from '@/assets/university/nutl3-u1-ch1-carb-metabolism.png';
+import ch1Glycolysis from '@/assets/university/nutl3-u1-ch1-glycolysis.png';
+import ch1GlycogenStores from '@/assets/university/nutl3-u1-ch1-glycogen-stores.png';
+import ch2LeucineThreshold from '@/assets/university/nutl3-u1-ch2-leucine-threshold.png';
+import ch2ProteinDistribution from '@/assets/university/nutl3-u1-ch2-protein-distribution.png';
 import ch2ProteinSynthesis from '@/assets/university/nutl3-u1-ch2-protein-synthesis.png';
 import ch3DietaryFats from '@/assets/university/nutl3-u1-ch3-dietary-fats.png';
+import ch3OmegaBalance from '@/assets/university/nutl3-u1-ch3-omega-balance.png';
+import ch3FatGuidelines from '@/assets/university/nutl3-u1-ch3-fat-guidelines.png';
 import ch4MetabolicAdaptation from '@/assets/university/nutl3-u1-ch4-metabolic-adaptation.png';
+import ch4Neat from '@/assets/university/nutl3-u1-ch4-neat.png';
+import ch4AdaptiveThermogenesis from '@/assets/university/nutl3-u1-ch4-adaptive-thermogenesis.png';
 import ch5NutrientTiming from '@/assets/university/nutl3-u1-ch5-nutrient-timing.png';
+import ch5IntraTraining from '@/assets/university/nutl3-u1-ch5-intra-training.png';
+import ch5CarbPeriodisation from '@/assets/university/nutl3-u1-ch5-carb-periodisation.png';
 import ch6AlcoholEffects from '@/assets/university/nutl3-u1-ch6-alcohol-effects.png';
+import ch6AlcoholMetabolism from '@/assets/university/nutl3-u1-ch6-alcohol-metabolism.png';
+import ch6AlcoholRecovery from '@/assets/university/nutl3-u1-ch6-alcohol-recovery.png';
 
 export const nutritionL3Unit1: Unit = {
   number: 1,
@@ -36,6 +48,8 @@ export const nutritionL3Unit1: Unit = {
             'Glycolysis is the metabolic pathway that converts glucose into pyruvate, releasing a small amount of energy (ATP) in the process. It occurs in the cytoplasm of cells and does not require oxygen — making it the primary energy source during high-intensity, short-duration efforts like sprinting or heavy lifting.',
             'Each molecule of glucose yields two molecules of ATP through glycolysis alone. While this seems modest, the speed of this pathway makes it invaluable during intense activity when oxygen delivery cannot keep up with energy demand.',
           ],
+          imageUrl: ch1Glycolysis,
+          imageAlt: 'Glycolysis pathway: glucose to pyruvate yielding 2 ATP',
         },
         {
           heading: 'Aerobic vs Anaerobic Pathways',
@@ -55,6 +69,8 @@ export const nutritionL3Unit1: Unit = {
             'Your body stores glucose as glycogen in your muscles (approximately 300–500 grams) and liver (approximately 80–120 grams). Muscle glycogen fuels local muscular work, while liver glycogen maintains blood glucose levels — critical for brain function and sustained energy.',
             'Glycogen stores are finite. During prolonged or intense exercise, depletion leads to fatigue, reduced performance, and the sensation athletes describe as "hitting the wall." This is why carbohydrate timing and loading strategies exist — they aim to maximise glycogen stores before and replenish them after demanding training.',
           ],
+          imageUrl: ch1GlycogenStores,
+          imageAlt: 'Glycogen storage capacity: muscle 300-500g vs liver 80-120g',
         },
       ],
       unbreakableInsight: 'Your body does not care whether carbohydrates come from sweet potato or white rice — it breaks them all down to glucose. Context, timing, and total quantity matter far more than food snobbery.',
@@ -100,6 +116,8 @@ export const nutritionL3Unit1: Unit = {
             'Lentils — Approximately 45–50g of protein needed due to lower leucine content per gram',
             'Combining plant sources (e.g., rice and beans) can improve the overall amino acid profile',
           ],
+          imageUrl: ch2LeucineThreshold,
+          imageAlt: 'Leucine threshold comparison across protein sources',
         },
         {
           heading: 'Protein Distribution Matters',
@@ -107,6 +125,8 @@ export const nutritionL3Unit1: Unit = {
             'Eating 120 grams of protein in two large meals is not equivalent to spreading it across four meals. Research suggests that distributing protein intake evenly — hitting the leucine threshold at each feeding — maximises the total MPS response over 24 hours.',
             'A practical target is 3–5 protein-rich meals per day, each containing 25–40 grams of protein, spaced approximately 3–5 hours apart. This approach is more effective than the common pattern of a low-protein breakfast, moderate lunch, and protein-heavy dinner.',
           ],
+          imageUrl: ch2ProteinDistribution,
+          imageAlt: 'Optimal vs suboptimal daily protein distribution',
         },
         {
           heading: 'The Anabolic Window — Reality Check',
@@ -159,6 +179,8 @@ export const nutritionL3Unit1: Unit = {
             'EPA and DHA (from oily fish) are the most bioactive forms of omega-3. Plant-based ALA converts poorly — approximately 5–10%',
             'Chronic inflammation from omega-6 excess is linked to joint pain, poor recovery, cardiovascular risk, and impaired immune function',
           ],
+          imageUrl: ch3OmegaBalance,
+          imageAlt: 'Omega-6 to Omega-3 ratio comparison: Western diet vs ideal',
         },
         {
           heading: 'Trans Fats and Industrial Processing',
@@ -173,6 +195,8 @@ export const nutritionL3Unit1: Unit = {
             'For most active individuals, fat should comprise 20–35% of total daily calories. Going below 20% risks hormonal disruption and poor fat-soluble vitamin absorption. Going above 40% makes it difficult to consume sufficient carbohydrates for performance.',
             'Prioritise monounsaturated fats (olive oil, avocado, nuts) and omega-3 rich sources. Limit omega-6-heavy vegetable oils and eliminate industrial trans fats. Beyond these principles, the specific fat sources matter less than the overall balance and total quantity.',
           ],
+          imageUrl: ch3FatGuidelines,
+          imageAlt: 'Fat intake guidelines: 20-35% of calories with source priorities',
         },
       ],
       unbreakableInsight: 'Fat is not the enemy of fat loss — hormonal disruption from under-eating fat is. Your body needs dietary fat to produce the hormones that regulate metabolism, mood, and recovery.',
@@ -217,6 +241,8 @@ export const nutritionL3Unit1: Unit = {
             'NEAT is the single most variable component of TDEE and explains why some people seem to "eat whatever they want" without gaining weight. High-NEAT individuals unconsciously move more — they pace, fidget, take stairs, and generally maintain higher levels of spontaneous physical activity.',
             'Critically, NEAT decreases significantly during caloric restriction. Your body unconsciously reduces spontaneous movement to conserve energy. This can account for a 200–400 calorie reduction in daily expenditure that most people never notice — and it is one of the primary reasons fat loss stalls.',
           ],
+          imageUrl: ch4Neat,
+          imageAlt: 'NEAT components: walking, standing, stairs, fidgeting',
         },
         {
           heading: 'Adaptive Thermogenesis — Your Body Fights Back',
@@ -230,6 +256,8 @@ export const nutritionL3Unit1: Unit = {
             'NEAT suppression — Unconscious reduction in daily movement of 200–400 calories',
             'These adaptations partially reverse when calories are restored — but the timeline varies',
           ],
+          imageUrl: ch4AdaptiveThermogenesis,
+          imageAlt: 'Adaptive thermogenesis cascade: BMR drop, hormonal shifts, NEAT suppression',
         },
         {
           heading: 'Managing Metabolic Adaptation',
@@ -276,6 +304,8 @@ export const nutritionL3Unit1: Unit = {
             'For sessions lasting under 60 minutes at moderate intensity, intra-training nutrition is unnecessary — water alone is sufficient. However, for sessions exceeding 90 minutes, high-intensity interval work, or multiple daily sessions, consuming fast-digesting carbohydrates (30–60g per hour) can maintain performance.',
             'Endurance athletes and those performing very high-volume training may benefit from intra-training carbohydrate drinks or gels. For the average gym-goer performing a standard resistance training session, this is not needed.',
           ],
+          imageUrl: ch5IntraTraining,
+          imageAlt: 'Intra-training nutrition decision tree by session length',
         },
         {
           heading: 'Post-Training Nutrition',
@@ -296,6 +326,8 @@ export const nutritionL3Unit1: Unit = {
             'Rest day — 2–3g per kilogram',
             'Protein and fat intake remain relatively constant regardless of training day',
           ],
+          imageUrl: ch5CarbPeriodisation,
+          imageAlt: 'Carb periodisation: heavy, moderate, and rest day intake tiers',
         },
       ],
       unbreakableInsight: 'Nutrient timing is the icing on the cake — not the cake itself. If your total daily intake is wrong, no amount of strategic timing will compensate. Get the fundamentals right first.',
@@ -342,6 +374,8 @@ export const nutritionL3Unit1: Unit = {
             'Glycogen — Alcohol impairs glycogen resynthesis, particularly problematic for back-to-back sessions',
             'Hormonal — Acute reduction in testosterone and increase in cortisol',
           ],
+          imageUrl: ch6AlcoholRecovery,
+          imageAlt: 'Alcohol effects on recovery: sleep, MPS, hydration, hormones',
         },
         {
           heading: 'Practical Management',
