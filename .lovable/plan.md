@@ -1,32 +1,59 @@
 
 
-## Fix: Multi-media story viewer not advancing through slides
+## Plan: Session Notes Media Upload + Fix Programme Progress Tracking
 
-### Problem
-When a story has multiple `media_items`, the viewer only shows the first image. The auto-advance timer calls `nextStory()` directly instead of cycling through slides first. Tap navigation also skips slides entirely.
+### Two tasks:
 
-### Root cause (StoriesSection.tsx)
-1. **Timer** (line 47): After `STORY_DURATION`, calls `nextStory()` immediately — never advances `activeMediaSlide`
-2. **Tap/click handlers** (lines 193-210): Call `prevStory()`/`nextStory()` directly — never cycle through slides within a story
-3. **Progress bars** (lines 323-336): Only show per-story segments, not per-slide within a story
+---
 
-### Plan
+### Task 1: Add photo/video upload to Session Notes
 
-**File: `src/components/hub/StoriesSection.tsx`**
+**Problem**: Session notes only support text. Users want to upload photos/videos (e.g., form checks) that coaches can see.
 
-1. **Fix auto-advance timer** — When the current story has multiple media_items, advance `activeMediaSlide` first. Only call `nextStory()` when on the last slide. Adjust the progress calculation to reflect slide-level progress.
+**Changes**:
 
-2. **Fix tap/click navigation** — In `handleViewerClick` and touch handlers, if the current story has multi-media:
-   - Tap right: go to next slide first, then next story when on last slide
-   - Tap left: go to previous slide first, then previous story when on first slide
+**File: `src/components/programming/SessionNotesView.tsx`**
+- Add media upload UI below the textarea — reuse the existing `ChatMediaUpload` pattern or build a simple file picker
+- Allow up to 3 images or 1 video per session note
+- Upload files to `post-images` / `post-videos` storage buckets using `uploadMediaFile` from `src/lib/mediaUpload.ts`
+- Store media URLs in the `onSave` callback alongside notes text
+- Display uploaded media previews with remove buttons
 
-3. **Fix progress bars** — Show progress segments per-slide (not per-story) when viewing a multi-media story. E.g. a story with 3 images shows 3 progress segments that fill sequentially.
+**File: `src/components/programming/ActiveWorkoutModal.tsx`**
+- Pass media URLs through from SessionNotesView to the completion handler
 
-4. **Reset `activeMediaSlide` to 0** when changing stories (already done in `nextStory`/`prevStory` — verify consistency).
+**File: `src/hooks/useWorkoutSessions.tsx`**
+- Update `completeSession` mutation to save media URLs (likely as a JSON field on `workout_sessions` or session notes)
 
-### Technical detail
-- Create a `nextSlideOrStory` callback that checks `mediaArr.length` and either increments `activeMediaSlide` or calls `nextStory()`
-- Create a `prevSlideOrStory` callback similarly
-- Replace direct `nextStory`/`prevStory` calls in click/touch handlers and timer with these new functions
-- Progress bar: compute total segments as `Math.max(1, mediaArr?.length || 1)` for the current story, rendering that many bars
+**Database migration**: Add `media_urls jsonb default '[]'` column to `workout_sessions` table to store attached media.
+
+**File: `src/components/coaching/AthleteDataViewer.tsx`**
+- Add a new "Session Media" section in the coach's session log viewer that displays any attached photos/videos from workout sessions
+- Render images as thumbnails and videos with a player
+
+---
+
+### Task 2: Fix programme current_week/current_day not syncing with progress
+
+**Problem**: `training_programs.current_week` and `current_day` never update because `updateProgress` is never called. The badge always shows "Week 1 • Day 1".
+
+**Root cause**: In `ProgrammeExecutionView.tsx`, when `handleCompleteWorkout` runs, it calls `markComplete` on the planner and `completeSession` on the workout, but never calls `updateProgress` to sync `current_week`/`current_day` on the program record.
+
+**Fix in `src/components/programming/ProgrammeExecutionView.tsx`**:
+- Import `useTrainingPrograms` to access `updateProgress`
+- After `markComplete.mutate(currentPlanner.id)` in `handleCompleteWorkout`, call `updateProgress.mutate()` with the **next pending session's** week/day numbers
+- Similarly after `handleSkipSession`, update progress to reflect the new next session
+- Derive the "current position" from the next pending planner rather than the stale `program.current_week`/`program.current_day` for the header badge display
+
+**Also fix in `handleCardioSessionSaved`**: Same pattern — after marking complete, update progress.
+
+**Display fix**: The badge in the header should show the next pending session's week/day (computed from planners) rather than the potentially stale `program.current_week`. This ensures the UI always reflects actual progress even if the DB update is in flight.
+
+---
+
+### Technical details
+
+- Media upload reuses existing `uploadMediaFile()` and storage buckets — no new buckets needed
+- The `media_urls` column stores an array of `{ url, type, thumbnailUrl? }` objects
+- Progress sync is a simple `updateProgress.mutate({ programId, week: nextPlanner.week_number, day: nextPlanner.day_number })` call added to 3 handlers
 
