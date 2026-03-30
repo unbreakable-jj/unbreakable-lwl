@@ -334,6 +334,8 @@ export const nutritionL3Unit3: Unit = {
           paragraphs: [
             'Several methods exist for estimating body composition, each with different levels of accuracy, cost, and accessibility.',
           ],
+          imageUrl: ch6BodyCompMethods,
+          imageAlt: 'Body composition methods: DEXA, BIA, skinfolds, mirror',
           bullets: [
             'DEXA scan — Considered the practical gold standard. Uses low-dose X-rays to differentiate bone, lean mass, and fat mass. Accurate to approximately 1–2% body fat. Cost: approximately £50–150 per scan',
             'Bioelectrical impedance (BIA) — Uses a small electrical current to estimate body composition. Found in home scales and gym devices. Accuracy is highly variable — affected by hydration, food intake, and skin temperature. Best used for tracking trends, not absolute values',
