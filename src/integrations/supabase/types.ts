@@ -2833,6 +2833,7 @@ export type Database = {
           duration_seconds: number | null
           ended_at: string | null
           id: string
+          media_urls: Json | null
           notes: string | null
           program_id: string | null
           session_type: string
@@ -2850,6 +2851,7 @@ export type Database = {
           duration_seconds?: number | null
           ended_at?: string | null
           id?: string
+          media_urls?: Json | null
           notes?: string | null
           program_id?: string | null
           session_type: string
@@ -2867,6 +2869,7 @@ export type Database = {
           duration_seconds?: number | null
           ended_at?: string | null
           id?: string
+          media_urls?: Json | null
           notes?: string | null
           program_id?: string | null
           session_type?: string
