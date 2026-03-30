@@ -202,6 +202,8 @@ export const level3Unit2: Unit = {
             'Rather than performing the same volume every week, a more effective approach is to ramp volume across a mesocycle. Start near MEV in week one, gradually increase toward MAV or MRV over 4–6 weeks, then deload to allow recovery.',
             'This approach — often called a volume-ramp mesocycle — allows you to accumulate a growth stimulus while managing fatigue. Each week pushes slightly beyond what you did previously, creating progressive overload through volume.',
           ],
+          imageUrl: l3u2ch3VolumeRamp,
+          imageAlt: 'Technical diagram showing a volume-ramp mesocycle with weekly set counts increasing from MEV toward MRV over 4 weeks followed by a deload',
         },
         {
           heading: 'Individual Variation',
@@ -243,7 +245,8 @@ export const level3Unit2: Unit = {
             'Type IIa (fast-twitch oxidative) — Moderate endurance, high force production. Can function aerobically and anaerobically. Respond well to moderate rep ranges (8–15).',
             'Type IIx (fast-twitch glycolytic) — Low endurance, highest force production, fatigue quickly. Dominant in explosive movements. Greatest hypertrophy potential. Respond best to heavy loads and lower rep ranges (3–8).',
           ],
-        },
+          imageUrl: l3u2ch4FibreComparison,
+          imageAlt: 'Technical comparison chart of Type I, Type IIa, and Type IIx muscle fibres showing size, contraction speed, fatigue resistance, and force production characteristics',
         {
           heading: 'Fibre Type Distribution',
           paragraphs: [
@@ -263,9 +266,8 @@ export const level3Unit2: Unit = {
             'Moderate work (8–12 reps) — The "hypertrophy range" that provides a balance of mechanical tension and metabolic stress. Effective for both fibre types.',
             'Higher rep work (15–25 reps) — Targets Type I fibres and creates metabolic stress. Effective for isolation exercises and muscle groups with higher slow-twitch composition.',
           ],
-        },
-        {
-          heading: 'The Practical Takeaway',
+          imageUrl: l3u2ch4RepRangeZones,
+          imageAlt: 'Technical diagram showing optimal rep range zones for each fibre type with heavy 3-6 reps for Type IIx, moderate 8-12 for Type IIa, and higher 15-25 for Type I',
           paragraphs: [
             'You do not need a muscle biopsy to train effectively. Including a mix of rep ranges across your programme ensures comprehensive fibre recruitment. Periodise your training so that different phases emphasise different rep ranges, or include a variety within each session.',
           ],
@@ -299,6 +301,8 @@ export const level3Unit2: Unit = {
             'Tempo prescribes the speed of each phase of a repetition using a four-digit notation: eccentric – pause at bottom – concentric – pause at top. For example, a tempo of 3-1-1-0 means a 3-second lowering phase, a 1-second pause at the stretched position, a 1-second lifting phase, and no pause at the top.',
             'Controlling tempo adds a layer of precision to your training. Rather than simply moving a weight from A to B, you are controlling how the muscle experiences the load throughout the entire repetition.',
           ],
+          imageUrl: l3u2ch5TempoNotation,
+          imageAlt: 'Technical diagram showing the four-digit tempo notation system with each digit mapped to eccentric, pause at bottom, concentric, and pause at top phases',
         },
         {
           heading: 'The Eccentric Phase',
@@ -327,6 +331,8 @@ export const level3Unit2: Unit = {
             'Pauses at the stretched or contracted position of a movement increase the time spent under peak tension. A 1–2 second pause at the bottom of a bench press or squat eliminates the stretch reflex, forcing the muscle to generate force from a dead stop.',
             'Pauses at the contracted position (e.g., squeezing at the top of a cable fly) enhance the mind-muscle connection and can increase metabolic stress. Both types of pause have value and can be rotated across training phases.',
           ],
+          imageUrl: l3u2ch5IsometricPauses,
+          imageAlt: 'Technical diagram comparing pauses at the stretched position versus the contracted position showing different physiological effects and use cases',
         },
         {
           heading: 'When to Use Tempo Training',
@@ -364,6 +370,8 @@ export const level3Unit2: Unit = {
             'Training creates a stimulus; recovery is where adaptation happens. Without planned recovery periods, fatigue accumulates beyond your ability to recover from it, leading to performance plateaus, increased injury risk, and eventually regression.',
             'A deload is a planned reduction in training stress — typically lasting one week — that allows accumulated fatigue to dissipate while maintaining the training habit and movement patterns.',
           ],
+          imageUrl: l3u2ch6FitnessFatigue,
+          imageAlt: 'Technical diagram of the fitness-fatigue model showing how preparedness peaks during a deload week as accumulated fatigue dissipates',
         },
         {
           heading: 'Types of Deload',
@@ -425,6 +433,8 @@ export const level3Unit2: Unit = {
             'The mind-muscle connection refers to the practice of deliberately focusing your attention on the target muscle during an exercise, rather than simply moving the weight from point A to point B. In research terms, this is called an "internal focus of attention."',
             'This concept has been dismissed by some as unscientific, but research over the past decade has provided growing evidence that attentional focus can meaningfully affect muscle activation and, potentially, hypertrophy outcomes.',
           ],
+          imageUrl: l3u2ch7NeuralFocus,
+          imageAlt: 'Technical diagram comparing internal attentional focus for isolation movements versus external focus for compound movements with neural pathway illustrations',
         },
         {
           heading: 'Internal vs External Focus',
