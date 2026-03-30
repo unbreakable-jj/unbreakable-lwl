@@ -223,6 +223,8 @@ export const nutritionL3Unit3: Unit = {
             'A "lean bulk" targets a modest surplus (200–400 calories) and aims for weight gain of 0.25–0.5% of body weight per week. This approach minimises fat gain, reduces the length and severity of any subsequent cutting phase, and keeps you looking presentable year-round.',
             'A traditional "dirty bulk" with unrestricted eating may seem appealing — and it works in the sense that muscle is gained — but the excessive fat gain requires a longer, harder diet to remove. For natural lifters, the lean bulk approach is almost always superior for long-term body composition.',
           ],
+          imageUrl: ch4LeanBulk,
+          imageAlt: 'Lean bulk vs dirty bulk surplus comparison',
           bullets: [
             'Beginners — Can gain approximately 0.5–1% body weight per month (higher proportion as muscle)',
             'Intermediate — Approximately 0.25–0.5% body weight per month',
@@ -236,6 +238,8 @@ export const nutritionL3Unit3: Unit = {
             'Set your surplus at approximately 200–400 calories above maintenance. Prioritise protein at 1.6–2.2g per kilogram. Fill remaining calories with carbohydrates (which support training performance and glycogen replenishment) and adequate fat (at least 0.7g per kilogram for hormonal health).',
             'Monitor weight gain weekly — if gaining faster than 0.5% body weight per week, reduce the surplus slightly. If weight is stable or declining, increase by 100–200 calories. This requires consistent tracking and patience, but produces the best long-term results.',
           ],
+          imageUrl: ch4GainRates,
+          imageAlt: 'Muscle gain rates by experience level',
         },
       ],
       unbreakableInsight: 'You cannot force-feed your way to more muscle. Your body has a maximum rate of muscle protein synthesis — excess calories beyond that limit are stored as fat, full stop. Eat enough to grow, not enough to bloat.',
