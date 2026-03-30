@@ -1,10 +1,22 @@
 import type { Unit } from '../types';
 import ch1FatSolubleVitamins from '@/assets/university/nutl3-u2-ch1-fat-soluble-vitamins.png';
+import ch1VitaminD from '@/assets/university/nutl3-u2-ch1-vitamin-d.png';
+import ch1FatSolubleAEK from '@/assets/university/nutl3-u2-ch1-fat-soluble-aek.png';
 import ch2WaterSolubleVitamins from '@/assets/university/nutl3-u2-ch2-water-soluble-vitamins.png';
+import ch2IronAbsorption from '@/assets/university/nutl3-u2-ch2-iron-absorption.png';
+import ch2ZincMagnesium from '@/assets/university/nutl3-u2-ch2-zinc-magnesium.png';
 import ch3Supplementation from '@/assets/university/nutl3-u2-ch3-supplementation.png';
+import ch3Creatine from '@/assets/university/nutl3-u2-ch3-creatine.png';
+import ch3SupplementRedflags from '@/assets/university/nutl3-u2-ch3-supplement-redflags.png';
 import ch4SpecialPopulations from '@/assets/university/nutl3-u2-ch4-special-populations.png';
+import ch4PregnancyFoods from '@/assets/university/nutl3-u2-ch4-pregnancy-foods.png';
+import ch4AgeingNutrition from '@/assets/university/nutl3-u2-ch4-ageing-nutrition.png';
 import ch5RestrictedDiets from '@/assets/university/nutl3-u2-ch5-restricted-diets.png';
+import ch5ProteinComplementation from '@/assets/university/nutl3-u2-ch5-protein-complementation.png';
+import ch5Allergens from '@/assets/university/nutl3-u2-ch5-allergens.png';
 import ch6ClinicalAwareness from '@/assets/university/nutl3-u2-ch6-clinical-awareness.png';
+import ch6ScopeBoundaries from '@/assets/university/nutl3-u2-ch6-scope-boundaries.png';
+import ch6ReferralPathway from '@/assets/university/nutl3-u2-ch6-referral-pathway.png';
 
 export const nutritionL3Unit2: Unit = {
   number: 2,
@@ -42,6 +54,8 @@ export const nutritionL3Unit2: Unit = {
             'Groups at higher risk — people with darker skin, those who cover most of their skin, people who spend little time outdoors, and older adults',
             'Food sources are limited — oily fish, egg yolks, fortified cereals and spreads provide small amounts',
           ],
+          imageUrl: ch1VitaminD,
+          imageAlt: 'UK vitamin D deficiency: October to March UVB gap',
         },
         {
           heading: 'Vitamins A, E, and K',
@@ -50,6 +64,8 @@ export const nutritionL3Unit2: Unit = {
             'Vitamin E acts as an antioxidant, protecting cell membranes from oxidative damage. Deficiency is rare in developed countries, and supplementation has shown limited benefit in well-nourished populations. Food sources include nuts, seeds, and plant oils.',
             'Vitamin K is essential for blood clotting (K1) and bone metabolism (K2). K1 is found in green leafy vegetables, while K2 is produced by gut bacteria and found in fermented foods. Deficiency is uncommon in healthy adults but can occur with certain medications or gut conditions.',
           ],
+          imageUrl: ch1FatSolubleAEK,
+          imageAlt: 'Vitamins A, E, K: sources, functions, and risks',
         },
       ],
       unbreakableInsight: 'If you live in the UK and you are not supplementing vitamin D from October to March, you are almost certainly deficient. This is not a wellness trend — it is a public health recommendation backed by robust evidence.',
@@ -95,6 +111,8 @@ export const nutritionL3Unit2: Unit = {
             'Iron absorption inhibitors — Tannins (tea, coffee), phytates (wholegrains, legumes), calcium',
             'Iron absorption enhancers — Vitamin C, haem iron consumed alongside non-haem iron',
           ],
+          imageUrl: ch2IronAbsorption,
+          imageAlt: 'Iron absorption: haem vs non-haem, enhancers vs inhibitors',
         },
         {
           heading: 'Zinc and Magnesium',
