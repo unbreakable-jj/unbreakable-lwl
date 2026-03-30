@@ -1,10 +1,22 @@
 import type { Unit } from '../types';
 import ch1ResistanceFuelling from '@/assets/university/nutl3-u3-ch1-resistance-fuelling.png';
+import ch1CarbPerformance from '@/assets/university/nutl3-u3-ch1-carb-performance.png';
+import ch1MealTiming from '@/assets/university/nutl3-u3-ch1-meal-timing.png';
 import ch2EnduranceFuelling from '@/assets/university/nutl3-u3-ch2-endurance-fuelling.png';
+import ch2IntraFuelling from '@/assets/university/nutl3-u3-ch2-intra-fuelling.png';
+import ch2Electrolytes from '@/assets/university/nutl3-u3-ch2-electrolytes.png';
 import ch3FatLossNutrition from '@/assets/university/nutl3-u3-ch3-fat-loss-nutrition.png';
+import ch3DeficitRange from '@/assets/university/nutl3-u3-ch3-deficit-range.png';
+import ch3HungerManagement from '@/assets/university/nutl3-u3-ch3-hunger-management.png';
 import ch4MuscleGainNutrition from '@/assets/university/nutl3-u3-ch4-muscle-gain-nutrition.png';
+import ch4LeanBulk from '@/assets/university/nutl3-u3-ch4-lean-bulk.png';
+import ch4GainRates from '@/assets/university/nutl3-u3-ch4-gain-rates.png';
 import ch5HydrationScience from '@/assets/university/nutl3-u3-ch5-hydration-science.png';
+import ch5DehydrationScale from '@/assets/university/nutl3-u3-ch5-dehydration-scale.png';
+import ch5HydrationStrategy from '@/assets/university/nutl3-u3-ch5-hydration-strategy.png';
 import ch6BodyComposition from '@/assets/university/nutl3-u3-ch6-body-composition.png';
+import ch6BodyCompMethods from '@/assets/university/nutl3-u3-ch6-body-comp-methods.png';
+import ch6ProgressTracking from '@/assets/university/nutl3-u3-ch6-progress-tracking.png';
 
 export const nutritionL3Unit3: Unit = {
   number: 3,
