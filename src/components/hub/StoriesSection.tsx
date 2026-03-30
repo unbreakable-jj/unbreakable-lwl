@@ -348,20 +348,37 @@ export function StoriesSection() {
             onTouchStart={handleViewerTouchStart}
             onTouchEnd={handleViewerTouchEnd}
           >
-            {/* Progress bars at top */}
+            {/* Progress bars at top — per-slide for multi-media stories */}
             <div className="absolute top-[env(safe-area-inset-top,8px)] left-2 right-2 flex gap-1 z-20 pt-2">
-              {currentUserGroup.stories.map((_, idx) => (
-                <div key={idx} className="flex-1 h-[2px] rounded-full bg-white/25 overflow-hidden">
-                  <div
-                    className="h-full bg-white rounded-full transition-none"
-                    style={{
-                      width: idx < activeStoryIndex ? '100%' : idx === activeStoryIndex
-                        ? (currentStory.video_url ? '0%' : `${progress * 100}%`)
-                        : '0%',
-                    }}
-                  />
-                </div>
-              ))}
+              {(() => {
+                const stories = currentUserGroup.stories;
+                const segments: { storyIdx: number; slideIdx: number }[] = [];
+                stories.forEach((s, sIdx) => {
+                  const mc = getMediaCount(s);
+                  for (let sl = 0; sl < mc; sl++) {
+                    segments.push({ storyIdx: sIdx, slideIdx: sl });
+                  }
+                });
+                const currentSegment = segments.findIndex(
+                  seg => seg.storyIdx === activeStoryIndex && seg.slideIdx === activeMediaSlide
+                );
+                return segments.map((seg, idx) => {
+                  let width = '0%';
+                  if (idx < currentSegment) {
+                    width = '100%';
+                  } else if (idx === currentSegment) {
+                    width = `${progress * 100}%`;
+                  }
+                  return (
+                    <div key={idx} className="flex-1 h-[2px] rounded-full bg-white/25 overflow-hidden">
+                      <div
+                        className="h-full bg-white rounded-full transition-none"
+                        style={{ width }}
+                      />
+                    </div>
+                  );
+                });
+              })()}
             </div>
 
             {/* Header */}
