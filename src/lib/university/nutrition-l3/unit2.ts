@@ -165,6 +165,8 @@ export const nutritionL3Unit2: Unit = {
             'Creatine is the most researched and consistently supported sports supplement in existence. It works by increasing your muscles\' stores of phosphocreatine, which is used to rapidly regenerate ATP during high-intensity, short-duration efforts — improving your capacity for an extra rep or two per set.',
             'The standard dose is 3–5 grams per day, every day, regardless of training. Loading protocols (20g per day for 5–7 days) saturate stores faster but are not necessary. Creatine monohydrate is the most studied form — newer forms (HCL, ethyl ester, buffered) have no proven advantage despite higher prices.',
           ],
+          imageUrl: ch3Creatine,
+          imageAlt: 'Creatine monohydrate: mechanism, dosing, and myths debunked',
           bullets: [
             'Proven benefits — Increased strength, power output, and lean mass. Improved recovery between sets',
             'Safety — Extensively studied for over 30 years with no evidence of harm in healthy individuals',
