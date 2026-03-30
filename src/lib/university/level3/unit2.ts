@@ -13,6 +13,14 @@ import l3u2ch1MuscleDamage from '@/assets/university/l3-u2-ch1-muscle-damage.png
 import l3u2ch2OverloadVariables from '@/assets/university/l3-u2-ch2-overload-variables.png';
 import l3u2ch2DoubleProgression from '@/assets/university/l3-u2-ch2-double-progression.png';
 import l3u2ch3VolumeIntensityBalance from '@/assets/university/l3-u2-ch3-volume-intensity-balance.png';
+import l3u2ch3VolumeRamp from '@/assets/university/l3-u2-ch3-volume-ramp.png';
+import l3u2ch4FibreComparison from '@/assets/university/l3-u2-ch4-fibre-comparison.png';
+import l3u2ch4RepRangeZones from '@/assets/university/l3-u2-ch4-rep-range-zones.png';
+import l3u2ch5TempoNotation from '@/assets/university/l3-u2-ch5-tempo-notation.png';
+import l3u2ch5IsometricPauses from '@/assets/university/l3-u2-ch5-isometric-pauses.png';
+import l3u2ch6FitnessFatigue from '@/assets/university/l3-u2-ch6-fitness-fatigue.png';
+import l3u2ch6DeloadStrategies from '@/assets/university/l3-u2-ch6-deload-strategies.png';
+import l3u2ch7NeuralFocus from '@/assets/university/l3-u2-ch7-neural-focus.png';
 
 export const level3Unit2: Unit = {
   number: 2,
