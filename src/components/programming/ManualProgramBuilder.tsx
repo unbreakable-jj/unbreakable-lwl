@@ -28,6 +28,8 @@ import { useToast } from '@/hooks/use-toast';
 import { InlineExerciseLibrary } from './InlineExerciseLibrary';
 import { LibraryExercise } from '@/lib/exerciseLibrary';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
 interface ProgramExercise {
   id: string;
