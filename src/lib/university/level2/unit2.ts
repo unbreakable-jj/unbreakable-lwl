@@ -1,11 +1,11 @@
 import type { Unit } from '../types';
-import ch1Macronutrients from '@/assets/university/u2-ch1-macronutrients.png';
-import ch2Micronutrients from '@/assets/university/u2-ch2-micronutrients.png';
-import ch3Hydration from '@/assets/university/u2-ch3-hydration.png';
-import ch4EnergyBalance from '@/assets/university/u2-ch4-energy-balance.png';
-import ch5FoodLabels from '@/assets/university/u2-ch5-food-labels.png';
-import ch6NutrientTiming from '@/assets/university/u2-ch6-nutrient-timing.png';
-import ch7BalancedPlate from '@/assets/university/u2-ch7-balanced-plate.png';
+import ch1Macronutrients from '@/assets/university/u2-ch1-protein-sources.png';
+import ch2Micronutrients from '@/assets/university/u2-ch2-deficiency-signs.png';
+import ch3Hydration from '@/assets/university/u2-ch3-dehydration-stages.png';
+import ch4EnergyBalance from '@/assets/university/u2-ch4-tdee-breakdown.png';
+import ch5FoodLabels from '@/assets/university/u2-ch5-marketing-claims.png';
+import ch6NutrientTiming from '@/assets/university/u2-ch6-meal-frequency.png';
+import ch7BalancedPlate from '@/assets/university/u2-ch7-plate-model.png';
 
 export const level2Unit2: Unit = {
   number: 2,
