@@ -10,6 +10,7 @@ import ch3OmegaBalance from '@/assets/university/nutl3-u1-ch3-omega-balance.png'
 import ch3FatGuidelines from '@/assets/university/nutl3-u1-ch3-fat-guidelines.png';
 import ch4MetabolicAdaptation from '@/assets/university/nutl3-u1-ch4-metabolic-adaptation.png';
 import ch4Neat from '@/assets/university/nutl3-u1-ch4-neat.png';
+import ch4AdaptiveThermogenesis from '@/assets/university/nutl3-u1-ch4-adaptive-thermogenesis.png';
 import ch5NutrientTiming from '@/assets/university/nutl3-u1-ch5-nutrient-timing.png';
 import ch6AlcoholEffects from '@/assets/university/nutl3-u1-ch6-alcohol-effects.png';
 
