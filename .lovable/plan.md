@@ -1,59 +1,33 @@
 
 
-## Plan: Session Notes Media Upload + Fix Programme Progress Tracking
+## Plan: Session Notes 5-media limit + Manual Builder scroll fix
 
-### Two tasks:
+### Task 1: Increase session notes media to 5 combined uploads
 
----
+**Current state**: `SessionNotesView.tsx` limits to 3 images + 1 video separately.
 
-### Task 1: Add photo/video upload to Session Notes
-
-**Problem**: Session notes only support text. Users want to upload photos/videos (e.g., form checks) that coaches can see.
-
-**Changes**:
+**Change**: Replace with a single combined limit of 5 — any mix of images and videos.
 
 **File: `src/components/programming/SessionNotesView.tsx`**
-- Add media upload UI below the textarea — reuse the existing `ChatMediaUpload` pattern or build a simple file picker
-- Allow up to 3 images or 1 video per session note
-- Upload files to `post-images` / `post-videos` storage buckets using `uploadMediaFile` from `src/lib/mediaUpload.ts`
-- Store media URLs in the `onSave` callback alongside notes text
-- Display uploaded media previews with remove buttons
-
-**File: `src/components/programming/ActiveWorkoutModal.tsx`**
-- Pass media URLs through from SessionNotesView to the completion handler
-
-**File: `src/hooks/useWorkoutSessions.tsx`**
-- Update `completeSession` mutation to save media URLs (likely as a JSON field on `workout_sessions` or session notes)
-
-**Database migration**: Add `media_urls jsonb default '[]'` column to `workout_sessions` table to store attached media.
-
-**File: `src/components/coaching/AthleteDataViewer.tsx`**
-- Add a new "Session Media" section in the coach's session log viewer that displays any attached photos/videos from workout sessions
-- Render images as thumbnails and videos with a player
+- Change `MAX_IMAGES = 3` to `MAX_MEDIA = 5`
+- Remove separate image/video limits — just check `media.length < MAX_MEDIA`
+- Show both Add Photo and Add Video buttons as long as total < 5
+- Update validation toast to say "Maximum 5 attachments per session"
+- Label text updated: "Attach up to 5 photos or videos"
 
 ---
 
-### Task 2: Fix programme current_week/current_day not syncing with progress
+### Task 2: Fix Manual Programme Builder scroll/layout
 
-**Problem**: `training_programs.current_week` and `current_day` never update because `updateProgress` is never called. The badge always shows "Week 1 • Day 1".
+**Current state**: The exercise list and library sit in a `grid lg:grid-cols-2` layout. The exercise list uses `ScrollArea` with a fixed `h-[400px]`, but the entire builder card has no overflow handling — on mobile (434px viewport), adding exercises makes the card grow unbounded, and the library panel stacks below off-screen with no way to scroll.
 
-**Root cause**: In `ProgrammeExecutionView.tsx`, when `handleCompleteWorkout` runs, it calls `markComplete` on the planner and `completeSession` on the workout, but never calls `updateProgress` to sync `current_week`/`current_day` on the program record.
+**Fix in `src/components/programming/ManualProgramBuilder.tsx`**:
 
-**Fix in `src/components/programming/ProgrammeExecutionView.tsx`**:
-- Import `useTrainingPrograms` to access `updateProgress`
-- After `markComplete.mutate(currentPlanner.id)` in `handleCompleteWorkout`, call `updateProgress.mutate()` with the **next pending session's** week/day numbers
-- Similarly after `handleSkipSession`, update progress to reflect the new next session
-- Derive the "current position" from the next pending planner rather than the stale `program.current_week`/`program.current_day` for the header badge display
+1. **Make the outer builder card scrollable**: Wrap the exercise list + library area in a container with `max-h-[60vh] overflow-y-auto` so the whole day content scrolls on mobile
+2. **On mobile, show library as a full-screen sheet/drawer** instead of stacking it below the exercise list (where it's unreachable) — use the existing `Sheet` component to overlay the `InlineExerciseLibrary`
+3. **Remove the fixed `h-[400px]`** on the exercise ScrollArea — let it flex within the scrollable parent with `flex-1 min-h-0 overflow-y-auto`
+4. **Sticky header**: Keep the day selector and "ADD EXERCISE" button visible while scrolling exercises
+5. **Collapse the `lg:grid-cols-2`** layout for mobile — on small screens use a single column with the library in a sheet overlay
 
-**Also fix in `handleCardioSessionSaved`**: Same pattern — after marking complete, update progress.
-
-**Display fix**: The badge in the header should show the next pending session's week/day (computed from planners) rather than the potentially stale `program.current_week`. This ensures the UI always reflects actual progress even if the DB update is in flight.
-
----
-
-### Technical details
-
-- Media upload reuses existing `uploadMediaFile()` and storage buckets — no new buckets needed
-- The `media_urls` column stores an array of `{ url, type, thumbnailUrl? }` objects
-- Progress sync is a simple `updateProgress.mutate({ programId, week: nextPlanner.week_number, day: nextPlanner.day_number })` call added to 3 handlers
+This ensures exercises are always scrollable and the library is always accessible regardless of how many exercises are added.
 
