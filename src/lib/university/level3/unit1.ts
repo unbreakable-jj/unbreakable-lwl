@@ -1,12 +1,26 @@
 import type { Unit } from '../types';
 import l3u1ch1Img from '@/assets/university/l3-u1-ch1-macro-periodisation.png';
+import l3u1ch1PhasesImg from '@/assets/university/l3-u1-ch1-three-phases.png';
+import l3u1ch1PracticalImg from '@/assets/university/l3-u1-ch1-practical-application.png';
 import l3u1ch2Img from '@/assets/university/l3-u1-ch2-nutrient-timing.png';
+import l3u1ch2PreImg from '@/assets/university/l3-u1-ch2-pre-workout.png';
+import l3u1ch2PostImg from '@/assets/university/l3-u1-ch2-post-session.png';
 import l3u1ch3Img from '@/assets/university/l3-u1-ch3-supplement-pyramid.png';
+import l3u1ch3Tier1Img from '@/assets/university/l3-u1-ch3-tier1-supplements.png';
+import l3u1ch3RedFlagsImg from '@/assets/university/l3-u1-ch3-red-flags.png';
 import l3u1ch4Img from '@/assets/university/l3-u1-ch4-body-composition.png';
+import l3u1ch4RecompImg from '@/assets/university/l3-u1-ch4-recomposition.png';
+import l3u1ch4BodyFatImg from '@/assets/university/l3-u1-ch4-body-fat-ranges.png';
 import l3u1ch5Img from '@/assets/university/l3-u1-ch5-metabolic-adaptation.png';
+import l3u1ch5DietImg from '@/assets/university/l3-u1-ch5-diet-strategies.png';
 import l3u1ch6Img from '@/assets/university/l3-u1-ch6-calorie-cycling.png';
+import l3u1ch6MatchImg from '@/assets/university/l3-u1-ch6-matching-calories.png';
 import l3u1ch7Img from '@/assets/university/l3-u1-ch7-digestive-system.png';
+import l3u1ch7MicrobiomeImg from '@/assets/university/l3-u1-ch7-microbiome.png';
+import l3u1ch7DigestiveImg from '@/assets/university/l3-u1-ch7-digestive-issues.png';
 import l3u1ch8Img from '@/assets/university/l3-u1-ch8-phase-targets.png';
+import l3u1ch8CuttingImg from '@/assets/university/l3-u1-ch8-cutting-priorities.png';
+import l3u1ch8EnduranceImg from '@/assets/university/l3-u1-ch8-endurance-fuelling.png';
 
 export const level3Unit1: Unit = {
   number: 1,
@@ -40,6 +54,8 @@ export const level3Unit1: Unit = {
             'Cutting (caloric deficit) — Protein increases to preserve lean mass (2.0–2.4 g/kg). Carbohydrates are reduced but kept high enough to fuel training. Fat is kept at minimum healthy levels (0.7–1.0 g/kg).',
             'Maintenance (energy balance) — A balanced approach. Protein at 1.6–2.0 g/kg, carbohydrates and fats distributed according to preference and activity level.',
           ],
+          imageUrl: l3u1ch1PhasesImg,
+          imageAlt: 'The three core nutrition phases — bulking, cutting, and maintenance — with macro ranges for each',
         },
         {
           heading: 'Adjusting Within a Training Block',
@@ -56,6 +72,8 @@ export const level3Unit1: Unit = {
             'Start by establishing your maintenance calories and macros. From there, apply small adjustments (200–500 kcal) when transitioning between phases. Avoid dramatic overnight changes — gradual transitions give your body time to adapt and reduce the risk of metabolic slowdown or excessive fat gain.',
             'Track your intake for the first two to three weeks of any new phase to ensure you are hitting your targets. After that, many people can transition to intuitive adjustments based on hunger, energy, and performance feedback.',
           ],
+          imageUrl: l3u1ch1PracticalImg,
+          imageAlt: 'Phase transition flowchart showing 5 steps from establishing maintenance to assessing and fine-tuning',
         },
       ],
       unbreakableInsight: 'Eating the same thing every day regardless of your training is like wearing the same shoes for running, lifting, and swimming. It technically works — but you will never perform at your best.',
@@ -98,6 +116,8 @@ export const level3Unit1: Unit = {
             'Fat slows digestion — keep fat moderate-to-low in the meal closest to training to avoid stomach discomfort',
             'Hydration is non-negotiable — even mild dehydration impairs strength and concentration',
           ],
+          imageUrl: l3u1ch2PreImg,
+          imageAlt: 'Nutrient timing around training — before, during, and after with recommended macronutrient focus',
         },
         {
           heading: 'Intra-Workout Nutrition',
@@ -114,6 +134,8 @@ export const level3Unit1: Unit = {
             'After training, your priorities are replenishing glycogen and providing amino acids for muscle repair. A meal or shake containing 20–40 g of protein and a serving of carbohydrates within two hours of training covers both needs.',
             'The type of protein matters less than the total amount. Whey is convenient and fast-absorbing, but whole food sources like chicken, eggs, or Greek yoghurt work equally well if consumed within a reasonable timeframe.',
           ],
+          imageUrl: l3u1ch2PostImg,
+          imageAlt: 'Post-session recovery priorities — glycogen replenishment and muscle repair with protein sources comparison',
         },
       ],
       unbreakableInsight: 'Nutrient timing is the fine print. Total daily intake is the headline. Get the headline right first — then worry about the details.',
@@ -156,6 +178,8 @@ export const level3Unit1: Unit = {
             'Vitamin D — Essential for bone health, immune function, and potentially muscle function. Supplementation is recommended if blood levels are below 75 nmol/L, particularly in northern climates with limited sun exposure.',
             'Protein powder — A convenient way to hit daily protein targets. Not superior to whole food protein, but practical for timing and convenience.',
           ],
+          imageUrl: l3u1ch3Tier1Img,
+          imageAlt: 'Evidence-based supplements — creatine, caffeine, vitamin D, and protein powder with dosing guidelines',
         },
         {
           heading: 'Tier 2 — Moderate Evidence',
@@ -182,6 +206,8 @@ export const level3Unit1: Unit = {
             'Products claiming to "boost testosterone" or "burn fat" without specifying mechanism or magnitude',
             'Endorsements from athletes who are almost certainly using performance-enhancing drugs alongside the product',
           ],
+          imageUrl: l3u1ch3RedFlagsImg,
+          imageAlt: 'Red flags in supplement marketing — proprietary blends, unverified claims, misleading photos, vague promises',
         },
       ],
       unbreakableInsight: 'If a supplement worked as well as its marketing claims, it would be regulated as a drug. The ones that actually work are boring, cheap, and well-studied.',
@@ -233,6 +259,8 @@ export const level3Unit1: Unit = {
             'Recomposition — gaining muscle while losing fat simultaneously — is possible, but it is not equally achievable for everyone. It works best for beginners, those returning after a break, individuals with higher body fat, and people using performance-enhancing drugs.',
             'For trained individuals at moderate body fat levels, recomposition is slow and difficult. In most cases, dedicated bulking and cutting phases are more efficient for changing body composition.',
           ],
+          imageUrl: l3u1ch4RecompImg,
+          imageAlt: 'Body recomposition — who it works for vs who should use dedicated bulk/cut cycles',
         },
         {
           heading: 'Healthy Body Fat Ranges',
@@ -240,6 +268,8 @@ export const level3Unit1: Unit = {
             'Body fat percentage varies by sex and age. General health ranges for adults are approximately 10–20% for men and 18–28% for women. Essential fat (the minimum for physiological function) is around 3–5% for men and 10–13% for women.',
             'Chasing extremely low body fat percentages is not healthy or sustainable for most people. The leanest physiques you see in magazines and on social media are typically achieved for short periods, often with significant trade-offs to health and wellbeing.',
           ],
+          imageUrl: l3u1ch4BodyFatImg,
+          imageAlt: 'Healthy body fat percentage ranges for men and women across categories from essential to overfat',
         },
       ],
       unbreakableInsight: 'The scale measures gravity\'s pull on your body. It does not measure your health, your fitness, or your worth. Stop letting a number define your progress.',
@@ -291,6 +321,8 @@ export const level3Unit1: Unit = {
             'A diet break is a planned period (typically 1–2 weeks) of eating at maintenance calories during a fat-loss phase. Research suggests that diet breaks can partially reverse some aspects of metabolic adaptation, particularly the drop in leptin and the reduction in NEAT.',
             'Refeeds are shorter — usually one to two days of higher carbohydrate intake within a deficit. They provide a psychological break and may temporarily boost leptin, though the metabolic impact is smaller than a full diet break.',
           ],
+          imageUrl: l3u1ch5DietImg,
+          imageAlt: 'Comparison of diet breaks, refeeds, and reverse dieting strategies with duration and purpose',
         },
         {
           heading: 'Reverse Dieting',
