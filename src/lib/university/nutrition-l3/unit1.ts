@@ -255,6 +255,8 @@ export const nutritionL3Unit1: Unit = {
           imageUrl: ch4AdaptiveThermogenesis,
           imageAlt: 'Adaptive thermogenesis cascade: BMR drop, hormonal shifts, NEAT suppression',
         },
+        {
+          heading: 'Managing Metabolic Adaptation',
           paragraphs: [
             'Several strategies can mitigate metabolic adaptation during prolonged fat loss phases. Diet breaks — planned periods of 1–2 weeks at maintenance calories — can partially restore leptin levels and reduce the psychological burden of dieting. Refeed days — single days of higher carbohydrate intake — provide a smaller but more frequent metabolic stimulus.',
             'Maintaining high protein intake (2.0–2.4g per kilogram of body weight) during a deficit helps preserve muscle mass, which in turn protects BMR. Resistance training serves the same purpose — it signals to your body that muscle tissue is essential and should not be sacrificed for energy.',
