@@ -180,8 +180,6 @@ export const nutritionL3Unit2: Unit = {
             'Caffeine is a powerful performance enhancer that improves endurance, strength, power, and focus. It works primarily by blocking adenosine receptors in the brain, reducing perceived exertion and delaying fatigue.',
             'An effective dose is 3–6mg per kilogram of body weight, consumed 30–60 minutes before training. For a 70kg person, that is 210–420mg — roughly equivalent to 2–4 cups of coffee. Higher doses do not improve performance further and increase the risk of anxiety, jitteriness, and sleep disruption.',
           ],
-          imageUrl: ch3Creatine,
-          imageAlt: 'Caffeine dosing and performance benefits',
         },
         {
           heading: 'Red Flags in Supplement Marketing',
@@ -189,6 +187,8 @@ export const nutritionL3Unit2: Unit = {
             'Be sceptical of any supplement that claims to "boost testosterone naturally," "burn fat while you sleep," or produce results comparable to pharmaceutical drugs. Legitimate supplements have modest, evidence-based effects — not dramatic transformations.',
             'Proprietary blends that hide individual ingredient doses, endorsements from sponsored athletes, before-and-after photos, and claims that are not supported by independent peer-reviewed research are all warning signs of marketing-driven products rather than science-driven ones.',
           ],
+          imageUrl: ch3SupplementRedflags,
+          imageAlt: 'Supplement marketing red flags checklist',
         },
       ],
       unbreakableInsight: 'If a supplement worked as well as the marketing claims, it would be a medicine requiring a prescription. The supplements that actually work have modest effects — and that is exactly why they are safe enough to sell without regulation.',
