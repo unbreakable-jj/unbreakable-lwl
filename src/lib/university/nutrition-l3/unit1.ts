@@ -9,6 +9,7 @@ import ch3DietaryFats from '@/assets/university/nutl3-u1-ch3-dietary-fats.png';
 import ch3OmegaBalance from '@/assets/university/nutl3-u1-ch3-omega-balance.png';
 import ch3FatGuidelines from '@/assets/university/nutl3-u1-ch3-fat-guidelines.png';
 import ch4MetabolicAdaptation from '@/assets/university/nutl3-u1-ch4-metabolic-adaptation.png';
+import ch4Neat from '@/assets/university/nutl3-u1-ch4-neat.png';
 import ch5NutrientTiming from '@/assets/university/nutl3-u1-ch5-nutrient-timing.png';
 import ch6AlcoholEffects from '@/assets/university/nutl3-u1-ch6-alcohol-effects.png';
 
@@ -235,6 +236,8 @@ export const nutritionL3Unit1: Unit = {
             'NEAT is the single most variable component of TDEE and explains why some people seem to "eat whatever they want" without gaining weight. High-NEAT individuals unconsciously move more — they pace, fidget, take stairs, and generally maintain higher levels of spontaneous physical activity.',
             'Critically, NEAT decreases significantly during caloric restriction. Your body unconsciously reduces spontaneous movement to conserve energy. This can account for a 200–400 calorie reduction in daily expenditure that most people never notice — and it is one of the primary reasons fat loss stalls.',
           ],
+          imageUrl: ch4Neat,
+          imageAlt: 'NEAT components: walking, standing, stairs, fidgeting',
         },
         {
           heading: 'Adaptive Thermogenesis — Your Body Fights Back',
