@@ -30,6 +30,7 @@ import l3u2ch8DropSets from '@/assets/university/l3-u2-ch8-drop-sets.png';
 import l3u2ch8ClusterSets from '@/assets/university/l3-u2-ch8-cluster-sets.png';
 import l3u2ch8MyoReps from '@/assets/university/l3-u2-ch8-myo-reps.png';
 
+export const level3Unit2: Unit = {
   number: 2,
   title: 'Muscle Growth Principles',
   description: 'Hypertrophy science, progressive overload, volume and intensity management, muscle fibre types, tempo training, deloading, mind-muscle connection, and advanced rep schemes.',
