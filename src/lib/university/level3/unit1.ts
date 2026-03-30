@@ -56,7 +56,6 @@ export const level3Unit1: Unit = {
           ],
           imageUrl: l3u1ch1PhasesImg,
           imageAlt: 'The three core nutrition phases — bulking, cutting, and maintenance — with macro ranges for each',
-          ],
         },
         {
           heading: 'Adjusting Within a Training Block',
