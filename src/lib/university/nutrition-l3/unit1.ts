@@ -117,6 +117,8 @@ export const nutritionL3Unit1: Unit = {
             'Eating 120 grams of protein in two large meals is not equivalent to spreading it across four meals. Research suggests that distributing protein intake evenly — hitting the leucine threshold at each feeding — maximises the total MPS response over 24 hours.',
             'A practical target is 3–5 protein-rich meals per day, each containing 25–40 grams of protein, spaced approximately 3–5 hours apart. This approach is more effective than the common pattern of a low-protein breakfast, moderate lunch, and protein-heavy dinner.',
           ],
+          imageUrl: ch2ProteinDistribution,
+          imageAlt: 'Optimal vs suboptimal daily protein distribution',
         },
         {
           heading: 'The Anabolic Window — Reality Check',
