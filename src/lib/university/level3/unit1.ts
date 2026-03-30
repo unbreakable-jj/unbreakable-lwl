@@ -324,9 +324,6 @@ export const level3Unit1: Unit = {
           imageUrl: l3u1ch5DietImg,
           imageAlt: 'Comparison of diet breaks, refeeds, and reverse dieting strategies with duration and purpose',
         },
-            'Refeeds are shorter — usually one to two days of higher carbohydrate intake within a deficit. They provide a psychological break and may temporarily boost leptin, though the metabolic impact is smaller than a full diet break.',
-          ],
-        },
         {
           heading: 'Reverse Dieting',
           paragraphs: [
