@@ -491,7 +491,7 @@ export function StoriesSection() {
                           src={currentSlide.url}
                           className="w-full h-full object-contain"
                           autoPlay loop muted={isMuted} playsInline
-                          onEnded={nextStory}
+                          onEnded={nextSlideOrStory}
                         />
                       ) : (
                         <img
@@ -546,7 +546,7 @@ export function StoriesSection() {
                           src={currentStory.video_url}
                           className="w-full h-full object-contain"
                           autoPlay loop muted={isMuted} playsInline
-                          onEnded={nextStory}
+                          onEnded={nextSlideOrStory}
                         />
                         <div className="absolute bottom-20 right-4 flex flex-col gap-2 z-10" data-story-controls>
                           <button
