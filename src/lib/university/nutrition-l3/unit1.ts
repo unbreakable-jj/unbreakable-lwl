@@ -377,6 +377,8 @@ export const nutritionL3Unit1: Unit = {
           imageUrl: ch6AlcoholRecovery,
           imageAlt: 'Alcohol effects on recovery: sleep, MPS, hydration, hormones',
         },
+        {
+          heading: 'Practical Management',
           paragraphs: [
             'Complete abstinence is not necessary for most people, but being aware of the trade-offs allows you to make informed decisions. If you choose to drink, plan it on rest days rather than training days, and separate consumption from your post-training window by at least 4–6 hours.',
             'Account for alcohol calories in your daily intake. A night out with four pints of lager adds approximately 800 calories — equivalent to a full meal. If fat loss is your goal, this untracked consumption is often the hidden variable that prevents progress.',
