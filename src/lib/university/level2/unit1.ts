@@ -1,9 +1,21 @@
 import type { Unit } from '../types';
 import ch1AnatomicalPlanes from '@/assets/university/ch1-anatomical-planes.png';
+import ch1DirectionalTerms from '@/assets/university/ch1-directional-terms.png';
+import ch1GymPlanes from '@/assets/university/ch1-gym-planes.png';
 import ch2JointTypes from '@/assets/university/ch2-joint-types.png';
+import ch2SkeletalFunctions from '@/assets/university/ch2-skeletal-functions.png';
+import ch2SynovialJoint from '@/assets/university/ch2-synovial-joint.png';
 import ch3MuscleGroups from '@/assets/university/ch3-muscle-groups.png';
+import ch3MuscleContractions from '@/assets/university/ch3-muscle-contractions.png';
+import ch3AgonistAntagonist from '@/assets/university/ch3-agonist-antagonist.png';
 import ch4Cardiovascular from '@/assets/university/ch4-cardiovascular.png';
+import ch4CirculatorySystem from '@/assets/university/ch4-circulatory-system.png';
+import ch4AcuteResponses from '@/assets/university/ch4-acute-responses.png';
+import ch4ChronicAdaptations from '@/assets/university/ch4-chronic-adaptations.png';
 import ch5EnergySystems from '@/assets/university/ch5-energy-systems.png';
+import ch5AtpBreakdown from '@/assets/university/ch5-atp-breakdown.png';
+import ch5EnergyTimeline from '@/assets/university/ch5-energy-timeline.png';
+import ch5RepRanges from '@/assets/university/ch5-rep-ranges.png';
 
 export const level2Unit1: Unit = {
   number: 1,
@@ -53,6 +65,8 @@ export const level2Unit1: Unit = {
             'Superior — towards the head (e.g., the shoulders are superior to the hips)',
             'Inferior — towards the feet (e.g., the ankles are inferior to the knees)',
           ],
+          imageUrl: ch1DirectionalTerms,
+          imageAlt: 'Labelled human figure showing anatomical directional terms: anterior, posterior, medial, lateral, superior, inferior',
         },
         {
           heading: 'Applying This in the Gym',
@@ -60,6 +74,8 @@ export const level2Unit1: Unit = {
             'When someone says "this exercise targets the anterior deltoid", they mean the front of the shoulder. When a programme says "lateral movement", it means side-to-side work in the frontal plane.',
             'Understanding these terms means you\'ll never be confused by programme instructions, coaching cues, or exercise descriptions again.',
           ],
+          imageUrl: ch1GymPlanes,
+          imageAlt: 'Three exercises classified by movement plane: squat (sagittal), lateral raise (frontal), cable woodchop (transverse)',
         },
       ],
       unbreakableInsight: 'Most people train only in the sagittal plane — forward and back. That\'s why they end up stiff, imbalanced, and eventually injured. Train in all three planes or pay the price.',
@@ -96,6 +112,8 @@ export const level2Unit1: Unit = {
             'Mineral storage — bones store calcium and phosphorus, releasing them when needed',
             'Blood cell production — red and white blood cells are produced in bone marrow',
           ],
+          imageUrl: ch2SkeletalFunctions,
+          imageAlt: 'Skeleton diagram with five functions labelled: support, protection, movement, mineral storage, blood cell production',
         },
         {
           heading: 'Types of Joints',
@@ -118,6 +136,8 @@ export const level2Unit1: Unit = {
             'Synovial fluid lubricates joints and reduces friction. Warming up before training increases synovial fluid production, which is why cold joints feel stiff and creaky.',
             'Cartilage covers the ends of bones at joints. It doesn\'t have its own blood supply, so it relies on movement to receive nutrients. Sedentary lifestyles lead to cartilage deterioration. Regular training — with proper technique — actually improves joint health over time.',
           ],
+          imageUrl: ch2SynovialJoint,
+          imageAlt: 'Cross-section of a synovial joint showing cartilage, synovial fluid, joint capsule, and warm-up effects',
         },
       ],
       unbreakableInsight: 'Your muscles will recover in days. A damaged joint can take months — or never fully heal. Respect your joints. Warm up properly. Use full range of motion. Ego lifting destroys joints.',
@@ -158,6 +178,8 @@ export const level2Unit1: Unit = {
             'Eccentric — the muscle lengthens under load. This is the "lowering" phase. Example: slowly lowering a dumbbell back down. Eccentric contractions cause the most muscle damage and are crucial for growth.',
             'Isometric — the muscle produces force without changing length. Example: holding a plank, pausing at the bottom of a squat.',
           ],
+          imageUrl: ch3MuscleContractions,
+          imageAlt: 'Three types of muscle contraction shown with bicep curl: concentric (shortening), eccentric (lengthening), isometric (static hold)',
         },
         {
           heading: 'Major Muscle Groups',
@@ -185,6 +207,8 @@ export const level2Unit1: Unit = {
             'Quadriceps and Hamstrings — when you extend the knee, quads contract and hamstrings relax',
             'Chest and Back — when you push, chest contracts and back relaxes',
           ],
+          imageUrl: ch3AgonistAntagonist,
+          imageAlt: 'Diagram showing agonist and antagonist muscle pairs: biceps/triceps and quadriceps/hamstrings',
         },
         {
           paragraphs: [
@@ -220,6 +244,8 @@ export const level2Unit1: Unit = {
             'The cardiovascular system is your body\'s transport network. It delivers oxygen and nutrients to working muscles and removes waste products like carbon dioxide and lactic acid.',
             'It consists of three main components: the heart (the pump), blood vessels (the pipes), and blood (the delivery fluid).',
           ],
+          imageUrl: ch4CirculatorySystem,
+          imageAlt: 'Circulatory system diagram showing heart, arteries, veins, capillaries, and lungs with blood flow direction',
         },
         {
           heading: 'The Heart',
@@ -242,6 +268,8 @@ export const level2Unit1: Unit = {
             'Blood is redistributed — away from the digestive system and towards muscles',
             'Breathing rate increases — to take in more oxygen and expel more carbon dioxide',
           ],
+          imageUrl: ch4AcuteResponses,
+          imageAlt: 'Infographic showing five acute cardiovascular responses to exercise: heart rate, stroke volume, blood pressure, redistribution, breathing',
         },
         {
           heading: 'Chronic Adaptations',
@@ -255,6 +283,8 @@ export const level2Unit1: Unit = {
             'Improved VO2 max — your body becomes more efficient at using oxygen during exercise',
             'Lower resting blood pressure — blood vessels become more elastic and efficient',
           ],
+          imageUrl: ch4ChronicAdaptations,
+          imageAlt: 'Before and after comparison of chronic cardiovascular adaptations: cardiac hypertrophy, capillary density, VO2 max improvements',
         },
       ],
       unbreakableInsight: 'You can have all the muscle in the world, but if your heart can\'t deliver oxygen efficiently, you\'ll gas out in every session. Cardiovascular fitness isn\'t optional — it\'s the foundation everything else sits on.',
@@ -284,6 +314,8 @@ export const level2Unit1: Unit = {
           paragraphs: [
             'Every muscle contraction requires energy. That energy comes from a molecule called ATP (adenosine triphosphate). Your body has three systems for producing ATP, and which one dominates depends on the intensity and duration of the exercise.',
           ],
+          imageUrl: ch5AtpBreakdown,
+          imageAlt: 'ATP molecule diagram showing phosphate bond breaking to release energy, producing ADP and free phosphate',
         },
         {
           heading: 'The Three Energy Systems',
@@ -301,6 +333,8 @@ export const level2Unit1: Unit = {
             'All three systems work simultaneously — but one always dominates depending on intensity and duration. A heavy set of 3 reps uses mostly the ATP-PC system. A set of 15 reps relies more on anaerobic glycolysis. A 30-minute jog is primarily aerobic.',
             'Understanding this helps you structure rest periods correctly. Heavy strength work needs 2-5 minutes of rest to replenish phosphocreatine. Hypertrophy sets need 60-90 seconds. Endurance work can use shorter rests or continuous effort.',
           ],
+          imageUrl: ch5EnergyTimeline,
+          imageAlt: 'Timeline showing energy system dominance: ATP-PC peaks at 0-12 seconds, anaerobic glycolysis at 30s-2min, aerobic after 2-3 minutes',
         },
         {
           heading: 'Practical Implications',
@@ -310,6 +344,8 @@ export const level2Unit1: Unit = {
             'Training for endurance (15+ reps or cardio) — primarily aerobic/anaerobic glycolysis, short rest (30-60 seconds)',
             'Creatine supplementation works because it helps replenish the ATP-PC system faster',
           ],
+          imageUrl: ch5RepRanges,
+          imageAlt: 'Infographic mapping rep ranges to energy systems and recommended rest periods',
         },
       ],
       unbreakableInsight: 'If you\'re resting 30 seconds between heavy deadlift sets and wondering why you can\'t hit your numbers — now you know. You haven\'t given your ATP-PC system time to reload. Rest properly or fail repeatedly. Your choice.',
