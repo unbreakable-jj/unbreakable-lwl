@@ -32,11 +32,42 @@ export function StoriesSection() {
   // Track which stories have been viewed this session
   const [viewedUsers, setViewedUsers] = useState<Set<string>>(new Set());
 
+  // Helper: get media items count for current story
+  const getMediaCount = useCallback((story: Story | undefined) => {
+    const mediaArr = (story as any)?.media_items as Array<{ type: string; url: string }> | undefined;
+    return (mediaArr && mediaArr.length > 0) ? mediaArr.length : 1;
+  }, []);
+
+  // Slide-aware navigation
+  const nextSlideOrStory = useCallback(() => {
+    const currentStory = groupedStories[activeUserIndex]?.stories[activeStoryIndex];
+    const mediaCount = getMediaCount(currentStory);
+    if (mediaCount > 1 && activeMediaSlide < mediaCount - 1) {
+      setActiveMediaSlide(prev => prev + 1);
+      setProgress(0);
+    } else {
+      nextStory();
+    }
+  }, [activeUserIndex, activeStoryIndex, activeMediaSlide, groupedStories, getMediaCount, nextStory]);
+
+  const prevSlideOrStory = useCallback(() => {
+    if (activeMediaSlide > 0) {
+      setActiveMediaSlide(prev => prev - 1);
+      setProgress(0);
+    } else {
+      prevStory();
+    }
+  }, [activeMediaSlide, prevStory]);
+
   // Progress bar timer
   useEffect(() => {
     if (!showViewer || isPaused) return;
     const currentStory = groupedStories[activeUserIndex]?.stories[activeStoryIndex];
     if (currentStory?.video_url) return;
+    // Skip timer for multi-media video slides
+    const mediaArr = (currentStory as any)?.media_items as Array<{ type: string; url: string }> | undefined;
+    const hasMultiMedia = mediaArr && mediaArr.length > 0;
+    if (hasMultiMedia && mediaArr[activeMediaSlide]?.type === 'video') return;
 
     setProgress(0);
     const startTime = Date.now();
@@ -45,7 +76,7 @@ export function StoriesSection() {
       const pct = Math.min(1, elapsed / STORY_DURATION);
       setProgress(pct);
       if (pct >= 1) {
-        nextStory();
+        nextSlideOrStory();
       } else {
         progressTimerRef.current = requestAnimationFrame(tick);
       }
@@ -54,7 +85,7 @@ export function StoriesSection() {
     return () => {
       if (progressTimerRef.current) cancelAnimationFrame(progressTimerRef.current);
     };
-  }, [showViewer, activeUserIndex, activeStoryIndex, isPaused]);
+  }, [showViewer, activeUserIndex, activeStoryIndex, activeMediaSlide, isPaused]);
 
   // Mark user stories as viewed when viewer opens/changes
   useEffect(() => {
