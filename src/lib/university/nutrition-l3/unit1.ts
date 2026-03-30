@@ -5,6 +5,7 @@ import ch1GlycogenStores from '@/assets/university/nutl3-u1-ch1-glycogen-stores.
 import ch2LeucineThreshold from '@/assets/university/nutl3-u1-ch2-leucine-threshold.png';
 import ch2ProteinDistribution from '@/assets/university/nutl3-u1-ch2-protein-distribution.png';
 import ch2ProteinSynthesis from '@/assets/university/nutl3-u1-ch2-protein-synthesis.png';
+import ch3DietaryFats from '@/assets/university/nutl3-u1-ch3-dietary-fats.png';
 import ch3OmegaBalance from '@/assets/university/nutl3-u1-ch3-omega-balance.png';
 import ch4MetabolicAdaptation from '@/assets/university/nutl3-u1-ch4-metabolic-adaptation.png';
 import ch5NutrientTiming from '@/assets/university/nutl3-u1-ch5-nutrient-timing.png';
@@ -171,9 +172,9 @@ export const nutritionL3Unit1: Unit = {
             'EPA and DHA (from oily fish) are the most bioactive forms of omega-3. Plant-based ALA converts poorly — approximately 5–10%',
             'Chronic inflammation from omega-6 excess is linked to joint pain, poor recovery, cardiovascular risk, and impaired immune function',
           ],
+          imageUrl: ch3OmegaBalance,
+          imageAlt: 'Omega-6 to Omega-3 ratio comparison: Western diet vs ideal',
         },
-        {
-          heading: 'Trans Fats and Industrial Processing',
           paragraphs: [
             'Trans fats are unsaturated fats that have been chemically altered through partial hydrogenation — a process that extends shelf life but creates a molecular structure your body struggles to process. They raise LDL cholesterol, lower HDL cholesterol, and increase cardiovascular disease risk.',
             'While naturally occurring trans fats exist in small amounts in dairy and meat (and appear to be harmless in those quantities), industrial trans fats found in some margarines, baked goods, and fried foods should be minimised or eliminated entirely.',
