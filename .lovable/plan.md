@@ -1,33 +1,53 @@
 
 
-## Plan: Session Notes 5-media limit + Manual Builder scroll fix
+## Add 3-5 Images Per Chapter — Power Level 2, Starting Unit 1
 
-### Task 1: Increase session notes media to 5 combined uploads
+### Current state
+Each chapter in Power Level 2 currently has **1 image** (already generated and stored in `src/assets/university/`). The `ContentSection` type already supports `imageUrl` and `imageAlt` per section. The `ChapterContent` renderer already displays images when present. No code changes needed — this is purely a content + asset generation task.
 
-**Current state**: `SessionNotesView.tsx` limits to 3 images + 1 video separately.
+### Approach
+For each chapter, identify 3-4 additional key sections that would benefit from a visual diagram. The existing image stays. We generate new images one at a time using the locked-in pro model (`google/gemini-3-pro-image-preview`), review each, then add it to the content data file.
 
-**Change**: Replace with a single combined limit of 5 — any mix of images and videos.
+### Power Level 2 Unit 1 — Image Plan
 
-**File: `src/components/programming/SessionNotesView.tsx`**
-- Change `MAX_IMAGES = 3` to `MAX_MEDIA = 5`
-- Remove separate image/video limits — just check `media.length < MAX_MEDIA`
-- Show both Add Photo and Add Video buttons as long as total < 5
-- Update validation toast to say "Maximum 5 attachments per session"
-- Label text updated: "Attach up to 5 photos or videos"
+**Chapter 1: Basic Anatomy for Training** (currently 1 image: anatomical planes)
+- Add: **Directional Terms** — labelled human figure showing anterior/posterior/medial/lateral/superior/inferior
+- Add: **Applying This in the Gym** — split view showing 3 exercises classified by movement plane
+- **Total: 3 images**
 
----
+**Chapter 2: The Skeletal System** (currently 1 image: joint types)
+- Add: **What the Skeleton Does** — skeleton diagram with 5 functions labelled (support, protection, movement, mineral storage, blood cell production)
+- Add: **Joint Health and Training** — diagram showing synovial joint cross-section with cartilage, synovial fluid, and warm-up effects
+- **Total: 3 images**
 
-### Task 2: Fix Manual Programme Builder scroll/layout
+**Chapter 3: The Muscular System** (currently 1 image: muscle groups)
+- Add: **Types of Muscle Contraction** — side-by-side showing concentric/eccentric/isometric with bicep curl example
+- Add: **Agonist and Antagonist Pairs** — diagram showing biceps/triceps and quads/hamstrings pairs with arrows
+- **Total: 3 images**
 
-**Current state**: The exercise list and library sit in a `grid lg:grid-cols-2` layout. The exercise list uses `ScrollArea` with a fixed `h-[400px]`, but the entire builder card has no overflow handling — on mobile (434px viewport), adding exercises makes the card grow unbounded, and the library panel stacks below off-screen with no way to scroll.
+**Chapter 4: The Cardiovascular System** (currently 1 image: heart/cardio)
+- Add: **Cardiovascular System Overview** — simple circulatory system diagram showing heart, arteries, veins, capillaries
+- Add: **Acute Responses to Exercise** — infographic showing the 5 acute responses during exercise
+- Add: **Chronic Adaptations** — before/after comparison showing cardiac hypertrophy, capillary density, VO2 max improvements
+- **Total: 4 images**
 
-**Fix in `src/components/programming/ManualProgramBuilder.tsx`**:
+**Chapter 5: Energy Systems** (currently 1 image: energy systems chart)
+- Add: **Where Energy Comes From** — ATP molecule breakdown diagram
+- Add: **How They Work Together** — timeline showing energy system dominance across exercise duration
+- Add: **Practical Implications** — infographic mapping rep ranges to energy systems and rest periods
+- **Total: 4 images**
 
-1. **Make the outer builder card scrollable**: Wrap the exercise list + library area in a container with `max-h-[60vh] overflow-y-auto` so the whole day content scrolls on mobile
-2. **On mobile, show library as a full-screen sheet/drawer** instead of stacking it below the exercise list (where it's unreachable) — use the existing `Sheet` component to overlay the `InlineExerciseLibrary`
-3. **Remove the fixed `h-[400px]`** on the exercise ScrollArea — let it flex within the scrollable parent with `flex-1 min-h-0 overflow-y-auto`
-4. **Sticky header**: Keep the day selector and "ADD EXERCISE" button visible while scrolling exercises
-5. **Collapse the `lg:grid-cols-2`** layout for mobile — on small screens use a single column with the library in a sheet overlay
+### Process (per image)
+1. Generate image using `google/gemini-3-pro-image-preview` with the dark technical diagram style (neon orange accents on charcoal background, clean legible labels)
+2. Save to `src/assets/university/` with descriptive filename
+3. QA the image for legibility and accuracy
+4. Import and wire into the chapter content data in `src/lib/university/level2/unit1.ts`
+5. Move to next image
 
-This ensures exercises are always scrollable and the library is always accessible regardless of how many exercises are added.
+### Files modified
+- `src/lib/university/level2/unit1.ts` — add `imageUrl` and `imageAlt` to additional content sections, add new imports
+- `src/assets/university/` — ~15 new image files for Unit 1
+
+### After Unit 1
+We proceed to Units 2, 3, and 4 of Power Level 2 with the same approach, then move to Fuel and Mindset tracks.
 
