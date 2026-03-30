@@ -46,6 +46,8 @@ export const nutritionL2Unit1: Unit = {
         },
         {
           heading: 'The Five Food Groups',
+          imageUrl: ch1FoodGroups,
+          imageAlt: 'The five food groups with recommended proportions',
           paragraphs: [
             'Fruit and vegetables — Should make up just over a third of your daily food intake. These provide essential vitamins, minerals, and fibre. Aim for at least five portions per day, with variety in colour and type.',
             'Starchy carbohydrates — Including bread, rice, potatoes, pasta, and cereals. These should make up just over a third of your diet. Choose wholegrain or higher-fibre versions where possible for sustained energy.',
@@ -56,6 +58,8 @@ export const nutritionL2Unit1: Unit = {
         },
         {
           heading: 'Limitations for Active Individuals',
+          imageUrl: ch1ActiveLimitations,
+          imageAlt: 'Eatwell Guide limitations for active individuals comparison',
           paragraphs: [
             'The Eatwell Guide is designed for the average sedentary adult. If you train regularly, your protein and carbohydrate needs are likely higher than what the guide suggests. Your fat intake requirements may also differ depending on your training phase.',
             'It does not account for caloric demands of exercise, nutrient timing, or specific body composition goals. Think of it as a foundation — not a ceiling.',
@@ -101,6 +105,8 @@ export const nutritionL2Unit1: Unit = {
         },
         {
           heading: 'Protein',
+          imageUrl: ch2Protein,
+          imageAlt: 'Protein structure, function, and complete vs incomplete protein sources',
           paragraphs: [
             'Protein is essential for muscle repair, immune function, enzyme production, and hormone regulation. It is made up of amino acids — nine of which are essential, meaning your body cannot produce them and they must come from food.',
             'Complete proteins contain all nine essential amino acids. These include meat, fish, eggs, and dairy. Incomplete proteins (most plant sources) can be combined to provide a full amino acid profile — for example, rice and beans.',
@@ -128,6 +134,8 @@ export const nutritionL2Unit1: Unit = {
         },
         {
           heading: 'Fats',
+          imageUrl: ch2Fats,
+          imageAlt: 'Dietary fats types and sources — saturated, unsaturated, and trans fats',
           paragraphs: [
             'Dietary fat is essential for hormone production (including testosterone), brain function, vitamin absorption (A, D, E, K), and cell membrane integrity. It is the most calorie-dense macronutrient at 9 calories per gram.',
             'Fats are classified as saturated, monounsaturated, and polyunsaturated. Trans fats (artificially hydrogenated) should be avoided. A balanced intake of all natural fat types supports optimal health.',
@@ -173,6 +181,8 @@ export const nutritionL2Unit1: Unit = {
         },
         {
           heading: 'Vitamins',
+          imageUrl: ch3Vitamins,
+          imageAlt: 'Essential vitamins — fat-soluble and water-soluble classification',
           paragraphs: [
             'Vitamins are divided into two categories based on how they are stored in the body:',
             'Fat-soluble vitamins (A, D, E, K) — These are stored in body fat and the liver. Because they accumulate, excessive intake can cause toxicity. They require dietary fat for proper absorption.',
@@ -189,6 +199,8 @@ export const nutritionL2Unit1: Unit = {
         },
         {
           heading: 'Key Minerals',
+          imageUrl: ch3Minerals,
+          imageAlt: 'Key minerals grid showing calcium, iron, zinc, magnesium, potassium, and sodium',
           paragraphs: [
             'Minerals are inorganic elements that support structural and functional roles in the body. Some are needed in larger amounts (macro-minerals) and others in trace amounts.',
           ],
@@ -247,6 +259,8 @@ export const nutritionL2Unit1: Unit = {
         },
         {
           heading: 'Types of Fibre',
+          imageUrl: ch4FibreComparison,
+          imageAlt: 'Soluble vs insoluble fibre comparison with food sources and daily target',
           paragraphs: [
             'Soluble fibre — Dissolves in water to form a gel-like substance. It slows digestion, helps regulate blood sugar levels, and can lower cholesterol. Found in oats, beans, lentils, fruits, and vegetables.',
             'Insoluble fibre — Does not dissolve in water. It adds bulk to stool and helps food pass through the digestive system more efficiently. Found in whole grains, nuts, seeds, and the skin of fruits and vegetables.',
@@ -323,6 +337,8 @@ export const nutritionL2Unit1: Unit = {
         },
         {
           heading: 'Assessing Hydration Status',
+          imageUrl: ch5HydrationCheck,
+          imageAlt: 'Hydration status assessment with urine colour chart and quick checks',
           paragraphs: [
             'The simplest method is the urine colour test. Pale straw-coloured urine indicates good hydration. Dark yellow or amber suggests dehydration. Note that some supplements (particularly B vitamins) can affect urine colour.',
           ],
@@ -407,6 +423,8 @@ export const nutritionL2Unit1: Unit = {
         },
         {
           heading: 'Building a Balanced Plate',
+          imageUrl: ch6BalancedPlate,
+          imageAlt: 'Balanced plate diagram showing 50% vegetables, 25% protein, 25% carbs',
           paragraphs: [
             'A simple framework: fill half your plate with vegetables and salad, a quarter with protein, and a quarter with complex carbohydrates. Add a small amount of healthy fat (dressing, cooking oil, or avocado). This approach works for most meals and ensures a balance of macronutrients and micronutrients without detailed tracking.',
           ],
@@ -445,6 +463,8 @@ export const nutritionL2Unit1: Unit = {
         },
         {
           heading: 'Hand-Based Portion Estimation',
+          imageUrl: ch7HandPortions,
+          imageAlt: 'Hand-based portion guide showing palm, fist, cupped hand, and thumb measurements',
           paragraphs: [
             'Your hand provides a convenient, always-available tool for estimating portions without scales or apps. While not perfectly accurate, this method is practical and good enough for most people.',
           ],
@@ -510,6 +530,8 @@ export const nutritionL2Unit1: Unit = {
         },
         {
           heading: 'The Four-Component Meal',
+          imageUrl: ch8FourComponent,
+          imageAlt: 'Four-component meal framework showing protein, carbs, vegetables, and healthy fats',
           paragraphs: [
             'Every main meal should aim to include four components: a protein source, a complex carbohydrate, vegetables or fruit, and a small amount of healthy fat. This framework ensures nutritional balance without over-thinking.',
           ],
@@ -521,6 +543,8 @@ export const nutritionL2Unit1: Unit = {
         },
         {
           heading: 'Meal Regularity',
+          imageUrl: ch8MealTiming,
+          imageAlt: 'Daily meal structure timeline showing calorie distribution across four meals',
           paragraphs: [
             'Eating at roughly consistent times each day helps regulate hunger hormones (ghrelin and leptin), maintains stable blood sugar, and prevents the extreme hunger that leads to poor food choices.',
             'There is no single "best" number of meals per day. What matters most is total daily intake and consistency. Whether you eat three, four, or five times per day, the key is finding a pattern you can sustain.',
