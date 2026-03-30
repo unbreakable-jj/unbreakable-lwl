@@ -64,6 +64,7 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
   const { user } = useAuth();
   const { saveProgram } = useTrainingPrograms();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const [programName, setProgramName] = useState('My Custom Programme');
   const [selectedDays, setSelectedDays] = useState<string[]>(['Day 1', 'Day 2', 'Day 3']);
