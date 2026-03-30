@@ -51,7 +51,8 @@ export const level2Unit1: Unit = {
           ],
           imageUrl: ch1AnatomicalPlanes,
           imageAlt: 'Diagram showing the three anatomical planes on a human figure with example exercises labelled for each plane',
-        },
+          imageUrl: ch1DirectionalTerms,
+          imageAlt: 'Labelled human figure showing anatomical directional terms: anterior, posterior, medial, lateral, superior, inferior',
         {
           heading: 'Directional Terms',
           paragraphs: [
@@ -65,6 +66,8 @@ export const level2Unit1: Unit = {
             'Superior — towards the head (e.g., the shoulders are superior to the hips)',
             'Inferior — towards the feet (e.g., the ankles are inferior to the knees)',
           ],
+          imageUrl: ch1GymPlanes,
+          imageAlt: 'Three exercises classified by movement plane: squat (sagittal), lateral raise (frontal), cable woodchop (transverse)',
         },
         {
           heading: 'Applying This in the Gym',
@@ -85,8 +88,9 @@ export const level2Unit1: Unit = {
           'Can you identify one exercise to add that fills a gap?',
         ],
       },
-    },
-    {
+          imageUrl: ch2SkeletalFunctions,
+          imageAlt: 'Skeleton diagram with five functions labelled: support, protection, movement, mineral storage, blood cell production',
+        },
       number: 2,
       title: 'The Skeletal System',
       learningOutcome: 'Understand the role of the skeletal system in movement and exercise, including the main types of joints and their relevance to training.',
@@ -122,6 +126,8 @@ export const level2Unit1: Unit = {
           ],
           imageUrl: ch2JointTypes,
           imageAlt: 'Labelled diagram showing hinge, ball-and-socket, pivot, and gliding joints with their gym exercise equivalents',
+          imageUrl: ch2SynovialJoint,
+          imageAlt: 'Cross-section of a synovial joint showing cartilage, synovial fluid, joint capsule, and warm-up effects',
         },
         {
           heading: 'Joint Health and Training',
@@ -159,6 +165,8 @@ export const level2Unit1: Unit = {
           paragraphs: [
             'Skeletal muscles are the engines of movement. They attach to bones via tendons and contract to produce force. Understanding how muscles contract is fundamental to effective training.',
           ],
+          imageUrl: ch3MuscleContractions,
+          imageAlt: 'Three types of muscle contraction shown with bicep curl: concentric (shortening), eccentric (lengthening), isometric (static hold)',
         },
         {
           heading: 'Types of Muscle Contraction',
@@ -186,6 +194,8 @@ export const level2Unit1: Unit = {
           ],
           imageUrl: ch3MuscleGroups,
           imageAlt: 'Labelled diagram of major muscle groups from front and rear view of the human body',
+          imageUrl: ch3AgonistAntagonist,
+          imageAlt: 'Diagram showing agonist and antagonist muscle pairs: biceps/triceps and quadriceps/hamstrings',
         },
         {
           heading: 'Agonist and Antagonist Pairs',
@@ -215,7 +225,9 @@ export const level2Unit1: Unit = {
           'How could you adjust your programme to improve balance?',
         ],
       },
-    },
+          imageUrl: ch4CirculatorySystem,
+          imageAlt: 'Circulatory system diagram showing heart, arteries, veins, capillaries, and lungs with blood flow direction',
+        },
     {
       number: 4,
       title: 'The Cardiovascular System',
@@ -241,6 +253,8 @@ export const level2Unit1: Unit = {
           ],
           imageUrl: ch4Cardiovascular,
           imageAlt: 'Heart diagram with acute responses and chronic adaptations of the cardiovascular system',
+          imageUrl: ch4AcuteResponses,
+          imageAlt: 'Infographic showing five acute cardiovascular responses to exercise: heart rate, stroke volume, blood pressure, redistribution, breathing',
         },
         {
           heading: 'Acute Responses to Exercise',
@@ -254,6 +268,8 @@ export const level2Unit1: Unit = {
             'Blood is redistributed — away from the digestive system and towards muscles',
             'Breathing rate increases — to take in more oxygen and expel more carbon dioxide',
           ],
+          imageUrl: ch4ChronicAdaptations,
+          imageAlt: 'Before and after comparison of chronic cardiovascular adaptations: cardiac hypertrophy, capillary density, VO2 max improvements',
         },
         {
           heading: 'Chronic Adaptations',
@@ -280,7 +296,9 @@ export const level2Unit1: Unit = {
           'What cardiovascular training could you add to your routine to improve this number?',
         ],
       },
-    },
+          imageUrl: ch5AtpBreakdown,
+          imageAlt: 'ATP molecule diagram showing phosphate bond breaking to release energy, producing ADP and free phosphate',
+        },
     {
       number: 5,
       title: 'Energy Systems',
@@ -296,6 +314,8 @@ export const level2Unit1: Unit = {
           paragraphs: [
             'Every muscle contraction requires energy. That energy comes from a molecule called ATP (adenosine triphosphate). Your body has three systems for producing ATP, and which one dominates depends on the intensity and duration of the exercise.',
           ],
+          imageUrl: ch5EnergyTimeline,
+          imageAlt: 'Timeline showing energy system dominance: ATP-PC peaks at 0-12 seconds, anaerobic glycolysis at 30s-2min, aerobic after 2-3 minutes',
         },
         {
           heading: 'The Three Energy Systems',
@@ -306,6 +326,8 @@ export const level2Unit1: Unit = {
           ],
           imageUrl: ch5EnergySystems,
           imageAlt: 'Chart showing the three energy systems with duration on the x-axis and contribution percentage on the y-axis, with example activities marked',
+          imageUrl: ch5RepRanges,
+          imageAlt: 'Infographic mapping rep ranges to energy systems and recommended rest periods',
         },
         {
           heading: 'How They Work Together',
