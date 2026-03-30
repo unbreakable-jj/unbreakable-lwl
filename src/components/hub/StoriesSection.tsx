@@ -35,7 +35,255 @@ export function StoriesSection() {
   // Track which stories have been viewed this session
   const [viewedUsers, setViewedUsers] = useState<Set<string>>(new Set());
   const [activeMediaSlide, setActiveMediaSlide] = useState(0);
-...
+
+  const handlePublishStory = async (data: {
+    content: string | null;
+    image_url: string | null;
+    video_url: string | null;
+    visibility: string;
+    text_overlays: TextOverlayData[];
+    background_color: string | null;
+    media_items?: any[];
+  }) => {
+    const { error } = await createStory({
+      content: data.content,
+      image_url: data.image_url,
+      video_url: data.video_url,
+      visibility: data.visibility,
+      text_overlays: data.text_overlays,
+      background_color: data.background_color,
+      media_items: data.media_items,
+    });
+
+    if (error) {
+      toast.error('Failed to create story');
+    } else {
+      toast.success('Story added!');
+      setShowCreate(false);
+    }
+  };
+
+  const handleDeleteStory = async (storyId: string) => {
+    setDeleting(true);
+    const { error } = await deleteStory(storyId);
+    setDeleting(false);
+    if (error) {
+      toast.error('Failed to delete story');
+    } else {
+      toast.success('Story deleted');
+      const currentUserStories = groupedStories[activeUserIndex]?.stories || [];
+      if (currentUserStories.length <= 1) {
+        if (groupedStories.length <= 1) {
+          setShowViewer(false);
+        } else if (activeUserIndex < groupedStories.length - 1) {
+          setActiveStoryIndex(0);
+        } else {
+          setActiveUserIndex(prev => prev - 1);
+          setActiveStoryIndex(0);
+        }
+      } else if (activeStoryIndex >= currentUserStories.length - 1) {
+        setActiveStoryIndex(prev => Math.max(0, prev - 1));
+      }
+    }
+  };
+
+  const handleShareStory = async () => {
+    if (!currentStory) return;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Check out this story on Unbreakable',
+          url: window.location.origin,
+        });
+      } else {
+        await navigator.clipboard.writeText(window.location.origin);
+        toast.success('Link copied!');
+      }
+    } catch {}
+  };
+
+  const suppressNextClick = useCallback(() => {
+    suppressClickRef.current = true;
+    if (suppressClickTimerRef.current) {
+      window.clearTimeout(suppressClickTimerRef.current);
+    }
+    suppressClickTimerRef.current = window.setTimeout(() => {
+      suppressClickRef.current = false;
+      suppressClickTimerRef.current = null;
+    }, 250);
+  }, []);
+
+  const openViewer = (userIndex: number) => {
+    setActiveUserIndex(userIndex);
+    setActiveStoryIndex(0);
+    setActiveMediaSlide(0);
+    setShowViewer(true);
+    setIsPaused(false);
+    setIsPlaying(true);
+    setProgress(0);
+  };
+
+  const nextStory = useCallback(() => {
+    const currentUserStories = groupedStories[activeUserIndex]?.stories || [];
+    if (activeStoryIndex < currentUserStories.length - 1) {
+      setActiveStoryIndex(prev => prev + 1);
+      setActiveMediaSlide(0);
+      setProgress(0);
+    } else if (activeUserIndex < groupedStories.length - 1) {
+      setActiveUserIndex(prev => prev + 1);
+      setActiveStoryIndex(0);
+      setActiveMediaSlide(0);
+      setProgress(0);
+    } else {
+      setShowViewer(false);
+    }
+  }, [activeUserIndex, activeStoryIndex, groupedStories]);
+
+  const prevStory = useCallback(() => {
+    if (activeStoryIndex > 0) {
+      setActiveStoryIndex(prev => prev - 1);
+      setActiveMediaSlide(0);
+      setProgress(0);
+    } else if (activeUserIndex > 0) {
+      setActiveUserIndex(prev => prev - 1);
+      const prevUserStories = groupedStories[activeUserIndex - 1]?.stories || [];
+      setActiveStoryIndex(prevUserStories.length - 1);
+      setActiveMediaSlide(0);
+      setProgress(0);
+    }
+  }, [activeUserIndex, activeStoryIndex, groupedStories]);
+
+  // Helper: get media items count for current story
+  const getMediaCount = useCallback((story: Story | undefined) => {
+    const mediaArr = (story as any)?.media_items as Array<{ type: string; url: string }> | undefined;
+    return mediaArr && mediaArr.length > 0 ? mediaArr.length : 1;
+  }, []);
+
+  // Slide-aware navigation
+  const nextSlideOrStory = useCallback(() => {
+    const story = groupedStories[activeUserIndex]?.stories[activeStoryIndex];
+    const mediaCount = getMediaCount(story);
+    if (mediaCount > 1 && activeMediaSlide < mediaCount - 1) {
+      setActiveMediaSlide(prev => prev + 1);
+      setProgress(0);
+    } else {
+      nextStory();
+    }
+  }, [activeUserIndex, activeStoryIndex, activeMediaSlide, groupedStories, getMediaCount, nextStory]);
+
+  const prevSlideOrStory = useCallback(() => {
+    if (activeMediaSlide > 0) {
+      setActiveMediaSlide(prev => prev - 1);
+      setProgress(0);
+    } else {
+      prevStory();
+    }
+  }, [activeMediaSlide, prevStory]);
+
+  // Keep video playback reliable when switching between mixed media slides
+  useEffect(() => {
+    if (!showViewer) return;
+
+    const story = groupedStories[activeUserIndex]?.stories[activeStoryIndex];
+    if (!story) return;
+
+    const mediaArr = (story as any)?.media_items as Array<{ type: string; url: string }> | undefined;
+    const hasMultiMedia = !!(mediaArr && mediaArr.length > 0);
+    const isVideoSlide = hasMultiMedia
+      ? mediaArr?.[activeMediaSlide]?.type === 'video'
+      : Boolean(story.video_url);
+
+    const videoEl = storyVideoRef.current;
+    if (!isVideoSlide || !videoEl) {
+      setIsPlaying(false);
+      return;
+    }
+
+    let cancelled = false;
+    const ensurePlayback = async () => {
+      try {
+        await videoEl.play();
+        if (!cancelled) setIsPlaying(true);
+      } catch {
+        if (!videoEl.muted) {
+          videoEl.muted = true;
+          setIsMuted(true);
+          try {
+            await videoEl.play();
+            if (!cancelled) setIsPlaying(true);
+            return;
+          } catch {
+            // no-op
+          }
+        }
+        if (!cancelled) setIsPlaying(!videoEl.paused);
+      }
+    };
+
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+
+    videoEl.addEventListener('play', onPlay);
+    videoEl.addEventListener('pause', onPause);
+    ensurePlayback();
+
+    return () => {
+      cancelled = true;
+      videoEl.removeEventListener('play', onPlay);
+      videoEl.removeEventListener('pause', onPause);
+    };
+  }, [showViewer, activeUserIndex, activeStoryIndex, activeMediaSlide, groupedStories]);
+
+  // Progress bar timer
+  useEffect(() => {
+    if (!showViewer || isPaused) return;
+
+    const story = groupedStories[activeUserIndex]?.stories[activeStoryIndex];
+    if (!story) return;
+
+    const mediaArr = (story as any)?.media_items as Array<{ type: string; url: string }> | undefined;
+    const hasMultiMedia = !!(mediaArr && mediaArr.length > 0);
+    const isVideoSlide = hasMultiMedia
+      ? mediaArr?.[activeMediaSlide]?.type === 'video'
+      : Boolean(story.video_url);
+
+    if (isVideoSlide) return;
+
+    setProgress(0);
+    const startTime = Date.now();
+    const tick = () => {
+      const elapsed = Date.now() - startTime;
+      const pct = Math.min(1, elapsed / STORY_DURATION);
+      setProgress(pct);
+      if (pct >= 1) {
+        nextSlideOrStory();
+      } else {
+        progressTimerRef.current = requestAnimationFrame(tick);
+      }
+    };
+
+    progressTimerRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (progressTimerRef.current) cancelAnimationFrame(progressTimerRef.current);
+    };
+  }, [showViewer, activeUserIndex, activeStoryIndex, activeMediaSlide, isPaused, groupedStories, nextSlideOrStory]);
+
+  // Mark user stories as viewed when viewer opens/changes
+  useEffect(() => {
+    if (showViewer && groupedStories[activeUserIndex]) {
+      setViewedUsers(prev => new Set([...prev, groupedStories[activeUserIndex].userId]));
+    }
+  }, [showViewer, activeUserIndex, groupedStories]);
+
+  useEffect(() => {
+    return () => {
+      if (suppressClickTimerRef.current) {
+        window.clearTimeout(suppressClickTimerRef.current);
+      }
+    };
+  }, []);
+
   const handleViewerTouchStart = (e: React.TouchEvent) => {
     const target = e.target as HTMLElement;
     touchStartedOnControlsRef.current = Boolean(target.closest('[data-story-controls]'));
