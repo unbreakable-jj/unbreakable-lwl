@@ -118,7 +118,6 @@ export const level3Unit1: Unit = {
           ],
           imageUrl: l3u1ch2PreImg,
           imageAlt: 'Nutrient timing around training — before, during, and after with recommended macronutrient focus',
-          ],
         },
         {
           heading: 'Intra-Workout Nutrition',
