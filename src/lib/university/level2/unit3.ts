@@ -1,11 +1,11 @@
 import type { Unit } from '../types';
-import u3ch1Img from '@/assets/university/u3-ch1-training-types.png';
-import u3ch2Img from '@/assets/university/u3-ch2-ramp-protocol.png';
-import u3ch3Img from '@/assets/university/u3-ch3-rep-ranges.png';
-import u3ch4Img from '@/assets/university/u3-ch4-heart-rate-zones.png';
+import u3ch1Img from '@/assets/university/u3-ch1-training-comparison.png';
+import u3ch2Img from '@/assets/university/u3-ch2-stretching-types.png';
+import u3ch3Img from '@/assets/university/u3-ch3-tempo-notation.png';
+import u3ch4Img from '@/assets/university/u3-ch4-fitt-principle.png';
 import u3ch5Img from '@/assets/university/u3-ch5-flexibility.png';
-import u3ch6Img from '@/assets/university/u3-ch6-movement-patterns.png';
-import u3ch7Img from '@/assets/university/u3-ch7-supercompensation.png';
+import u3ch6Img from '@/assets/university/u3-ch6-bilateral-unilateral.png';
+import u3ch7Img from '@/assets/university/u3-ch7-overtraining-signs.png';
 import u3ch8Img from '@/assets/university/u3-ch8-special-populations.png';
 
 export const level2Unit3: Unit = {
