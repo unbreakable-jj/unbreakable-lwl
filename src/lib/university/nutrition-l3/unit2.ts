@@ -64,8 +64,9 @@ export const nutritionL3Unit2: Unit = {
             'Vitamin E acts as an antioxidant, protecting cell membranes from oxidative damage. Deficiency is rare in developed countries, and supplementation has shown limited benefit in well-nourished populations. Food sources include nuts, seeds, and plant oils.',
             'Vitamin K is essential for blood clotting (K1) and bone metabolism (K2). K1 is found in green leafy vegetables, while K2 is produced by gut bacteria and found in fermented foods. Deficiency is uncommon in healthy adults but can occur with certain medications or gut conditions.',
           ],
+          imageUrl: ch1FatSolubleAEK,
+          imageAlt: 'Vitamins A, E, K: sources, functions, and risks',
         },
-      ],
       unbreakableInsight: 'If you live in the UK and you are not supplementing vitamin D from October to March, you are almost certainly deficient. This is not a wellness trend — it is a public health recommendation backed by robust evidence.',
       coachNote: 'Get your vitamin D levels tested annually. Supplementing blindly is better than not supplementing at all, but knowing your actual levels allows you to dose appropriately.',
       practicalTask: {
