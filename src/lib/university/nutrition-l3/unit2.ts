@@ -227,6 +227,8 @@ export const nutritionL3Unit2: Unit = {
           paragraphs: [
             'Certain foods carry specific risks during pregnancy due to the potential for harmful bacteria or substances to affect foetal development.',
           ],
+          imageUrl: ch4PregnancyFoods,
+          imageAlt: 'Foods to avoid during pregnancy with risk explanations',
           bullets: [
             'Raw or undercooked meat and eggs — Risk of salmonella and toxoplasmosis',
             'Unpasteurised dairy and soft mould-ripened cheeses — Risk of listeria',
@@ -242,6 +244,8 @@ export const nutritionL3Unit2: Unit = {
             'Ageing brings several nutritional challenges: reduced appetite, decreased absorption efficiency, loss of muscle mass (sarcopenia), reduced bone density, and often reduced physical activity. While total calorie needs may decrease, the need for specific nutrients — particularly protein, calcium, vitamin D, and B12 — increases or remains the same.',
             'Sarcopenia — the age-related loss of muscle mass and function — can be significantly slowed through adequate protein intake and resistance training. Older adults may need 1.2–1.6 grams of protein per kilogram of body weight daily, higher than the standard recommendation, to maintain muscle mass.',
           ],
+          imageUrl: ch4AgeingNutrition,
+          imageAlt: 'Ageing nutrition: sarcopenia, protein needs, and key nutrients',
           bullets: [
             'Protein — Higher per-meal doses (30–40g) may be needed to overcome anabolic resistance in older adults',
             'Calcium — 700mg daily (UK RNI), with additional needs for those at risk of osteoporosis',
