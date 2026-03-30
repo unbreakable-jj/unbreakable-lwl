@@ -38,6 +38,8 @@ export const nutritionL3Unit1: Unit = {
             'Glycolysis is the metabolic pathway that converts glucose into pyruvate, releasing a small amount of energy (ATP) in the process. It occurs in the cytoplasm of cells and does not require oxygen — making it the primary energy source during high-intensity, short-duration efforts like sprinting or heavy lifting.',
             'Each molecule of glucose yields two molecules of ATP through glycolysis alone. While this seems modest, the speed of this pathway makes it invaluable during intense activity when oxygen delivery cannot keep up with energy demand.',
           ],
+          imageUrl: ch1Glycolysis,
+          imageAlt: 'Glycolysis pathway: glucose to pyruvate yielding 2 ATP',
         },
         {
           heading: 'Aerobic vs Anaerobic Pathways',
@@ -57,6 +59,8 @@ export const nutritionL3Unit1: Unit = {
             'Your body stores glucose as glycogen in your muscles (approximately 300–500 grams) and liver (approximately 80–120 grams). Muscle glycogen fuels local muscular work, while liver glycogen maintains blood glucose levels — critical for brain function and sustained energy.',
             'Glycogen stores are finite. During prolonged or intense exercise, depletion leads to fatigue, reduced performance, and the sensation athletes describe as "hitting the wall." This is why carbohydrate timing and loading strategies exist — they aim to maximise glycogen stores before and replenish them after demanding training.',
           ],
+          imageUrl: ch1GlycogenStores,
+          imageAlt: 'Glycogen storage capacity: muscle 300-500g vs liver 80-120g',
         },
       ],
       unbreakableInsight: 'Your body does not care whether carbohydrates come from sweet potato or white rice — it breaks them all down to glucose. Context, timing, and total quantity matter far more than food snobbery.',
