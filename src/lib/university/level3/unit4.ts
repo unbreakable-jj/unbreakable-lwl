@@ -52,6 +52,8 @@ export const level3Unit4: Unit = {
             'Lack of intrinsic motivation — Relying on external motivation (social media, a bet, a holiday) that fades over time',
             'Comparison — Measuring your progress against other people rather than your own starting point',
           ],
+          imageUrl: l3u4ch1WhyQuit,
+          imageAlt: 'Declining motivation curve showing five common quit points over 90 days',
         },
         {
           heading: 'Building Consistency Over Perfection',
@@ -74,6 +76,8 @@ export const level3Unit4: Unit = {
             'Track progress with multiple metrics — Scale weight, photos, strength, energy, and how clothes fit',
             'Plan for obstacles — Anticipate busy weeks, holidays, and low-motivation periods. Have a plan B.',
           ],
+          imageUrl: l3u4ch1Strategies,
+          imageAlt: 'Five adherence strategies: process goals, identity-based habits, minimum viable sessions, multi-metric tracking, obstacle planning',
         },
         {
           heading: 'The Role of Enjoyment',
