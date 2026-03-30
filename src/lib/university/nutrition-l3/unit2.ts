@@ -67,6 +67,7 @@ export const nutritionL3Unit2: Unit = {
           imageUrl: ch1FatSolubleAEK,
           imageAlt: 'Vitamins A, E, K: sources, functions, and risks',
         },
+      ],
       unbreakableInsight: 'If you live in the UK and you are not supplementing vitamin D from October to March, you are almost certainly deficient. This is not a wellness trend — it is a public health recommendation backed by robust evidence.',
       coachNote: 'Get your vitamin D levels tested annually. Supplementing blindly is better than not supplementing at all, but knowing your actual levels allows you to dose appropriately.',
       practicalTask: {
