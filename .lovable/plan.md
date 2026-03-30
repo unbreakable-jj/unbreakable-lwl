@@ -1,43 +1,32 @@
 
 
-## Plan: Level 2 Image Review — 2 at a Time
+## Fix: Multi-media story viewer not advancing through slides
 
-### Process
+### Problem
+When a story has multiple `media_items`, the viewer only shows the first image. The auto-advance timer calls `nextStory()` directly instead of cycling through slides first. Tap navigation also skips slides entirely.
 
-Go through all 28 images in order (Unit 1 Ch1–5, Unit 2 Ch1–7, Unit 3 Ch1–8, Unit 4 Ch1–8). For each pair:
+### Root cause (StoriesSection.tsx)
+1. **Timer** (line 47): After `STORY_DURATION`, calls `nextStory()` immediately — never advances `activeMediaSlide`
+2. **Tap/click handlers** (lines 193-210): Call `prevStory()`/`nextStory()` directly — never cycle through slides within a story
+3. **Progress bars** (lines 323-336): Only show per-story segments, not per-slide within a story
 
-1. Display both images in the browser for your review
-2. You confirm "good" or "replace"
-3. Any flagged images get regenerated using the locked-in style (dark technical diagram, neon orange accents on dark background, no text clutter, professional reference-quality)
-4. Move to next pair only after confirmation
+### Plan
 
-### Image Order
+**File: `src/components/hub/StoriesSection.tsx`**
 
-| Pair | Images |
-|------|--------|
-| 1 | U1 Ch1 (Anatomical Planes) + U1 Ch2 (Joint Types) |
-| 2 | U1 Ch3 (Muscle Groups) + U1 Ch4 (Cardiovascular) |
-| 3 | U1 Ch5 (Energy Systems) + U2 Ch1 (Macronutrients) |
-| 4 | U2 Ch2 (Micronutrients) + U2 Ch3 (Hydration) |
-| 5 | U2 Ch4 (Energy Balance) + U2 Ch5 (Food Labels) |
-| 6 | U2 Ch6 (Nutrient Timing) + U2 Ch7 (Balanced Plate) |
-| 7 | U3 Ch1 (Training Types) + U3 Ch2 (RAMP Protocol) |
-| 8 | U3 Ch3 (Rep Ranges) + U3 Ch4 (Heart Rate Zones) |
-| 9 | U3 Ch5 (Flexibility) + U3 Ch6 (Movement Patterns) |
-| 10 | U3 Ch7 (Supercompensation) + U3 Ch8 (Special Populations) |
-| 11 | U4 Ch1 (SMART Goals) + U4 Ch2 (Training Splits) |
-| 12 | U4 Ch3 (Periodisation) + U4 Ch4 (Session Structure) |
-| 13 | U4 Ch5 (Progress Tracking) + U4 Ch6 (Sleep & Recovery) |
-| 14 | U4 Ch7 (Habit Loop) + U4 Ch8 (Programme Template) |
+1. **Fix auto-advance timer** — When the current story has multiple media_items, advance `activeMediaSlide` first. Only call `nextStory()` when on the last slide. Adjust the progress calculation to reflect slide-level progress.
 
-### For Each Replacement
+2. **Fix tap/click navigation** — In `handleViewerClick` and touch handlers, if the current story has multi-media:
+   - Tap right: go to next slide first, then next story when on last slide
+   - Tap left: go to previous slide first, then previous story when on first slide
 
-- Generate using the AI image gateway with detailed anatomical/technical prompts
-- Style: dark background, neon orange accents, clean labelling, professional diagram quality
-- Upload to `src/assets/university/` replacing the existing file
-- Also check the `imageAlt` text in the data file for spelling/accuracy
+3. **Fix progress bars** — Show progress segments per-slide (not per-story) when viewing a multi-media story. E.g. a story with 3 images shows 3 progress segments that fill sequentially.
 
-### Execution
+4. **Reset `activeMediaSlide` to 0** when changing stories (already done in `nextStory`/`prevStory` — verify consistency).
 
-I'll start by showing you Pair 1 (Anatomical Planes + Joint Types) in the browser. You tell me keep or replace for each.
+### Technical detail
+- Create a `nextSlideOrStory` callback that checks `mediaArr.length` and either increments `activeMediaSlide` or calls `nextStory()`
+- Create a `prevSlideOrStory` callback similarly
+- Replace direct `nextStory`/`prevStory` calls in click/touch handlers and timer with these new functions
+- Progress bar: compute total segments as `Math.max(1, mediaArr?.length || 1)` for the current story, rendering that many bars
 
