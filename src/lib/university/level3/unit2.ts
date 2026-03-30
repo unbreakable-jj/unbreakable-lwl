@@ -219,6 +219,8 @@ export const level3Unit2: Unit = {
             'Volume needs vary significantly between individuals and between muscle groups. Some people grow well on 12 sets per week for chest; others need 20. Some muscle groups (calves, side delts) often benefit from higher volume, while others (back, hamstrings) may respond well to moderate volume with higher intensity.',
             'The only way to determine your individual landmarks is through systematic experimentation and honest self-assessment. Track your performance, recovery, and progress over multiple mesocycles to refine your approach.',
           ],
+          imageUrl: l3u2ch3IndividualVariation,
+          imageAlt: 'Bell curve diagram showing individual variation in optimal weekly training volume with low, average, and high responders needing different set counts',
         },
       ],
       unbreakableInsight: 'More is not always better. The person who finds their MAV and stays within it will outgrow the person who hammers every muscle group with 30 sets per week and wonders why they feel broken.',
@@ -480,6 +482,7 @@ export const level3Unit2: Unit = {
           imageUrl: l3u2ch7PracticalCues,
           imageAlt: 'Two-column reference chart showing internal cueing strategies for isolation exercises and external cueing strategies for compound exercises with specific examples',
         },
+      ],
       unbreakableInsight: 'You cannot grow a muscle you cannot feel. If your bicep curls feel like forearm exercises, the weight is too heavy or your focus is in the wrong place.',
       coachNote: 'Isometric holds at the contracted position are an excellent tool for developing the mind-muscle connection. Have the person hold a squeeze for 2–3 seconds at the top of each rep until they can reliably feel the target muscle working.',
       practicalTask: {
