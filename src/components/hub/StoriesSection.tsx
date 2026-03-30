@@ -31,38 +31,6 @@ export function StoriesSection() {
 
   // Track which stories have been viewed this session
   const [viewedUsers, setViewedUsers] = useState<Set<string>>(new Set());
-
-  // Progress bar timer
-  useEffect(() => {
-    if (!showViewer || isPaused) return;
-    const currentStory = groupedStories[activeUserIndex]?.stories[activeStoryIndex];
-    if (currentStory?.video_url) return;
-
-    setProgress(0);
-    const startTime = Date.now();
-    const tick = () => {
-      const elapsed = Date.now() - startTime;
-      const pct = Math.min(1, elapsed / STORY_DURATION);
-      setProgress(pct);
-      if (pct >= 1) {
-        nextStory();
-      } else {
-        progressTimerRef.current = requestAnimationFrame(tick);
-      }
-    };
-    progressTimerRef.current = requestAnimationFrame(tick);
-    return () => {
-      if (progressTimerRef.current) cancelAnimationFrame(progressTimerRef.current);
-    };
-  }, [showViewer, activeUserIndex, activeStoryIndex, isPaused]);
-
-  // Mark user stories as viewed when viewer opens/changes
-  useEffect(() => {
-    if (showViewer && groupedStories[activeUserIndex]) {
-      setViewedUsers(prev => new Set([...prev, groupedStories[activeUserIndex].userId]));
-    }
-  }, [showViewer, activeUserIndex, groupedStories]);
-
   const [activeMediaSlide, setActiveMediaSlide] = useState(0);
 
   const handlePublishStory = async (data: {
@@ -170,6 +138,67 @@ export function StoriesSection() {
     }
   }, [activeUserIndex, activeStoryIndex, groupedStories]);
 
+  // Helper: get media items count for current story
+  const getMediaCount = useCallback((story: Story | undefined) => {
+    const mediaArr = (story as any)?.media_items as Array<{ type: string; url: string }> | undefined;
+    return (mediaArr && mediaArr.length > 0) ? mediaArr.length : 1;
+  }, []);
+
+  // Slide-aware navigation
+  const nextSlideOrStory = useCallback(() => {
+    const story = groupedStories[activeUserIndex]?.stories[activeStoryIndex];
+    const mediaCount = getMediaCount(story);
+    if (mediaCount > 1 && activeMediaSlide < mediaCount - 1) {
+      setActiveMediaSlide(prev => prev + 1);
+      setProgress(0);
+    } else {
+      nextStory();
+    }
+  }, [activeUserIndex, activeStoryIndex, activeMediaSlide, groupedStories, getMediaCount, nextStory]);
+
+  const prevSlideOrStory = useCallback(() => {
+    if (activeMediaSlide > 0) {
+      setActiveMediaSlide(prev => prev - 1);
+      setProgress(0);
+    } else {
+      prevStory();
+    }
+  }, [activeMediaSlide, prevStory]);
+
+  // Progress bar timer
+  useEffect(() => {
+    if (!showViewer || isPaused) return;
+    const story = groupedStories[activeUserIndex]?.stories[activeStoryIndex];
+    if (story?.video_url) return;
+    const mediaArr = (story as any)?.media_items as Array<{ type: string; url: string }> | undefined;
+    const hasMultiMedia = mediaArr && mediaArr.length > 0;
+    if (hasMultiMedia && mediaArr[activeMediaSlide]?.type === 'video') return;
+
+    setProgress(0);
+    const startTime = Date.now();
+    const tick = () => {
+      const elapsed = Date.now() - startTime;
+      const pct = Math.min(1, elapsed / STORY_DURATION);
+      setProgress(pct);
+      if (pct >= 1) {
+        nextSlideOrStory();
+      } else {
+        progressTimerRef.current = requestAnimationFrame(tick);
+      }
+    };
+    progressTimerRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (progressTimerRef.current) cancelAnimationFrame(progressTimerRef.current);
+    };
+  }, [showViewer, activeUserIndex, activeStoryIndex, activeMediaSlide, isPaused]);
+
+  // Mark user stories as viewed when viewer opens/changes
+  useEffect(() => {
+    if (showViewer && groupedStories[activeUserIndex]) {
+      setViewedUsers(prev => new Set([...prev, groupedStories[activeUserIndex].userId]));
+    }
+  }, [showViewer, activeUserIndex, groupedStories]);
+
   const handleViewerTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     setIsPaused(true);
@@ -192,9 +221,9 @@ export function StoriesSection() {
     if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
       const screenWidth = window.innerWidth;
       if (endX < screenWidth / 3) {
-        prevStory();
+        prevSlideOrStory();
       } else {
-        nextStory();
+        nextSlideOrStory();
       }
     }
   };
@@ -204,9 +233,9 @@ export function StoriesSection() {
     if (target.closest('[data-story-controls]')) return;
     const screenWidth = window.innerWidth;
     if (e.clientX < screenWidth / 3) {
-      prevStory();
+      prevSlideOrStory();
     } else {
-      nextStory();
+      nextSlideOrStory();
     }
   };
 
@@ -319,20 +348,37 @@ export function StoriesSection() {
             onTouchStart={handleViewerTouchStart}
             onTouchEnd={handleViewerTouchEnd}
           >
-            {/* Progress bars at top */}
+            {/* Progress bars at top — per-slide for multi-media stories */}
             <div className="absolute top-[env(safe-area-inset-top,8px)] left-2 right-2 flex gap-1 z-20 pt-2">
-              {currentUserGroup.stories.map((_, idx) => (
-                <div key={idx} className="flex-1 h-[2px] rounded-full bg-white/25 overflow-hidden">
-                  <div
-                    className="h-full bg-white rounded-full transition-none"
-                    style={{
-                      width: idx < activeStoryIndex ? '100%' : idx === activeStoryIndex
-                        ? (currentStory.video_url ? '0%' : `${progress * 100}%`)
-                        : '0%',
-                    }}
-                  />
-                </div>
-              ))}
+              {(() => {
+                const stories = currentUserGroup.stories;
+                const segments: { storyIdx: number; slideIdx: number }[] = [];
+                stories.forEach((s, sIdx) => {
+                  const mc = getMediaCount(s);
+                  for (let sl = 0; sl < mc; sl++) {
+                    segments.push({ storyIdx: sIdx, slideIdx: sl });
+                  }
+                });
+                const currentSegment = segments.findIndex(
+                  seg => seg.storyIdx === activeStoryIndex && seg.slideIdx === activeMediaSlide
+                );
+                return segments.map((seg, idx) => {
+                  let width = '0%';
+                  if (idx < currentSegment) {
+                    width = '100%';
+                  } else if (idx === currentSegment) {
+                    width = `${progress * 100}%`;
+                  }
+                  return (
+                    <div key={idx} className="flex-1 h-[2px] rounded-full bg-white/25 overflow-hidden">
+                      <div
+                        className="h-full bg-white rounded-full transition-none"
+                        style={{ width }}
+                      />
+                    </div>
+                  );
+                });
+              })()}
             </div>
 
             {/* Header */}
@@ -445,7 +491,7 @@ export function StoriesSection() {
                           src={currentSlide.url}
                           className="w-full h-full object-contain"
                           autoPlay loop muted={isMuted} playsInline
-                          onEnded={nextStory}
+                          onEnded={nextSlideOrStory}
                         />
                       ) : (
                         <img
@@ -500,7 +546,7 @@ export function StoriesSection() {
                           src={currentStory.video_url}
                           className="w-full h-full object-contain"
                           autoPlay loop muted={isMuted} playsInline
-                          onEnded={nextStory}
+                          onEnded={nextSlideOrStory}
                         />
                         <div className="absolute bottom-20 right-4 flex flex-col gap-2 z-10" data-story-controls>
                           <button
