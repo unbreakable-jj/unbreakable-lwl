@@ -247,6 +247,7 @@ export const level3Unit2: Unit = {
           ],
           imageUrl: l3u2ch4FibreComparison,
           imageAlt: 'Technical comparison chart of Type I, Type IIa, and Type IIx muscle fibres showing size, contraction speed, fatigue resistance, and force production characteristics',
+        },
         {
           heading: 'Fibre Type Distribution',
           paragraphs: [
