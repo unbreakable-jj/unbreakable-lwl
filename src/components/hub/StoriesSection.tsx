@@ -138,6 +138,67 @@ export function StoriesSection() {
     }
   }, [activeUserIndex, activeStoryIndex, groupedStories]);
 
+  // Helper: get media items count for current story
+  const getMediaCount = useCallback((story: Story | undefined) => {
+    const mediaArr = (story as any)?.media_items as Array<{ type: string; url: string }> | undefined;
+    return (mediaArr && mediaArr.length > 0) ? mediaArr.length : 1;
+  }, []);
+
+  // Slide-aware navigation
+  const nextSlideOrStory = useCallback(() => {
+    const story = groupedStories[activeUserIndex]?.stories[activeStoryIndex];
+    const mediaCount = getMediaCount(story);
+    if (mediaCount > 1 && activeMediaSlide < mediaCount - 1) {
+      setActiveMediaSlide(prev => prev + 1);
+      setProgress(0);
+    } else {
+      nextStory();
+    }
+  }, [activeUserIndex, activeStoryIndex, activeMediaSlide, groupedStories, getMediaCount, nextStory]);
+
+  const prevSlideOrStory = useCallback(() => {
+    if (activeMediaSlide > 0) {
+      setActiveMediaSlide(prev => prev - 1);
+      setProgress(0);
+    } else {
+      prevStory();
+    }
+  }, [activeMediaSlide, prevStory]);
+
+  // Progress bar timer
+  useEffect(() => {
+    if (!showViewer || isPaused) return;
+    const story = groupedStories[activeUserIndex]?.stories[activeStoryIndex];
+    if (story?.video_url) return;
+    const mediaArr = (story as any)?.media_items as Array<{ type: string; url: string }> | undefined;
+    const hasMultiMedia = mediaArr && mediaArr.length > 0;
+    if (hasMultiMedia && mediaArr[activeMediaSlide]?.type === 'video') return;
+
+    setProgress(0);
+    const startTime = Date.now();
+    const tick = () => {
+      const elapsed = Date.now() - startTime;
+      const pct = Math.min(1, elapsed / STORY_DURATION);
+      setProgress(pct);
+      if (pct >= 1) {
+        nextSlideOrStory();
+      } else {
+        progressTimerRef.current = requestAnimationFrame(tick);
+      }
+    };
+    progressTimerRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (progressTimerRef.current) cancelAnimationFrame(progressTimerRef.current);
+    };
+  }, [showViewer, activeUserIndex, activeStoryIndex, activeMediaSlide, isPaused]);
+
+  // Mark user stories as viewed when viewer opens/changes
+  useEffect(() => {
+    if (showViewer && groupedStories[activeUserIndex]) {
+      setViewedUsers(prev => new Set([...prev, groupedStories[activeUserIndex].userId]));
+    }
+  }, [showViewer, activeUserIndex, groupedStories]);
+
   const handleViewerTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     setIsPaused(true);
@@ -160,9 +221,9 @@ export function StoriesSection() {
     if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
       const screenWidth = window.innerWidth;
       if (endX < screenWidth / 3) {
-        prevStory();
+        prevSlideOrStory();
       } else {
-        nextStory();
+        nextSlideOrStory();
       }
     }
   };
@@ -172,9 +233,9 @@ export function StoriesSection() {
     if (target.closest('[data-story-controls]')) return;
     const screenWidth = window.innerWidth;
     if (e.clientX < screenWidth / 3) {
-      prevStory();
+      prevSlideOrStory();
     } else {
-      nextStory();
+      nextSlideOrStory();
     }
   };
 
