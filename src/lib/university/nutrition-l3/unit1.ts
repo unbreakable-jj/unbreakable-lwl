@@ -15,6 +15,8 @@ import ch5NutrientTiming from '@/assets/university/nutl3-u1-ch5-nutrient-timing.
 import ch5IntraTraining from '@/assets/university/nutl3-u1-ch5-intra-training.png';
 import ch5CarbPeriodisation from '@/assets/university/nutl3-u1-ch5-carb-periodisation.png';
 import ch6AlcoholEffects from '@/assets/university/nutl3-u1-ch6-alcohol-effects.png';
+import ch6AlcoholMetabolism from '@/assets/university/nutl3-u1-ch6-alcohol-metabolism.png';
+import ch6AlcoholRecovery from '@/assets/university/nutl3-u1-ch6-alcohol-recovery.png';
 
 export const nutritionL3Unit1: Unit = {
   number: 1,
