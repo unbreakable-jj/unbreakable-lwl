@@ -1,12 +1,20 @@
 import type { Unit } from '../types';
 import ch1FourCs from '@/assets/university/nutl2-u3-ch1-four-cs.png';
+import ch1Bacteria from '@/assets/university/nutl2-u3-ch1-bacteria.png';
 import ch2TemperatureZones from '@/assets/university/nutl2-u3-ch2-temperature-zones.png';
+import ch2Storage from '@/assets/university/nutl2-u3-ch2-storage.png';
 import ch3CrossContamination from '@/assets/university/nutl2-u3-ch3-cross-contamination.png';
+import ch3Prevention from '@/assets/university/nutl2-u3-ch3-prevention.png';
 import ch4FoodLabels from '@/assets/university/nutl2-u3-ch4-food-labels.png';
+import ch4TrafficLight from '@/assets/university/nutl2-u3-ch4-traffic-light.png';
 import ch5BudgetShopping from '@/assets/university/nutl2-u3-ch5-budget-shopping.png';
+import ch5BudgetFoods from '@/assets/university/nutl2-u3-ch5-budget-foods.png';
 import ch6BatchCooking from '@/assets/university/nutl2-u3-ch6-batch-cooking.png';
+import ch6BatchFundamentals from '@/assets/university/nutl2-u3-ch6-batch-fundamentals.png';
 import ch7MealPrep from '@/assets/university/nutl2-u3-ch7-meal-prep.png';
+import ch7CookingMethods from '@/assets/university/nutl2-u3-ch7-cooking-methods.png';
 import ch8KitchenSafety from '@/assets/university/nutl2-u3-ch8-kitchen-safety.png';
+import ch8KnifeSafety from '@/assets/university/nutl2-u3-ch8-knife-safety.png';
 
 export const nutritionL2Unit3: Unit = {
   number: 3,
