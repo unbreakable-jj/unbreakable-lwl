@@ -269,6 +269,9 @@ export const level3Unit2: Unit = {
           ],
           imageUrl: l3u2ch4RepRangeZones,
           imageAlt: 'Technical diagram showing optimal rep range zones for each fibre type with heavy 3-6 reps for Type IIx, moderate 8-12 for Type IIa, and higher 15-25 for Type I',
+        },
+        {
+          heading: 'The Practical Takeaway',
           paragraphs: [
             'You do not need a muscle biopsy to train effectively. Including a mix of rep ranges across your programme ensures comprehensive fibre recruitment. Periodise your training so that different phases emphasise different rep ranges, or include a variety within each session.',
           ],
