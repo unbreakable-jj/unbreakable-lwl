@@ -1,59 +1,49 @@
 
 
-## Complete Pro Images for Power Level 3, Unit 2 — Remaining Gaps
+## Pro Images for Power Level 3, Unit 3 — Programme Design (8 Chapters)
 
-### What's done
-- **Ch1** (4 sections with content): All 4 have images ✓
-- **Ch2** (4 sections): 3 have images. **Ch2 "Matching the Method"** — no image (but it's a short bridging paragraph, skip)
-- **Ch3** (4 sections): 2 have images. Missing: **"Volume Progression"** and **"Individual Variation"**
-- **Ch4** (4 sections): 1 has image. Missing: **"Type I and Type II Fibres"**, **"Practical Training Implications"**, **"The Practical Takeaway"**
-- **Ch5** (5 sections): 1 has image. Missing: **"Understanding Tempo Notation"**, **"The Concentric Phase"**, **"Isometric Pauses"**, **"When to Use Tempo Training"**
-- **Ch6** (4 sections): 1 has image. Missing: **"Why Deloading Matters"**, **"When to Deload"**, **"Common Deload Mistakes"**
-- **Ch7** (4 sections): 1 has image. Missing: **"What Is the Mind-Muscle Connection?"**, **"What the Research Shows"**, **"Practical Application"**
-- **Ch8** (6 sections): 1 has image. Missing: **"When Standard Sets Are Not Enough"**, **"Drop Sets"**, **"Cluster Sets"**, **"Myo-Reps"**, **"Programming Considerations"**
+### Current state
+Unit 3 has 8 chapters, each with exactly 1 image. Each chapter has 4-6 content sections, leaving 3-5 sections per chapter without visuals.
 
-### Already-generated but NOT wired in
-These assets exist on disk but have no `import` or `imageUrl` in unit2.ts:
-- `l3-u2-ch3-volume-ramp.png`
-- `l3-u2-ch4-fibre-comparison.png`
-- `l3-u2-ch4-rep-range-zones.png`
-- `l3-u2-ch5-tempo-notation.png`
-- `l3-u2-ch5-isometric-pauses.png`
-- `l3-u2-ch6-fitness-fatigue.png`
-- `l3-u2-ch6-deload-strategies.png`
-- `l3-u2-ch7-neural-focus.png`
+### Images to generate (~20 total, one at a time, premium model)
 
-### Plan
+**Ch1 — Periodisation Models** (currently 1 image on DUP section)
+- `l3-u3-ch1-linear-periodisation.png` — Ascending load / descending reps staircase across 12 weeks
+- `l3-u3-ch1-block-periodisation.png` — Three-block diagram: Accumulation → Transmutation → Realisation
+- `l3-u3-ch1-conjugate-method.png` — Weekly layout showing max effort, dynamic effort, and repetition days
 
-**Step 1 — Wire existing assets** (no generation needed)
-Import all 8 already-generated images into `unit2.ts` and assign them to their matching content sections.
+**Ch2 — Exercise Selection & Order** (currently 1 image on Selection Criteria)
+- `l3-u3-ch2-compound-vs-isolation.png` — Side-by-side comparison of multi-joint vs single-joint with muscle group activation maps
+- `l3-u3-ch2-sfr-comparison.png` — Stimulus-to-fatigue ratio comparison (barbell row vs chest-supported row)
 
-**Step 2 — Generate remaining Pro images** (~12 new images, one at a time, premium model)
-Target 3-5 images per chapter total. Prioritize sections with bullets or complex concepts. Skip very short bridging paragraphs.
+**Ch3 — Training Splits** (currently 1 image on Upper/Lower)
+- `l3-u3-ch3-full-body-layout.png` — 3-day full body weekly calendar with muscle frequency highlighted
+- `l3-u3-ch3-ppl-layout.png` — 6-day PPL rotation with push/pull/legs groupings
 
-New images needed:
-| Chapter | Section | Asset name |
-|---------|---------|------------|
-| Ch3 | Individual Variation | `l3-u2-ch3-individual-variation.png` |
-| Ch5 | Understanding Tempo Notation | already have `tempo-notation.png` — wire it |
-| Ch5 | Concentric Phase | `l3-u2-ch5-concentric-phase.png` |
-| Ch6 | Why Deloading Matters | already have `fitness-fatigue.png` — wire it |
-| Ch6 | Common Deload Mistakes | `l3-u2-ch6-deload-myths.png` |
-| Ch7 | What Is the Mind-Muscle Connection? | `l3-u2-ch7-mmc-concept.png` |
-| Ch7 | Practical Application | `l3-u2-ch7-practical-cues.png` |
-| Ch8 | Drop Sets | `l3-u2-ch8-drop-sets.png` |
-| Ch8 | Cluster Sets | `l3-u2-ch8-cluster-sets.png` |
-| Ch8 | Myo-Reps | `l3-u2-ch8-myo-reps.png` |
+**Ch4 — Auto-Regulation** (currently 1 image on RPE)
+- `l3-u3-ch4-autoregulation-flow.png` — Decision flowchart: assess readiness → adjust load/volume/stop
+- `l3-u3-ch4-rir-scale.png` — RIR scale 0-4 with corresponding RPE values and training zone labels
 
-That's **7 new images** to generate + **8 existing images** to wire = full coverage.
+**Ch5 — Weak Point Training** (currently 1 image on Identifying)
+- `l3-u3-ch5-priority-strategies.png` — 5-column layout of strategies (priority placement, volume, exercise selection, isolation, frequency)
+- `l3-u3-ch5-common-fixes.png` — Table of common weak points with specific exercise solutions
 
-**Step 3 — Build verification**
-Run `npm run build` to confirm all imports resolve and types are correct.
+**Ch6 — Peaking & Tapering** (currently 1 image on Tapering)
+- `l3-u3-ch6-taper-types.png` — Three-line graph comparing linear, step, and exponential tapers
+- `l3-u3-ch6-strength-peak.png` — Final 2-week peaking timeline for strength testing
 
-### Files modified
-- `src/lib/university/level3/unit2.ts` — add imports and `imageUrl`/`imageAlt` to ~15 additional content sections
-- `src/assets/university/` — 7 new PNG files
+**Ch7 — Training Ages** (currently 1 image on Beginner)
+- `l3-u3-ch7-intermediate-framework.png` — Intermediate programme framework with DUP/block elements
+- `l3-u3-ch7-advanced-framework.png` — Advanced programme complexity diagram with periodisation layers
+
+**Ch8 — Putting It All Together** (currently 1 image on 12-week example)
+- `l3-u3-ch8-design-process.png` — 7-step sequential flowchart of the programme design process
+- `l3-u3-ch8-review-cycle.png` — Circular feedback loop: Execute → Measure → Evaluate → Adjust
 
 ### Execution
-All done in one pass: wire existing → generate remaining one-at-a-time with premium model → wire each immediately → build check at the end.
+Generate one image at a time using premium model, dark charcoal + neon orange style. Wire each into `unit3.ts` immediately. Build check at end.
+
+### Files modified
+- `src/lib/university/level3/unit3.ts` — add ~20 new imports and `imageUrl`/`imageAlt` entries
+- `src/assets/university/` — ~20 new PNG files
 
