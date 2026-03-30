@@ -120,6 +120,8 @@ export const nutritionL3Unit2: Unit = {
             'Zinc supports immune function, protein synthesis, wound healing, and testosterone production. Deficiency is associated with impaired immune response, poor wound healing, and reduced appetite. Oysters are the richest source, followed by red meat, poultry, beans, and nuts.',
             'Magnesium is involved in over 300 enzymatic reactions, including muscle contraction, nerve function, and energy production. Active individuals may have increased magnesium needs due to losses through sweat. Deficiency symptoms include muscle cramps, fatigue, and poor sleep quality. Good sources include dark leafy greens, nuts, seeds, and wholegrains.',
           ],
+          imageUrl: ch2ZincMagnesium,
+          imageAlt: 'Zinc and magnesium: roles, sources, and deficiency signs',
         },
       ],
       unbreakableInsight: 'Taking a multivitamin does not compensate for a poor diet. It fills gaps you do not have while missing the fibre, phytonutrients, and food synergies that only whole foods provide. Eat well first, then supplement strategically.',
@@ -176,6 +178,8 @@ export const nutritionL3Unit2: Unit = {
             'Caffeine is a powerful performance enhancer that improves endurance, strength, power, and focus. It works primarily by blocking adenosine receptors in the brain, reducing perceived exertion and delaying fatigue.',
             'An effective dose is 3–6mg per kilogram of body weight, consumed 30–60 minutes before training. For a 70kg person, that is 210–420mg — roughly equivalent to 2–4 cups of coffee. Higher doses do not improve performance further and increase the risk of anxiety, jitteriness, and sleep disruption.',
           ],
+          imageUrl: ch3Creatine,
+          imageAlt: 'Caffeine dosing and performance benefits',
         },
         {
           heading: 'Red Flags in Supplement Marketing',
