@@ -120,6 +120,8 @@ export const nutritionL3Unit2: Unit = {
             'Zinc supports immune function, protein synthesis, wound healing, and testosterone production. Deficiency is associated with impaired immune response, poor wound healing, and reduced appetite. Oysters are the richest source, followed by red meat, poultry, beans, and nuts.',
             'Magnesium is involved in over 300 enzymatic reactions, including muscle contraction, nerve function, and energy production. Active individuals may have increased magnesium needs due to losses through sweat. Deficiency symptoms include muscle cramps, fatigue, and poor sleep quality. Good sources include dark leafy greens, nuts, seeds, and wholegrains.',
           ],
+          imageUrl: ch2ZincMagnesium,
+          imageAlt: 'Zinc and magnesium: roles, sources, and deficiency signs',
         },
       ],
       unbreakableInsight: 'Taking a multivitamin does not compensate for a poor diet. It fills gaps you do not have while missing the fibre, phytonutrients, and food synergies that only whole foods provide. Eat well first, then supplement strategically.',
@@ -163,6 +165,8 @@ export const nutritionL3Unit2: Unit = {
             'Creatine is the most researched and consistently supported sports supplement in existence. It works by increasing your muscles\' stores of phosphocreatine, which is used to rapidly regenerate ATP during high-intensity, short-duration efforts — improving your capacity for an extra rep or two per set.',
             'The standard dose is 3–5 grams per day, every day, regardless of training. Loading protocols (20g per day for 5–7 days) saturate stores faster but are not necessary. Creatine monohydrate is the most studied form — newer forms (HCL, ethyl ester, buffered) have no proven advantage despite higher prices.',
           ],
+          imageUrl: ch3Creatine,
+          imageAlt: 'Creatine monohydrate: mechanism, dosing, and myths debunked',
           bullets: [
             'Proven benefits — Increased strength, power output, and lean mass. Improved recovery between sets',
             'Safety — Extensively studied for over 30 years with no evidence of harm in healthy individuals',
@@ -183,6 +187,8 @@ export const nutritionL3Unit2: Unit = {
             'Be sceptical of any supplement that claims to "boost testosterone naturally," "burn fat while you sleep," or produce results comparable to pharmaceutical drugs. Legitimate supplements have modest, evidence-based effects — not dramatic transformations.',
             'Proprietary blends that hide individual ingredient doses, endorsements from sponsored athletes, before-and-after photos, and claims that are not supported by independent peer-reviewed research are all warning signs of marketing-driven products rather than science-driven ones.',
           ],
+          imageUrl: ch3SupplementRedflags,
+          imageAlt: 'Supplement marketing red flags checklist',
         },
       ],
       unbreakableInsight: 'If a supplement worked as well as the marketing claims, it would be a medicine requiring a prescription. The supplements that actually work have modest effects — and that is exactly why they are safe enough to sell without regulation.',
@@ -221,6 +227,8 @@ export const nutritionL3Unit2: Unit = {
           paragraphs: [
             'Certain foods carry specific risks during pregnancy due to the potential for harmful bacteria or substances to affect foetal development.',
           ],
+          imageUrl: ch4PregnancyFoods,
+          imageAlt: 'Foods to avoid during pregnancy with risk explanations',
           bullets: [
             'Raw or undercooked meat and eggs — Risk of salmonella and toxoplasmosis',
             'Unpasteurised dairy and soft mould-ripened cheeses — Risk of listeria',
@@ -236,6 +244,8 @@ export const nutritionL3Unit2: Unit = {
             'Ageing brings several nutritional challenges: reduced appetite, decreased absorption efficiency, loss of muscle mass (sarcopenia), reduced bone density, and often reduced physical activity. While total calorie needs may decrease, the need for specific nutrients — particularly protein, calcium, vitamin D, and B12 — increases or remains the same.',
             'Sarcopenia — the age-related loss of muscle mass and function — can be significantly slowed through adequate protein intake and resistance training. Older adults may need 1.2–1.6 grams of protein per kilogram of body weight daily, higher than the standard recommendation, to maintain muscle mass.',
           ],
+          imageUrl: ch4AgeingNutrition,
+          imageAlt: 'Ageing nutrition: sarcopenia, protein needs, and key nutrients',
           bullets: [
             'Protein — Higher per-meal doses (30–40g) may be needed to overcome anabolic resistance in older adults',
             'Calcium — 700mg daily (UK RNI), with additional needs for those at risk of osteoporosis',
@@ -289,6 +299,8 @@ export const nutritionL3Unit2: Unit = {
             'Plant proteins are generally "incomplete" — they lack sufficient quantities of one or more essential amino acids. However, different plant proteins have different limiting amino acids. Combining complementary sources (e.g., rice with beans, bread with hummus) throughout the day provides a complete amino acid profile.',
             'The outdated concept of "complete protein combining at every meal" has been replaced by the understanding that your body pools amino acids over the course of 24 hours. You do not need to combine sources at every sitting — but you do need variety across the day.',
           ],
+          imageUrl: ch5ProteinComplementation,
+          imageAlt: 'Protein complementation: rice and beans, bread and hummus pairings',
         },
         {
           heading: 'Food Allergies and Intolerances',
@@ -296,6 +308,8 @@ export const nutritionL3Unit2: Unit = {
             'Food allergies involve an immune response (IgE-mediated) and can be life-threatening (anaphylaxis). The 14 major allergens in UK food law must be declared on packaging and in catering. Common allergens include peanuts, tree nuts, milk, eggs, wheat, soy, fish, shellfish, and sesame.',
             'Food intolerances (e.g., lactose intolerance, non-coeliac gluten sensitivity) do not involve the immune system and are not life-threatening, but can cause significant discomfort. Management involves identification through elimination diets (ideally supervised by a dietitian) and appropriate avoidance or substitution.',
           ],
+          imageUrl: ch5Allergens,
+          imageAlt: 'Food allergies vs intolerances comparison',
           bullets: [
             'Coeliac disease — An autoimmune condition triggered by gluten. Requires lifelong strict gluten avoidance',
             'Lactose intolerance — Inability to digest lactose due to insufficient lactase enzyme. Lactose-free dairy products are an effective alternative',
@@ -340,6 +354,8 @@ export const nutritionL3Unit2: Unit = {
             'Type 2 diabetes is characterised by insulin resistance — the body produces insulin but cells respond to it less effectively, resulting in elevated blood glucose levels. Nutritional management focuses on controlling blood glucose through carbohydrate awareness, weight management, and overall dietary quality.',
             'This does not necessarily mean a "low-carb" diet — the evidence supports moderate carbohydrate intake from whole food sources, with emphasis on low-glycaemic-index foods, adequate fibre, and regular meal timing to avoid blood glucose spikes and crashes.',
           ],
+          imageUrl: ch6ScopeBoundaries,
+          imageAlt: 'When to refer: scope of practice boundaries',
           bullets: [
             'The UK Diabetes Prevention Programme has shown that moderate weight loss (5–7% of body weight) significantly reduces risk of progression from pre-diabetes to type 2 diabetes',
             'Mediterranean dietary patterns consistently show benefits for blood glucose control and cardiovascular risk reduction',
@@ -359,6 +375,8 @@ export const nutritionL3Unit2: Unit = {
             'Eating disorders (anorexia nervosa, bulimia nervosa, binge eating disorder, and others) are serious mental health conditions that require specialist treatment. As someone with nutrition knowledge, you are in a position to recognise potential warning signs — but never to diagnose or treat.',
             'Warning signs include extreme dietary restriction, obsessive calorie counting, food rituals, excessive exercise to "compensate" for eating, distorted body image, and significant weight changes. If you suspect someone may be struggling, encourage them to speak with their GP and direct them to Beat — the UK eating disorder charity.',
           ],
+          imageUrl: ch6ReferralPathway,
+          imageAlt: 'Eating disorder referral pathway: GP, Beat, specialist',
         },
       ],
       unbreakableInsight: 'Knowing when you are out of your depth is not a weakness — it is a professional strength. The most responsible thing you can do is recognise when someone needs help beyond your skillset and point them in the right direction.',
