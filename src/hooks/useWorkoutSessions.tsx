@@ -427,26 +427,33 @@ export function useWorkoutSessions() {
       notes,
       visibility,
       manualDurationSeconds,
+      mediaUrls,
     }: {
       sessionId: string;
       notes?: string;
       visibility?: 'public' | 'friends' | 'private';
       manualDurationSeconds?: number;
+      mediaUrls?: Array<{ url: string; type: string; thumbnailUrl?: string }>;
     }) => {
       const startedAt = activeSession?.started_at;
       const durationSeconds = manualDurationSeconds ?? (startedAt 
         ? Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000)
         : null);
       
+      const updateData: Record<string, unknown> = {
+        status: 'completed',
+        ended_at: new Date().toISOString(),
+        duration_seconds: durationSeconds,
+        notes: notes || null,
+        visibility: visibility || 'public',
+      };
+      if (mediaUrls && mediaUrls.length > 0) {
+        updateData.media_urls = mediaUrls;
+      }
+
       const { error } = await supabase
         .from('workout_sessions')
-        .update({
-          status: 'completed',
-          ended_at: new Date().toISOString(),
-          duration_seconds: durationSeconds,
-          notes: notes || null,
-          visibility: visibility || 'public',
-        })
+        .update(updateData)
         .eq('id', sessionId);
       
       if (error) throw error;

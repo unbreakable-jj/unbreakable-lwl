@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useSessionPlanners, SessionPlanner } from '@/hooks/useSessionPlanners';
 import { useWorkoutSessions, WorkoutSession } from '@/hooks/useWorkoutSessions';
-import { TrainingProgram } from '@/hooks/useTrainingPrograms';
+import { TrainingProgram, useTrainingPrograms } from '@/hooks/useTrainingPrograms';
 import { ActiveWorkoutModal } from './ActiveWorkoutModal';
 import { SessionResultsView } from './SessionResultsView';
 import { PowerProgressionDialog, PowerProgressionSuggestion } from './PowerProgressionDialog';
@@ -93,6 +93,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
     addExerciseToSession,
     addSetToExercise,
   } = useWorkoutSessions();
+  const { updateProgress } = useTrainingPrograms();
   const { toast } = useToast();
   
   const [showWorkoutModal, setShowWorkoutModal] = useState(false);
@@ -180,6 +181,8 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
     // Mark the planner as complete only when the cardio session is actually saved
     if (cardioPlannerId) {
       markComplete.mutate(cardioPlannerId);
+      // Sync progress after cardio completion
+      syncProgressAfterCompletion();
     }
   };
 
@@ -193,7 +196,41 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
     );
   }, [activeSession, planners]);
 
-  const handleCompleteWorkout = (notes?: string, visibility?: 'public' | 'friends' | 'private', manualDurationSeconds?: number) => {
+  // Compute the current position from planners for the badge
+  const currentPosition = useMemo(() => {
+    if (!planners) return { week: program.current_week, day: program.current_day };
+    const nextPending = planners
+      .filter(p => p.status === 'pending')
+      .sort((a, b) => {
+        if (a.week_number !== b.week_number) return a.week_number - b.week_number;
+        return a.day_number - b.day_number;
+      })[0];
+    if (nextPending) return { week: nextPending.week_number, day: nextPending.day_number };
+    // All complete — show last completed
+    const lastCompleted = planners
+      .filter(p => p.status === 'completed')
+      .sort((a, b) => b.week_number - a.week_number || b.day_number - a.day_number)[0];
+    if (lastCompleted) return { week: lastCompleted.week_number, day: lastCompleted.day_number };
+    return { week: program.current_week, day: program.current_day };
+  }, [planners, program.current_week, program.current_day]);
+
+  const syncProgressAfterCompletion = useCallback(() => {
+    if (!planners) return;
+    // Find the NEXT pending session after this completion
+    const pendingAfter = planners
+      .filter(p => p.status === 'pending')
+      .sort((a, b) => {
+        if (a.week_number !== b.week_number) return a.week_number - b.week_number;
+        return a.day_number - b.day_number;
+      });
+    // Skip the one we just completed (it may still show as pending in cache)
+    const next = pendingAfter.length > 1 ? pendingAfter[1] : pendingAfter[0];
+    if (next) {
+      updateProgress.mutate({ programId: program.id, week: next.week_number, day: next.day_number });
+    }
+  }, [planners, program.id, updateProgress]);
+
+  const handleCompleteWorkout = (notes?: string, visibility?: 'public' | 'friends' | 'private', manualDurationSeconds?: number, mediaUrls?: Array<{ url: string; type: string; thumbnailUrl?: string }>) => {
     if (!activeSession) return;
     
     // Complete the workout session
@@ -202,12 +239,16 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
       notes,
       visibility,
       manualDurationSeconds,
+      mediaUrls,
     });
     
     // Mark the CURRENT planner (not next) as complete
     if (currentPlanner) {
       markComplete.mutate(currentPlanner.id);
     }
+
+    // Sync programme progress
+    syncProgressAfterCompletion();
     
     setShowWorkoutModal(false);
   };
@@ -312,6 +353,9 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
           console.error('AI callout failed:', e);
         }
       }
+
+      // Sync progress after skipping
+      syncProgressAfterCompletion();
       
       toast({ title: 'Session Skipped', description: 'Programme has moved to the next session.' });
     } catch (err) {
@@ -425,7 +469,7 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
             </Button>
           )}
           <Badge variant="outline" className="font-display">
-            Week {program.current_week} • Day {program.current_day}
+            Week {currentPosition.week} • Day {currentPosition.day}
           </Badge>
         </div>
       </div>

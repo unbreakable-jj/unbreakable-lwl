@@ -826,6 +826,31 @@ export function AthleteDataViewer({ athleteId, onBack }: AthleteDataViewerProps)
                           <CollapsibleContent>
                             <div className="px-3 pb-3 border-t border-border pt-2 space-y-1">
                               {s.notes && <p className="text-xs text-muted-foreground mb-2">{s.notes}</p>}
+
+                              {/* Session Media (photos/videos from athlete) */}
+                              {(() => {
+                                const mediaUrls = (s as any).media_urls;
+                                if (!mediaUrls || !Array.isArray(mediaUrls) || mediaUrls.length === 0) return null;
+                                return (
+                                  <div className="space-y-1 mb-2">
+                                    <p className="text-[10px] font-display tracking-wide text-primary">SESSION MEDIA</p>
+                                    <div className="flex flex-wrap gap-2">
+                                      {mediaUrls.map((m: any, idx: number) => (
+                                        <div key={idx} className="rounded-lg overflow-hidden border border-border">
+                                          {m.type === 'image' ? (
+                                            <a href={m.url} target="_blank" rel="noopener noreferrer">
+                                              <img src={m.url} alt={`Session media ${idx + 1}`} className="w-24 h-24 object-cover hover:opacity-80 transition-opacity" />
+                                            </a>
+                                          ) : (
+                                            <video src={m.url} controls className="w-40 h-24 object-cover rounded" poster={m.thumbnailUrl || undefined} />
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                );
+                              })()}
+
                               {sessionLogs.length === 0 ? (
                                 <p className="text-xs text-muted-foreground">No exercise logs</p>
                               ) : (

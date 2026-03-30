@@ -1,0 +1,1 @@
+ALTER TABLE public.workout_sessions ADD COLUMN media_urls jsonb DEFAULT '[]'::jsonb;
