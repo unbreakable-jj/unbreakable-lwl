@@ -1,9 +1,21 @@
 import type { Unit } from '../types';
 import ch1AnatomicalPlanes from '@/assets/university/ch1-anatomical-planes.png';
+import ch1DirectionalTerms from '@/assets/university/ch1-directional-terms.png';
+import ch1GymPlanes from '@/assets/university/ch1-gym-planes.png';
 import ch2JointTypes from '@/assets/university/ch2-joint-types.png';
+import ch2SkeletalFunctions from '@/assets/university/ch2-skeletal-functions.png';
+import ch2SynovialJoint from '@/assets/university/ch2-synovial-joint.png';
 import ch3MuscleGroups from '@/assets/university/ch3-muscle-groups.png';
+import ch3MuscleContractions from '@/assets/university/ch3-muscle-contractions.png';
+import ch3AgonistAntagonist from '@/assets/university/ch3-agonist-antagonist.png';
 import ch4Cardiovascular from '@/assets/university/ch4-cardiovascular.png';
+import ch4CirculatorySystem from '@/assets/university/ch4-circulatory-system.png';
+import ch4AcuteResponses from '@/assets/university/ch4-acute-responses.png';
+import ch4ChronicAdaptations from '@/assets/university/ch4-chronic-adaptations.png';
 import ch5EnergySystems from '@/assets/university/ch5-energy-systems.png';
+import ch5AtpBreakdown from '@/assets/university/ch5-atp-breakdown.png';
+import ch5EnergyTimeline from '@/assets/university/ch5-energy-timeline.png';
+import ch5RepRanges from '@/assets/university/ch5-rep-ranges.png';
 
 export const level2Unit1: Unit = {
   number: 1,
