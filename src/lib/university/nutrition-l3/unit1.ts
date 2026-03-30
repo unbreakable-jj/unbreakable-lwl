@@ -2,6 +2,8 @@ import type { Unit } from '../types';
 import ch1CarbMetabolism from '@/assets/university/nutl3-u1-ch1-carb-metabolism.png';
 import ch1Glycolysis from '@/assets/university/nutl3-u1-ch1-glycolysis.png';
 import ch1GlycogenStores from '@/assets/university/nutl3-u1-ch1-glycogen-stores.png';
+import ch2LeucineThreshold from '@/assets/university/nutl3-u1-ch2-leucine-threshold.png';
+import ch2ProteinDistribution from '@/assets/university/nutl3-u1-ch2-protein-distribution.png';
 import ch2ProteinSynthesis from '@/assets/university/nutl3-u1-ch2-protein-synthesis.png';
 import ch3DietaryFats from '@/assets/university/nutl3-u1-ch3-dietary-fats.png';
 import ch4MetabolicAdaptation from '@/assets/university/nutl3-u1-ch4-metabolic-adaptation.png';
@@ -106,6 +108,8 @@ export const nutritionL3Unit1: Unit = {
             'Lentils — Approximately 45–50g of protein needed due to lower leucine content per gram',
             'Combining plant sources (e.g., rice and beans) can improve the overall amino acid profile',
           ],
+          imageUrl: ch2LeucineThreshold,
+          imageAlt: 'Leucine threshold comparison across protein sources',
         },
         {
           heading: 'Protein Distribution Matters',
