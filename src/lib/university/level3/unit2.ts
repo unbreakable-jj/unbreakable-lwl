@@ -21,8 +21,15 @@ import l3u2ch5IsometricPauses from '@/assets/university/l3-u2-ch5-isometric-paus
 import l3u2ch6FitnessFatigue from '@/assets/university/l3-u2-ch6-fitness-fatigue.png';
 import l3u2ch6DeloadStrategies from '@/assets/university/l3-u2-ch6-deload-strategies.png';
 import l3u2ch7NeuralFocus from '@/assets/university/l3-u2-ch7-neural-focus.png';
+import l3u2ch3IndividualVariation from '@/assets/university/l3-u2-ch3-individual-variation.png';
+import l3u2ch5ConcentricPhase from '@/assets/university/l3-u2-ch5-concentric-phase.png';
+import l3u2ch6DeloadMyths from '@/assets/university/l3-u2-ch6-deload-myths.png';
+import l3u2ch7MmcConcept from '@/assets/university/l3-u2-ch7-mmc-concept.png';
+import l3u2ch7PracticalCues from '@/assets/university/l3-u2-ch7-practical-cues.png';
+import l3u2ch8DropSets from '@/assets/university/l3-u2-ch8-drop-sets.png';
+import l3u2ch8ClusterSets from '@/assets/university/l3-u2-ch8-cluster-sets.png';
+import l3u2ch8MyoReps from '@/assets/university/l3-u2-ch8-myo-reps.png';
 
-export const level3Unit2: Unit = {
   number: 2,
   title: 'Muscle Growth Principles',
   description: 'Hypertrophy science, progressive overload, volume and intensity management, muscle fibre types, tempo training, deloading, mind-muscle connection, and advanced rep schemes.',
