@@ -1,12 +1,26 @@
 import type { Unit } from '../types';
 import l3u1ch1Img from '@/assets/university/l3-u1-ch1-macro-periodisation.png';
+import l3u1ch1PhasesImg from '@/assets/university/l3-u1-ch1-three-phases.png';
+import l3u1ch1PracticalImg from '@/assets/university/l3-u1-ch1-practical-application.png';
 import l3u1ch2Img from '@/assets/university/l3-u1-ch2-nutrient-timing.png';
+import l3u1ch2PreImg from '@/assets/university/l3-u1-ch2-pre-workout.png';
+import l3u1ch2PostImg from '@/assets/university/l3-u1-ch2-post-session.png';
 import l3u1ch3Img from '@/assets/university/l3-u1-ch3-supplement-pyramid.png';
+import l3u1ch3Tier1Img from '@/assets/university/l3-u1-ch3-tier1-supplements.png';
+import l3u1ch3RedFlagsImg from '@/assets/university/l3-u1-ch3-red-flags.png';
 import l3u1ch4Img from '@/assets/university/l3-u1-ch4-body-composition.png';
+import l3u1ch4RecompImg from '@/assets/university/l3-u1-ch4-recomposition.png';
+import l3u1ch4BodyFatImg from '@/assets/university/l3-u1-ch4-body-fat-ranges.png';
 import l3u1ch5Img from '@/assets/university/l3-u1-ch5-metabolic-adaptation.png';
+import l3u1ch5DietImg from '@/assets/university/l3-u1-ch5-diet-strategies.png';
 import l3u1ch6Img from '@/assets/university/l3-u1-ch6-calorie-cycling.png';
+import l3u1ch6MatchImg from '@/assets/university/l3-u1-ch6-matching-calories.png';
 import l3u1ch7Img from '@/assets/university/l3-u1-ch7-digestive-system.png';
+import l3u1ch7MicrobiomeImg from '@/assets/university/l3-u1-ch7-microbiome.png';
+import l3u1ch7DigestiveImg from '@/assets/university/l3-u1-ch7-digestive-issues.png';
 import l3u1ch8Img from '@/assets/university/l3-u1-ch8-phase-targets.png';
+import l3u1ch8CuttingImg from '@/assets/university/l3-u1-ch8-cutting-priorities.png';
+import l3u1ch8EnduranceImg from '@/assets/university/l3-u1-ch8-endurance-fuelling.png';
 
 export const level3Unit1: Unit = {
   number: 1,
