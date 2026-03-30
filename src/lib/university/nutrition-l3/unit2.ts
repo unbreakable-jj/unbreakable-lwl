@@ -1,10 +1,22 @@
 import type { Unit } from '../types';
 import ch1FatSolubleVitamins from '@/assets/university/nutl3-u2-ch1-fat-soluble-vitamins.png';
+import ch1VitaminD from '@/assets/university/nutl3-u2-ch1-vitamin-d.png';
+import ch1FatSolubleAEK from '@/assets/university/nutl3-u2-ch1-fat-soluble-aek.png';
 import ch2WaterSolubleVitamins from '@/assets/university/nutl3-u2-ch2-water-soluble-vitamins.png';
+import ch2IronAbsorption from '@/assets/university/nutl3-u2-ch2-iron-absorption.png';
+import ch2ZincMagnesium from '@/assets/university/nutl3-u2-ch2-zinc-magnesium.png';
 import ch3Supplementation from '@/assets/university/nutl3-u2-ch3-supplementation.png';
+import ch3Creatine from '@/assets/university/nutl3-u2-ch3-creatine.png';
+import ch3SupplementRedflags from '@/assets/university/nutl3-u2-ch3-supplement-redflags.png';
 import ch4SpecialPopulations from '@/assets/university/nutl3-u2-ch4-special-populations.png';
+import ch4PregnancyFoods from '@/assets/university/nutl3-u2-ch4-pregnancy-foods.png';
+import ch4AgeingNutrition from '@/assets/university/nutl3-u2-ch4-ageing-nutrition.png';
 import ch5RestrictedDiets from '@/assets/university/nutl3-u2-ch5-restricted-diets.png';
+import ch5ProteinComplementation from '@/assets/university/nutl3-u2-ch5-protein-complementation.png';
+import ch5Allergens from '@/assets/university/nutl3-u2-ch5-allergens.png';
 import ch6ClinicalAwareness from '@/assets/university/nutl3-u2-ch6-clinical-awareness.png';
+import ch6ScopeBoundaries from '@/assets/university/nutl3-u2-ch6-scope-boundaries.png';
+import ch6ReferralPathway from '@/assets/university/nutl3-u2-ch6-referral-pathway.png';
 
 export const nutritionL3Unit2: Unit = {
   number: 2,
