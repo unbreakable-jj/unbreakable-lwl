@@ -324,6 +324,8 @@ export const nutritionL3Unit1: Unit = {
             'Rest day — 2–3g per kilogram',
             'Protein and fat intake remain relatively constant regardless of training day',
           ],
+          imageUrl: ch5CarbPeriodisation,
+          imageAlt: 'Carb periodisation: heavy, moderate, and rest day intake tiers',
         },
       ],
       unbreakableInsight: 'Nutrient timing is the icing on the cake — not the cake itself. If your total daily intake is wrong, no amount of strategic timing will compensate. Get the fundamentals right first.',
