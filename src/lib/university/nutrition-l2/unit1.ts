@@ -1,12 +1,24 @@
 import type { Unit } from '../types';
 import ch1EatwellGuide from '@/assets/university/nutl2-u1-ch1-eatwell-guide.png';
+import ch1FoodGroups from '@/assets/university/nutl2-u1-ch1-food-groups.png';
+import ch1ActiveLimitations from '@/assets/university/nutl2-u1-ch1-active-limitations.png';
 import ch2Macronutrients from '@/assets/university/nutl2-u1-ch2-macronutrients.png';
+import ch2Protein from '@/assets/university/nutl2-u1-ch2-protein.png';
+import ch2Fats from '@/assets/university/nutl2-u1-ch2-fats.png';
 import ch3VitaminsMinerals from '@/assets/university/nutl2-u1-ch3-vitamins-minerals.png';
+import ch3Vitamins from '@/assets/university/nutl2-u1-ch3-vitamins.png';
+import ch3Minerals from '@/assets/university/nutl2-u1-ch3-minerals.png';
 import ch4FibreTypes from '@/assets/university/nutl2-u1-ch4-fibre-types.png';
+import ch4FibreComparison from '@/assets/university/nutl2-u1-ch4-fibre-comparison.png';
 import ch5WaterFunctions from '@/assets/university/nutl2-u1-ch5-water-functions.png';
+import ch5HydrationCheck from '@/assets/university/nutl2-u1-ch5-hydration-check.png';
 import ch6NutrientDensity from '@/assets/university/nutl2-u1-ch6-nutrient-density.png';
+import ch6BalancedPlate from '@/assets/university/nutl2-u1-ch6-balanced-plate.png';
 import ch7PortionSizes from '@/assets/university/nutl2-u1-ch7-portion-sizes.png';
+import ch7HandPortions from '@/assets/university/nutl2-u1-ch7-hand-portions.png';
 import ch8BalancedDay from '@/assets/university/nutl2-u1-ch8-balanced-day.png';
+import ch8FourComponent from '@/assets/university/nutl2-u1-ch8-four-component.png';
+import ch8MealTiming from '@/assets/university/nutl2-u1-ch8-meal-timing.png';
 
 export const nutritionL2Unit1: Unit = {
   number: 1,
