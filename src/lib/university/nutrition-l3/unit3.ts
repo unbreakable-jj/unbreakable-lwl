@@ -350,6 +350,8 @@ export const nutritionL3Unit3: Unit = {
             'No single measurement tells the full story. The most effective approach combines multiple metrics: weekly average weight (not daily weight), monthly waist circumference, monthly progress photos, and if accessible, periodic DEXA or skinfold measurements.',
             'Use this data to inform nutritional adjustments. If weight is stable but waist is decreasing and photos show visible improvement, you are likely recomposing (gaining muscle while losing fat) — even though the scale suggests "no progress." If weight is increasing and waist is also increasing, your surplus is likely too large.',
           ],
+          imageUrl: ch6ProgressTracking,
+          imageAlt: 'Progress tracking methods: weight trend, measurements, photos',
         },
       ],
       unbreakableInsight: 'The scale measures your relationship with gravity, not your progress. If you are chasing a number on the scale rather than how you look, feel, and perform, you are optimising for the wrong thing.',
