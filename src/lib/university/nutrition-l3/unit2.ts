@@ -299,6 +299,8 @@ export const nutritionL3Unit2: Unit = {
             'Plant proteins are generally "incomplete" — they lack sufficient quantities of one or more essential amino acids. However, different plant proteins have different limiting amino acids. Combining complementary sources (e.g., rice with beans, bread with hummus) throughout the day provides a complete amino acid profile.',
             'The outdated concept of "complete protein combining at every meal" has been replaced by the understanding that your body pools amino acids over the course of 24 hours. You do not need to combine sources at every sitting — but you do need variety across the day.',
           ],
+          imageUrl: ch5ProteinComplementation,
+          imageAlt: 'Protein complementation: rice and beans, bread and hummus pairings',
         },
         {
           heading: 'Food Allergies and Intolerances',
@@ -306,6 +308,8 @@ export const nutritionL3Unit2: Unit = {
             'Food allergies involve an immune response (IgE-mediated) and can be life-threatening (anaphylaxis). The 14 major allergens in UK food law must be declared on packaging and in catering. Common allergens include peanuts, tree nuts, milk, eggs, wheat, soy, fish, shellfish, and sesame.',
             'Food intolerances (e.g., lactose intolerance, non-coeliac gluten sensitivity) do not involve the immune system and are not life-threatening, but can cause significant discomfort. Management involves identification through elimination diets (ideally supervised by a dietitian) and appropriate avoidance or substitution.',
           ],
+          imageUrl: ch5Allergens,
+          imageAlt: 'Food allergies vs intolerances comparison',
           bullets: [
             'Coeliac disease — An autoimmune condition triggered by gluten. Requires lifelong strict gluten avoidance',
             'Lactose intolerance — Inability to digest lactose due to insufficient lactase enzyme. Lactose-free dairy products are an effective alternative',
@@ -350,6 +354,8 @@ export const nutritionL3Unit2: Unit = {
             'Type 2 diabetes is characterised by insulin resistance — the body produces insulin but cells respond to it less effectively, resulting in elevated blood glucose levels. Nutritional management focuses on controlling blood glucose through carbohydrate awareness, weight management, and overall dietary quality.',
             'This does not necessarily mean a "low-carb" diet — the evidence supports moderate carbohydrate intake from whole food sources, with emphasis on low-glycaemic-index foods, adequate fibre, and regular meal timing to avoid blood glucose spikes and crashes.',
           ],
+          imageUrl: ch6ScopeBoundaries,
+          imageAlt: 'When to refer: scope of practice boundaries',
           bullets: [
             'The UK Diabetes Prevention Programme has shown that moderate weight loss (5–7% of body weight) significantly reduces risk of progression from pre-diabetes to type 2 diabetes',
             'Mediterranean dietary patterns consistently show benefits for blood glucose control and cardiovascular risk reduction',
@@ -369,6 +375,8 @@ export const nutritionL3Unit2: Unit = {
             'Eating disorders (anorexia nervosa, bulimia nervosa, binge eating disorder, and others) are serious mental health conditions that require specialist treatment. As someone with nutrition knowledge, you are in a position to recognise potential warning signs — but never to diagnose or treat.',
             'Warning signs include extreme dietary restriction, obsessive calorie counting, food rituals, excessive exercise to "compensate" for eating, distorted body image, and significant weight changes. If you suspect someone may be struggling, encourage them to speak with their GP and direct them to Beat — the UK eating disorder charity.',
           ],
+          imageUrl: ch6ReferralPathway,
+          imageAlt: 'Eating disorder referral pathway: GP, Beat, specialist',
         },
       ],
       unbreakableInsight: 'Knowing when you are out of your depth is not a weakness — it is a professional strength. The most responsible thing you can do is recognise when someone needs help beyond your skillset and point them in the right direction.',
