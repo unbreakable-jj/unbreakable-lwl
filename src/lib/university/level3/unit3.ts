@@ -1,12 +1,29 @@
 import type { Unit } from '../types';
 import l3u3ch1Img from '@/assets/university/l3-u3-ch1-periodisation-models.png';
+import l3u3ch1Linear from '@/assets/university/l3-u3-ch1-linear-periodisation.png';
+import l3u3ch1Block from '@/assets/university/l3-u3-ch1-block-periodisation.png';
+import l3u3ch1Conjugate from '@/assets/university/l3-u3-ch1-conjugate-method.png';
 import l3u3ch2Img from '@/assets/university/l3-u3-ch2-exercise-selection.png';
+import l3u3ch2Compound from '@/assets/university/l3-u3-ch2-compound-vs-isolation.png';
+import l3u3ch2Sfr from '@/assets/university/l3-u3-ch2-sfr-comparison.png';
 import l3u3ch3Img from '@/assets/university/l3-u3-ch3-training-splits.png';
+import l3u3ch3FullBody from '@/assets/university/l3-u3-ch3-full-body-layout.png';
+import l3u3ch3Ppl from '@/assets/university/l3-u3-ch3-ppl-layout.png';
 import l3u3ch4Img from '@/assets/university/l3-u3-ch4-rpe-scale.png';
+import l3u3ch4Flow from '@/assets/university/l3-u3-ch4-autoregulation-flow.png';
+import l3u3ch4Rir from '@/assets/university/l3-u3-ch4-rir-scale.png';
 import l3u3ch5Img from '@/assets/university/l3-u3-ch5-weak-points.png';
+import l3u3ch5Strategies from '@/assets/university/l3-u3-ch5-priority-strategies.png';
+import l3u3ch5Fixes from '@/assets/university/l3-u3-ch5-common-fixes.png';
 import l3u3ch6Img from '@/assets/university/l3-u3-ch6-tapering.png';
+import l3u3ch6Tapers from '@/assets/university/l3-u3-ch6-taper-types.png';
+import l3u3ch6Peak from '@/assets/university/l3-u3-ch6-strength-peak.png';
 import l3u3ch7Img from '@/assets/university/l3-u3-ch7-progression-curves.png';
+import l3u3ch7Intermediate from '@/assets/university/l3-u3-ch7-intermediate-framework.png';
+import l3u3ch7Advanced from '@/assets/university/l3-u3-ch7-advanced-framework.png';
 import l3u3ch8Img from '@/assets/university/l3-u3-ch8-programme-layout.png';
+import l3u3ch8Process from '@/assets/university/l3-u3-ch8-design-process.png';
+import l3u3ch8Cycle from '@/assets/university/l3-u3-ch8-review-cycle.png';
 
 export const level3Unit3: Unit = {
   number: 3,
