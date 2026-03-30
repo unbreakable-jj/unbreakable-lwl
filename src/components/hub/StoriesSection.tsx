@@ -24,6 +24,8 @@ export function StoriesSection() {
   const [isPaused, setIsPaused] = useState(false);
   const storyVideoRef = useRef<HTMLVideoElement>(null);
   const progressTimerRef = useRef<number | null>(null);
+  const suppressClickRef = useRef(false);
+  const suppressClickTimerRef = useRef<number | null>(null);
   const [progress, setProgress] = useState(0);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
@@ -99,12 +101,24 @@ export function StoriesSection() {
     } catch {}
   };
 
+  const suppressNextClick = useCallback(() => {
+    suppressClickRef.current = true;
+    if (suppressClickTimerRef.current) {
+      window.clearTimeout(suppressClickTimerRef.current);
+    }
+    suppressClickTimerRef.current = window.setTimeout(() => {
+      suppressClickRef.current = false;
+      suppressClickTimerRef.current = null;
+    }, 250);
+  }, []);
+
   const openViewer = (userIndex: number) => {
     setActiveUserIndex(userIndex);
     setActiveStoryIndex(0);
     setActiveMediaSlide(0);
     setShowViewer(true);
     setIsPaused(false);
+    setIsPlaying(true);
     setProgress(0);
   };
 
@@ -141,7 +155,7 @@ export function StoriesSection() {
   // Helper: get media items count for current story
   const getMediaCount = useCallback((story: Story | undefined) => {
     const mediaArr = (story as any)?.media_items as Array<{ type: string; url: string }> | undefined;
-    return (mediaArr && mediaArr.length > 0) ? mediaArr.length : 1;
+    return mediaArr && mediaArr.length > 0 ? mediaArr.length : 1;
   }, []);
 
   // Slide-aware navigation
@@ -165,14 +179,75 @@ export function StoriesSection() {
     }
   }, [activeMediaSlide, prevStory]);
 
+  // Keep video playback reliable when switching between mixed media slides
+  useEffect(() => {
+    if (!showViewer) return;
+
+    const story = groupedStories[activeUserIndex]?.stories[activeStoryIndex];
+    if (!story) return;
+
+    const mediaArr = (story as any)?.media_items as Array<{ type: string; url: string }> | undefined;
+    const hasMultiMedia = !!(mediaArr && mediaArr.length > 0);
+    const isVideoSlide = hasMultiMedia
+      ? mediaArr?.[activeMediaSlide]?.type === 'video'
+      : Boolean(story.video_url);
+
+    const videoEl = storyVideoRef.current;
+    if (!isVideoSlide || !videoEl) {
+      setIsPlaying(false);
+      return;
+    }
+
+    let cancelled = false;
+    const ensurePlayback = async () => {
+      try {
+        await videoEl.play();
+        if (!cancelled) setIsPlaying(true);
+      } catch {
+        // Autoplay can fail on unmuted videos; fallback to muted autoplay
+        if (!videoEl.muted) {
+          videoEl.muted = true;
+          setIsMuted(true);
+          try {
+            await videoEl.play();
+            if (!cancelled) setIsPlaying(true);
+            return;
+          } catch {
+            // no-op
+          }
+        }
+        if (!cancelled) setIsPlaying(!videoEl.paused);
+      }
+    };
+
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+
+    videoEl.addEventListener('play', onPlay);
+    videoEl.addEventListener('pause', onPause);
+    ensurePlayback();
+
+    return () => {
+      cancelled = true;
+      videoEl.removeEventListener('play', onPlay);
+      videoEl.removeEventListener('pause', onPause);
+    };
+  }, [showViewer, activeUserIndex, activeStoryIndex, activeMediaSlide, groupedStories]);
+
   // Progress bar timer
   useEffect(() => {
     if (!showViewer || isPaused) return;
+
     const story = groupedStories[activeUserIndex]?.stories[activeStoryIndex];
-    if (story?.video_url) return;
+    if (!story) return;
+
     const mediaArr = (story as any)?.media_items as Array<{ type: string; url: string }> | undefined;
-    const hasMultiMedia = mediaArr && mediaArr.length > 0;
-    if (hasMultiMedia && mediaArr[activeMediaSlide]?.type === 'video') return;
+    const hasMultiMedia = !!(mediaArr && mediaArr.length > 0);
+    const isVideoSlide = hasMultiMedia
+      ? mediaArr?.[activeMediaSlide]?.type === 'video'
+      : Boolean(story.video_url);
+
+    if (isVideoSlide) return;
 
     setProgress(0);
     const startTime = Date.now();
@@ -186,11 +261,13 @@ export function StoriesSection() {
         progressTimerRef.current = requestAnimationFrame(tick);
       }
     };
+
     progressTimerRef.current = requestAnimationFrame(tick);
+
     return () => {
       if (progressTimerRef.current) cancelAnimationFrame(progressTimerRef.current);
     };
-  }, [showViewer, activeUserIndex, activeStoryIndex, activeMediaSlide, isPaused]);
+  }, [showViewer, activeUserIndex, activeStoryIndex, activeMediaSlide, isPaused, groupedStories, nextSlideOrStory]);
 
   // Mark user stories as viewed when viewer opens/changes
   useEffect(() => {
@@ -198,6 +275,14 @@ export function StoriesSection() {
       setViewedUsers(prev => new Set([...prev, groupedStories[activeUserIndex].userId]));
     }
   }, [showViewer, activeUserIndex, groupedStories]);
+
+  useEffect(() => {
+    return () => {
+      if (suppressClickTimerRef.current) {
+        window.clearTimeout(suppressClickTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleViewerTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -207,18 +292,31 @@ export function StoriesSection() {
   const handleViewerTouchEnd = (e: React.TouchEvent) => {
     setIsPaused(false);
     if (!touchStartRef.current) return;
+
     const endX = e.changedTouches[0].clientX;
     const endY = e.changedTouches[0].clientY;
     const dx = endX - touchStartRef.current.x;
     const dy = endY - touchStartRef.current.y;
     touchStartRef.current = null;
 
-    if (dy > 80 && Math.abs(dx) < 50) {
+    // Swipe down to close
+    if (dy > 80 && Math.abs(dy) > Math.abs(dx)) {
+      suppressNextClick();
       setShowViewer(false);
       return;
     }
 
+    // Horizontal swipe to navigate slides/stories
+    if (Math.abs(dx) > 35 && Math.abs(dx) > Math.abs(dy)) {
+      suppressNextClick();
+      if (dx < 0) nextSlideOrStory();
+      else prevSlideOrStory();
+      return;
+    }
+
+    // Tap zones navigation
     if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+      suppressNextClick();
       const screenWidth = window.innerWidth;
       if (endX < screenWidth / 3) {
         prevSlideOrStory();
@@ -229,8 +327,10 @@ export function StoriesSection() {
   };
 
   const handleViewerClick = (e: React.MouseEvent) => {
+    if (suppressClickRef.current) return;
     const target = e.target as HTMLElement;
     if (target.closest('[data-story-controls]')) return;
+
     const screenWidth = window.innerWidth;
     if (e.clientX < screenWidth / 3) {
       prevSlideOrStory();
