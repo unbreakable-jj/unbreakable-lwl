@@ -114,6 +114,8 @@ export const nutritionL3Unit2: Unit = {
           imageUrl: ch2IronAbsorption,
           imageAlt: 'Iron absorption: haem vs non-haem, enhancers vs inhibitors',
         },
+        {
+          heading: 'Zinc and Magnesium',
           paragraphs: [
             'Zinc supports immune function, protein synthesis, wound healing, and testosterone production. Deficiency is associated with impaired immune response, poor wound healing, and reduced appetite. Oysters are the richest source, followed by red meat, poultry, beans, and nuts.',
             'Magnesium is involved in over 300 enzymatic reactions, including muscle contraction, nerve function, and energy production. Active individuals may have increased magnesium needs due to losses through sweat. Deficiency symptoms include muscle cramps, fatigue, and poor sleep quality. Good sources include dark leafy greens, nuts, seeds, and wholegrains.',
