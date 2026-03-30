@@ -375,10 +375,10 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
 
               return (
                 <div key={day.name}>
-                  <div className="grid lg:grid-cols-2 gap-4">
+                  <div className={cn(!isMobile && 'grid lg:grid-cols-2 gap-4')}>
                     {/* Exercise List */}
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between sticky top-0 z-10 bg-card py-2">
                         <h4 className="font-display text-xs tracking-widest text-primary neon-glow-subtle">
                           {day.name.toUpperCase()} — EXERCISES
                         </h4>
@@ -387,7 +387,11 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
                           size="sm"
                           onClick={() => {
                             setActiveDay(day.name);
-                            setShowLibrary(!showLibrary);
+                            if (isMobile) {
+                              setShowLibrary(true);
+                            } else {
+                              setShowLibrary(!showLibrary);
+                            }
                           }}
                           className="gap-1.5 font-display tracking-wide text-xs border-primary/30 hover:border-primary hover:bg-primary/5"
                         >
@@ -476,7 +480,7 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
                           </p>
                         </div>
                       ) : (
-                        <ScrollArea className="h-[400px] pr-2">
+                        <div className="max-h-[60vh] overflow-y-auto pr-2">
                           <Reorder.Group
                             axis="y"
                             values={day.exercises}
@@ -636,26 +640,43 @@ export function ManualProgramBuilder({ onBack }: ManualProgramBuilderProps) {
                               </Reorder.Item>
                             ))}
                           </Reorder.Group>
-                        </ScrollArea>
+                        </div>
                       )}
                     </div>
 
-                    {/* Exercise Library */}
-                    <AnimatePresence>
-                      {showLibrary && activeDay === day.name && (
-                        <motion.div
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: 20 }}
-                        >
-                          <InlineExerciseLibrary
-                            onSelectExercise={handleAddExercise}
-                            onClose={() => setShowLibrary(false)}
-                            className="h-[450px]"
-                          />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    {/* Exercise Library — Sheet on mobile, inline on desktop */}
+                    {isMobile ? (
+                      <Sheet open={showLibrary && activeDay === day.name} onOpenChange={setShowLibrary}>
+                        <SheetContent side="bottom" className="h-[85vh] p-0">
+                          <SheetHeader className="px-4 pt-4 pb-2">
+                            <SheetTitle className="font-display tracking-wider text-sm">EXERCISE LIBRARY</SheetTitle>
+                          </SheetHeader>
+                          <div className="flex-1 overflow-y-auto px-2 pb-4">
+                            <InlineExerciseLibrary
+                              onSelectExercise={(ex) => { handleAddExercise(ex); }}
+                              onClose={() => setShowLibrary(false)}
+                              className="h-full"
+                            />
+                          </div>
+                        </SheetContent>
+                      </Sheet>
+                    ) : (
+                      <AnimatePresence>
+                        {showLibrary && activeDay === day.name && (
+                          <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                          >
+                            <InlineExerciseLibrary
+                              onSelectExercise={handleAddExercise}
+                              onClose={() => setShowLibrary(false)}
+                              className="h-[450px]"
+                            />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    )}
                   </div>
                 </div>
               );
