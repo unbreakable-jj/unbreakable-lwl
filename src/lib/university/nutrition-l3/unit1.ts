@@ -189,6 +189,8 @@ export const nutritionL3Unit1: Unit = {
             'For most active individuals, fat should comprise 20–35% of total daily calories. Going below 20% risks hormonal disruption and poor fat-soluble vitamin absorption. Going above 40% makes it difficult to consume sufficient carbohydrates for performance.',
             'Prioritise monounsaturated fats (olive oil, avocado, nuts) and omega-3 rich sources. Limit omega-6-heavy vegetable oils and eliminate industrial trans fats. Beyond these principles, the specific fat sources matter less than the overall balance and total quantity.',
           ],
+          imageUrl: ch3FatGuidelines,
+          imageAlt: 'Fat intake guidelines: 20-35% of calories with source priorities',
         },
       ],
       unbreakableInsight: 'Fat is not the enemy of fat loss — hormonal disruption from under-eating fat is. Your body needs dietary fat to produce the hormones that regulate metabolism, mood, and recovery.',
