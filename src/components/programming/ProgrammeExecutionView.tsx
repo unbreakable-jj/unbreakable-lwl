@@ -353,6 +353,9 @@ export function ProgrammeExecutionView({ program, onClose }: ProgrammeExecutionV
           console.error('AI callout failed:', e);
         }
       }
+
+      // Sync progress after skipping
+      syncProgressAfterCompletion();
       
       toast({ title: 'Session Skipped', description: 'Programme has moved to the next session.' });
     } catch (err) {
