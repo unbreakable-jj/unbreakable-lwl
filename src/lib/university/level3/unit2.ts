@@ -336,6 +336,8 @@ export const level3Unit2: Unit = {
             'The concentric (lifting) phase is where the muscle shortens to move the load. For hypertrophy, the concentric phase should generally be performed with controlled intent — not explosively fast, but with purposeful force.',
             'There is evidence that explosive concentric phases can be beneficial for strength and power development, but for hypertrophy-focused training, a controlled 1–2 second concentric is typically more effective.',
           ],
+          imageUrl: l3u2ch5ConcentricPhase,
+          imageAlt: 'Side-by-side comparison of explosive versus controlled concentric phase strategies showing speed, load, and best use cases for each approach',
         },
         {
           heading: 'Isometric Pauses',
@@ -415,6 +417,8 @@ export const level3Unit2: Unit = {
             'Many people treat deload weeks as a complete break from training. This is rarely optimal — complete rest for a week often makes you feel worse when you return, not better. The goal is reduced stress, not zero stress.',
             'Others resist deloading because they fear losing progress. In reality, no meaningful muscle or strength is lost in one week of reduced training. Fatigue dissipation often reveals hidden progress that was masked by accumulated tiredness.',
           ],
+          imageUrl: l3u2ch6DeloadMyths,
+          imageAlt: 'Three-row myth versus truth comparison debunking common deload misconceptions about complete rest, losing gains, and deloads being only for beginners',
         },
       ],
       unbreakableInsight: 'The best trainees do not fear deloads — they plan them. Taking your foot off the accelerator for a week is not weakness; it is the strategy that prevents the engine from breaking.',
@@ -445,8 +449,8 @@ export const level3Unit2: Unit = {
             'The mind-muscle connection refers to the practice of deliberately focusing your attention on the target muscle during an exercise, rather than simply moving the weight from point A to point B. In research terms, this is called an "internal focus of attention."',
             'This concept has been dismissed by some as unscientific, but research over the past decade has provided growing evidence that attentional focus can meaningfully affect muscle activation and, potentially, hypertrophy outcomes.',
           ],
-          imageUrl: l3u2ch7NeuralFocus,
-          imageAlt: 'Technical diagram comparing internal attentional focus for isolation movements versus external focus for compound movements with neural pathway illustrations',
+          imageUrl: l3u2ch7MmcConcept,
+          imageAlt: 'Anatomical diagram showing the neural pathway from brain to bicep muscle during a curl with callouts for deliberate focus, motor unit recruitment, and enhanced activation',
         },
         {
           heading: 'Internal vs External Focus',
@@ -473,8 +477,9 @@ export const level3Unit2: Unit = {
             'Use internal focus (mind-muscle connection) for isolation exercises and lighter compound accessories. Think about the target muscle contracting and stretching throughout the movement. Use external focus for heavy compound lifts where performance and technique are the priority.',
             'The mind-muscle connection is a skill that improves with practice. If you cannot feel a muscle working, start with lighter loads and slower tempos until you develop the awareness.',
           ],
+          imageUrl: l3u2ch7PracticalCues,
+          imageAlt: 'Two-column reference chart showing internal cueing strategies for isolation exercises and external cueing strategies for compound exercises with specific examples',
         },
-      ],
       unbreakableInsight: 'You cannot grow a muscle you cannot feel. If your bicep curls feel like forearm exercises, the weight is too heavy or your focus is in the wrong place.',
       coachNote: 'Isometric holds at the contracted position are an excellent tool for developing the mind-muscle connection. Have the person hold a squeeze for 2–3 seconds at the top of each rep until they can reliably feel the target muscle working.',
       practicalTask: {
@@ -514,9 +519,8 @@ export const level3Unit2: Unit = {
             'Typically 1–2 drops per set is sufficient; more than 3 drops produces diminishing returns',
             'Use sparingly — 1–2 drop sets per session for a given muscle group is usually adequate',
           ],
-        },
-        {
-          heading: 'Rest-Pause Sets',
+          imageUrl: l3u2ch8DropSets,
+          imageAlt: 'Flow diagram showing drop set execution with initial set at 100kg to near failure, then 20% weight reductions through two consecutive drops to failure',
           paragraphs: [
             'Rest-pause involves performing a set to near failure, resting 10–20 seconds, then continuing with the same weight for additional reps. This allows you to accumulate more reps at a given load than a single straight set would permit.',
             'Rest-pause is particularly effective for hypertrophy because it keeps the load high (maintaining mechanical tension) while extending the set. It works well on both compound and isolation exercises.',
@@ -530,6 +534,8 @@ export const level3Unit2: Unit = {
             'Cluster sets break a traditional set into smaller segments with brief intra-set rest periods (15–30 seconds). For example, instead of performing 6 continuous reps at a heavy load, you might perform 2 reps, rest 20 seconds, 2 reps, rest 20 seconds, 2 reps.',
             'This approach allows you to maintain higher quality reps at heavier loads by managing fatigue within the set. It is particularly useful for strength-hypertrophy work in the 4–6 rep range.',
           ],
+          imageUrl: l3u2ch8ClusterSets,
+          imageAlt: 'Flow diagram showing cluster set structure with 2 reps, 20 second rest repeated three times compared to traditional continuous set execution',
         },
         {
           heading: 'Myo-Reps',
@@ -537,6 +543,8 @@ export const level3Unit2: Unit = {
             'Myo-reps (developed by Borge Fagerli) are an efficient rest-pause variant. You perform an activation set of 12–20 reps to near failure, then perform mini-sets of 3–5 reps with 10–15 seconds rest until you can no longer match the target reps.',
             'Myo-reps are exceptionally time-efficient. A single myo-rep set can provide the hypertrophy stimulus of multiple straight sets in a fraction of the time. They are ideal for accessory work and for trainees with limited time.',
           ],
+          imageUrl: l3u2ch8MyoReps,
+          imageAlt: 'Step-by-step flow diagram showing myo-rep execution with activation set of 15 reps followed by mini-sets of 3-5 reps with 10-15 second rests',
         },
         {
           heading: 'Programming Considerations',
