@@ -1,12 +1,20 @@
 import type { Unit } from '../types';
 import ch1GrowthStages from '@/assets/university/nutl2-u2-ch1-growth-stages.png';
+import ch1YouthNutrients from '@/assets/university/nutl2-u2-ch1-youth-nutrients.png';
 import ch2AgeingMetabolism from '@/assets/university/nutl2-u2-ch2-ageing-metabolism.png';
+import ch2ElderlyNutrients from '@/assets/university/nutl2-u2-ch2-elderly-nutrients.png';
 import ch3PregnancyNutrition from '@/assets/university/nutl2-u2-ch3-pregnancy-nutrition.png';
+import ch3PregnancyAvoid from '@/assets/university/nutl2-u2-ch3-pregnancy-avoid.png';
 import ch4DietaryPatterns from '@/assets/university/nutl2-u2-ch4-dietary-patterns.png';
+import ch4ProteinCombining from '@/assets/university/nutl2-u2-ch4-protein-combining.png';
 import ch5CulturalDiets from '@/assets/university/nutl2-u2-ch5-cultural-diets.png';
+import ch5ReligiousDiets from '@/assets/university/nutl2-u2-ch5-religious-diets.png';
 import ch6AllergyIntolerance from '@/assets/university/nutl2-u2-ch6-allergy-intolerance.png';
+import ch6Allergens14 from '@/assets/university/nutl2-u2-ch6-14-allergens.png';
 import ch7CaloricNeeds from '@/assets/university/nutl2-u2-ch7-caloric-needs.png';
+import ch7ActivityMacros from '@/assets/university/nutl2-u2-ch7-activity-macros.png';
 import ch8BloodSugar from '@/assets/university/nutl2-u2-ch8-blood-sugar.png';
+import ch8CardioNutrition from '@/assets/university/nutl2-u2-ch8-cardio-nutrition.png';
 
 export const nutritionL2Unit2: Unit = {
   number: 2,
@@ -34,6 +42,8 @@ export const nutritionL2Unit2: Unit = {
         },
         {
           heading: 'Key Nutrients for Young People',
+          imageUrl: ch1YouthNutrients,
+          imageAlt: 'Essential nutrients for growth — calcium, iron, vitamin D, protein, and omega-3',
           bullets: [
             'Calcium — Critical for bone development. Peak bone mass is established during adolescence. Dairy, fortified plant milks, and leafy greens are key sources',
             'Iron — Supports growth, cognitive development, and oxygen transport. Girls need more after menstruation begins',
@@ -83,6 +93,8 @@ export const nutritionL2Unit2: Unit = {
         },
         {
           heading: 'Critical Nutrients for Older Adults',
+          imageUrl: ch2ElderlyNutrients,
+          imageAlt: 'Critical nutrients for older adults — calcium, vitamin D, protein, B12, fibre',
           bullets: [
             'Protein — Requirements increase to 1.0–1.2 g/kg to prevent sarcopenia. Distribute protein evenly across meals (25–30 g per meal)',
             'Calcium and Vitamin D — Essential for preventing osteoporosis. Supplementation often necessary',
@@ -147,6 +159,8 @@ export const nutritionL2Unit2: Unit = {
         },
         {
           heading: 'Foods to Avoid',
+          imageUrl: ch3PregnancyAvoid,
+          imageAlt: 'Foods to avoid during pregnancy with warning icons',
           bullets: [
             'Raw or undercooked meat, fish, and eggs — Risk of toxoplasmosis and salmonella',
             'Unpasteurised dairy — Risk of listeria',
@@ -208,6 +222,8 @@ export const nutritionL2Unit2: Unit = {
         },
         {
           heading: 'Achieving Complete Protein',
+          imageUrl: ch4ProteinCombining,
+          imageAlt: 'Plant-based protein combining diagram with grains, legumes, nuts, and seeds',
           paragraphs: [
             'Most plant proteins are "incomplete" — they lack one or more essential amino acids. However, you do not need to combine them in a single meal. Eating a variety of plant proteins throughout the day ensures you get all essential amino acids.',
           ],
@@ -252,6 +268,8 @@ export const nutritionL2Unit2: Unit = {
         },
         {
           heading: 'Religious Dietary Practices',
+          imageUrl: ch5ReligiousDiets,
+          imageAlt: 'Religious dietary practices — Halal, Kosher, Hindu, and Buddhist food rules',
           bullets: [
             'Islam (Halal) — Pork and alcohol prohibited. Meat must be slaughtered according to Islamic law. Fasting during Ramadan (dawn to sunset)',
             'Judaism (Kosher) — Pork and shellfish prohibited. Meat and dairy must not be consumed together. Specific preparation requirements',
@@ -307,6 +325,8 @@ export const nutritionL2Unit2: Unit = {
         },
         {
           heading: 'The 14 Major Allergens (UK Law)',
+          imageUrl: ch6Allergens14,
+          imageAlt: 'The 14 major allergens required by UK food law with icons',
           paragraphs: [
             'UK food law requires that 14 allergens are clearly declared on food labels and in catering settings:',
           ],
@@ -373,6 +393,8 @@ export const nutritionL2Unit2: Unit = {
         },
         {
           heading: 'Macronutrient Differences',
+          imageUrl: ch7ActivityMacros,
+          imageAlt: 'Macronutrient needs comparison by activity level — sedentary, moderate, and highly active',
           bullets: [
             'Protein — Sedentary: 0.8 g/kg. Active: 1.4–2.2 g/kg depending on goal and training type',
             'Carbohydrates — Sedentary: 3–5 g/kg. Endurance athletes: 6–10 g/kg. Strength athletes: 4–7 g/kg',
@@ -425,6 +447,8 @@ export const nutritionL2Unit2: Unit = {
         },
         {
           heading: 'Cardiovascular Health',
+          imageUrl: ch8CardioNutrition,
+          imageAlt: 'Nutrition and cardiovascular health — reduce saturated fat, increase omega-3, reduce sodium, increase fibre',
           paragraphs: [
             'Diet plays a major role in cardiovascular risk. Key factors include the type and amount of fat consumed, sodium intake, fibre consumption, and overall dietary patterns.',
           ],

@@ -1,12 +1,20 @@
 import type { Unit } from '../types';
 import ch1SmartGoals from '@/assets/university/nutl2-u4-ch1-smart-goals.png';
+import ch1GoalTypes from '@/assets/university/nutl2-u4-ch1-goal-types.png';
 import ch2UnderstandingCalories from '@/assets/university/nutl2-u4-ch2-understanding-calories.png';
+import ch2EnergyExpenditure from '@/assets/university/nutl2-u4-ch2-energy-expenditure.png';
 import ch3MacroTracking from '@/assets/university/nutl2-u4-ch3-macro-tracking.png';
+import ch3TrackingMethods from '@/assets/university/nutl2-u4-ch3-tracking-methods.png';
 import ch4MealPlanning from '@/assets/university/nutl2-u4-ch4-meal-planning.png';
+import ch4WeeklyPlan from '@/assets/university/nutl2-u4-ch4-weekly-plan.png';
 import ch5EatingOut from '@/assets/university/nutl2-u4-ch5-eating-out.png';
+import ch5CalorieTraps from '@/assets/university/nutl2-u4-ch5-calorie-traps.png';
 import ch6DietMyths from '@/assets/university/nutl2-u4-ch6-diet-myths.png';
+import ch6MythsDebunked from '@/assets/university/nutl2-u4-ch6-myths-debunked.png';
 import ch7SustainableHabits from '@/assets/university/nutl2-u4-ch7-sustainable-habits.png';
+import ch7HabitLoop from '@/assets/university/nutl2-u4-ch7-habit-loop.png';
 import ch8PersonalPlan from '@/assets/university/nutl2-u4-ch8-personal-plan.png';
+import ch8NutritionHierarchy from '@/assets/university/nutl2-u4-ch8-nutrition-hierarchy.png';
 
 export const nutritionL2Unit4: Unit = {
   number: 4,

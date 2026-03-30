@@ -1,12 +1,20 @@
 import type { Unit } from '../types';
 import ch1FourCs from '@/assets/university/nutl2-u3-ch1-four-cs.png';
+import ch1Bacteria from '@/assets/university/nutl2-u3-ch1-bacteria.png';
 import ch2TemperatureZones from '@/assets/university/nutl2-u3-ch2-temperature-zones.png';
+import ch2Storage from '@/assets/university/nutl2-u3-ch2-storage.png';
 import ch3CrossContamination from '@/assets/university/nutl2-u3-ch3-cross-contamination.png';
+import ch3Prevention from '@/assets/university/nutl2-u3-ch3-prevention.png';
 import ch4FoodLabels from '@/assets/university/nutl2-u3-ch4-food-labels.png';
+import ch4TrafficLight from '@/assets/university/nutl2-u3-ch4-traffic-light.png';
 import ch5BudgetShopping from '@/assets/university/nutl2-u3-ch5-budget-shopping.png';
+import ch5BudgetFoods from '@/assets/university/nutl2-u3-ch5-budget-foods.png';
 import ch6BatchCooking from '@/assets/university/nutl2-u3-ch6-batch-cooking.png';
+import ch6BatchFundamentals from '@/assets/university/nutl2-u3-ch6-batch-fundamentals.png';
 import ch7MealPrep from '@/assets/university/nutl2-u3-ch7-meal-prep.png';
+import ch7CookingMethods from '@/assets/university/nutl2-u3-ch7-cooking-methods.png';
 import ch8KitchenSafety from '@/assets/university/nutl2-u3-ch8-kitchen-safety.png';
+import ch8KnifeSafety from '@/assets/university/nutl2-u3-ch8-knife-safety.png';
 
 export const nutritionL2Unit3: Unit = {
   number: 3,
@@ -39,6 +47,8 @@ export const nutritionL2Unit3: Unit = {
         },
         {
           heading: 'Common Foodborne Bacteria',
+          imageUrl: ch1Bacteria,
+          imageAlt: 'Common foodborne bacteria — Salmonella, Campylobacter, E. coli, Listeria, Staphylococcus',
           bullets: [
             'Salmonella — Found in raw poultry, eggs, and meat. Causes diarrhoea, fever, and abdominal cramps. Killed by thorough cooking',
             'Campylobacter — The most common cause of food poisoning in the UK. Found in raw poultry. Prevented by thorough cooking and avoiding cross-contamination',
@@ -93,6 +103,8 @@ export const nutritionL2Unit3: Unit = {
         },
         {
           heading: 'Storage Best Practices',
+          imageUrl: ch2Storage,
+          imageAlt: 'Fridge storage diagram showing proper shelf arrangement and temperature',
           bullets: [
             'Raw meat — Store on the bottom shelf of the fridge in sealed containers to prevent dripping onto other food',
             'Ready-to-eat food — Store above raw food in the fridge',
@@ -153,6 +165,8 @@ export const nutritionL2Unit3: Unit = {
         },
         {
           heading: 'Prevention Measures',
+          imageUrl: ch3Prevention,
+          imageAlt: 'Four cross-contamination prevention measures with colour-coded chopping boards',
           bullets: [
             'Use colour-coded chopping boards (red for raw meat, green for salad/veg)',
             'Wash hands thoroughly after handling raw food',
@@ -205,6 +219,8 @@ export const nutritionL2Unit3: Unit = {
         },
         {
           heading: 'Traffic Light Labels',
+          imageUrl: ch4TrafficLight,
+          imageAlt: 'UK traffic light food label system showing red, amber, and green indicators',
           paragraphs: [
             'The UK front-of-pack traffic light system uses colour coding to show at a glance whether a food is high (red), medium (amber), or low (green) in fat, saturated fat, sugar, and salt per serving or per 100 g.',
             'While voluntary, most major UK supermarkets use this system. It is a quick way to compare products without reading the full nutrition panel.',
@@ -259,6 +275,8 @@ export const nutritionL2Unit3: Unit = {
         },
         {
           heading: 'Budget-Friendly Nutrient-Dense Foods',
+          imageUrl: ch5BudgetFoods,
+          imageAlt: 'Budget-friendly nutrient-dense foods grid with cost per serving',
           bullets: [
             'Eggs — One of the cheapest complete protein sources. Versatile and nutritious',
             'Tinned fish (tuna, sardines, mackerel) — Affordable protein and omega-3s',
@@ -318,6 +336,8 @@ export const nutritionL2Unit3: Unit = {
         },
         {
           heading: 'Batch Cooking Fundamentals',
+          imageUrl: ch6BatchFundamentals,
+          imageAlt: 'Four-step batch cooking process — plan, shop, cook, store',
           bullets: [
             'Choose 2–3 protein sources to cook in bulk (e.g., chicken thighs, mince, lentils)',
             'Prepare 2–3 carbohydrate bases (rice, sweet potato, pasta)',
@@ -384,6 +404,8 @@ export const nutritionL2Unit3: Unit = {
         },
         {
           heading: 'Time-Efficient Cooking',
+          imageUrl: ch7CookingMethods,
+          imageAlt: 'Time-efficient cooking methods — sheet pan, slow cooker, one pot, stir-fry',
           bullets: [
             'Use the oven for multiple items at once (roast veg, bake chicken, cook sweet potato)',
             'While the oven is on, use the hob for rice, pasta, or sauces',
@@ -445,6 +467,8 @@ export const nutritionL2Unit3: Unit = {
         },
         {
           heading: 'Safe Knife Handling',
+          imageUrl: ch8KnifeSafety,
+          imageAlt: 'Safe knife handling rules with claw grip, carry, and washing guidelines',
           bullets: [
             'Always cut on a stable chopping board',
             'Use the "claw grip" — curl your fingers to protect them while holding food',
