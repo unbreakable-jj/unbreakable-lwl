@@ -666,6 +666,30 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity, onSession
           is_gps_tracked: true,
           pace_per_km_seconds: paceSeconds,
         });
+
+        // Final segment matching and saving with the actual run ID
+        if (positions.length >= 10) {
+          try {
+            const polyline = encodePolyline(positions.map(p => ({ lat: p.lat, lng: p.lng })));
+            const segResults = await matchRunToSegments(polyline, elapsedSeconds, data.id);
+            if (segResults.length > 0) {
+              await saveSegmentEfforts(data.id, segResults);
+              const newKOMs = segResults.filter(r => r.isNewKOM);
+              const newPRs = segResults.filter(r => r.isNewPR);
+              if (newKOMs.length > 0) {
+                toast.success(`👑 New KOM on ${newKOMs.length} segment${newKOMs.length > 1 ? 's' : ''}!`);
+              } else if (newPRs.length > 0) {
+                toast.success(`🏆 Segment PR on ${newPRs.length} segment${newPRs.length > 1 ? 's' : ''}!`);
+              }
+            }
+            // Auto-detect new segments from this run
+            if (user) {
+              await autoDetectSegments(polyline, user.id);
+            }
+          } catch (segErr) {
+            console.error('Segment processing error:', segErr);
+          }
+        }
       }
       setLoading(false);
       toast.success('Session saved!');
