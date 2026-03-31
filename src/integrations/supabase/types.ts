@@ -2177,6 +2177,57 @@ export type Database = {
         }
         Relationships: []
       }
+      social_posts: {
+        Row: {
+          content: string
+          content_type: string
+          context: string | null
+          created_at: string
+          id: string
+          image_prompt: string | null
+          image_url: string | null
+          inspiration: string | null
+          platform: string
+          scheduled_at: string | null
+          status: string
+          tone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          content_type: string
+          context?: string | null
+          created_at?: string
+          id?: string
+          image_prompt?: string | null
+          image_url?: string | null
+          inspiration?: string | null
+          platform: string
+          scheduled_at?: string | null
+          status?: string
+          tone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          content_type?: string
+          context?: string | null
+          created_at?: string
+          id?: string
+          image_prompt?: string | null
+          image_url?: string | null
+          inspiration?: string | null
+          platform?: string
+          scheduled_at?: string | null
+          status?: string
+          tone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       space_invaders_scores: {
         Row: {
           created_at: string
