@@ -235,6 +235,23 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity, onSession
           lastVoiceKmRef.current = currentKm;
           speakUpdateRef.current(buildVoiceMessage(currentKm, newDist));
         }
+        // Per-KM segment matching (fire and forget)
+        if (currentKm > lastSegmentCheckKmRef.current && currentKm >= 1) {
+          lastSegmentCheckKmRef.current = currentKm;
+          // Build polyline from current positions for segment matching
+          setPositions((currentPositions) => {
+            if (currentPositions.length >= 10) {
+              const polyline = encodePolyline(currentPositions.map(p => ({ lat: p.lat, lng: p.lng })));
+              const elapsed = Math.round((Date.now() - (sessionStartRef.current?.getTime() || Date.now())) / 1000) - pausedDurationRef.current;
+              matchRunToSegments(polyline, elapsed, '').then(results => {
+                if (results.length > 0) {
+                  liveSegmentResultsRef.current = results;
+                }
+              }).catch(() => {});
+            }
+            return currentPositions;
+          });
+        }
         return newDist;
       });
     }
