@@ -87,6 +87,10 @@ export default function Admin() {
             <TabsContent value="activity">
               <AdminActivityPanel />
             </TabsContent>
+
+            <TabsContent value="social">
+              <SocialCommandCentre />
+            </TabsContent>
           </Tabs>
         </div>
       </div>
