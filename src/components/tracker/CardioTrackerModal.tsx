@@ -89,6 +89,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity, onSession
   const { createRun } = useRuns();
   const { checkAndUpdatePRs } = usePersonalRecords();
   const { checkAndAwardMedals } = useMedals();
+  const { segments, matchRunToSegments, saveSegmentEfforts, autoDetectSegments } = useSegments();
   // const { checkAndAwardTrophies } = useTrophies(); // Trophy system hidden for now
   const { profile } = useProfile();
   const { user } = useAuth();
