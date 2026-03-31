@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRuns } from '@/hooks/useRuns';
 import { usePersonalRecords } from '@/hooks/usePersonalRecords';
 import { useMedals } from '@/hooks/useMedals';
+import { useSegments } from '@/hooks/useSegments';
 // import { useTrophies } from '@/hooks/useTrophies'; // Trophy system hidden for now
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
@@ -27,6 +28,7 @@ import {
   positionsToRouteGeoJSON,
   type CardioTrackerActivity,
 } from '@/lib/cardioTracking';
+import { encodePolyline } from '@/lib/segmentUtils';
 
 interface CardioTrackerModalProps {
   isOpen: boolean;
@@ -88,6 +90,7 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity, onSession
   const { createRun } = useRuns();
   const { checkAndUpdatePRs } = usePersonalRecords();
   const { checkAndAwardMedals } = useMedals();
+  const { segments, matchRunToSegments, saveSegmentEfforts, autoDetectSegments } = useSegments();
   // const { checkAndAwardTrophies } = useTrophies(); // Trophy system hidden for now
   const { profile } = useProfile();
   const { user } = useAuth();
@@ -125,6 +128,8 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity, onSession
   const lastAcceptedPositionRef = useRef<Position | null>(null);
   const distanceRef = useRef(0);
   const voiceEnabledRef = useRef(voiceEnabled);
+  const lastSegmentCheckKmRef = useRef(0);
+  const liveSegmentResultsRef = useRef<any[]>([]);
 
   // ElevenLabs TTS voice - works in background / screen off
   const { speak: speakUpdate, cleanup: cleanupVoice } = useCardioVoice({ enabled: voiceEnabled });
@@ -229,6 +234,23 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity, onSession
         if (currentKm > lastVoiceKmRef.current && currentKm >= 1 && voiceEnabledRef.current) {
           lastVoiceKmRef.current = currentKm;
           speakUpdateRef.current(buildVoiceMessage(currentKm, newDist));
+        }
+        // Per-KM segment matching (fire and forget)
+        if (currentKm > lastSegmentCheckKmRef.current && currentKm >= 1) {
+          lastSegmentCheckKmRef.current = currentKm;
+          // Build polyline from current positions for segment matching
+          setPositions((currentPositions) => {
+            if (currentPositions.length >= 10) {
+              const polyline = encodePolyline(currentPositions.map(p => ({ lat: p.lat, lng: p.lng })));
+              const elapsed = Math.round((Date.now() - (sessionStartRef.current?.getTime() || Date.now())) / 1000) - pausedDurationRef.current;
+              matchRunToSegments(polyline, elapsed, '').then(results => {
+                if (results.length > 0) {
+                  liveSegmentResultsRef.current = results;
+                }
+              }).catch(() => {});
+            }
+            return currentPositions;
+          });
         }
         return newDist;
       });
@@ -644,6 +666,30 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity, onSession
           is_gps_tracked: true,
           pace_per_km_seconds: paceSeconds,
         });
+
+        // Final segment matching and saving with the actual run ID
+        if (positions.length >= 10) {
+          try {
+            const polyline = encodePolyline(positions.map(p => ({ lat: p.lat, lng: p.lng })));
+            const segResults = await matchRunToSegments(polyline, elapsedSeconds, data.id);
+            if (segResults.length > 0) {
+              await saveSegmentEfforts(data.id, segResults);
+              const newKOMs = segResults.filter(r => r.isNewKOM);
+              const newPRs = segResults.filter(r => r.isNewPR);
+              if (newKOMs.length > 0) {
+                toast.success(`👑 New KOM on ${newKOMs.length} segment${newKOMs.length > 1 ? 's' : ''}!`);
+              } else if (newPRs.length > 0) {
+                toast.success(`🏆 Segment PR on ${newPRs.length} segment${newPRs.length > 1 ? 's' : ''}!`);
+              }
+            }
+            // Auto-detect new segments from this run
+            if (user) {
+              await autoDetectSegments(polyline, user.id);
+            }
+          } catch (segErr) {
+            console.error('Segment processing error:', segErr);
+          }
+        }
       }
       setLoading(false);
       toast.success('Session saved!');
@@ -743,6 +789,8 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity, onSession
     pausedDurationRef.current = 0;
     lastAcceptedPositionRef.current = null;
     lastVoiceKmRef.current = 0;
+    lastSegmentCheckKmRef.current = 0;
+    liveSegmentResultsRef.current = [];
     setCurrentSpeed(null);
     setGpsAccuracy(null);
     setGpsStatus('acquiring');
