@@ -60,22 +60,29 @@ export function usePersonalRecords() {
     const activityType = run.activity_type || 'run';
     const results: { distanceType: string; isNewPR: boolean }[] = [];
 
+    // CRITICAL: Fetch fresh records from DB to avoid stale state comparisons
+    const { data: freshRecords } = await supabase
+      .from('personal_records')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('activity_type', activityType);
+
+    const currentRecords = (freshRecords || []) as PersonalRecord[];
+
     // Check ALL distance buckets the run qualifies for
-    // e.g., a 7km run qualifies for 1km, 3km, and 5km PRs
     for (const prDistance of PR_DISTANCES) {
       if (run.distance_km < prDistance.distanceKm) continue;
 
       // Calculate the time it would have taken to cover this PR distance
-      // (proportional estimate for longer runs)
       const proportionalTime = Math.round(run.duration_seconds * (prDistance.distanceKm / run.distance_km));
       const pacePerKmSeconds = Math.round(proportionalTime / prDistance.distanceKm);
 
-      // Check existing PR for this distance AND activity type
-      const existingPR = records.find(r => r.distance_type === prDistance.type && r.activity_type === activityType);
+      // Check existing PR from fresh DB data
+      const existingPR = currentRecords.find(r => r.distance_type === prDistance.type);
 
       if (!existingPR || (existingPR.time_seconds && proportionalTime < existingPR.time_seconds)) {
         if (existingPR) {
-          await supabase
+          const { error } = await supabase
             .from('personal_records')
             .update({
               time_seconds: proportionalTime,
@@ -85,8 +92,9 @@ export function usePersonalRecords() {
               distance_km: run.distance_km,
             })
             .eq('id', existingPR.id);
+          if (error) console.error('Error updating PR:', error);
         } else {
-          await supabase
+          const { error } = await supabase
             .from('personal_records')
             .insert({
               user_id: user.id,
@@ -98,6 +106,7 @@ export function usePersonalRecords() {
               achieved_at: run.started_at,
               activity_type: activityType,
             } as any);
+          if (error) console.error('Error inserting PR:', error);
         }
         results.push({ distanceType: prDistance.type, isNewPR: true });
       } else {
@@ -105,9 +114,8 @@ export function usePersonalRecords() {
       }
     }
 
-    if (results.some(r => r.isNewPR)) {
-      await fetchRecords();
-    }
+    // Always refresh local state after checking
+    await fetchRecords();
 
     return results;
   };
