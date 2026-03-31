@@ -28,6 +28,7 @@ import {
   positionsToRouteGeoJSON,
   type CardioTrackerActivity,
 } from '@/lib/cardioTracking';
+import { encodePolyline } from '@/lib/segmentUtils';
 
 interface CardioTrackerModalProps {
   isOpen: boolean;
