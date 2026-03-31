@@ -392,7 +392,7 @@ export function SocialCommandCentre() {
                   <CardContent className="pt-4 space-y-2">
                     <div className="flex gap-2">
                       <Badge className="font-display text-[9px]">{post.platform.toUpperCase()}</Badge>
-                      <Badge variant="outline" className="font-display text-[9px] text-green-400 border-green-400/30">
+                      <Badge variant="outline" className="font-display text-[9px] text-primary border-primary/30">
                         {post.scheduled_at ? new Date(post.scheduled_at).toLocaleString('en-GB') : 'SCHEDULED'}
                       </Badge>
                     </div>
