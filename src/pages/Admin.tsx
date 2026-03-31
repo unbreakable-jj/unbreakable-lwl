@@ -60,6 +60,10 @@ export default function Admin() {
                 <Activity className="w-4 h-4" />
                 LOGS
               </TabsTrigger>
+              <TabsTrigger value="social" className="font-display gap-2 text-xs">
+                <Megaphone className="w-4 h-4" />
+                SOCIAL
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="coaching">
