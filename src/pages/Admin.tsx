@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Users, Flag, Settings, Activity, Shield, UserCheck } from 'lucide-react';
+import { Users, Flag, Settings, Activity, Shield, UserCheck, Megaphone } from 'lucide-react';
 import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
 import { PageHeader } from '@/components/PageHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,6 +8,7 @@ import { AdminUsersPanel } from '@/components/admin/AdminUsersPanel';
 import { AdminReportsPanel } from '@/components/admin/AdminReportsPanel';
 import { AdminSettingsPanel } from '@/components/admin/AdminSettingsPanel';
 import { AdminActivityPanel } from '@/components/admin/AdminActivityPanel';
+import { SocialCommandCentre } from '@/components/admin/SocialCommandCentre';
 import { useUserRole } from '@/hooks/useUserRole';
 import CoachDashboard from '@/pages/CoachDashboard';
 
@@ -59,6 +60,10 @@ export default function Admin() {
                 <Activity className="w-4 h-4" />
                 LOGS
               </TabsTrigger>
+              <TabsTrigger value="social" className="font-display gap-2 text-xs">
+                <Megaphone className="w-4 h-4" />
+                SOCIAL
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="coaching">
@@ -81,6 +86,10 @@ export default function Admin() {
 
             <TabsContent value="activity">
               <AdminActivityPanel />
+            </TabsContent>
+
+            <TabsContent value="social">
+              <SocialCommandCentre />
             </TabsContent>
           </Tabs>
         </div>
