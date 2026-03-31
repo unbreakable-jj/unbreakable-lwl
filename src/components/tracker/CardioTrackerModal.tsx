@@ -789,6 +789,8 @@ export function CardioTrackerModal({ isOpen, onClose, initialActivity, onSession
     pausedDurationRef.current = 0;
     lastAcceptedPositionRef.current = null;
     lastVoiceKmRef.current = 0;
+    lastSegmentCheckKmRef.current = 0;
+    liveSegmentResultsRef.current = [];
     setCurrentSpeed(null);
     setGpsAccuracy(null);
     setGpsStatus('acquiring');
