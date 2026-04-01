@@ -362,8 +362,30 @@ export function LandingPage({ onSignIn, onSignUp }: LandingPageProps) {
           </div>
         </section>
 
-        {/* Coach Banner */}
+        {/* Meet the Founder Banner */}
         <section className="container mx-auto px-6 py-12 border-t border-border">
+          <Link to="/founder" className="block max-w-3xl mx-auto mb-6">
+            <Card className="border-2 border-primary/40 bg-primary/5 p-6 hover:bg-primary/10 transition-all neon-border-subtle">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center neon-glow">
+                    <Sparkles className="w-7 h-7 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-display text-2xl tracking-wide text-foreground">
+                      MEET THE <span className="text-primary neon-glow-subtle">FOUNDER</span>
+                    </p>
+                    <p className="text-muted-foreground mt-1">
+                      The story behind Unbreakable — and why it exists.
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="w-6 h-6 text-primary hidden sm:block" />
+              </div>
+            </Card>
+          </Link>
+
+          {/* Coach Banner */}
           <Link to="/help" className="block max-w-3xl mx-auto">
             <Card className="border-2 border-primary/40 bg-primary/5 p-6 hover:bg-primary/10 transition-all neon-border-subtle">
               <div className="flex items-center justify-between">

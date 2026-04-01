@@ -43,6 +43,7 @@ import Habits from "./pages/Habits";
 import CoachDashboard from "./pages/CoachDashboard";
 import MyCoaching from "./pages/MyCoaching";
 import Plans from "./pages/Plans";
+import Founder from "./pages/Founder";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,9 @@ const App = () => (
             <Routes>
               {/* Index handles both logged-in hub and logged-out landing */}
               <Route path="/" element={<Index />} />
+              
+              {/* Founder page - pre-sign-in */}
+              <Route path="/founder" element={<Founder />} />
               
               {/* Onboarding wizard - mandatory for new users */}
               <Route path="/onboarding" element={<Onboarding />} />
