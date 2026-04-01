@@ -59,6 +59,9 @@ const App = () => (
               {/* Index handles both logged-in hub and logged-out landing */}
               <Route path="/" element={<Index />} />
               
+              {/* Founder page - pre-sign-in */}
+              <Route path="/founder" element={<Founder />} />
+              
               {/* Onboarding wizard - mandatory for new users */}
               <Route path="/onboarding" element={<Onboarding />} />
               
