@@ -43,6 +43,7 @@ import Habits from "./pages/Habits";
 import CoachDashboard from "./pages/CoachDashboard";
 import MyCoaching from "./pages/MyCoaching";
 import Plans from "./pages/Plans";
+import Founder from "./pages/Founder";
 
 const queryClient = new QueryClient();
 
