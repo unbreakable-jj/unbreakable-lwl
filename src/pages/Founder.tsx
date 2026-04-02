@@ -68,7 +68,7 @@ const timeline = [
   },
   {
     label: '2020',
-    desc: 'Saw the industry for what it was. Left. Tried PT through COVID. Realised the model was broken, dependency over empowerment, gatekeeping over education. Couldn\'t be part of it. Stopped forcing 1-2-1 and started thinking bigger.',
+    desc: 'Saw the industry for what it was. Left. Realised the model was broken, dependency over empowerment, gatekeeping over education. Couldn\'t be part of it. Stopped forcing 1-2-1 and started thinking bigger.',
   },
   {
     label: 'The Dark Years',
